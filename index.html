@@ -2992,25 +2992,108 @@
 
     
 
-    <section class="px-[clamp(1rem,5vw,7rem)] py-20 bg-[linear-gradient(135deg,#20643d_0%,#14685a_100%)] text-center relative overflow-hidden max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
-      <div class="absolute top-1/2 -translate-y-1/2 text-white opacity-[0.12] pointer-events-none left-[5%]">${icon("tent", 120)}</div><div class="absolute top-1/2 -translate-y-1/2 text-white opacity-[0.12] pointer-events-none right-[5%]">${icon("star", 120, "icon--solid")}</div>
-      <div class="inline-flex items-center gap-[0.45rem] border border-sun/70 text-sun text-[0.72rem] font-bold tracking-[0.12em] uppercase px-[0.9rem] py-[0.35rem] rounded-[100px] mb-6 relative"><span class="w-[6px] h-[6px] rounded-[50%] bg-sun"></span>Now on iPhone &amp; Android</div>
-      <h2 class="text-[clamp(1.9rem,1.4rem_+_2.2vw,2.9rem)] font-black text-white mb-4 tracking-[-0.02em] relative leading-[1.15] text-balance">Bergen Kids, now in your pocket.</h2>
-      <p class="text-white text-[1.1rem] leading-[1.6] mb-6 relative max-w-[56ch] mx-auto">Join thousands of parents discovering the best for their kids — wherever you are.</p>
-      <div class="flex gap-x-7 gap-y-2 justify-center flex-wrap relative mb-8 text-white text-[0.95rem] font-medium">
-        ${["Parents discover what's nearby", "Businesses manage their listings", "Advertisers reach local families"].map((t) => `<span class="inline-flex items-center gap-[0.5rem]"><span class="w-[6px] h-[6px] rounded-[50%] bg-sun shrink-0"></span>${t}</span>`).join("")}
+    <section class="px-[clamp(1rem,5vw,7rem)] py-24 bg-[linear-gradient(135deg,#164a2f_0%,#20643d_45%,#14685a_100%)] relative overflow-hidden max700:px-[clamp(1rem,5vw,7rem)] max700:py-16 max380:px-4">
+      <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_75%_30%,rgba(245,166,35,0.18)_0%,transparent_55%),radial-gradient(ellipse_at_10%_80%,rgba(30,140,122,0.35)_0%,transparent_55%)]"></div>
+      <div class="absolute inset-0 pointer-events-none opacity-[0.07] bg-[linear-gradient(rgba(255,255,255,0.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.6)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_70%)]"></div>
+      <div class="absolute -top-[60px] -left-[40px] text-white opacity-[0.07] pointer-events-none rotate-[-12deg]">${icon("tent", 220)}</div>
+      <div class="absolute -bottom-[70px] right-[4%] text-white opacity-[0.07] pointer-events-none rotate-[14deg]">${icon("star", 200, "icon--solid")}</div>
+
+      <div class="relative grid grid-cols-[1.05fr_0.95fr] gap-16 items-center mx-auto w-full max-w-[1180px] max1024:gap-10 max900:grid-cols-1 max900:gap-14">
+        <div class="max900:text-center max900:mx-auto max900:max-w-[560px]">
+          <div class="inline-flex items-center gap-[0.45rem] border border-sun/70 bg-sun/10 text-sun text-[0.72rem] font-bold tracking-[0.12em] uppercase px-[0.9rem] py-[0.4rem] rounded-[100px] mb-6 backdrop-blur-sm"><span class="w-[6px] h-[6px] rounded-[50%] bg-sun animate-pulse"></span>Now on iPhone &amp; Android</div>
+          <h2 class="font-serif text-[clamp(2rem,1.4rem_+_2.6vw,3.2rem)] font-black text-white mb-4 tracking-[-0.02em] leading-[1.08] text-balance">Bergen Kids, now in <span class="text-sun">your pocket.</span></h2>
+          <p class="text-on-dark-2 text-[1.1rem] leading-[1.65] mb-8 max-w-[52ch] text-pretty max900:mx-auto">Join thousands of parents discovering the best for their kids — camps, classes, care and events, wherever you are.</p>
+
+          <div class="flex flex-col gap-[0.7rem] mb-9 max900:inline-flex max900:text-left">
+            ${[["pin", "Parents discover what's nearby"], ["dashboard", "Businesses manage their listings"], ["megaphone", "Advertisers reach local families"]].map(([ic, t]) => `<div class="flex items-center gap-3 text-white text-[1rem] font-medium"><span class="w-[30px] h-[30px] rounded-[9px] bg-white/10 border border-white/15 grid place-items-center text-mint-2 shrink-0">${icon(ic, 15)}</span>${t}</div>`).join("")}
+          </div>
+
+          <div class="flex gap-4 flex-wrap mb-6 max900:justify-center max560:flex-col max560:items-stretch">
+            <a class="bg-[#0f1a2c] text-white pl-5 pr-6 py-[0.7rem] rounded-[14px] no-underline border border-white/20 inline-flex items-center gap-3 min-h-[56px] transition-[transform,box-shadow] duration-200 shadow-[0_8px_26px_rgba(0,0,0,0.28)] hover:-translate-y-[3px] hover:shadow-[0_14px_36px_rgba(0,0,0,0.36)]" data-action="app-store" aria-label="Download on the App Store">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" class="shrink-0" aria-hidden="true"><path d="M16.37 12.78c.02-2.3 1.88-3.4 1.96-3.45-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.83-.81-3.01-.79-1.55.02-2.98.9-3.78 2.28-1.61 2.8-.41 6.94 1.16 9.21.77 1.11 1.69 2.36 2.89 2.31 1.16-.05 1.6-.75 3-.75s1.79.75 3.01.73c1.24-.02 2.03-1.13 2.79-2.25.88-1.29 1.24-2.54 1.26-2.6-.03-.01-2.42-.93-2.44-3.69M14.09 5.9c.64-.77 1.07-1.85.95-2.92-.92.04-2.03.61-2.69 1.38-.59.68-1.11 1.77-.97 2.82 1.03.08 2.07-.52 2.71-1.28"/></svg>
+              <span class="text-left leading-tight"><span class="block text-[0.68rem] font-medium opacity-80">Download on the</span><span class="block text-[1.05rem] font-bold">App Store</span></span>
+            </a>
+            <a class="bg-[#0f1a2c] text-white pl-5 pr-6 py-[0.7rem] rounded-[14px] no-underline border border-white/20 inline-flex items-center gap-3 min-h-[56px] transition-[transform,box-shadow] duration-200 shadow-[0_8px_26px_rgba(0,0,0,0.28)] hover:-translate-y-[3px] hover:shadow-[0_14px_36px_rgba(0,0,0,0.36)]" data-action="play-store" aria-label="Get it on Google Play">
+              <svg width="24" height="26" viewBox="0 0 24 24" class="shrink-0" aria-hidden="true"><path fill="#34a853" d="m4.4 21.4 8.3-8.3 2.5 2.5-9.4 5.4a1.6 1.6 0 0 1-1.4.4"/><path fill="#ea4335" d="m12.7 10.9-8.3-8.3c.45-.11.93.01 1.4.4l9.4 5.4z"/><path fill="#fbbc04" d="m15.2 15.6-2.5-2.5 2.5-2.5 3.6 2.1c.85.5.85 1.3 0 1.8z"/><path fill="#4285f4" d="M3.6 2.9c-.13.24-.2.53-.2.86v16.5c0 .33.07.62.2.86l9.1-9.1z"/></svg>
+              <span class="text-left leading-tight"><span class="block text-[0.68rem] font-medium opacity-80">Get it on</span><span class="block text-[1.05rem] font-bold">Google Play</span></span>
+            </a>
+          </div>
+
+          <div class="flex items-center gap-3 flex-wrap max900:justify-center">
+            <div class="flex gap-[2px] text-sun">${stars(5)}</div>
+            <span class="text-white text-[0.9rem] font-bold">4.9</span>
+            <span class="text-white/70 text-[0.85rem]">Free to download. Business and advertiser tools included.</span>
+          </div>
+        </div>
+
+        <div class="relative flex justify-center items-center max900:mt-2">
+          <div class="absolute w-[380px] h-[380px] rounded-full bg-[radial-gradient(circle,rgba(245,166,35,0.28)_0%,transparent_68%)] blur-[10px] pointer-events-none max560:w-[300px] max560:h-[300px]"></div>
+
+          <div class="relative z-[3] w-[300px] max560:w-[268px] max380:w-[248px]">
+          <div class="absolute z-[5] top-[15%] -left-[54px] bg-white rounded-[14px] px-[0.9rem] py-[0.6rem] shadow-[0_14px_40px_rgba(0,0,0,0.3)] flex items-center gap-[0.5rem] text-[0.82rem] font-bold text-navy whitespace-nowrap max1024:-left-[34px] max700:hidden">
+            <span class="text-grass-ink leading-[0]">${icon("verified", 16)}</span>Verified listings
+          </div>
+          <div class="absolute z-[5] bottom-[16%] -right-[54px] bg-white rounded-[14px] px-[0.9rem] py-[0.6rem] shadow-[0_14px_40px_rgba(0,0,0,0.3)] flex items-center gap-[0.5rem] text-[0.82rem] font-bold text-navy whitespace-nowrap max1024:-right-[34px] max700:hidden">
+            <span class="text-lavender-ink leading-[0]">${icon("pin", 16)}</span>70 towns nearby
+          </div>
+
+          <div class="relative z-[3] w-full rounded-[52px] bg-[linear-gradient(160deg,#2c3a52_0%,#0f1a2c_50%,#243149_100%)] p-[11px] shadow-[0_50px_90px_-20px_rgba(0,0,0,0.6),0_0_0_2px_rgba(255,255,255,0.08)_inset] rotate-[-3deg] transition-transform duration-500 hover:rotate-0 hover:-translate-y-[6px]">
+            <div class="absolute left-[-3px] top-[120px] w-[3px] h-[58px] rounded-l-[3px] bg-white/25"></div>
+            <div class="absolute left-[-3px] top-[194px] w-[3px] h-[58px] rounded-l-[3px] bg-white/25"></div>
+            <div class="absolute right-[-3px] top-[150px] w-[3px] h-[86px] rounded-r-[3px] bg-white/25"></div>
+
+            <div class="relative rounded-[42px] overflow-hidden bg-cream h-[600px] max560:h-[560px]">
+              <div class="absolute top-[10px] left-1/2 -translate-x-1/2 w-[92px] h-[27px] rounded-[100px] bg-black z-[6] flex items-center justify-end pr-[9px]"><span class="w-[8px] h-[8px] rounded-full bg-[#1d2b3d]"></span></div>
+
+              <div class="bg-[linear-gradient(150deg,#20643d_0%,#14685a_100%)] px-4 pt-[14px] pb-4 text-white">
+                <div class="flex justify-between items-center text-[0.7rem] font-bold h-[27px] mb-[6px]">
+                  <span class="pl-[6px]">9:41</span>
+                  <span class="flex items-center gap-[4px] pr-[6px]">
+                    <svg width="15" height="10" viewBox="0 0 16 11" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="2.6" height="3.6" rx="0.7"/><rect x="4" y="5" width="2.6" height="5.6" rx="0.7"/><rect x="8" y="2.6" width="2.6" height="8" rx="0.7"/><rect x="12" y="0" width="2.6" height="10.6" rx="0.7"/></svg>
+                    <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor" aria-hidden="true"><path d="M7 9.6 5.1 7.5a2.8 2.8 0 0 1 3.8 0zM2.6 5a6.4 6.4 0 0 1 8.8 0l-1.3 1.4a4.5 4.5 0 0 0-6.2 0zM0 2.4a10 10 0 0 1 14 0l-1.3 1.4a8.1 8.1 0 0 0-11.4 0z"/></svg>
+                    <span class="inline-flex items-center gap-[2px]"><span class="w-[17px] h-[9px] rounded-[3px] border border-white/60 p-[1.5px]"><span class="block w-[70%] h-full rounded-[1px] bg-white"></span></span><span class="w-[1px] h-[3px] rounded-r bg-white/60"></span></span>
+                  </span>
+                </div>
+                <div class="flex items-center justify-between mb-[10px]">
+                  <div>
+                    <div class="text-[0.62rem] font-bold uppercase tracking-[0.1em] text-mint-2">Bergen County, NJ</div>
+                    <div class="font-serif text-[1.15rem] font-black leading-[1.2]">Hi, let's explore</div>
+                  </div>
+                  <span class="relative w-[32px] h-[32px] rounded-full bg-white/15 grid place-items-center">${icon("bell", 15)}<span class="absolute top-[6px] right-[7px] w-[6px] h-[6px] rounded-full bg-sun"></span></span>
+                </div>
+                <div class="flex items-center gap-2 bg-white rounded-[100px] px-[0.85rem] py-[0.55rem] text-muted text-[0.78rem]">
+                  <span class="text-grass-ink leading-[0]">${icon("search", 14)}</span>Search camps, classes, care…
+                </div>
+              </div>
+
+              <div class="px-4 pt-4">
+                <div class="flex gap-[0.4rem] mb-4 overflow-hidden">
+                  ${[["Camps", true], ["Classes", false], ["Sports", false], ["Care", false]].map(([t, on]) => `<span class="text-[0.7rem] font-bold px-[0.7rem] py-[0.35rem] rounded-[100px] whitespace-nowrap ${on ? "bg-grass-ink text-white" : "bg-white text-muted border border-line2"}">${t}</span>`).join("")}
+                </div>
+                <div class="flex items-baseline justify-between mb-[0.6rem]">
+                  <span class="font-serif text-[0.95rem] font-black text-navy">Near you</span>
+                  <span class="text-[0.68rem] font-bold text-grass-ink">See all</span>
+                </div>
+                ${[["1526232761682-d26e03ac148e", "Little Kickers Soccer", "Ridgewood · 1.2 mi", "4.9"], ["1499892477393-f675706cbe6e", "Bergen Art Studio", "Tenafly · 2.4 mi", "4.8"], ["1600965962361-9035dbfd1c50", "Splash Swim School", "Paramus · 3.1 mi", "4.7"]].map(([im, n, loc, r]) => `<div class="flex gap-[0.7rem] items-center bg-white rounded-[14px] p-[0.5rem] mb-[0.55rem] shadow-[0_2px_10px_rgba(26,46,74,0.07)] border border-line2">
+                  <img src="https://images.unsplash.com/photo-${im}?auto=format&fit=crop&w=160&q=70" alt="" loading="lazy" class="w-[52px] h-[52px] rounded-[10px] object-cover shrink-0">
+                  <div class="min-w-0 flex-1">
+                    <div class="text-[0.8rem] font-bold text-navy truncate">${n}</div>
+                    <div class="text-[0.66rem] text-muted truncate">${loc}</div>
+                    <div class="flex items-center gap-[0.25rem] text-[0.64rem] font-bold text-star mt-[2px]">${icon("star", 10, "icon--solid")}${r}</div>
+                  </div>
+                  <span class="text-mint-2 leading-[0] shrink-0">${icon("chev-right", 15)}</span>
+                </div>`).join("")}
+              </div>
+
+              <div class="absolute bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-line2 px-3 pt-[0.55rem] pb-[0.8rem] flex justify-around items-center">
+                ${[["search", "Discover", true], ["calendar", "Events", false], ["heart", "Saved", false], ["user", "Me", false]].map(([ic, t, on]) => `<span class="flex flex-col items-center gap-[3px] text-[0.6rem] font-bold ${on ? "text-grass-ink" : "text-muted/70"}">${icon(ic, 17)}${t}</span>`).join("")}
+                <span class="absolute bottom-[5px] left-1/2 -translate-x-1/2 w-[104px] h-[4px] rounded-full bg-navy/25"></span>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
       </div>
-      <div class="flex gap-4 justify-center flex-wrap relative mb-5 max560:flex-col max560:items-stretch">
-        <a class="bg-[#0f1a2c] text-white pl-5 pr-6 py-[0.7rem] rounded-[12px] no-underline border border-white/20 inline-flex items-center gap-3 min-h-[54px] transition-transform duration-200 hover:-translate-y-[2px]" data-action="app-store" aria-label="Download on the App Store">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" class="shrink-0" aria-hidden="true"><path d="M16.37 12.78c.02-2.3 1.88-3.4 1.96-3.45-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.83-.81-3.01-.79-1.55.02-2.98.9-3.78 2.28-1.61 2.8-.41 6.94 1.16 9.21.77 1.11 1.69 2.36 2.89 2.31 1.16-.05 1.6-.75 3-.75s1.79.75 3.01.73c1.24-.02 2.03-1.13 2.79-2.25.88-1.29 1.24-2.54 1.26-2.6-.03-.01-2.42-.93-2.44-3.69M14.09 5.9c.64-.77 1.07-1.85.95-2.92-.92.04-2.03.61-2.69 1.38-.59.68-1.11 1.77-.97 2.82 1.03.08 2.07-.52 2.71-1.28"/></svg>
-          <span class="text-left leading-tight"><span class="block text-[0.68rem] font-medium opacity-80">Download on the</span><span class="block text-[1.05rem] font-bold">App Store</span></span>
-        </a>
-        <a class="bg-[#0f1a2c] text-white pl-5 pr-6 py-[0.7rem] rounded-[12px] no-underline border border-white/20 inline-flex items-center gap-3 min-h-[54px] transition-transform duration-200 hover:-translate-y-[2px]" data-action="play-store" aria-label="Get it on Google Play">
-          <svg width="24" height="26" viewBox="0 0 24 24" class="shrink-0" aria-hidden="true"><path fill="#34a853" d="m4.4 21.4 8.3-8.3 2.5 2.5-9.4 5.4a1.6 1.6 0 0 1-1.4.4"/><path fill="#ea4335" d="m12.7 10.9-8.3-8.3c.45-.11.93.01 1.4.4l9.4 5.4z"/><path fill="#fbbc04" d="m15.2 15.6-2.5-2.5 2.5-2.5 3.6 2.1c.85.5.85 1.3 0 1.8z"/><path fill="#4285f4" d="M3.6 2.9c-.13.24-.2.53-.2.86v16.5c0 .33.07.62.2.86l9.1-9.1z"/></svg>
-          <span class="text-left leading-tight"><span class="block text-[0.68rem] font-medium opacity-80">Get it on</span><span class="block text-[1.05rem] font-bold">Google Play</span></span>
-        </a>
-      </div>
-      <p class="text-white/70 text-[0.85rem] relative">Free to download. Business and advertiser tools included.</p>
     </section>
   </div></div>`;
       }
