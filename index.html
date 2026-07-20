@@ -766,7 +766,14 @@
         right: 0;
         bottom: 0;
         z-index: 60;
-        background: linear-gradient(180deg, rgba(14, 14, 16, 0.94), rgba(0, 0, 0, 0.96));
+        /* Base shade. mountSponsorBar() layers the active slide's photo on top
+           of this, so the flat gradient is also the fallback if an image fails.
+           An opaque color plus border-box origin is what stops the 1px border
+           strip rendering as a transparent seam over the page behind it. */
+        background-color: #0b0b0d;
+        background-image: linear-gradient(180deg, rgba(14, 14, 16, 0.94), rgba(0, 0, 0, 0.96));
+        background-origin: border-box;
+        background-clip: border-box;
         -webkit-backdrop-filter: saturate(1.5) blur(12px);
         backdrop-filter: saturate(1.5) blur(12px);
         border-top: 1.5px solid rgba(255, 255, 255, 0.14);
@@ -823,35 +830,6 @@
         box-shadow: 0 5px 16px rgba(26, 46, 74, 0.2);
       }
 
-      .sponsor-progress {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 3px;
-        background: rgba(255, 255, 255, 0.14);
-        z-index: 3;
-      }
-
-      .sponsor-progress > span {
-        display: block;
-        height: 100%;
-        width: 0;
-        background: var(--sun);
-      }
-
-      .sponsor-progress.run > span {
-        animation: sponsorFill 5s linear forwards;
-      }
-
-      @keyframes sponsorFill {
-        from {
-          width: 0;
-        }
-        to {
-          width: 100%;
-        }
-      }
 
       .sponsor-dots {
         display: flex;
@@ -2541,6 +2519,7 @@
         bizAnalytics: { cat: "", from: "", to: "" },
         advAnalytics: { cat: "", place: "", from: "", to: "" },
         articleFilter: "all",
+        notifTab: "all",
         scrollTo: null,
       };
       // Notifications differ per role — a parent hears about events, a business about listings, an advertiser about campaigns.
@@ -2710,7 +2689,7 @@
         const MENU_BTN =
           "hidden relative w-[40px] h-[40px] rounded-[50%] border-[1.5px] border-line bg-white items-center justify-center text-navy transition-[border-color,background] duration-200 shrink-0 max900:flex max900:bg-navy max900:border-navy max900:text-white max900:hover:bg-[#12233a] max900:hover:border-[#12233a] max380:w-[36px] max380:h-[36px]";
         r.innerHTML = `
-    ${state.user ? `<button class="relative w-[40px] h-[40px] rounded-[50%] border-[1.5px] border-line bg-white flex items-center justify-center text-navy transition-[border-color,background] duration-200 shrink-0 hover:border-navy max900:bg-mint max900:border-transparent max900:text-grass-ink max900:hover:bg-mint-2 max900:hover:border-transparent max380:w-[36px] max380:h-[36px]" data-action="toggle-notif" aria-label="Notifications">${icon("bell", 18)}</button>` : ""}
+    ${state.user ? `<button class="relative w-[40px] h-[40px] rounded-[50%] border-[1.5px] border-line bg-white flex items-center justify-center text-navy transition-[border-color,background] duration-200 shrink-0 hover:border-navy max900:bg-mint max900:border-transparent max900:text-grass-ink max900:hover:bg-mint-2 max900:hover:border-transparent max380:w-[36px] max380:h-[36px]" data-action="toggle-notif" aria-label="Notifications${notifUnread().length ? ` (${notifUnread().length} unread)` : ""}">${icon("bell", 18)}${notifBadge()}</button>` : ""}
     <button class="bg-grass-ink text-white px-5 py-[0.65rem] rounded-[100px] font-bold text-[0.95rem] border-none whitespace-nowrap min-h-[44px] shrink-0 hover:bg-[#1a5233] max900:hidden" data-nav="business" data-dashtab="add">List Your Business</button>
     ${acct}
     <button class="${MENU_BTN}" data-action="mobile-menu" aria-label="Menu">${icon("menu", 18)}</button>`;
@@ -2721,24 +2700,28 @@
           icon: "school",
           grad: "linear-gradient(145deg,#1a2e4a,#2d5a8e)",
           title: "Montclair Academy Open Enrollment",
+          img: "1509062522246-3755977927d7", // students learning
         },
         {
           key: "Bergen United Soccer Club",
           icon: "soccer",
           grad: "linear-gradient(145deg,#2d7a4f,#1e8c7a)",
           title: "Bergen United Soccer Club",
+          img: "1526232761682-d26e03ac148e", // kids soccer team
         },
         {
           key: "NJ Youth Theater",
           icon: "theater",
           grad: "linear-gradient(145deg,#6b4f96,#a32f22)",
           title: "NJ Youth Theater Summer Intensive",
+          img: "1503095396549-807759245b35", // stage / performance
         },
         {
           key: "FunZone Paramus",
           icon: "cake",
           grad: "linear-gradient(145deg,#f5a623,#e8562a)",
           title: "Birthday Party at FunZone Paramus",
+          img: "1530103862676-de8c9debad1d", // party balloons
         },
       ];
       function sponsorBar() {
@@ -2758,7 +2741,6 @@
             `<button class="sponsor-dot${i === 0 ? " is-active" : ""}" data-sponsor-dot aria-label="Show sponsor ${i + 1}"></button>`
         ).join("");
         return `<div id="sponsor-bar" role="complementary" aria-label="Sponsored">
-    <div class="sponsor-progress run" id="sponsor-progress"><span></span></div>
     <div class="mx-auto w-full max-w-[1400px] px-[clamp(1rem,5vw,7rem)] py-[1rem] flex items-center gap-4 max700:px-4 max700:gap-3">
       <div class="flex items-center gap-[0.45rem] text-[0.62rem] font-bold tracking-[0.12em] uppercase text-white/70 shrink-0 max900:hidden"><span class="sponsor-live"></span>Sponsored</div>
       <div class="sponsor-stage" id="sponsor-spotlight">${slides}</div>
@@ -4403,22 +4385,66 @@
   <button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="open-auth" data-role="${role}">Log in / Sign up</button></div></div>`;
       }
 
-      function notifRow(n) {
-        return `<button class="w-full text-left flex gap-4 items-start p-[1.15rem] rounded-[16px] border-[1.5px] bg-white border-line cursor-pointer transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-[2px] hover:border-grass-ink hover:shadow-[0_10px_30px_rgba(26,46,74,0.10)]"
-        data-action="open-notif" data-id="${n.id}" aria-label="${n.t}">
-        <span class="w-[46px] h-[46px] rounded-[12px] bg-mint text-grass-ink flex items-center justify-center shrink-0">${icon(n.ic, 20)}</span>
-        <span class="flex-1 min-w-0">
-          <span class="flex items-start gap-2">
-            <span class="flex-1 font-bold text-[1.05rem] text-navy leading-[1.35]">${n.t}</span>
-          </span>
-          <span class="block text-[0.95rem] text-muted leading-[1.6] mt-1">${n.s}</span>
-          <span class="flex items-center flex-wrap gap-x-3 gap-y-1 mt-3">
-            <span class="text-[0.85rem] text-adlabel font-semibold">${n.time}</span>
-            <span class="text-[0.85rem] text-adlabel">·</span>
-            <span class="text-[0.88rem] font-bold text-grass-ink inline-flex items-center gap-1">${n.cta} ${icon("arrow-right", 13)}</span>
-          </span>
+      // --- Notification centre -------------------------------------------------
+      // Read/archived live on the notification objects themselves; an absent flag
+      // simply means unread / not archived, so the seed data stays untouched.
+      const notifVisible = () => notifs().filter((n) => !n.archived);
+      const notifUnread = () => notifVisible().filter((n) => !n.read);
+      const notifArchived = () => notifs().filter((n) => n.archived);
+      const notifTabList = () =>
+        state.notifTab === "unread"
+          ? notifUnread()
+          : state.notifTab === "archive"
+            ? notifArchived()
+            : notifVisible();
+      // Unread count badge that sits on the header bell. Caps at 9+ so a long
+      // count can never stretch past the button.
+      function notifBadge() {
+        const n = notifUnread().length;
+        if (!n) return "";
+        const label = n > 9 ? "9+" : String(n);
+        return `<span class="absolute -top-[4px] -right-[4px] min-w-[19px] h-[19px] px-[5px] rounded-[100px] bg-dot text-white text-[0.7rem] font-extrabold leading-none flex items-center justify-center border-2 border-white shadow-[0_1px_4px_rgba(15,26,44,0.25)] max380:min-w-[17px] max380:h-[17px] max380:text-[0.65rem]" aria-hidden="true">${label}</span>`;
+      }
+      const NOTIF_TABS = [
+        ["all", "All", () => notifVisible().length],
+        ["unread", "Unread", () => notifUnread().length],
+        ["archive", "Archive", () => notifArchived().length],
+      ];
+      // Segmented pill control — the active segment lifts on a white chip.
+      function notifTabsHtml() {
+        const segs = NOTIF_TABS.map(([id, label, count]) => {
+          const active = state.notifTab === id;
+          const c = count();
+          return `<button class="inline-flex items-center gap-[0.4rem] px-[0.85rem] py-[0.45rem] rounded-[100px] text-[0.85rem] font-bold whitespace-nowrap transition-all duration-200 ${active ? "bg-white text-navy shadow-[0_1px_3px_rgba(15,26,44,0.14)]" : "text-muted hover:text-navy"}" data-action="notif-tab" data-tab="${id}" aria-pressed="${active}">${label}${c ? `<span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[5px] rounded-[100px] text-[0.68rem] font-extrabold leading-none transition-colors duration-200 ${active ? "bg-navy text-white" : "bg-[#dde3ea] text-muted"}">${c}</span>` : ""}</button>`;
+        }).join("");
+        return `<div class="inline-flex items-center gap-1 p-[3px] rounded-[100px] bg-[#eef1f5] shrink-0">${segs}</div>`;
+      }
+      // One row, shared by the dropdown and the full page: round avatar with an
+      // unread dot, title + detail on one line, then time and the row's action.
+      function notifRow(n, page) {
+        const unread = !n.read && !n.archived;
+        return `<div class="group relative flex gap-3 ${page ? "px-5 py-4 rounded-[16px] border-[1.5px] border-line" : "px-5 py-[0.9rem] border-b border-b-line2"} cursor-pointer transition-colors duration-150 bg-white hover:bg-[#f7faf8]" data-action="read-notif" data-id="${n.id}">
+      <span class="relative shrink-0 self-start">
+        <span class="w-[42px] h-[42px] rounded-full bg-mint text-grass-ink flex items-center justify-center">${icon(n.ic, 19)}</span>
+        ${unread ? `<span class="absolute bottom-0 right-0 w-[13px] h-[13px] rounded-full border-2 border-white bg-dot"></span>` : ""}
+      </span>
+      <span class="min-w-0 flex-1">
+        <span class="block text-[0.93rem] leading-[1.45] text-ink"><b class="font-extrabold text-navy">${n.t}</b> ${n.s}</span>
+        <span class="block text-[0.8rem] text-adlabel font-semibold mt-[4px]">${n.time}</span>
+        <span class="flex items-center gap-2 mt-[0.6rem]">
+          <button class="inline-flex items-center gap-[0.3rem] bg-navy text-white text-[0.82rem] font-bold px-[0.9rem] py-[0.4rem] rounded-[8px] border-none transition-colors duration-150 hover:bg-[#12233a]" data-action="open-notif" data-id="${n.id}">${n.cta}</button>
+          <button class="inline-flex items-center gap-[0.3rem] bg-white text-navy text-[0.82rem] font-bold px-[0.9rem] py-[0.4rem] rounded-[8px] border-[1.5px] border-line transition-[border-color,background] duration-150 hover:border-navy hover:bg-[#f5f5f5]" data-action="archive-notif" data-id="${n.id}">${n.archived ? "Restore" : "Archive"}</button>
         </span>
-      </button>`;
+      </span>
+    </div>`;
+      }
+      const NOTIF_EMPTY = {
+        all: "You're all caught up.",
+        unread: "No unread notifications.",
+        archive: "Nothing archived yet.",
+      };
+      function notifEmptyHtml(page) {
+        return `<div class="empty text-center px-4 ${page ? "py-16" : "py-10"} text-muted text-[0.95rem] leading-[1.6]">${icon("bell", page ? 40 : 30, "text-adlabel mb-3")}<div>${NOTIF_EMPTY[state.notifTab]}</div></div>`;
       }
       function viewNotifications() {
         if (!state.user)
@@ -4435,10 +4461,17 @@
       <p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">${NOTIF_SUBTITLE[state.user.role] || NOTIF_SUBTITLE.parent}</p>
     </div>
 
+    <div class="flex items-center gap-3 flex-wrap mb-5">
+      ${notifTabsHtml()}
+      ${notifUnread().length ? `<button class="ml-auto text-[0.88rem] font-bold text-navy underline underline-offset-2 whitespace-nowrap shrink-0 hover:text-grass-ink" data-action="mark-all-read">Mark all as read</button>` : ""}
+    </div>
+
     ${
-      notifs().length
-        ? `<div class="flex flex-col gap-3">${notifs().map(notifRow).join("")}</div>`
-        : `<div class="empty text-center px-4 py-16 text-muted text-[1rem] leading-[1.6]">${icon("bell", 40, "text-adlabel mb-3")}<div class="font-bold text-navy mb-[0.3rem]">No notifications yet</div><div>We'll let you know when something happens.</div></div>`
+      notifTabList().length
+        ? `<div class="flex flex-col gap-3">${notifTabList()
+            .map((n) => notifRow(n, true))
+            .join("")}</div>`
+        : notifEmptyHtml(true)
     }
   </div>`;
       }
@@ -4889,18 +4922,21 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
           closeDropdowns();
           return;
         }
+        renderNotifDropdown();
+      }
+      // Split out from toggleNotif so tab switches and read/archive actions can
+      // repaint the panel in place instead of closing it.
+      function renderNotifDropdown() {
+        const list = notifTabList();
         el("dropdown-root").innerHTML =
-          `<div class="dropdown absolute top-0 right-[clamp(1rem,5vw,7rem)] max1200:right-[3%] max560:right-[4%] max380:right-3 w-[min(320px,calc(100vw-2rem))] bg-white border border-line rounded-[16px] shadow-[0_18px_50px_rgba(26,46,74,0.18)] z-[120] overflow-x-hidden overflow-y-auto animate-pop max-h-[calc(100vh-100px)]">
-    <div class="px-[1.1rem] py-[0.9rem] border-b border-b-line2 flex justify-between items-center"><h4 class="text-[1rem] text-navy">Notifications</h4></div>
-    ${notifs()
-      .map(
-        (
-          n
-        ) => `<div class="flex gap-3 px-[1.1rem] py-[0.8rem] border-b border-b-line2 cursor-pointer transition-[background] duration-150 hover:bg-[#f7faf8]" data-action="read-notif" data-id="${n.id}">
-      <div class="w-[36px] h-[36px] rounded-[9px] bg-mint text-grass-ink flex items-center justify-center shrink-0">${icon(n.ic, 17)}</div><div style="flex:1"><div class="text-[0.92rem] font-bold text-navy mb-[2px] leading-[1.35]">${n.t}</div><div class="text-[0.82rem] text-muted leading-[1.5]">${n.s}</div><div class="text-[0.75rem] text-adlabel mt-[3px] font-semibold">${n.time}</div></div></div>`
-      )
-      .join("")}
-    <div class="flex items-stretch border-t border-t-line2">
+          `<div class="dropdown absolute top-0 right-[clamp(1rem,5vw,7rem)] max1200:right-[3%] max560:right-[4%] max380:right-3 w-[min(400px,calc(100vw-2rem))] bg-white border border-line rounded-[16px] shadow-[0_18px_50px_rgba(26,46,74,0.18)] z-[120] overflow-x-hidden overflow-y-auto animate-pop max-h-[calc(100vh-100px)] flex flex-col">
+    <div class="px-5 pt-[1.15rem] pb-[0.6rem] flex items-center justify-between gap-3">
+      <h4 class="font-serif text-[1.3rem] font-black text-navy">Notifications</h4>
+      ${notifUnread().length ? `<button class="text-[0.85rem] font-bold text-navy underline underline-offset-2 whitespace-nowrap shrink-0 hover:text-grass-ink" data-action="mark-all-read">Mark all as read</button>` : ""}
+    </div>
+    <div class="px-5 pb-[0.85rem] border-b border-line">${notifTabsHtml()}</div>
+    <div class="overflow-y-auto">${list.length ? list.map((n) => notifRow(n)).join("") : notifEmptyHtml()}</div>
+    <div class="flex items-stretch border-t border-t-line2 mt-auto">
       <button class="flex-1 min-h-[46px] text-[0.95rem] font-semibold text-muted bg-transparent border-none cursor-pointer hover:bg-[#f7faf8] hover:text-navy" data-action="close-drop">Close</button>
       <span class="w-px bg-line2" aria-hidden="true"></span>
       <button class="flex-1 min-h-[46px] text-[0.95rem] font-bold text-grass-ink bg-transparent border-none cursor-pointer inline-flex items-center justify-center gap-1 hover:bg-[#e9f4ee]" data-nav="notifications">View all ${icon("arrow-right", 14)}</button>
@@ -4951,6 +4987,27 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         };
         reader.onerror = () => toast("Could not read that image", "x");
         reader.readAsDataURL(file);
+      }
+      // Confirmation step for logging out, reached from the account menu and the
+      // profile Session card.
+      function logoutModal() {
+        closeDropdowns();
+        const u = state.user;
+        if (!u) return;
+        openModal(`<div class="p-7 max700:p-5">
+    <div class="flex items-center gap-4 mb-5">
+      ${avatarHtml(u, 52)}
+      <div class="min-w-0">
+        <h2>Log out?</h2>
+        <div class="text-muted text-[0.95rem] mt-[0.2rem] truncate">${u.name}</div>
+      </div>
+    </div>
+    <p class="text-[1rem] leading-[1.7]" style="color:var(--text)">You'll be signed out on this device. Your saved details stay on your account — just log back in any time to pick up where you left off.</p>
+    <div class="flex gap-3 flex-wrap mt-6 max560:flex-col [&>*]:flex-1 [&>*]:max560:w-full">
+      <button class="bg-white text-navy px-[1.6rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold border-[1.5px] border-line inline-flex items-center justify-center gap-2 min-h-[48px] transition-[border-color,background] duration-200 hover:border-navy hover:bg-[#f5f5f5]" data-action="close-modal">Stay logged in</button>
+      <button class="text-white px-[1.6rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold border-none inline-flex items-center justify-center gap-2 min-h-[48px] transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(163,39,28,0.3)] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(163,39,28,0.4)]" style="background:var(--danger-ink)" data-action="do-logout">${icon("logout", 16)} Log out</button>
+    </div>
+  </div>`);
       }
       function changePasswordModal() {
         closeDropdowns();
@@ -5206,15 +5263,43 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               doAuth(actEl.dataset.mode);
               break;
             case "logout":
+              logoutModal();
+              break;
+            case "do-logout":
               state.user = null;
-              closeDropdowns();
+              closeModal();
               toast("Logged out");
               navigate("home");
               break;
             case "pay":
               doPay(actEl.dataset.amount);
               break;
+            case "notif-tab":
+              state.notifTab = actEl.dataset.tab;
+              if (el("dropdown-root").innerHTML) renderNotifDropdown();
+              else render();
+              break;
+            case "mark-all-read":
+              notifs().forEach((n) => (n.read = true));
+              if (el("dropdown-root").innerHTML) renderNotifDropdown();
+              else render();
+              renderNav();
+              toast("All notifications marked as read", "check");
+              break;
+            case "archive-notif": {
+              const n = notifs().find((x) => x.id == id);
+              if (!n) break;
+              n.archived = !n.archived;
+              if (n.archived) n.read = true;
+              if (el("dropdown-root").innerHTML) renderNotifDropdown();
+              else render();
+              renderNav();
+              toast(n.archived ? "Notification archived" : "Notification restored", "check");
+              break;
+            }
             case "read-notif": {
+              const n = notifs().find((x) => x.id == id);
+              if (n) n.read = true;
               closeDropdowns();
               navigate("notifications");
               break;
@@ -5222,6 +5307,8 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             case "open-notif": {
               const n = notifs().find((x) => x.id == id);
               if (!n) break;
+              n.read = true;
+              closeDropdowns();
               const L = n.link || {};
               if (L.action === "open-listing") {
                 render();
@@ -6236,27 +6323,46 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
 
       /* Sticky bottom sponsor bar — mounted once, persists across view renders */
       let sponsorTimer = null;
+      // The CSS reserves a fixed 104px at the bottom of the page, but the bar's
+      // real height depends on its content and the viewport. When the reserve is
+      // taller than the bar, the difference shows through as a strip of page
+      // background between the footer and the bar — so measure and match.
+      function syncSponsorPad() {
+        const bar = el("sponsor-bar");
+        if (!bar || document.body.classList.contains("sponsor-dismissed")) return;
+        document.body.style.paddingBottom = bar.offsetHeight + "px";
+      }
+      window.addEventListener("resize", syncSponsorPad);
+      window.addEventListener("load", syncSponsorPad);
       function mountSponsorBar() {
         const root = el("sponsor-bar-root");
         if (!root) return;
         root.innerHTML = sponsorBar();
         const stage = el("sponsor-spotlight");
         const bar = el("sponsor-bar");
-        const progress = el("sponsor-progress");
         const closeBtn = el("sponsor-close");
         if (!stage) return;
         const slides = Array.from(stage.querySelectorAll("[data-slide]"));
         const dots = Array.from(document.querySelectorAll("[data-sponsor-dot]"));
         if (!slides.length) return;
+        syncSponsorPad();
         const DUR = 5000;
         let idx = 0;
         function paint() {
           slides.forEach((s, i) => s.classList.toggle("is-active", i === idx));
           dots.forEach((d, i) => d.classList.toggle("is-active", i === idx));
-          if (progress) {
-            progress.classList.remove("run");
-            void progress.offsetWidth; /* restart the fill animation */
-            progress.classList.add("run");
+          // Each sponsor brings its own backdrop, kept under a heavy black shade
+          // so the white copy holds contrast whatever the photo looks like.
+          const photo = SPONSOR_ADS[idx] && SPONSOR_ADS[idx].img;
+          if (bar) {
+            bar.style.backgroundImage = photo
+              ? `linear-gradient(90deg, rgba(10,10,12,0.97) 0%, rgba(10,10,12,0.9) 55%, rgba(10,10,12,0.82) 100%), url("https://images.unsplash.com/photo-${photo}?auto=format&fit=crop&w=1600&q=60")`
+              : "";
+            bar.style.backgroundSize = photo ? "cover, cover" : "";
+            bar.style.backgroundPosition = photo ? "center, center" : "";
+            bar.style.backgroundRepeat = photo ? "no-repeat, no-repeat" : "";
+            // Cover the border strip too, otherwise it renders as a bare seam.
+            bar.style.backgroundOrigin = photo ? "border-box, border-box" : "";
           }
         }
         function go(n) {
