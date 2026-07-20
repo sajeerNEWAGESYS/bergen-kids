@@ -75,6 +75,10 @@
                   from: { transform: "translateX(100%)" },
                   to: { transform: "translateX(0)" },
                 },
+                slideInLeft: {
+                  from: { transform: "translateX(-100%)" },
+                  to: { transform: "translateX(0)" },
+                },
                 spin: { to: { transform: "rotate(360deg)" } },
               },
               animation: {
@@ -84,6 +88,7 @@
                 fade: "fade 0.15s ease",
                 toastIn: "toastIn 0.25s ease",
                 slideInRight: "slideInRight 0.3s cubic-bezier(0.16,1,0.3,1)",
+                slideInLeft: "slideInLeft 0.3s cubic-bezier(0.16,1,0.3,1)",
                 spin: "spin 0.7s linear infinite",
               },
             },
@@ -2535,7 +2540,6 @@
         adFilter: { cat: "", status: "", from: "", to: "" },
         bizAnalytics: { cat: "", from: "", to: "" },
         advAnalytics: { cat: "", place: "", from: "", to: "" },
-        article: null,
         articleFilter: "all",
         scrollTo: null,
       };
@@ -2651,6 +2655,7 @@
         state.view = view;
         if (opts.scrollTo) state.scrollTo = opts.scrollTo;
         closeDropdowns();
+        closeModal(); // a drawer/modal must not outlive the page it was opened from
         render();
         if (opts.scrollTo) {
           const t = el(opts.scrollTo);
@@ -2669,7 +2674,6 @@
           directory: viewDirectory,
           calendar: viewCalendar,
           articles: viewArticles,
-          article: viewArticle,
           business: viewBusiness,
           advertiser: viewAdvertiser,
           profile: viewProfile,
@@ -2699,13 +2703,7 @@
         if (sections) sections.style.display = state.view === "home" ? "" : "none";
         let acct;
         if (state.user) {
-          const initials = state.user.name
-            .split(" ")
-            .map((w) => w[0])
-            .slice(0, 2)
-            .join("")
-            .toUpperCase();
-          acct = `<button class="flex items-center gap-2 bg-white border-[1.5px] border-line rounded-[100px] pl-[0.35rem] pr-[0.85rem] py-[0.3rem] font-bold text-[0.95rem] text-navy min-h-[44px] whitespace-nowrap shrink-0 hover:border-navy max900:px-[0.45rem] max380:px-[0.3rem] max380:py-[0.25rem]" data-action="toggle-account"><span class="w-[30px] h-[30px] rounded-[50%] bg-navy text-white flex items-center justify-center text-[0.75rem] font-bold shrink-0 max380:w-[26px] max380:h-[26px] max380:text-[0.7rem]">${initials}</span><span class="max900:hidden">${state.user.name.split(" ")[0]}</span>${icon("chev-down", 15)}</button>`;
+          acct = `<button class="flex items-center gap-2 bg-white border-[1.5px] border-line rounded-[100px] pl-[0.35rem] pr-[0.85rem] py-[0.3rem] font-bold text-[0.95rem] text-navy min-h-[44px] whitespace-nowrap shrink-0 hover:border-navy max900:px-[0.45rem] max380:px-[0.3rem] max380:py-[0.25rem]" data-action="toggle-account">${avatarHtml(state.user, 30)}<span class="max900:hidden">${state.user.name.split(" ")[0]}</span>${icon("chev-down", 15)}</button>`;
         } else {
           acct = `<button class="bg-white border-[1.5px] border-line text-navy px-[1.15rem] py-[0.6rem] rounded-[100px] font-bold text-[0.95rem] min-h-[44px] whitespace-nowrap shrink-0 hover:border-navy max900:bg-grass-ink max900:border-grass-ink max900:text-white max900:px-[1.05rem] max900:hover:bg-[#1a5233] max900:hover:border-[#1a5233]" data-action="open-auth">Log in</button>`;
         }
@@ -3598,26 +3596,28 @@
     </div>
   </div>`;
       }
-      function viewArticle() {
-        const a = ARTICLES.find((x) => x.id === state.article);
-        if (!a) return viewArticles();
+      // Article detail slides in from the left, mirroring the events drawer.
+      function articleModal(id) {
+        const a = ARTICLES.find((x) => x.id === id);
+        if (!a) return;
         const c = catOf(a.cat);
         const more = ARTICLES.filter((x) => x.id !== a.id).slice(0, 3);
-        return `<div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
-    <div class="mb-7"><div class="flex items-center gap-[0.4rem] text-[0.9rem] text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-grass-ink font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<a data-nav="articles">Articles</a>${icon("chev-right", 14)}<span>${c.name}</span></div></div>
-    <div class="max-w-[68ch] mx-auto [&_p]:text-[1.12rem] [&_p]:leading-[1.8] [&_p]:text-ink [&_p]:mb-[1.35rem] [&_p]:text-pretty [&_h1]:text-[clamp(1.9rem,1.4rem_+_2.1vw,2.6rem)] [&_h1]:mb-4 [&_h1]:leading-[1.15] [&_h1]:font-serif [&_h1]:font-black [&_h1]:text-navy [&_h1]:tracking-[-0.025em] [&_h3]:font-serif [&_h3]:text-[1.5rem] [&_h3]:text-navy [&_h3]:mt-8 [&_h3]:mb-3 [&_h3]:leading-[1.25]">
-      <div class="h-[220px] rounded-[20px] overflow-hidden relative flex items-center justify-center text-white mb-7 max700:h-[160px]" style="background:${c.grad}">${icon(c.icon, 60)}${ART_IMG[a.id] ? `<img src="${artImg(a.id, 1200)}" srcset="${artImg(a.id, 900)} 900w, ${artImg(a.id, 1200)} 1200w" sizes="(max-width: 900px) 92vw, 68ch" alt="${c.name}" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">` : ""}</div>
-      <div class="text-[0.78rem] font-bold tracking-[0.06em] uppercase text-teal-ink mb-2" style="color:var(--teal-ink)">${c.name}</div>
-      <h1 style="font-family:'Fraunces',serif;font-weight:900;color:var(--navy)">${a.title}</h1>
-      <div class="text-muted text-[0.95rem] mb-6 flex gap-4 flex-wrap"><span>By ${a.author}</span><span>${a.date}</span></div>
+        openDrawerLeft(
+          `
+    <div class="h-[200px] relative flex items-center justify-center text-white overflow-hidden max560:h-[160px]" style="background:${c.grad}">${icon(c.icon, 56)}${ART_IMG[a.id] ? `<img src="${artImg(a.id, 900)}" srcset="${artImg(a.id, 900)} 900w, ${artImg(a.id, 1200)} 1200w" sizes="620px" alt="" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">` : ""}</div>
+    <div class="p-7 max560:p-5 [&_p]:text-[1.05rem] [&_p]:leading-[1.8] [&_p]:text-ink [&_p]:mb-[1.25rem] [&_p]:text-pretty [&_h3]:font-serif [&_h3]:text-[1.3rem] [&_h3]:font-black [&_h3]:text-navy [&_h3]:mt-7 [&_h3]:mb-3 [&_h3]:leading-[1.25]">
+      <div class="text-[0.78rem] font-bold tracking-[0.06em] uppercase mb-2" style="color:var(--teal-ink)">${c.name}</div>
+      <h2>${a.title}</h2>
+      <div class="text-muted text-[0.95rem] mt-[0.5rem] mb-6 flex gap-4 flex-wrap"><span>By ${a.author}</span><span>${a.date}</span></div>
       ${a.paras.map((p) => (p.length < 40 && !p.endsWith(".") ? `<h3>${p}</h3>` : `<p>${p}</p>`)).join("")}
-      <div style="margin-top:2rem"><a class="bg-white text-navy px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-[1.5px] border-line transition-[border-color,background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] hover:border-navy hover:bg-[#f5f5f5]" data-nav="articles">${icon("arrow-left", 16)} Back to all articles</a></div>
-      <h3 style="margin-top:2.5rem">More for parents</h3>
-      <div class="grid grid-cols-[repeat(auto-fill,minmax(min(320px,100%),1fr))] gap-6" style="grid-template-columns:1fr;gap:0.75rem;margin-top:0.5rem">
-        ${more.map((m) => `<div class="bg-white border-[1.5px] border-line rounded-[14px] px-4 py-[0.9rem] mb-3 cursor-pointer transition-all duration-150 flex gap-[0.85rem] hover:border-grass-ink hover:translate-x-[2px]" data-action="open-article" data-id="${m.id}"><div class="w-[52px] shrink-0 text-center bg-mint rounded-[10px] py-[0.4rem] text-grass-ink flex flex-col items-center justify-center" style="background:${catOf(m.cat).tint};color:var(--navy)">${icon(catOf(m.cat).icon, 20)}</div><div class="ev-info"><div class="t">${m.title}</div><div class="text-[0.85rem] text-muted mt-[4px] flex gap-x-3 gap-y-[0.35rem] flex-wrap [&>span]:inline-flex [&>span]:items-center [&>span]:gap-1"><span>${m.author}</span></div></div></div>`).join("")}
+      <div class="border-t border-line pt-6 mt-8">
+        <div class="font-serif text-[1.2rem] font-black text-navy mb-3">More for parents</div>
+        ${more.map((m) => `<div class="bg-white border-[1.5px] border-line rounded-[14px] px-4 py-[0.9rem] mb-3 cursor-pointer transition-all duration-150 flex gap-[0.85rem] items-center hover:border-grass-ink hover:translate-x-[2px]" data-action="open-article" data-id="${m.id}"><div class="w-[52px] h-[52px] shrink-0 rounded-[10px] flex items-center justify-center text-navy" style="background:${catOf(m.cat).tint}">${icon(catOf(m.cat).icon, 20)}</div><div class="min-w-0"><div class="font-bold text-[0.98rem] text-navy leading-[1.35]">${m.title}</div><div class="text-[0.85rem] text-muted mt-[4px]">${m.author}</div></div></div>`).join("")}
+        <button class="bg-white text-navy px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold border-[1.5px] border-line transition-[border-color,background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] w-full mt-4 hover:border-navy hover:bg-[#f5f5f5]" data-nav="articles">${icon("arrow-left", 16)} Back to all articles</button>
       </div>
-    </div>
-  </div>`;
+    </div>`,
+          true
+        );
       }
       function myListings() {
         return LISTINGS.filter((l) => l._mine);
@@ -4443,37 +4443,128 @@
   </div>`;
       }
 
+      // Themed label + input wrapper shared by every field on the profile form.
+      const PF_FIELD =
+        "flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100";
+      function userInitials(name) {
+        return (name || "")
+          .split(" ")
+          .map((w) => w[0])
+          .filter(Boolean)
+          .slice(0, 2)
+          .join("")
+          .toUpperCase();
+      }
+      // Shared avatar: the uploaded photo when there is one, otherwise the user's
+      // initials on the brand gradient. Used by the nav, account menu and profile.
+      function avatarHtml(u, size, cls = "") {
+        return `<span class="relative inline-flex items-center justify-center rounded-full overflow-hidden shrink-0 text-white font-bold bg-[linear-gradient(140deg,#2d7a4f,#1e8c7a)] ${cls}" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.36)}px">${userInitials(u.name)}${u.avatar ? `<img src="${u.avatar}" alt="" class="absolute inset-0 w-full h-full object-cover">` : ""}</span>`;
+      }
+      const ROLE_CHIP = {
+        parent: ["Parent account", "user", "bg-mint text-grass-ink"],
+        business: ["Business account", "briefcase", "bg-[#eaf0fb] text-[#2d5a8e]"],
+        advertiser: ["Advertiser account", "megaphone", "bg-[#f0eafa] text-lavender-ink"],
+      };
+      // Re-rendered on its own after a photo change so unsaved form edits survive.
+      function profileHero(u) {
+        const [roleLabel, roleIcon, roleCls] = ROLE_CHIP[u.role] || ROLE_CHIP.parent;
+        const meta = [
+          u.email ? [`mail`, u.email] : null,
+          u.phone ? [`phone`, u.phone] : null,
+          u.web ? [`globe`, u.web] : null,
+        ].filter(Boolean);
+        return `<div class="pf-hero relative bg-white border-[1.5px] border-line rounded-[22px] overflow-hidden shadow-[0_4px_20px_rgba(26,46,74,0.05)] mb-6">
+      <div class="relative h-[136px] overflow-hidden pointer-events-none bg-[linear-gradient(135deg,#1a2e4a_0%,#20643d_58%,#1e8c7a_100%)] max560:h-[110px]">
+        <div class="absolute -top-[70px] -right-[30px] w-[210px] h-[210px] rounded-full bg-white/[0.07]"></div>
+        <div class="absolute top-[36px] right-[120px] w-[90px] h-[90px] rounded-full bg-white/[0.05]"></div>
+      </div>
+      <div class="relative z-[1] px-7 pb-6 max560:px-5">
+        <div class="flex items-end justify-between gap-4 flex-wrap -mt-[52px] max560:-mt-[44px]">
+          <div class="relative shrink-0">
+            ${avatarHtml(u, 104, "border-[4px] border-white shadow-[0_6px_24px_rgba(15,26,44,0.22)] max560:!w-[86px] max560:!h-[86px]")}
+            <button class="absolute -bottom-[2px] -right-[2px] w-[36px] h-[36px] rounded-full bg-grass-ink text-white border-[3px] border-white flex items-center justify-center shadow-[0_2px_10px_rgba(15,26,44,0.25)] transition-colors duration-150 hover:bg-[#1a5233]" data-action="pick-photo" aria-label="Change profile photo" title="Change profile photo">${icon("image", 15)}</button>
+            <input type="file" id="pf-photo" accept="image/*" class="hidden">
+          </div>
+          <div class="flex gap-3 flex-wrap pb-[0.15rem] max560:w-full max560:mt-3 [&>*]:max560:flex-1 [&>*]:max560:justify-center">
+            <button class="bg-navy text-white px-[1.4rem] py-[0.7rem] rounded-[100px] text-[0.95rem] font-bold border-none inline-flex items-center justify-center gap-2 min-h-[44px] whitespace-nowrap transition-colors duration-200 hover:bg-[#12233a]" data-action="pick-photo" title="JPG or PNG, up to 4 MB">${icon("upload", 15)} ${u.avatar ? "Change photo" : "Upload photo"}</button>
+            ${u.avatar ? `<button class="bg-white text-navy px-[1.4rem] py-[0.7rem] rounded-[100px] text-[0.95rem] font-bold border-[1.5px] border-line inline-flex items-center justify-center gap-2 min-h-[44px] whitespace-nowrap transition-[border-color,background] duration-200 hover:border-navy hover:bg-[#f5f5f5]" data-action="remove-photo">${icon("trash", 15)} Remove</button>` : ""}
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="font-serif text-[1.7rem] font-black text-navy leading-[1.2] tracking-[-0.01em] break-words max560:text-[1.4rem]">${u.name || "Your profile"}</div>
+          <span class="inline-flex items-center gap-[0.35rem] mt-[0.5rem] text-[0.78rem] font-extrabold uppercase tracking-[0.05em] px-[0.7rem] py-[0.3rem] rounded-[100px] ${roleCls}">${icon(roleIcon, 13)} ${roleLabel}</span>
+        </div>
+        <div class="flex gap-x-6 gap-y-2 flex-wrap mt-4 text-[0.93rem] text-muted font-medium [&>span]:inline-flex [&>span]:items-center [&>span]:gap-[0.45rem] [&_svg]:text-grass-ink [&_svg]:shrink-0">
+          ${meta.map(([ic, val]) => `<span>${icon(ic, 15)} ${val}</span>`).join("")}
+        </div>
+      </div>
+    </div>`;
+      }
       function viewProfile() {
         if (!state.user)
           return gateView("parent", "Your profile", "Log in to manage your profile.", "user");
         const u = state.user;
+        const esc = (v) => (v || "").replace(/"/g, "&quot;");
+        const field = (label, id, value, ph = "", full = false) =>
+          `<div class="${PF_FIELD}${full ? " col-span-full" : ""}"><label>${label}</label><input id="${id}" value="${esc(value)}"${ph ? ` placeholder="${ph}"` : ""}></div>`;
         let fields;
         if (u.role === "business") {
-          fields = `
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100 col-span-full"><label>Business name *</label><input id="pf-org" value="${(u.name || "").replace(/"/g, "&quot;")}"></div>
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100"><label>Contact Person Name *</label><input id="pf-name" value="${(u.contact || "").replace(/"/g, "&quot;")}"></div>
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100"><label>Phone *</label><input id="pf-phone" value="${(u.phone || "").replace(/"/g, "&quot;")}" placeholder="(201) 555-0000"></div>
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100 col-span-full"><label>Email *</label><input id="pf-email" value="${u.email}"></div>`;
+          fields =
+            field("Business name *", "pf-org", u.name, "", true) +
+            field("Contact Person Name *", "pf-name", u.contact) +
+            field("Phone *", "pf-phone", u.phone, "(201) 555-0000") +
+            field("Email *", "pf-email", u.email, "", true);
         } else if (u.role === "advertiser") {
-          fields = `
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100 col-span-full"><label>Company / advertiser name *</label><input id="pf-org" value="${(u.name || "").replace(/"/g, "&quot;")}"></div>
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100"><label>Contact Person Name *</label><input id="pf-name" value="${(u.contact || "").replace(/"/g, "&quot;")}"></div>
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100"><label>Phone *</label><input id="pf-phone" value="${(u.phone || "").replace(/"/g, "&quot;")}" placeholder="(201) 555-0000"></div>
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100"><label>Website</label><input id="pf-web" value="${(u.web || "").replace(/"/g, "&quot;")}" placeholder="yourcompany.com"></div>
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100 col-span-full"><label>Email *</label><input id="pf-email" value="${u.email}"></div>`;
+          fields =
+            field("Company / advertiser name *", "pf-org", u.name, "", true) +
+            field("Contact Person Name *", "pf-name", u.contact) +
+            field("Phone *", "pf-phone", u.phone, "(201) 555-0000") +
+            field("Website", "pf-web", u.web, "yourcompany.com") +
+            field("Email *", "pf-email", u.email, "", true);
         } else {
-          fields = `
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100 col-span-full"><label>Full name *</label><input id="pf-name" value="${(u.name || "").replace(/"/g, "&quot;")}"></div>
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100"><label>Phone *</label><input id="pf-phone" value="${(u.phone || "").replace(/"/g, "&quot;")}" placeholder="(201) 555-0000"></div>
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100 col-span-full"><label>Email *</label><input id="pf-email" value="${u.email}"></div>`;
+          fields =
+            field("Full name *", "pf-name", u.name, "", true) +
+            field("Phone *", "pf-phone", u.phone, "(201) 555-0000") +
+            field("Email *", "pf-email", u.email, "", true);
         }
+        const sideCard = (ic, title, body, btn) =>
+          `<div class="bg-white border-[1.5px] border-line rounded-[18px] p-5 shadow-[0_4px_20px_rgba(26,46,74,0.05)]">
+        <div class="flex items-center gap-[0.6rem] mb-[0.4rem]"><span class="w-[34px] h-[34px] rounded-[10px] bg-mint text-grass-ink flex items-center justify-center shrink-0">${icon(ic, 17)}</span><div class="font-serif text-[1.1rem] font-black text-navy">${title}</div></div>
+        <div class="text-[0.9rem] text-muted leading-[1.55] mb-4">${body}</div>${btn}</div>`;
         return `<div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
     <div class="mb-7"><div class="flex items-center gap-[0.4rem] text-[0.9rem] text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-grass-ink font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>My Profile</span></div>
-      <div class="font-serif text-[clamp(1.9rem,1.4rem_+_2.1vw,2.7rem)] font-black text-navy tracking-[-0.02em] leading-[1.15] text-balance">My Profile</div><p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Manage your account details.</p></div>
-    <div class="bg-white border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-[1.15rem] [&_h3]:text-navy [&_h3]:mb-[0.3rem] max380:p-[1.1rem]" style="max-width:640px">
-      <h3>Account details</h3><div class="text-[0.92rem] text-muted mb-5 leading-[1.55]">Keep your information up to date.</div>
-      <div class="grid grid-cols-[1fr_1fr] gap-[1.1rem] max700:grid-cols-[1fr]">${fields}</div>
-      <div class="flex gap-3 flex-wrap mt-5 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center"><button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="save-profile">${icon("check", 16)} Save changes</button></div>
+      <div class="font-serif text-[clamp(1.9rem,1.4rem_+_2.1vw,2.7rem)] font-black text-navy tracking-[-0.02em] leading-[1.15] text-balance">My Profile</div><p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Manage your photo, contact details, and account security.</p></div>
+
+    ${profileHero(u)}
+
+    <div class="grid grid-cols-[minmax(0,1fr)_320px] gap-6 [align-items:start] max900:grid-cols-[1fr]">
+      <div class="bg-white border-[1.5px] border-line rounded-[18px] p-6 shadow-[0_4px_20px_rgba(26,46,74,0.05)] max380:p-[1.1rem]">
+        <div class="font-serif text-[1.25rem] font-black text-navy mb-[0.3rem]">Account details</div>
+        <div class="text-[0.92rem] text-muted mb-5 leading-[1.55]">Keep your information up to date.</div>
+        <div class="grid grid-cols-[1fr_1fr] gap-[1.1rem] max700:grid-cols-[1fr]">${fields}</div>
+        <div class="flex gap-3 flex-wrap mt-6 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center"><button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="save-profile">${icon("check", 16)} Save changes</button></div>
+      </div>
+
+      <div class="flex flex-col gap-4">
+        ${sideCard(
+          "lock",
+          "Security",
+          "Use a strong password you don't reuse anywhere else.",
+          `<button class="bg-white text-navy px-[1.3rem] py-[0.7rem] rounded-[100px] text-[0.95rem] font-bold border-[1.5px] border-line inline-flex items-center justify-center gap-2 min-h-[44px] w-full transition-[border-color,background] duration-200 hover:border-navy hover:bg-[#f5f5f5]" data-action="change-pass">${icon("lock", 15)} Change password</button>`
+        )}
+        ${sideCard(
+          "bell",
+          "Notifications",
+          "Review alerts about your listings, events, and messages.",
+          `<button class="bg-white text-navy px-[1.3rem] py-[0.7rem] rounded-[100px] text-[0.95rem] font-bold border-[1.5px] border-line inline-flex items-center justify-center gap-2 min-h-[44px] w-full transition-[border-color,background] duration-200 hover:border-navy hover:bg-[#f5f5f5]" data-nav="notifications">${icon("bell", 15)} View notifications</button>`
+        )}
+        ${sideCard(
+          "logout",
+          "Session",
+          "Signed in on this device. Log out when you're done.",
+          `<button class="bg-white px-[1.3rem] py-[0.7rem] rounded-[100px] text-[0.95rem] font-bold border-[1.5px] border-line inline-flex items-center justify-center gap-2 min-h-[44px] w-full transition-[border-color,background] duration-200 hover:bg-[#fdf3f2]" style="color:var(--danger-ink);border-color:rgba(163,39,28,0.25)" data-action="logout">${icon("logout", 15)} Log out</button>`
+        )}
+      </div>
     </div></div>`;
       }
       function openModal(html, wide) {
@@ -4490,6 +4581,14 @@
       function openDrawer(html) {
         el("modal-root").innerHTML =
           `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex justify-end animate-fade"><div class="drawer relative bg-white w-full max-w-[440px] h-full shadow-[-16px_0_60px_rgba(15,26,44,0.35)] animate-slideInRight overflow-y-auto overscroll-contain max560:max-w-full [&_h2]:font-serif [&_h2]:text-[1.6rem] [&_h2]:text-navy [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2]"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-navy flex items-center justify-center z-[5] shadow-[0_2px_10px_rgba(15,26,44,0.18)] hover:bg-white" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
+        document.body.style.overflow = "hidden";
+      }
+
+      // Left-hand twin of openDrawer, for long-form reading panels. `wide` widens it
+      // to a comfortable measure for article text.
+      function openDrawerLeft(html, wide) {
+        el("modal-root").innerHTML =
+          `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex justify-start animate-fade"><div class="drawer relative bg-white w-full ${wide ? "max-w-[620px]" : "max-w-[440px]"} h-full shadow-[16px_0_60px_rgba(15,26,44,0.35)] animate-slideInLeft overflow-y-auto overscroll-contain max700:max-w-full [&_h2]:font-serif [&_h2]:text-[1.6rem] [&_h2]:text-navy [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2]"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-navy flex items-center justify-center z-[5] shadow-[0_2px_10px_rgba(15,26,44,0.18)] hover:bg-white" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
         document.body.style.overflow = "hidden";
       }
 
@@ -4824,9 +4923,34 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         ];
         el("dropdown-root").innerHTML =
           `<div class="dropdown absolute top-0 right-[clamp(1rem,5vw,7rem)] max1200:right-[3%] max560:right-[4%] max380:right-3 w-[min(320px,calc(100vw-2rem))] bg-white border border-line rounded-[16px] shadow-[0_18px_50px_rgba(26,46,74,0.18)] z-[120] overflow-x-hidden overflow-y-auto animate-pop max-h-[calc(100vh-100px)]" style="width:250px">
-    <div class="px-[1.1rem] py-[0.9rem] border-b border-b-line2 flex justify-between items-center"><h4 class="text-[1rem] text-navy">${state.user.name}</h4></div>
+    <div class="px-[1.1rem] py-[0.9rem] border-b border-b-line2 flex items-center gap-3">${avatarHtml(state.user, 38)}<div class="min-w-0"><h4 class="text-[1rem] text-navy truncate">${state.user.name}</h4><div class="text-[0.82rem] text-muted truncate">${state.user.email || state.user.phone || ""}</div></div></div>
     ${items.map((i) => `<button class="flex items-center gap-[0.7rem] px-[1.1rem] py-[0.8rem] text-[0.95rem] font-medium text-navy cursor-pointer border-none bg-transparent w-full text-left min-h-[44px] hover:bg-[#f7faf8]" data-nav="${i[0]}">${icon(i[2], 17, "text-muted")} ${i[1]}</button>`).join("")}
     <button class="flex items-center gap-[0.7rem] px-[1.1rem] py-[0.8rem] text-[0.95rem] font-medium text-navy cursor-pointer border-none bg-transparent w-full text-left min-h-[44px] hover:bg-[#f7faf8]" data-action="logout" style="border-top:1px solid var(--line2);color:var(--danger-ink);font-weight:600">${icon("logout", 17, "text-muted")} Log out</button></div>`;
+      }
+      // Swaps only the hero, so anything typed into the form below is preserved.
+      function refreshProfileHero() {
+        const hero = document.querySelector(".pf-hero");
+        if (hero) hero.outerHTML = profileHero(state.user);
+        renderNav();
+      }
+      function readProfilePhoto(file) {
+        if (!file) return;
+        if (!/^image\//.test(file.type)) {
+          toast("Choose an image file", "x");
+          return;
+        }
+        if (file.size > 4 * 1024 * 1024) {
+          toast("Image must be under 4 MB", "x");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          state.user.avatar = reader.result;
+          refreshProfileHero();
+          toast("Profile photo updated", "check");
+        };
+        reader.onerror = () => toast("Could not read that image", "x");
+        reader.readAsDataURL(file);
       }
       function changePasswordModal() {
         closeDropdowns();
@@ -4945,8 +5069,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               break;
             }
             case "open-article":
-              state.article = id;
-              navigate("article");
+              articleModal(id);
               break;
             case "filter-articles":
               state.articleFilter = actEl.dataset.cat;
@@ -5194,7 +5317,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               if (el("pf-email")) state.user.email = el("pf-email").value.trim();
               if (el("pf-phone")) state.user.phone = el("pf-phone").value.trim();
               if (el("pf-web")) state.user.web = el("pf-web").value.trim();
-              renderNav();
+              refreshProfileHero();
               toast("Profile saved", "check");
               break;
             }
@@ -5245,6 +5368,14 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               if (box) box.innerHTML = whSummary();
               break;
             }
+            case "pick-photo":
+              el("pf-photo")?.click();
+              break;
+            case "remove-photo":
+              state.user.avatar = "";
+              refreshProfileHero();
+              toast("Profile photo removed", "check");
+              break;
             case "change-pass":
               changePasswordModal();
               break;
@@ -5388,7 +5519,9 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         }
       });
       document.addEventListener("change", (e) => {
-        if (e.target.id === "d-town") {
+        if (e.target.id === "pf-photo") {
+          readProfilePhoto(e.target.files && e.target.files[0]);
+        } else if (e.target.id === "d-town") {
           state.dir.town = e.target.value;
           updateDirResults();
         } else if (e.target.id === "d-sort") {
