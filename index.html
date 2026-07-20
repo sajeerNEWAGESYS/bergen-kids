@@ -1466,7 +1466,7 @@
               <a
                 class="text-on-dark-2 text-[0.95rem] no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.4rem] min-h-[38px] hover:text-white hover:underline"
                 data-nav="calendar"
-                >Events Calendar</a
+                >Events</a
               >
             </li>
             <li class="mb-[0.15rem]">
@@ -2526,8 +2526,8 @@
         },
         dir: { q: "", cat: "", sub: "", age: "", town: "", sort: "featured" },
         dirFiltersOpen: false,
-        cal: { y: TODAY.getFullYear(), m: TODAY.getMonth(), sel: TODAY.toISOString().slice(0, 10) },
-        calFilter: { cat: "", age: "", town: "" },
+        calFilter: { q: "", cat: "", age: "", town: "", sort: "date" },
+        calFiltersOpen: false,
         dashTab: "overview",
         advTab: "overview",
         billing: { q: "", cat: "", from: "", to: "" },
@@ -2792,7 +2792,7 @@
           },
           {
             icon: "calendar",
-            t: "Events calendar",
+            t: "Events & activities",
             s: "Story times, festivals, free play days and seasonal fun near you.",
             nav: "calendar",
             bg: "bg-[#fdeed5]",
@@ -3405,120 +3405,149 @@
             const g = AGE_GROUPS.find((a) => a.id === f.age);
             if (!(e.ageMin <= g.max && e.ageMax >= g.min)) return false;
           }
+          if (f.q) {
+            const q = f.q.toLowerCase();
+            const c = catOf(e.cat);
+            if (
+              !(
+                e.name.toLowerCase().includes(q) ||
+                e.desc.toLowerCase().includes(q) ||
+                e.organizer.toLowerCase().includes(q) ||
+                e.town.toLowerCase().includes(q) ||
+                (c && c.name.toLowerCase().includes(q))
+              )
+            )
+              return false;
+          }
           return true;
+        }).sort((a, b) => {
+          const s = f.sort || "date";
+          if (s === "az") return a.name.localeCompare(b.name);
+          if (s === "town") return a.town.localeCompare(b.town) || a.date.localeCompare(b.date);
+          return a.date.localeCompare(b.date) || a.time.localeCompare(b.time);
         });
       }
-      function viewCalendar() {
-        const { y, m } = state.cal;
-        const evs = calEvents();
-        const byDate = {};
-        evs.forEach((e) => {
-          const d = new Date(e.date + "T00:00");
-          if (d.getFullYear() === y && d.getMonth() === m) {
-            (byDate[e.date] ||= []).push(e);
-          }
-        });
-        const first = new Date(y, m, 1).getDay();
-        const days = new Date(y, m + 1, 0).getDate();
-        const todayISO = TODAY.toISOString().slice(0, 10);
-        let cells = "";
-        for (let i = 0; i < first; i++)
-          cells += `<div class="aspect-[1] min-h-[44px] min-w-0 rounded-[10px] border-[1.5px] p-[0.45rem] flex flex-col relative cursor-default transition-all duration-150 max560:p-[0.3rem] max560:rounded-[8px] border-transparent bg-transparent text-center text-muted text-[1rem] leading-[1.6]"></div>`;
-        for (let d = 1; d <= days; d++) {
-          const iso = `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-          const list = byDate[iso] || [];
-          const has = list.length > 0,
-            today = iso === todayISO,
-            sel = iso === state.cal.sel;
-          let cls =
-            "aspect-[1] min-h-[44px] min-w-0 rounded-[10px] border-[1.5px] p-[0.45rem] flex flex-col relative cursor-default transition-all duration-150 max560:p-[0.3rem] max560:rounded-[8px]";
-          if (has) cls += " cursor-pointer hover:border-grass-ink hover:bg-[#e9f4ee]";
-          cls += sel
-            ? " bg-navy border-navy"
-            : today
-              ? " bg-[#e2ebfa] border-[#9db8e0]"
-              : has
-                ? " bg-[#fbfcfd] border-line"
-                : " bg-[#fbfcfd] border-transparent";
-          const numC =
-            "text-[0.95rem] font-bold " +
-            (sel ? "text-white" : "text-navy") +
-            " max560:text-[0.85rem]";
-          const dotC =
-            "w-[7px] h-[7px] rounded-[50%] " +
-            (sel ? "bg-sun" : "bg-grass-ink") +
-            " max560:w-[5px] max560:h-[5px]";
-          const cntC =
-            "text-[0.72rem] mt-auto font-bold " +
-            (sel ? "text-white" : "text-muted") +
-            " max560:hidden";
-          cells += `<div class="${cls}" ${list.length ? `data-action="pick-day" data-date="${iso}"` : ""}>
-      <div class="${numC}">${d}</div>
-      ${
-        list.length
-          ? `<div class="flex gap-[3px] mt-auto flex-wrap">${list
-              .slice(0, 3)
-              .map(() => `<span class="${dotC}"></span>`)
-              .join(
-                ""
-              )}</div><div class="${cntC}">${list.length} event${list.length > 1 ? "s" : ""}</div>`
-          : ""
-      }</div>`;
-        }
-        const selList = (byDate[state.cal.sel] || [])
-          .slice()
-          .sort((a, b) => a.time.localeCompare(b.time));
-        const upcoming = evs
-          .filter((e) => e.date >= todayISO)
-          .sort((a, b) => a.date.localeCompare(b.date))
-          .slice(0, 5);
-        const sideList = selList.length ? selList : upcoming;
-        const sideTitle = selList.length ? fmtDate(state.cal.sel) : "Upcoming events";
-        const sideSub = selList.length
-          ? `${selList.length} event${selList.length > 1 ? "s" : ""} scheduled`
-          : "The next family activities near you";
-
-        return `<div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
-    <div class="mb-7">
-      <div class="flex items-center gap-[0.4rem] text-[0.9rem] text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-grass-ink font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>Events Calendar</span></div>
-      <div class="font-serif text-[clamp(1.9rem,1.4rem_+_2.1vw,2.7rem)] font-black text-navy tracking-[-0.02em] leading-[1.15] text-balance">Events Calendar</div>
-      <p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Browse kids' events and activities across Bergen County. Click any highlighted date to see what's on.</p>
-    </div>
-
-    <div class="filter-bar bg-white border-[1.5px] border-line rounded-[18px] p-4 grid grid-cols-[1.6fr_1fr_1fr_1fr_auto] gap-3 items-center mb-6 shadow-[0_4px_20px_rgba(26,46,74,0.05)] max900:!grid-cols-[1fr_1fr] max700:!grid-cols-[1fr]" style="grid-template-columns:1fr 1fr 1fr auto">
-      <div class="flex flex-col gap-1"><label class="text-[0.75rem] font-bold tracking-[0.07em] uppercase text-adlabel pl-2">Category</label><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-[#fbfcfd] min-h-[46px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("sliders", 16, "text-muted shrink-0")}<select class="border-none outline-none bg-transparent font-sans text-[1rem] text-navy w-full min-w-0 cursor-pointer" id="c-cat"><option value="">All categories</option>${CATEGORIES.map((c) => `<option value="${c.id}" ${state.calFilter.cat === c.id ? "selected" : ""}>${c.name}</option>`).join("")}</select></div></div>
-      <div class="flex flex-col gap-1"><label class="text-[0.75rem] font-bold tracking-[0.07em] uppercase text-adlabel pl-2">Age group</label><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-[#fbfcfd] min-h-[46px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("users", 16, "text-muted shrink-0")}<select class="border-none outline-none bg-transparent font-sans text-[1rem] text-navy w-full min-w-0 cursor-pointer" id="c-age"><option value="">All ages</option>${AGE_GROUPS.map((a) => `<option value="${a.id}" ${state.calFilter.age === a.id ? "selected" : ""}>${a.label}</option>`).join("")}</select></div></div>
-      <div class="flex flex-col gap-1"><label class="text-[0.75rem] font-bold tracking-[0.07em] uppercase text-adlabel pl-2">Location</label><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-[#fbfcfd] min-h-[46px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("pin", 16, "text-muted shrink-0")}<select class="border-none outline-none bg-transparent font-sans text-[1rem] text-navy w-full min-w-0 cursor-pointer" id="c-town"><option value="">All towns</option>${TOWNS.map((t) => `<option value="${t}" ${state.calFilter.town === t ? "selected" : ""}>${t}</option>`).join("")}</select></div></div>
-      <button class="bg-transparent border-none text-muted text-[0.9rem] font-bold flex items-center gap-[0.3rem] whitespace-nowrap self-end px-2 py-[0.7rem] min-h-[44px] hover:text-navy hover:underline max700:self-start max700:justify-center max700:border-[1.5px] max700:border-solid max700:border-line max700:rounded-[10px]" data-action="clear-cal">${icon("x", 15)} Clear</button>
-    </div>
-
-    <div class="grid grid-cols-[1fr_minmax(0,340px)] gap-8 [align-items:start] [&>*]:min-w-0 max1024:grid-cols-[1fr]">
-      <div class="bg-white border-[1.5px] border-line rounded-[20px] p-6 shadow-[0_4px_20px_rgba(26,46,74,0.05)] max560:p-4">
-        <div class="flex items-center justify-between mb-5">
-          <div class="font-serif text-[1.4rem] font-black text-navy">${MONTHS_FULL[m]} ${y}</div>
-          <div class="flex gap-2"><button class="w-[38px] h-[38px] rounded-[10px] border-[1.5px] border-line bg-white text-navy flex items-center justify-center hover:border-navy hover:bg-[#f7faf8]" data-action="prev-month">${icon("chev-left", 18)}</button><button class="w-[38px] h-[38px] rounded-[10px] border-[1.5px] border-line bg-white text-navy flex items-center justify-center hover:border-navy hover:bg-[#f7faf8]" data-action="next-month">${icon("chev-right", 18)}</button></div>
-        </div>
-        <div class="grid grid-cols-[repeat(7,1fr)] gap-[6px] max560:gap-[4px]">${DOW.map((d) => `<div class="text-center text-[0.78rem] font-bold tracking-[0.05em] uppercase text-adlabel pb-[0.4rem]">${d}</div>`).join("")}${cells}</div>
-      </div>
-      <div class="cal-side">
-        <h3 class="font-serif text-[1.3rem] text-navy mb-[0.3rem]">${sideTitle}</h3><div class="text-[0.9rem] text-muted mb-4">${sideSub}</div>
-        ${
-          sideList.length
-            ? sideList
-                .map((e) => {
-                  const d = new Date(e.date + "T00:00");
-                  const c = catOf(e.cat);
-                  return `<div class="bg-white border-[1.5px] border-line rounded-[14px] px-4 py-[0.9rem] mb-3 cursor-pointer transition-all duration-150 flex gap-[0.85rem] hover:border-grass-ink hover:translate-x-[2px]" data-action="open-event" data-id="${e.id}">
-          <div class="w-[52px] shrink-0 text-center bg-mint rounded-[10px] py-[0.4rem] text-grass-ink flex flex-col items-center justify-center"><div class="font-serif text-[1.3rem] font-black leading-[1]">${d.getDate()}</div><div class="text-[0.7rem] font-extrabold uppercase tracking-[0.05em]">${MONTHS[d.getMonth()]}</div></div>
-          <div class="ev-info"><div class="font-bold text-[0.98rem] text-navy leading-[1.35]">${e.name}</div><div class="text-[0.85rem] text-muted mt-[4px] flex gap-x-3 gap-y-[0.35rem] flex-wrap [&>span]:inline-flex [&>span]:items-center [&>span]:gap-1"><span>${icon("clock", 12)} ${e.time}</span><span>${icon("pin", 12)} ${e.town}</span></div>
-          <div class="text-[0.85rem] text-muted mt-[4px] flex gap-x-3 gap-y-[0.35rem] flex-wrap [&>span]:inline-flex [&>span]:items-center [&>span]:gap-1" style="margin-top:3px"><span style="color:var(--teal-ink);font-weight:700">${c.name}</span></div></div></div>`;
-                })
-                .join("")
-            : `<div class="empty text-center px-4 py-16 text-muted text-[1rem] leading-[1.6]" style="padding:2rem 0">${icon("calendar", 34, "text-adlabel mb-3")}<div>No events match your filters.</div></div>`
-        }
-      </div>
+      // Duotone event tile: greyscaled photo under a category-coloured multiply wash,
+      // with the copy stacked bottom-left over a dark scrim so it stays legible.
+      function evTile(e, i) {
+        const c = catOf(e.cat);
+        const d = new Date(e.date + "T00:00");
+        const photo = EV_IMG[e.id]
+          ? `<img src="${evImg(e.id, 600)}" srcset="${evImg(e.id, 600)} 600w, ${evImg(e.id, 900)} 900w" sizes="(max-width:700px) 100vw, 300px" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover grayscale contrast-[1.1] transition-transform duration-[400ms] group-hover:scale-[1.06]">`
+          : "";
+        return `<div class="ev-tile group relative aspect-[4/5] min-h-[260px] overflow-hidden cursor-pointer isolate" data-action="open-event" data-id="${e.id}">
+    <div class="absolute inset-0 ${EH_BG[e.eh || (i % 6) + 1]}"></div>
+    ${photo}
+    <div class="absolute inset-0 mix-blend-multiply opacity-[0.88] transition-opacity duration-200 group-hover:opacity-[0.78]" style="background:${c.grad}"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(to_top,rgba(10,20,36,0.62)_0%,rgba(10,20,36,0.18)_42%,transparent_72%)]"></div>
+    <span class="absolute top-3 left-3 z-[1] inline-flex items-center gap-[0.3rem] rounded-[100px] border border-white/30 bg-white/15 px-[0.6rem] py-[0.3rem] text-[0.72rem] font-extrabold uppercase tracking-[0.05em] text-white backdrop-blur-[3px]">${MONTHS[d.getMonth()]} ${d.getDate()}</span>
+    <div class="absolute inset-x-0 bottom-0 z-[1] p-[1.1rem] max380:p-[0.85rem]">
+      <div class="text-[0.72rem] font-bold uppercase tracking-[0.09em] text-white/75 mb-[0.35rem]">${e.town}</div>
+      <div class="font-extrabold text-[1.08rem] leading-[1.25] text-white decoration-white/60 underline-offset-[3px] group-hover:underline">${e.name}</div>
+      <div class="mt-[0.3rem] text-[0.82rem] font-medium text-white/85">${c.name.split(" ")[0]} <span class="text-white/45">·</span> Ages ${e.ageMin}–${e.ageMax}</div>
+      <span class="mt-[0.7rem] inline-flex items-center gap-[0.35rem] rounded-[100px] bg-black/35 px-[0.7rem] py-[0.32rem] text-[0.78rem] font-bold text-white backdrop-blur-[3px]">${icon("clock", 12)} ${evTimes(e)}</span>
     </div>
   </div>`;
+      }
+      // Active-filter pills above the events grid, mirroring the sidebar state.
+      function calActiveChipsInner() {
+        const f = state.calFilter;
+        const esc = (v) =>
+          String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const chips = [];
+        if (f.cat) chips.push(["cat", catOf(f.cat) ? catOf(f.cat).name : f.cat]);
+        if (f.age) {
+          const g = AGE_GROUPS.find((a) => a.id === f.age);
+          chips.push(["age", g ? g.label : f.age]);
+        }
+        if (f.town) chips.push(["town", f.town]);
+        if (f.q) chips.push(["q", '"' + f.q + '"']);
+        if (!chips.length) return "";
+        return `<span class="text-[0.78rem] font-bold tracking-[0.06em] uppercase text-adlabel mr-1">Active Filter</span>${chips
+          .map(
+            ([k, label]) =>
+              `<button class="inline-flex items-center gap-2 bg-navy text-white text-[0.85rem] font-semibold pl-[0.85rem] pr-[0.55rem] py-[0.4rem] rounded-[100px] transition-colors duration-150 hover:bg-[#12233d]" data-action="rm-cal-filter" data-key="${k}">${esc(label)} ${icon("x", 13)}</button>`
+          )
+          .join(
+            ""
+          )}<button class="text-[0.9rem] font-bold text-grass-ink underline underline-offset-2 ml-1 hover:text-navy" data-action="clear-cal">Clear All</button>`;
+      }
+      function calShowingText(list) {
+        return `Showing <b class="text-navy">${list.length}</b> of <b class="text-navy">${EVENTS.length}</b> event${EVENTS.length !== 1 ? "s" : ""}`;
+      }
+      // One selectable row in the events sidebar Category list (checkbox on the left).
+      function calCatRow(id, name, active) {
+        return `<button class="flex items-center gap-[0.65rem] w-full text-left px-[0.6rem] py-[0.6rem] rounded-[10px] transition-colors duration-150 ${active ? "bg-mint" : "hover:bg-[#f4f8f5]"}" data-action="set-cal-cat" data-cat="${id}">
+      <span class="w-[20px] h-[20px] rounded-[6px] border-[1.5px] flex items-center justify-center shrink-0 transition-colors duration-150 ${active ? "bg-grass-ink border-grass-ink text-white" : "border-line bg-white text-transparent"}">${icon("check", 13)}</span>
+      <span class="text-[0.93rem] leading-tight ${active ? "text-navy font-bold" : "text-muted font-medium"}">${name}</span>
+    </button>`;
+      }
+      const CAL_SORTS = [
+        ["date", "Date"],
+        ["az", "A–Z"],
+        ["town", "Town"],
+      ];
+      const CAL_EMPTY = `<div class="empty text-center px-4 py-16 text-muted text-[1rem] leading-[1.6]">${icon("calendar", 40, "text-adlabel mb-3")}<div style="font-weight:700;color:var(--navy);margin-bottom:0.3rem">No events found</div><div>Try adjusting your filters or clearing them to see everything.</div></div>`;
+      const calGridHtml = (list) =>
+        `<div class="ev-grid grid grid-cols-[repeat(auto-fill,minmax(min(205px,100%),1fr))] gap-[3px] rounded-[18px] overflow-hidden border-[1.5px] border-line bg-line shadow-[0_4px_20px_rgba(26,46,74,0.05)]">${list.map(evTile).join("")}</div>`;
+      function viewCalendar() {
+        const f = state.calFilter;
+        const list = calEvents();
+        const activeCount = [f.q, f.cat, f.age, f.town].filter(Boolean).length;
+        return `<div class="w-full"><div class="min-w-0"><div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
+    <div class="mb-7">
+      <div class="flex items-center gap-[0.4rem] text-[0.9rem] text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-grass-ink font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>Events</span></div>
+      <div class="font-serif text-[clamp(1.9rem,1.4rem_+_2.1vw,2.7rem)] font-black text-navy tracking-[-0.02em] leading-[1.15] text-balance">Kids Events &amp; Activities</div>
+      <p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Browse every kids' event across Bergen County. Filter by category, age, or town, then tap any event for the full details.</p>
+    </div>
+
+    <button class="hidden max900:flex items-center justify-center gap-2 w-full mb-4 border-[1.5px] border-line rounded-[12px] bg-white px-4 py-3 font-bold text-navy min-h-[50px] shadow-[0_4px_20px_rgba(26,46,74,0.05)] hover:border-navy" data-action="toggle-cal-filters" aria-expanded="${state.calFiltersOpen}">${icon("sliders", 17, "text-grass-ink")} ${state.calFiltersOpen ? "Hide Filters" : "Show Filters"}${activeCount ? `<span class="inline-flex items-center justify-center min-w-[22px] h-[22px] px-[6px] rounded-[100px] bg-navy text-white text-[0.75rem] font-extrabold">${activeCount}</span>` : ""}</button>
+
+    <div class="grid grid-cols-[250px_minmax(0,1fr)] gap-7 [align-items:start] [&>*]:min-w-0 max900:grid-cols-[1fr]">
+      <aside class="cal-side bg-white border-[1.5px] border-line rounded-[18px] p-5 sticky top-[84px] shadow-[0_4px_20px_rgba(26,46,74,0.05)] max900:static max900:top-auto ${state.calFiltersOpen ? "" : "max900:hidden"}">
+        <div class="flex items-center mb-4">
+          <div class="font-serif text-[1.25rem] font-black text-navy">Filter Options</div>
+        </div>
+
+        <div class="mb-5"><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-[#fbfcfd] min-h-[46px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("search", 16, "text-muted shrink-0")}<input class="border-none outline-none bg-transparent font-sans text-[0.95rem] text-navy w-full min-w-0 cursor-text placeholder:text-muted placeholder:opacity-100" type="text" id="c-q" placeholder="Event name..." value="${f.q.replace(/"/g, "&quot;")}"></div></div>
+
+        <div class="border-t border-line pt-4 mb-4">
+          <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-navy mb-2">Category</div>
+          <div class="flex flex-col gap-1">
+            ${calCatRow("", "All categories", !f.cat)}
+            ${CATEGORIES.map((c) => calCatRow(c.id, c.name, f.cat === c.id)).join("")}
+          </div>
+        </div>
+
+        <div class="border-t border-line pt-4 mb-4">
+          <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-navy mb-2">Age Group</div>
+          <div class="flex gap-2 flex-wrap">
+            <span class="${!f.age ? "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-navy border-navy text-white" : "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-white border-line text-navy hover:border-navy"}" data-action="set-cal-age" data-age="">All ages</span>
+            ${AGE_GROUPS.map((a) => `<span class="${f.age === a.id ? "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-navy border-navy text-white" : "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-white border-line text-navy hover:border-navy"}" data-action="set-cal-age" data-age="${a.id}">${a.label}</span>`).join("")}
+          </div>
+        </div>
+
+        <div class="border-t border-line pt-4">
+          <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-navy mb-2">Location</div>
+          <div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-[#fbfcfd] min-h-[46px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("pin", 16, "text-muted shrink-0")}<select class="border-none outline-none bg-transparent font-sans text-[0.95rem] text-navy w-full min-w-0 cursor-pointer" id="c-town"><option value="">All towns</option>${TOWNS.map((t) => `<option value="${t}" ${f.town === t ? "selected" : ""}>${t}</option>`).join("")}</select></div>
+        </div>
+      </aside>
+
+      <div class="min-w-0">
+        <div class="flex justify-between items-center gap-3 flex-wrap mb-4 max560:flex-col max560:items-start">
+          <div class="cal-showing text-[0.95rem] text-muted">${calShowingText(list)}</div>
+          <div class="flex items-center gap-2 shrink-0">
+            <label class="text-[0.9rem] text-muted font-medium whitespace-nowrap" for="c-sort">Sort By:</label>
+            <div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.5rem] bg-white min-h-[42px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]"><select class="appearance-none border-none outline-none bg-transparent font-sans text-[0.95rem] font-semibold text-navy cursor-pointer pr-1" id="c-sort">${CAL_SORTS.map(([v, lbl]) => `<option value="${v}" ${f.sort === v ? "selected" : ""}>${lbl}</option>`).join("")}</select>${icon("chev-down", 15, "text-muted shrink-0")}</div>
+          </div>
+        </div>
+
+        <div class="cal-chips empty:hidden flex items-center gap-2 flex-wrap mb-5">${calActiveChipsInner()}</div>
+
+        ${list.length ? calGridHtml(list) : CAL_EMPTY}
+      </div>
+    </div>
+  </div></div></div>`;
       }
       function viewArticles() {
         const categories = ["all", ...new Set(ARTICLES.map((a) => a.cat))];
@@ -4516,28 +4545,41 @@
         );
       }
 
+      // Opens in the same right-side drawer the directory uses for a listing.
       function eventModal(id) {
         const e = EVENTS.find((x) => x.id === id);
         if (!e) return;
         const c = catOf(e.cat);
         const d = new Date(e.date + "T00:00");
-        openModal(
+        const img = EV_IMG[e.id] ? evImg(e.id, 800) : "";
+        const ROW =
+          "flex gap-[0.6rem] items-center text-[0.95rem] text-navy leading-[1.5] [&_svg]:text-grass-ink [&_svg]:shrink-0 [&_a]:text-grass-ink [&_a]:font-bold [&_a]:underline [&_a]:break-words";
+        const header = `<div class="relative h-[200px] overflow-hidden max560:h-[180px]" style="background:${c.grad}">
+          <div class="absolute inset-0 flex items-center justify-center text-white">${icon(e.icon || c.icon, 52)}</div>
+          ${img ? `<img src="${img}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover grayscale contrast-[1.1]">` : ""}
+          ${img ? `<div class="absolute inset-0 mix-blend-multiply opacity-[0.88]" style="background:${c.grad}"></div>` : ""}
+          <span class="absolute top-3 left-3 z-[1] inline-flex items-center gap-[0.3rem] rounded-[100px] border border-white/30 bg-white/15 px-[0.6rem] py-[0.3rem] text-[0.72rem] font-extrabold uppercase tracking-[0.05em] text-white backdrop-blur-[3px]">${MONTHS[d.getMonth()]} ${d.getDate()}</span>
+        </div>`;
+        openDrawer(
           `
-    <div class="grid grid-cols-[repeat(4,1fr)] gap-[6px] h-[150px] mb-5 rounded-[14px] overflow-hidden [&>div]:flex [&>div]:items-center [&>div]:justify-center [&>div]:text-white/[0.55] max700:grid-cols-[repeat(2,1fr)] max700:h-[180px] max380:h-[140px]" style="background:${c.grad};height:120px">${"<div>" + icon(e.icon, 32) + "</div>"}</div>
-    <div class="p-7 max700:p-5" style="padding-top:1.25rem">
-      <div class="text-[0.78rem] font-bold tracking-[0.06em] uppercase text-teal-ink mb-2" style="color:var(--teal-ink)">${c.name}</div>
+    ${header}
+    <div class="p-6 max560:p-5">
+      <div class="text-[0.78rem] font-bold tracking-[0.06em] uppercase mb-2" style="color:var(--teal-ink)">${c.name}</div>
       <h2>${e.name}</h2>
-      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-[0.85rem] my-5" style="margin-top:1rem">
-        <div class="flex gap-[0.6rem] items-center text-[0.95rem] text-navy leading-[1.5] [&_svg]:text-grass-ink [&_svg]:shrink-0 [&_a]:text-grass-ink [&_a]:font-bold [&_a]:underline [&_a]:break-words">${icon("calendar", 16)} ${evDates(e)}</div>
-        <div class="flex gap-[0.6rem] items-center text-[0.95rem] text-navy leading-[1.5] [&_svg]:text-grass-ink [&_svg]:shrink-0 [&_a]:text-grass-ink [&_a]:font-bold [&_a]:underline [&_a]:break-words">${icon("clock", 16)} ${evTimes(e)}</div>
-        <div class="flex gap-[0.6rem] items-center text-[0.95rem] text-navy leading-[1.5] [&_svg]:text-grass-ink [&_svg]:shrink-0 [&_a]:text-grass-ink [&_a]:font-bold [&_a]:underline [&_a]:break-words">${icon("pin", 16)} ${e.town}, NJ</div>
-        <div class="flex gap-[0.6rem] items-center text-[0.95rem] text-navy leading-[1.5] [&_svg]:text-grass-ink [&_svg]:shrink-0 [&_a]:text-grass-ink [&_a]:font-bold [&_a]:underline [&_a]:break-words">${icon("users", 16)} Ages ${e.ageMin}–${e.ageMax}</div>
-        <div class="flex gap-[0.6rem] items-center text-[0.95rem] text-navy leading-[1.5] [&_svg]:text-grass-ink [&_svg]:shrink-0 [&_a]:text-grass-ink [&_a]:font-bold [&_a]:underline [&_a]:break-words">${icon("user", 16)} ${e.organizer}</div>
+      <div class="text-muted text-[0.95rem] mt-[0.35rem] leading-[1.55]">${e.organizer} · ${e.town}, NJ</div>
+      ${e.desc ? `<p style="color:var(--text);line-height:1.7;font-size:1rem;margin-top:1rem">${e.desc}</p>` : ""}
+      <div class="grid grid-cols-[1fr] gap-[0.85rem] my-5">
+        <div class="${ROW}">${icon("calendar", 16)} ${evDates(e)}</div>
+        <div class="${ROW}">${icon("clock", 16)} ${evTimes(e)}</div>
+        <div class="${ROW}">${icon("pin", 16)} ${e.town}, NJ</div>
+        <div class="${ROW}">${icon("users", 16)} Ages ${e.ageMin}–${e.ageMax}</div>
+        <div class="${ROW}">${icon("user", 16)} ${e.organizer}</div>
       </div>
-      <p style="color:var(--text);line-height:1.75;font-size:1.05rem;margin:0.6rem 0">${e.desc}</p>
-      
-    </div>`,
-          true
+      <div class="flex gap-3 flex-wrap mt-5 [&>*]:w-full [&>*]:justify-center">
+        <button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="rsvp" data-name="${e.name}">${icon("check", 16)} RSVP</button>
+        <button class="bg-white text-navy px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-[1.5px] border-line transition-[border-color,background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] hover:border-navy hover:bg-[#f5f5f5]" data-action="add-cal">${icon("calendar", 16)} Add to Calendar</button>
+      </div>
+    </div>`
         );
       }
 
@@ -4978,18 +5020,24 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               toast("Location set to Hackensack (nearest)");
               render();
               break;
-            case "prev-month":
-              shiftMonth(-1);
+            case "toggle-cal-filters":
+              state.calFiltersOpen = !state.calFiltersOpen;
+              render();
               break;
-            case "next-month":
-              shiftMonth(1);
+            case "set-cal-cat":
+              state.calFilter.cat = actEl.dataset.cat;
+              render();
               break;
-            case "pick-day":
-              state.cal.sel = actEl.dataset.date;
+            case "set-cal-age":
+              state.calFilter.age = actEl.dataset.age;
+              render();
+              break;
+            case "rm-cal-filter":
+              state.calFilter[actEl.dataset.key] = "";
               render();
               break;
             case "clear-cal":
-              state.calFilter = { cat: "", age: "", town: "" };
+              state.calFilter = { q: "", cat: "", age: "", town: "", sort: state.calFilter.sort };
               render();
               break;
             case "dash-tab":
@@ -5331,6 +5379,9 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         if (e.target.id === "d-q") {
           state.dir.q = e.target.value;
           updateDirResults();
+        } else if (e.target.id === "c-q") {
+          state.calFilter.q = e.target.value;
+          updateCalResults();
         } else if (e.target.id === "bl-q") {
           state.billing.q = e.target.value;
           updateBillingResults();
@@ -5343,15 +5394,12 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         } else if (e.target.id === "d-sort") {
           state.dir.sort = e.target.value;
           updateDirResults();
-        } else if (e.target.id === "c-cat") {
-          state.calFilter.cat = e.target.value;
-          render();
-        } else if (e.target.id === "c-age") {
-          state.calFilter.age = e.target.value;
-          render();
         } else if (e.target.id === "c-town") {
           state.calFilter.town = e.target.value;
-          render();
+          updateCalResults();
+        } else if (e.target.id === "c-sort") {
+          state.calFilter.sort = e.target.value;
+          updateCalResults();
         } else if (e.target.id === "nl-cat") {
           const s = el("nl-sub");
           if (s) s.innerHTML = subOptions(e.target.value);
@@ -5458,20 +5506,16 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         state.dir = { q, cat, sub: "", age: "", town: "", sort: state.dir.sort || "featured" };
         navigate("directory");
       }
-      function shiftMonth(dir) {
-        let m = state.cal.m + dir,
-          y = state.cal.y;
-        if (m < 0) {
-          m = 11;
-          y--;
-        }
-        if (m > 11) {
-          m = 0;
-          y++;
-        }
-        state.cal.m = m;
-        state.cal.y = y;
-        render();
+      // Swaps just the events grid so typing in the sidebar search keeps focus.
+      function updateCalResults() {
+        const list = calEvents();
+        const showing = document.querySelector(".cal-showing");
+        if (showing) showing.innerHTML = calShowingText(list);
+        const chips = document.querySelector(".cal-chips");
+        if (chips) chips.innerHTML = calActiveChipsInner();
+        const target =
+          document.querySelector(".ev-grid") || document.querySelector(".view-full .empty");
+        if (target) target.outerHTML = list.length ? calGridHtml(list) : CAL_EMPTY;
       }
       function handlePlan(plan) {
         if (plan === "advertiser") {
