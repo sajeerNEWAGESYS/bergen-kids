@@ -7,10 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://images.unsplash.com" />
-    <!-- Smooth scroll: Lenis (~4KB gzip), deferred so it never blocks render.
-         GSAP's own ScrollSmoother is a paid Club plugin, and GSAP core alone
-         (28KB gzip) doesn't do smooth scrolling at all. -->
-    <script defer src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
     <!-- Weights are exactly what the page uses: Fraunces 700/900 (headings),
          DM Sans 400-800. Dropping unused 300s and Fraunces italic. -->
     <link
@@ -75,6 +71,10 @@
                   from: { opacity: "0", transform: "translateY(12px)" },
                   to: { opacity: "1", transform: "translateY(0)" },
                 },
+                slideInRight: {
+                  from: { transform: "translateX(100%)" },
+                  to: { transform: "translateX(0)" },
+                },
                 spin: { to: { transform: "rotate(360deg)" } },
               },
               animation: {
@@ -83,6 +83,7 @@
                 rise: "rise 0.2s ease",
                 fade: "fade 0.15s ease",
                 toastIn: "toastIn 0.25s ease",
+                slideInRight: "slideInRight 0.3s cubic-bezier(0.16,1,0.3,1)",
                 spin: "spin 0.7s linear infinite",
               },
             },
@@ -134,30 +135,6 @@
         /* Firefox */
         scrollbar-color: var(--grass) var(--cream);
         scrollbar-width: thin;
-      }
-
-      /* Lenis smooth scroll. It sets .lenis-smooth on <html>, which turns off the
-         native scroll-behavior above — so if the script never loads, the CSS
-         smooth scrolling stays as the fallback. */
-      html.lenis,
-      html.lenis body {
-        height: auto;
-      }
-
-      .lenis.lenis-smooth {
-        scroll-behavior: auto !important;
-      }
-
-      .lenis.lenis-smooth [data-lenis-prevent] {
-        overscroll-behavior: contain;
-      }
-
-      .lenis.lenis-stopped {
-        overflow: hidden;
-      }
-
-      .lenis.lenis-smooth iframe {
-        pointer-events: none;
       }
 
       /* WebKit / Chromium. Track picks up the page cream, thumb the brand green. */
@@ -2547,7 +2524,8 @@
           resendCount: 0,
           signupData: null,
         },
-        dir: { q: "", cat: "", sub: "", age: "", town: "" },
+        dir: { q: "", cat: "", sub: "", age: "", town: "", sort: "featured" },
+        dirFiltersOpen: false,
         cal: { y: TODAY.getFullYear(), m: TODAY.getMonth(), sel: TODAY.toISOString().slice(0, 10) },
         calFilter: { cat: "", age: "", town: "" },
         dashTab: "overview",
@@ -2657,20 +2635,17 @@
         advertiser: "Stay notified on your campaign updates.",
         parent: "Stay notified on updates.",
       };
-      // Scroll helpers — route through Lenis when it is up, fall back to native
-      // otherwise (script blocked, or reduced-motion where Lenis is not started).
+      // Scroll helpers — native scrolling.
       const NAV_OFFSET = -76; // clear the sticky header
       function scrollToEl(t) {
-        if (window.lenisScroll) window.lenisScroll.scrollTo(t, { offset: NAV_OFFSET });
-        else t.scrollIntoView({ behavior: "smooth" });
+        const top = t.getBoundingClientRect().top + window.pageYOffset + NAV_OFFSET;
+        window.scrollTo({ top, behavior: "smooth" });
       }
       function scrollToTop(immediate) {
-        if (window.lenisScroll) window.lenisScroll.scrollTo(0, { immediate: !!immediate });
-        else
-          window.scrollTo({
-            top: 0,
-            behavior: immediate ? ("instant" in window ? "instant" : "auto") : "smooth",
-          });
+        window.scrollTo({
+          top: 0,
+          behavior: immediate ? ("instant" in window ? "instant" : "auto") : "smooth",
+        });
       }
       function navigate(view, opts = {}) {
         state.view = view;
@@ -2719,6 +2694,9 @@
         const r = el("nav-right");
         const links = el("nav-links");
         if (links) links.style.display = state.user ? "" : "none";
+        // Home-section anchors (What's Inside / Upcoming / Plans) only make sense on the home page.
+        const sections = el("nav-sections");
+        if (sections) sections.style.display = state.view === "home" ? "" : "none";
         let acct;
         if (state.user) {
           const initials = state.user.name
@@ -2933,7 +2911,7 @@
         </div>
       </div>
       <div class="ev-rail">
-        <div class="ev-track" id="ev-track" data-lenis-prevent>${evPrev.map((e, i) => `<div class="ev-slide">${eventCard(e, i)}</div>`).join("")}${evPrev.map((e, i) => `<div class="ev-slide" aria-hidden="true">${eventCard(e, i)}</div>`).join("")}</div>
+        <div class="ev-track" id="ev-track">${evPrev.map((e, i) => `<div class="ev-slide">${eventCard(e, i)}</div>`).join("")}${evPrev.map((e, i) => `<div class="ev-slide" aria-hidden="true">${eventCard(e, i)}</div>`).join("")}</div>
       </div>
     </section>
 
@@ -3005,7 +2983,16 @@
           <p class="text-on-dark-2 text-[1.1rem] leading-[1.65] mb-8 max-w-[52ch] text-pretty max900:mx-auto">Join thousands of parents discovering the best for their kids — camps, classes, care and events, wherever you are.</p>
 
           <div class="flex flex-col gap-[0.7rem] mb-9 max900:inline-flex max900:text-left">
-            ${[["pin", "Parents discover what's nearby"], ["dashboard", "Businesses manage their listings"], ["megaphone", "Advertisers reach local families"]].map(([ic, t]) => `<div class="flex items-center gap-3 text-white text-[1rem] font-medium"><span class="w-[30px] h-[30px] rounded-[9px] bg-white/10 border border-white/15 grid place-items-center text-mint-2 shrink-0">${icon(ic, 15)}</span>${t}</div>`).join("")}
+            ${[
+              ["pin", "Parents discover what's nearby"],
+              ["dashboard", "Businesses manage their listings"],
+              ["megaphone", "Advertisers reach local families"],
+            ]
+              .map(
+                ([ic, t]) =>
+                  `<div class="flex items-center gap-3 text-white text-[1rem] font-medium"><span class="w-[30px] h-[30px] rounded-[9px] bg-white/10 border border-white/15 grid place-items-center text-mint-2 shrink-0">${icon(ic, 15)}</span>${t}</div>`
+              )
+              .join("")}
           </div>
 
           <div class="flex gap-4 flex-wrap mb-6 max900:justify-center max560:flex-col max560:items-stretch">
@@ -3068,13 +3055,39 @@
 
               <div class="px-4 pt-4">
                 <div class="flex gap-[0.4rem] mb-4 overflow-hidden">
-                  ${[["Camps", true], ["Classes", false], ["Sports", false], ["Care", false]].map(([t, on]) => `<span class="text-[0.7rem] font-bold px-[0.7rem] py-[0.35rem] rounded-[100px] whitespace-nowrap ${on ? "bg-grass-ink text-white" : "bg-white text-muted border border-line2"}">${t}</span>`).join("")}
+                  ${[
+                    ["Camps", true],
+                    ["Classes", false],
+                    ["Sports", false],
+                    ["Care", false],
+                  ]
+                    .map(
+                      ([t, on]) =>
+                        `<span class="text-[0.7rem] font-bold px-[0.7rem] py-[0.35rem] rounded-[100px] whitespace-nowrap ${on ? "bg-grass-ink text-white" : "bg-white text-muted border border-line2"}">${t}</span>`
+                    )
+                    .join("")}
                 </div>
                 <div class="flex items-baseline justify-between mb-[0.6rem]">
                   <span class="font-serif text-[0.95rem] font-black text-navy">Near you</span>
                   <span class="text-[0.68rem] font-bold text-grass-ink">See all</span>
                 </div>
-                ${[["1526232761682-d26e03ac148e", "Little Kickers Soccer", "Ridgewood · 1.2 mi", "4.9"], ["1499892477393-f675706cbe6e", "Bergen Art Studio", "Tenafly · 2.4 mi", "4.8"], ["1600965962361-9035dbfd1c50", "Splash Swim School", "Paramus · 3.1 mi", "4.7"]].map(([im, n, loc, r]) => `<div class="flex gap-[0.7rem] items-center bg-white rounded-[14px] p-[0.5rem] mb-[0.55rem] shadow-[0_2px_10px_rgba(26,46,74,0.07)] border border-line2">
+                ${[
+                  [
+                    "1526232761682-d26e03ac148e",
+                    "Little Kickers Soccer",
+                    "Ridgewood · 1.2 mi",
+                    "4.9",
+                  ],
+                  ["1499892477393-f675706cbe6e", "Bergen Art Studio", "Tenafly · 2.4 mi", "4.8"],
+                  ["1600965962361-9035dbfd1c50", "Splash Swim School", "Paramus · 3.1 mi", "4.7"],
+                ]
+                  .map(
+                    ([
+                      im,
+                      n,
+                      loc,
+                      r,
+                    ]) => `<div class="flex gap-[0.7rem] items-center bg-white rounded-[14px] p-[0.5rem] mb-[0.55rem] shadow-[0_2px_10px_rgba(26,46,74,0.07)] border border-line2">
                   <img src="https://images.unsplash.com/photo-${im}?auto=format&fit=crop&w=160&q=70" alt="" loading="lazy" class="w-[52px] h-[52px] rounded-[10px] object-cover shrink-0">
                   <div class="min-w-0 flex-1">
                     <div class="text-[0.8rem] font-bold text-navy truncate">${n}</div>
@@ -3082,11 +3095,23 @@
                     <div class="flex items-center gap-[0.25rem] text-[0.64rem] font-bold text-star mt-[2px]">${icon("star", 10, "icon--solid")}${r}</div>
                   </div>
                   <span class="text-mint-2 leading-[0] shrink-0">${icon("chev-right", 15)}</span>
-                </div>`).join("")}
+                </div>`
+                  )
+                  .join("")}
               </div>
 
               <div class="absolute bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-line2 px-3 pt-[0.55rem] pb-[0.8rem] flex justify-around items-center">
-                ${[["search", "Discover", true], ["calendar", "Events", false], ["heart", "Saved", false], ["user", "Me", false]].map(([ic, t, on]) => `<span class="flex flex-col items-center gap-[3px] text-[0.6rem] font-bold ${on ? "text-grass-ink" : "text-muted/70"}">${icon(ic, 17)}${t}</span>`).join("")}
+                ${[
+                  ["search", "Discover", true],
+                  ["calendar", "Events", false],
+                  ["heart", "Saved", false],
+                  ["user", "Me", false],
+                ]
+                  .map(
+                    ([ic, t, on]) =>
+                      `<span class="flex flex-col items-center gap-[3px] text-[0.6rem] font-bold ${on ? "text-grass-ink" : "text-muted/70"}">${icon(ic, 17)}${t}</span>`
+                  )
+                  .join("")}
                 <span class="absolute bottom-[5px] left-1/2 -translate-x-1/2 w-[104px] h-[4px] rounded-full bg-navy/25"></span>
               </div>
             </div>
@@ -3149,6 +3174,22 @@
       };
       const evImg = (id, w) =>
         `https://images.unsplash.com/photo-${EV_IMG[id]}?auto=format&fit=crop&w=${w}&q=75`;
+      // Directory card photo per category. A broken/missing image falls back to the
+      // category gradient + icon underneath (see listingCard's onerror handler).
+      const CAT_IMG = {
+        medical: "1503454537195-1dcabb73ffb9", // smiling child
+        schools: "1509062522246-3755977927d7", // students learning
+        tutoring: "1554475901-4538ddfbccc2", // study / science
+        arts: "1499892477393-f675706cbe6e", // paints and brushes
+        sports: "1526232761682-d26e03ac148e", // kids soccer team
+        music: "1503095396549-807759245b35", // stage / performance
+        camps: "1441974231531-c6227db76b6e", // forest trail
+        parties: "1530103862676-de8c9debad1d", // party balloons
+      };
+      const catImg = (id, w = 600) =>
+        CAT_IMG[id]
+          ? `https://images.unsplash.com/photo-${CAT_IMG[id]}?auto=format&fit=crop&w=${w}&q=75`
+          : "";
       const EH_BG = {
         1: "bg-[linear-gradient(135deg,#c8ead8,#a8d5b8)]",
         2: "bg-[linear-gradient(135deg,#fde9c0,#f5c97a)]",
@@ -3193,13 +3234,61 @@
               return false;
           }
           return true;
-        }).sort((a, b) => (a.plan === b.plan ? 0 : a.plan === "deluxe" ? -1 : 1));
+        }).sort((a, b) => {
+          const s = state.dir.sort || "featured";
+          if (s === "newest") return b.created.localeCompare(a.created);
+          if (s === "rating") return b.rating - a.rating || b.reviews - a.reviews;
+          if (s === "az") return a.name.localeCompare(b.name);
+          // "featured": Deluxe listings first, as before.
+          return a.plan === b.plan ? 0 : a.plan === "deluxe" ? -1 : 1;
+        });
+      }
+      const DIR_SORTS = [
+        ["featured", "Featured"],
+        ["newest", "Newest"],
+        ["rating", "Top rated"],
+        ["az", "A–Z"],
+      ];
+      // Active-filter pills shown above the results grid, mirroring the sidebar state.
+      function dirActiveChipsInner() {
+        const f = state.dir;
+        const esc = (v) =>
+          String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const chips = [];
+        if (f.cat) chips.push(["cat", catOf(f.cat) ? catOf(f.cat).name : f.cat]);
+        if (f.sub) chips.push(["sub", f.sub]);
+        if (f.age) {
+          const g = AGE_GROUPS.find((a) => a.id === f.age);
+          chips.push(["age", g ? g.label : f.age]);
+        }
+        if (f.town) chips.push(["town", f.town]);
+        if (f.q) chips.push(["q", '"' + f.q + '"']);
+        if (!chips.length) return "";
+        return `<span class="text-[0.78rem] font-bold tracking-[0.06em] uppercase text-adlabel mr-1">Active Filter</span>${chips
+          .map(
+            ([k, label]) =>
+              `<button class="inline-flex items-center gap-2 bg-navy text-white text-[0.85rem] font-semibold pl-[0.85rem] pr-[0.55rem] py-[0.4rem] rounded-[100px] transition-colors duration-150 hover:bg-[#12233d]" data-action="rm-filter" data-key="${k}">${esc(label)} ${icon("x", 13)}</button>`
+          )
+          .join(
+            ""
+          )}<button class="text-[0.9rem] font-bold text-grass-ink underline underline-offset-2 ml-1 hover:text-navy" data-action="clear-all-dir">Clear All</button>`;
+      }
+      function dirShowingText(list) {
+        return `Showing <b class="text-navy">${list.length}</b> of <b class="text-navy">${LISTINGS.length}</b> result${LISTINGS.length !== 1 ? "s" : ""}`;
+      }
+      // One selectable row in the sidebar Category list (checkbox on the left).
+      function dirCatRow(id, name, active) {
+        return `<button class="flex items-center gap-[0.65rem] w-full text-left px-[0.6rem] py-[0.6rem] rounded-[10px] transition-colors duration-150 ${active ? "bg-mint" : "hover:bg-[#f4f8f5]"}" data-action="set-cat" data-cat="${id}">
+      <span class="w-[20px] h-[20px] rounded-[6px] border-[1.5px] flex items-center justify-center shrink-0 transition-colors duration-150 ${active ? "bg-grass-ink border-grass-ink text-white" : "border-line bg-white text-transparent"}">${icon("check", 13)}</span>
+      <span class="text-[0.93rem] leading-tight ${active ? "text-navy font-bold" : "text-muted font-medium"}">${name}</span>
+    </button>`;
       }
       function viewDirectory() {
         const f = state.dir;
         const cat = f.cat ? catOf(f.cat) : null;
         const list = filteredListings();
         const subs = cat ? cat.sub : [];
+        const dirActiveCount = [f.q, f.cat, f.sub, f.age, f.town].filter(Boolean).length;
         return `<div class="w-full"><div class="min-w-0"><div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
     <div class="mb-7">
       <div class="flex items-center gap-[0.4rem] text-[0.9rem] text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-grass-ink font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>Directory</span>${cat ? icon("chev-right", 14, "text-adlabel") + "<span>" + cat.name + "</span>" : ""}</div>
@@ -3207,45 +3296,87 @@
       <p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">${cat ? "Browse trusted " + cat.name.toLowerCase() + " for children across Bergen County." : "Search and filter every trusted kids service and activity in Bergen County by category, age, and town."}</p>
     </div>
 
-    <div class="filter-bar bg-white border-[1.5px] border-line rounded-[18px] p-4 grid grid-cols-[1.6fr_1fr_1fr_1fr_auto] gap-3 items-center mb-6 shadow-[0_4px_20px_rgba(26,46,74,0.05)] max900:!grid-cols-[1fr_1fr] max700:!grid-cols-[1fr]">
-      <div class="flex flex-col gap-1"><label class="text-[0.75rem] font-bold tracking-[0.07em] uppercase text-adlabel pl-2">Search</label><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-[#fbfcfd] min-h-[46px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("search", 16, "text-muted shrink-0")}<input class="border-none outline-none bg-transparent font-sans text-[1rem] text-navy w-full min-w-0 cursor-text placeholder:text-muted placeholder:opacity-100" type="text" id="d-q" placeholder="Name, service, keyword…" value="${f.q.replace(/"/g, "&quot;")}"></div></div>
-      <div class="flex flex-col gap-1"><label class="text-[0.75rem] font-bold tracking-[0.07em] uppercase text-adlabel pl-2">Category</label><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-[#fbfcfd] min-h-[46px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("sliders", 16, "text-muted shrink-0")}<select class="border-none outline-none bg-transparent font-sans text-[1rem] text-navy w-full min-w-0 cursor-pointer" id="d-cat"><option value="">All categories</option>${CATEGORIES.map((c) => `<option value="${c.id}" ${f.cat === c.id ? "selected" : ""}>${c.name}</option>`).join("")}</select></div></div>
-      <div class="flex flex-col gap-1"><label class="text-[0.75rem] font-bold tracking-[0.07em] uppercase text-adlabel pl-2">Age group</label><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-[#fbfcfd] min-h-[46px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("users", 16, "text-muted shrink-0")}<select class="border-none outline-none bg-transparent font-sans text-[1rem] text-navy w-full min-w-0 cursor-pointer" id="d-age"><option value="">All ages</option>${AGE_GROUPS.map((a) => `<option value="${a.id}" ${f.age === a.id ? "selected" : ""}>${a.label}</option>`).join("")}</select></div></div>
-      <div class="flex flex-col gap-1"><label class="text-[0.75rem] font-bold tracking-[0.07em] uppercase text-adlabel pl-2">Location</label><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-[#fbfcfd] min-h-[46px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("pin", 16, "text-muted shrink-0")}<select class="border-none outline-none bg-transparent font-sans text-[1rem] text-navy w-full min-w-0 cursor-pointer" id="d-town"><option value="">All towns</option>${TOWNS.map((t) => `<option value="${t}" ${f.town === t ? "selected" : ""}>${t}</option>`).join("")}</select></div></div>
-      <button class="bg-transparent border-none text-muted text-[0.9rem] font-bold flex items-center gap-[0.3rem] whitespace-nowrap self-end px-2 py-[0.7rem] min-h-[44px] hover:text-navy hover:underline max700:self-start max700:justify-center max700:border-[1.5px] max700:border-solid max700:border-line max700:rounded-[10px]" data-action="clear-filters">${icon("x", 15)} Clear</button>
+    <button class="hidden max900:flex items-center justify-center gap-2 w-full mb-4 border-[1.5px] border-line rounded-[12px] bg-white px-4 py-3 font-bold text-navy min-h-[50px] shadow-[0_4px_20px_rgba(26,46,74,0.05)] hover:border-navy" data-action="toggle-dir-filters" aria-expanded="${state.dirFiltersOpen}">${icon("sliders", 17, "text-grass-ink")} ${state.dirFiltersOpen ? "Hide Filters" : "Show Filters"}${dirActiveCount ? `<span class="inline-flex items-center justify-center min-w-[22px] h-[22px] px-[6px] rounded-[100px] bg-navy text-white text-[0.75rem] font-extrabold">${dirActiveCount}</span>` : ""}</button>
+
+    <div class="grid grid-cols-[250px_minmax(0,1fr)] gap-7 [align-items:start] [&>*]:min-w-0 max900:grid-cols-[1fr]">
+      <aside class="dir-side bg-white border-[1.5px] border-line rounded-[18px] p-5 sticky top-[84px] shadow-[0_4px_20px_rgba(26,46,74,0.05)] max900:static max900:top-auto ${state.dirFiltersOpen ? "" : "max900:hidden"}">
+        <div class="flex items-center mb-4">
+          <div class="font-serif text-[1.25rem] font-black text-navy">Filter Options</div>
+        </div>
+
+        <div class="mb-5"><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-[#fbfcfd] min-h-[46px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("search", 16, "text-muted shrink-0")}<input class="border-none outline-none bg-transparent font-sans text-[0.95rem] text-navy w-full min-w-0 cursor-text placeholder:text-muted placeholder:opacity-100" type="text" id="d-q" placeholder="Name..." value="${f.q.replace(/"/g, "&quot;")}"></div></div>
+
+        <div class="border-t border-line pt-4 mb-4">
+          <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-navy mb-2">Category</div>
+          <div class="flex flex-col gap-1">
+            ${dirCatRow("", "All categories", !f.cat)}
+            ${CATEGORIES.map((c) => dirCatRow(c.id, c.name, f.cat === c.id)).join("")}
+          </div>
+        </div>
+
+        ${
+          subs.length
+            ? `<div class="border-t border-line pt-4 mb-4">
+          <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-navy mb-2">${cat.name.split(" ")[0]} Type</div>
+          <div class="flex gap-2 flex-wrap">
+            <span class="${!f.sub ? "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-navy border-navy text-white" : "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-white border-line text-navy hover:border-navy"}" data-action="set-sub" data-sub="">All</span>
+            ${subs.map((s) => `<span class="${f.sub === s ? "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-navy border-navy text-white" : "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-white border-line text-navy hover:border-navy"}" data-action="set-sub" data-sub="${s}">${s}</span>`).join("")}
+          </div>
+        </div>`
+            : ""
+        }
+
+        <div class="border-t border-line pt-4 mb-4">
+          <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-navy mb-2">Age Group</div>
+          <div class="flex gap-2 flex-wrap">
+            <span class="${!f.age ? "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-navy border-navy text-white" : "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-white border-line text-navy hover:border-navy"}" data-action="set-age" data-age="">All ages</span>
+            ${AGE_GROUPS.map((a) => `<span class="${f.age === a.id ? "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-navy border-navy text-white" : "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-white border-line text-navy hover:border-navy"}" data-action="set-age" data-age="${a.id}">${a.label}</span>`).join("")}
+          </div>
+        </div>
+
+        <div class="border-t border-line pt-4">
+          <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-navy mb-2">Location</div>
+          <div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-[#fbfcfd] min-h-[46px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("pin", 16, "text-muted shrink-0")}<select class="border-none outline-none bg-transparent font-sans text-[0.95rem] text-navy w-full min-w-0 cursor-pointer" id="d-town"><option value="">All towns</option>${TOWNS.map((t) => `<option value="${t}" ${f.town === t ? "selected" : ""}>${t}</option>`).join("")}</select></div>
+        </div>
+      </aside>
+
+      <div class="min-w-0">
+        <div class="flex justify-between items-center gap-3 flex-wrap mb-4 max560:flex-col max560:items-start">
+          <div class="dir-showing text-[0.95rem] text-muted">${dirShowingText(list)}</div>
+          <div class="flex items-center gap-2 shrink-0">
+            <label class="text-[0.9rem] text-muted font-medium whitespace-nowrap" for="d-sort">Sort By:</label>
+            <div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.5rem] bg-white min-h-[42px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]"><select class="appearance-none border-none outline-none bg-transparent font-sans text-[0.95rem] font-semibold text-navy cursor-pointer pr-1" id="d-sort">${DIR_SORTS.map(([v, lbl]) => `<option value="${v}" ${f.sort === v ? "selected" : ""}>${lbl}</option>`).join("")}</select>${icon("chev-down", 15, "text-muted shrink-0")}</div>
+          </div>
+        </div>
+
+        <div class="dir-chips empty:hidden flex items-center gap-2 flex-wrap mb-5">${dirActiveChipsInner()}</div>
+
+        ${
+          list.length
+            ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-5">${list.map(listingCard).join("")}</div>`
+            : `<div class="empty text-center px-4 py-16 text-muted text-[1rem] leading-[1.6]">${icon("search", 40, "text-adlabel mb-3")}<div style="font-weight:700;color:var(--navy);margin-bottom:0.3rem">No results found</div><div>Try adjusting your filters or clearing them to see everything.</div></div>`
+        }
+      </div>
     </div>
-
-    ${subs.length ? `<div class="flex gap-2 flex-wrap" style="margin-bottom:1.25rem"><span class="${!f.sub ? "border-[1.5px] text-[0.9rem] font-semibold px-4 py-2 rounded-[100px] cursor-pointer transition-all duration-150 min-h-[40px] bg-navy border-navy text-white" : "border-[1.5px] text-[0.9rem] font-semibold px-4 py-2 rounded-[100px] cursor-pointer transition-all duration-150 min-h-[40px] bg-white border-line text-navy hover:border-navy"}" data-action="set-sub" data-sub="">All ${cat.name.split(" ")[0]}</span>${subs.map((s) => `<span class="${f.sub === s ? "border-[1.5px] text-[0.9rem] font-semibold px-4 py-2 rounded-[100px] cursor-pointer transition-all duration-150 min-h-[40px] bg-navy border-navy text-white" : "border-[1.5px] text-[0.9rem] font-semibold px-4 py-2 rounded-[100px] cursor-pointer transition-all duration-150 min-h-[40px] bg-white border-line text-navy hover:border-navy"}" data-action="set-sub" data-sub="${s}">${s}</span>`).join("")}</div>` : ""}
-
-    <div class="results-bar flex justify-between items-center mb-5 flex-wrap gap-3 max700:flex-col max700:items-start">
-      <div class="results-count text-[1rem] text-muted"><b class="text-navy">${list.length}</b> result${list.length !== 1 ? "s" : ""} found${f.town ? " in " + f.town : ""}</div>
-      <button class="bg-transparent border-none text-muted text-[0.9rem] font-bold flex items-center gap-[0.3rem] whitespace-nowrap self-end px-2 py-[0.7rem] min-h-[44px] hover:text-navy hover:underline max700:self-start max700:justify-center max700:border-[1.5px] max700:border-solid max700:border-line max700:rounded-[10px]" data-action="near-me">${icon("pin", 15)} Near me</button>
-    </div>
-
-    ${
-      list.length
-        ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(300px,100%),1fr))] gap-5">${list.map(listingCard).join("")}</div>`
-        : `<div class="empty text-center px-4 py-16 text-muted text-[1rem] leading-[1.6]">${icon("search", 40, "text-adlabel mb-3")}<div style="font-weight:700;color:var(--navy);margin-bottom:0.3rem">No results found</div><div>Try adjusting your filters or clearing them to see everything.</div></div>`
-    }
   </div></div></div>`;
       }
       function listingCard(l) {
         const c = catOf(l.cat);
         const dlx = l.plan === "deluxe";
-        const media = dlx
-          ? `<div class="h-[120px] flex [&>div]:flex-1" style="background:${c.grad}">${[0, 1, 2].map(() => `<div></div>`).join("")}</div>`
-          : `<div class="h-[8px] flex"><div style="flex:1;background:${c.grad}"></div></div>`;
-        return `<div class="lcard bg-white border-[1.5px] rounded-[18px] overflow-hidden cursor-pointer transition-[transform,box-shadow] duration-200 flex flex-col hover:-translate-y-1 hover:shadow-[0_14px_40px_rgba(26,46,74,0.12)] ${dlx ? "border-[#f0c98a] shadow-[0_4px_18px_rgba(245,166,35,0.12)]" : "border-line"}" data-action="open-listing" data-id="${l.id}">
-    ${media}
-    <div class="px-[1.2rem] pt-[1.1rem] pb-[1.2rem] flex flex-col flex-1">
-      <div class="flex gap-[0.85rem] items-start mb-[0.6rem]">
-        <div class="w-[46px] h-[46px] rounded-[12px] flex items-center justify-center text-navy shrink-0" style="background:${c.tint}">${icon(l.icon, 24)}</div>
-        <div style="flex:1;min-width:0"><div class="font-extrabold text-[1.1rem] text-navy leading-[1.25] flex items-center gap-[0.35rem]">${l.name}</div>
-          <div class="text-[0.85rem] text-muted mt-[3px]">${l.sub} · ${c.name.split(" ")[0]}</div></div>
-        <span class="ml-auto text-[0.68rem] font-extrabold tracking-[0.05em] uppercase px-[9px] py-[4px] rounded-[100px] shrink-0 ${dlx ? "bg-sun text-navy" : "bg-[#e6ebf1] text-muted"}">${dlx ? "Featured" : "Basic"}</span>
+        return `<div class="lcard group bg-white border-[1.5px] rounded-[18px] overflow-hidden cursor-pointer transition-[transform,box-shadow] duration-200 flex flex-col hover:-translate-y-1 hover:shadow-[0_14px_40px_rgba(26,46,74,0.12)] ${dlx ? "border-[#f0c98a] shadow-[0_4px_18px_rgba(245,166,35,0.12)]" : "border-line"}" data-action="open-listing" data-id="${l.id}">
+    <div class="relative h-[168px] overflow-hidden" style="background:${c.grad}">
+      <div class="absolute inset-0 flex items-center justify-center text-white">${icon(l.icon, 54, "opacity-95")}</div>
+      ${catImg(l.cat) ? `<img src="${catImg(l.cat)}" alt="${c.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">` : ""}
+      <span class="absolute top-3 left-3 z-[1] text-[0.68rem] font-extrabold tracking-[0.05em] uppercase px-[10px] py-[5px] rounded-[100px] shadow-[0_2px_8px_rgba(26,46,74,0.18)] ${dlx ? "bg-sun text-navy" : "bg-white/95 text-muted"}">${dlx ? "Featured" : "Basic"}</span>
+      ${l.verified ? `<span class="absolute top-3 right-3 z-[1] w-[26px] h-[26px] rounded-full bg-white/95 text-grass-ink flex items-center justify-center shadow-[0_2px_8px_rgba(26,46,74,0.18)]" title="Verified">${icon("check", 15)}</span>` : ""}
+    </div>
+    <div class="px-[1.1rem] pt-[0.9rem] pb-[1.1rem] flex flex-col flex-1">
+      <div class="text-[0.78rem] font-bold text-adlabel mb-[0.35rem]">${l.sub} · ${c.name.split(" ")[0]}</div>
+      <div class="flex items-start justify-between gap-2 mb-[0.55rem]">
+        <div class="font-extrabold text-[1.05rem] text-navy leading-[1.25] min-w-0">${l.name}</div>
+        <span class="inline-flex items-center gap-[0.2rem] text-[0.82rem] font-bold text-star shrink-0">${icon("star", 13, "icon--solid")}${l.rating}</span>
       </div>
-      <div class="text-[0.93rem] text-muted leading-[1.6] mb-[0.85rem] flex-1">${l.desc}</div>
-      <div class="flex items-center gap-x-4 gap-y-2 text-[0.88rem] text-muted flex-wrap font-medium [&>span]:inline-flex [&>span]:items-center [&>span]:gap-[0.3rem]">
+      <div class="flex items-center gap-x-4 gap-y-1 text-[0.85rem] text-muted flex-wrap font-medium mt-auto [&>span]:inline-flex [&>span]:items-center [&>span]:gap-[0.3rem]">
         <span>${icon("pin", 13)} ${l.town}</span>
         <span>${icon("users", 13)} Ages ${l.ageMin}–${l.ageMax}</span>
       </div>
@@ -4300,16 +4431,25 @@
         el("modal-root").innerHTML = "";
         document.body.style.overflow = "";
       }
+      // Right-side slide-in panel. Shares modal-root + close-modal wiring with openModal,
+      // so closeModal() and Escape close it the same way.
+      function openDrawer(html) {
+        el("modal-root").innerHTML =
+          `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex justify-end animate-fade"><div class="drawer relative bg-white w-full max-w-[440px] h-full shadow-[-16px_0_60px_rgba(15,26,44,0.35)] animate-slideInRight overflow-y-auto overscroll-contain max560:max-w-full [&_h2]:font-serif [&_h2]:text-[1.6rem] [&_h2]:text-navy [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2]"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-navy flex items-center justify-center z-[5] shadow-[0_2px_10px_rgba(15,26,44,0.18)] hover:bg-white" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
+        document.body.style.overflow = "hidden";
+      }
 
       function listingModal(id) {
         const l = LISTINGS.find((x) => x.id === id);
         if (!l) return;
         const c = catOf(l.cat);
         l.clicks++; // track a click
-        const photos = (l.photos || []).slice(0, 4);
-        const header = photos.length
-          ? `<div class="grid gap-[4px] h-[190px] overflow-hidden [&>div]:flex [&>div]:items-center [&>div]:justify-center [&>div]:text-white/[0.55] max700:h-[170px] max380:h-[140px]" style="grid-template-columns:repeat(${photos.length},1fr);background:${c.grad}">${photos.map((p, i) => `<div style="background:${c.grad};filter:brightness(${0.85 + i * 0.12})">${icon("image", 26)}</div>`).join("")}</div>`
-          : `<div style="height:10px;background:${c.grad}"></div>`;
+        const img = catImg(l.cat, 800);
+        const header = `<div class="relative h-[200px] overflow-hidden max560:h-[180px]" style="background:${c.grad}">
+          <div class="absolute inset-0 flex items-center justify-center text-white">${icon(l.icon || c.icon, 52)}</div>
+          ${img ? `<img src="${img}" alt="${c.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">` : ""}
+          <span class="absolute top-3 left-3 z-[1] text-[0.68rem] font-extrabold tracking-[0.05em] uppercase px-[10px] py-[5px] rounded-[100px] shadow-[0_2px_8px_rgba(26,46,74,0.18)] ${l.plan === "deluxe" ? "bg-sun text-navy" : "bg-white/95 text-muted"}">${l.plan === "deluxe" ? "Featured" : "Basic"}</span>
+        </div>`;
         const logo = l.logo
           ? `<div class="w-[60px] h-[60px] rounded-[15px] flex items-center justify-center text-white shrink-0 border-[3px] border-white shadow-[0_2px_10px_rgba(15,26,44,0.18)]" style="background:${c.grad}" title="${c.name}">${icon(l.icon || c.icon, 28)}</div>`
           : "";
@@ -4332,22 +4472,22 @@
         ]
           .filter(Boolean)
           .join("");
-        openModal(
+        openDrawer(
           `
     ${header}
-    <div class="p-7 max700:p-5" style="padding-top:1.25rem">
-      <div class="flex gap-4 items-start mb-4 max700:flex-col">
+    <div class="p-6 max560:p-5">
+      <div class="flex gap-4 items-start mb-4">
         ${logo}
         <div style="flex:1"><h2>${l.name}</h2>
-          <div class="text-muted text-[0.98rem] mt-[0.35rem] leading-[1.55]">${l.sub} · ${c.name} · ${l.town}, NJ</div></div>
+          <div class="text-muted text-[0.95rem] mt-[0.35rem] leading-[1.55]">${l.sub} · ${c.name} · ${l.town}, NJ</div>
+          <div class="inline-flex items-center gap-[0.3rem] text-[0.9rem] font-bold text-star mt-[0.5rem]">${icon("star", 14, "icon--solid")} ${l.rating} <span class="text-muted font-medium">(${l.reviews} reviews)</span></div></div>
       </div>
-      ${l.desc ? `<p style="color:var(--text);line-height:1.7;font-size:1.02rem">${l.desc}</p>` : ""}
-      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-[0.85rem] my-5">${info}</div>
-      <div class="flex gap-3 flex-wrap mt-5 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center">
+      ${l.desc ? `<p style="color:var(--text);line-height:1.7;font-size:1rem">${l.desc}</p>` : ""}
+      <div class="grid grid-cols-[1fr] gap-[0.85rem] my-5">${info}</div>
+      <div class="flex gap-3 flex-wrap mt-5 [&>*]:w-full [&>*]:justify-center">
         ${l.website ? `<button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="ext-link" data-url="${l.website}">${icon("globe", 16)} Visit Link</button>` : ""}
       </div>
-    </div>`,
-          true
+    </div>`
         );
       }
 
@@ -4693,6 +4833,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               sub: "",
               age: "",
               town: "",
+              sort: state.dir.sort || "featured",
             };
           }
           if (
@@ -4763,9 +4904,46 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               doHomeSearch();
               break;
             case "clear-filters":
-              state.dir = { q: "", cat: state.dir.cat, sub: "", age: "", town: "" };
+              state.dir = {
+                q: "",
+                cat: state.dir.cat,
+                sub: "",
+                age: "",
+                town: "",
+                sort: state.dir.sort,
+              };
               render();
               break;
+            case "clear-all-dir":
+              state.dir = { q: "", cat: "", sub: "", age: "", town: "", sort: state.dir.sort };
+              render();
+              break;
+            case "toggle-dir-filters":
+              state.dirFiltersOpen = !state.dirFiltersOpen;
+              render();
+              break;
+            case "set-cat":
+              state.dir.cat = actEl.dataset.cat;
+              state.dir.sub = "";
+              render();
+              break;
+            case "set-age":
+              state.dir.age = actEl.dataset.age;
+              render();
+              break;
+            case "rm-filter": {
+              const k = actEl.dataset.key;
+              if (k === "cat") {
+                state.dir.cat = "";
+                state.dir.sub = "";
+              } else if (k === "q") {
+                state.dir.q = "";
+              } else {
+                state.dir[k] = "";
+              }
+              render();
+              break;
+            }
             case "set-sub":
               state.dir.sub = actEl.dataset.sub;
               render();
@@ -5134,15 +5312,11 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         }
       });
       document.addEventListener("change", (e) => {
-        if (e.target.id === "d-cat") {
-          state.dir.cat = e.target.value;
-          state.dir.sub = "";
-          render();
-        } else if (e.target.id === "d-age") {
-          state.dir.age = e.target.value;
-          updateDirResults();
-        } else if (e.target.id === "d-town") {
+        if (e.target.id === "d-town") {
           state.dir.town = e.target.value;
+          updateDirResults();
+        } else if (e.target.id === "d-sort") {
+          state.dir.sort = e.target.value;
           updateDirResults();
         } else if (e.target.id === "c-cat") {
           state.calFilter.cat = e.target.value;
@@ -5241,21 +5415,22 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         const list = filteredListings();
         const grid = document.querySelector(".listing-grid");
         const empty = document.querySelector(".view-full .empty");
-        const count = document.querySelector(".results-count");
-        if (count)
-          count.innerHTML = `<b>${list.length}</b> result${list.length !== 1 ? "s" : ""} found${state.dir.town ? " in " + state.dir.town : ""}`;
+        const showing = document.querySelector(".dir-showing");
+        if (showing) showing.innerHTML = dirShowingText(list);
+        const chips = document.querySelector(".dir-chips");
+        if (chips) chips.innerHTML = dirActiveChipsInner();
         const container = document.querySelector(".view-full");
         if (!container) return;
         const target = grid || empty;
         const newHtml = list.length
-          ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(300px,100%),1fr))] gap-5">${list.map(listingCard).join("")}</div>`
+          ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-5">${list.map(listingCard).join("")}</div>`
           : `<div class="empty text-center px-4 py-16 text-muted text-[1rem] leading-[1.6]">${icon("search", 40, "text-adlabel mb-3")}<div style="font-weight:700;color:var(--navy);margin-bottom:0.3rem">No results found</div><div>Try adjusting your filters or clearing them to see everything.</div></div>`;
         if (target) target.outerHTML = newHtml;
       }
       function doHomeSearch() {
         const q = el("home-search")?.value || "";
         const cat = el("home-cat")?.value || "";
-        state.dir = { q, cat, sub: "", age: "", town: "" };
+        state.dir = { q, cat, sub: "", age: "", town: "", sort: state.dir.sort || "featured" };
         navigate("directory");
       }
       function shiftMonth(dir) {
@@ -5986,20 +6161,6 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         place();
         toggle();
       }
-      // Lenis is deferred, so it has not executed while this inline script runs.
-      // DOMContentLoaded fires after deferred scripts, which is where it exists.
-      function mountSmoothScroll() {
-        if (!window.Lenis) return; // CDN blocked — native scrolling still fine
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-        const lenis = new Lenis({ duration: 1.05, smoothWheel: true });
-        window.lenisScroll = lenis;
-        const raf = (time) => {
-          lenis.raf(time);
-          requestAnimationFrame(raf);
-        };
-        requestAnimationFrame(raf);
-      }
-      window.addEventListener("DOMContentLoaded", mountSmoothScroll);
       render();
       mountSponsorBar();
       mountToTop();
