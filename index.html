@@ -737,16 +737,17 @@
         font-feature-settings: "tnum";
       }
 
-      /* ── Promo ad slot (mid-page + footer banner) ───────────── */
+      /* ── Promo ad slot ──────────────────────────────────────────
+         Same language as the corner popup ad: the advertiser's photo runs
+         full-bleed behind a scrim that is darkest top and bottom, with the
+         micro-label at the head and the headline plus CTA at the foot. */
       .promo-ad {
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
+        position: relative;
+        display: block;
         width: 100%;
-        padding: 1.15rem 1.35rem;
-        border-radius: 22px;
-        background: linear-gradient(100deg, #e3f2e9 0%, #e2ebfa 55%, #efe8f8 100%);
-        border: 1.5px solid rgba(26, 46, 74, 0.08);
+        overflow: hidden;
+        border-radius: 18px;
+        background: var(--navy);
         cursor: pointer;
         transition:
           transform 0.2s ease,
@@ -755,47 +756,65 @@
 
       .promo-ad:hover {
         transform: translateY(-3px);
-        box-shadow: 0 14px 40px rgba(26, 46, 74, 0.16);
+        box-shadow: 0 16px 42px rgba(26, 46, 74, 0.22);
       }
 
-      /* Sitting on the dark footer band: white rim, deeper lift. */
-      .promo-ad--on-dark {
-        border-color: rgba(255, 255, 255, 0.55);
-      }
-
-      .promo-ad--on-dark:hover {
-        box-shadow: 0 16px 42px rgba(0, 0, 0, 0.3);
-      }
-
-      /* Stacked variant for narrow containers, e.g. the listing detail drawer. */
-      .promo-ad--stack {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-      }
-
-      .promo-ad--stack .promo-ad-cta {
+      .promo-ad-photo {
+        position: absolute;
+        inset: 0;
         width: 100%;
-        justify-content: center;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      /* The campaign's own gradient, multiplied over the photo so every
+         advertiser keeps its colour without a second art asset. */
+      .promo-ad-tint {
+        position: absolute;
+        inset: 0;
+        opacity: 0.5;
+        mix-blend-mode: multiply;
+      }
+
+      .promo-ad-scrim {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(9, 15, 26, 0.88) 0%,
+          rgba(9, 15, 26, 0.4) 40%,
+          rgba(9, 15, 26, 0.94) 100%
+        );
+      }
+
+      .promo-ad-body {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-height: 310px;
+        padding: 1.15rem;
       }
 
       .promo-ad-chip {
-        width: 52px;
-        height: 52px;
-        border-radius: 16px;
-        background: linear-gradient(135deg, #1e8c7a, #2d7a4f);
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        background: rgba(255, 255, 255, 0.16);
         color: #fff;
         display: grid;
         place-items: center;
         flex-shrink: 0;
+        backdrop-filter: blur(4px);
       }
 
       .promo-ad-cta {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 0.4rem;
-        flex-shrink: 0;
+        width: 100%;
         min-height: 46px;
+        margin-top: 0.9rem;
         padding: 0.7rem 1.5rem;
         border-radius: 100px;
         background: var(--sun);
@@ -807,20 +826,7 @@
       }
 
       .promo-ad:hover .promo-ad-cta {
-        transform: translateX(3px);
-      }
-
-      @media (max-width: 700px) {
-        .promo-ad {
-          flex-direction: column;
-          text-align: center;
-          padding: 1.35rem;
-        }
-
-        .promo-ad-cta {
-          width: 100%;
-          justify-content: center;
-        }
+        transform: translateY(-1px);
       }
 
       /* ── Site nav ───────────────────────────────────────────── */
@@ -4661,6 +4667,36 @@
             'Nice pick! <span class="text-sun">Free trial lesson unlocked →</span>';
         toast("Thanks — your pick went to Bergen Aquatic Center.");
       }
+      // In-page ad unit, styled like the corner popup. Driven off PUBLIC_ADS so
+      // any campaign renders without hand-written copy at the call site; clicking
+      // it falls through to data-adclick → adDetailModal.
+      function promoAdCard(key) {
+        const a = PUBLIC_ADS[key];
+        if (!a) return "";
+        const c = catOf(a.cat);
+        const photo = catImg(a.cat, 800);
+        return `<div class="promo-ad" data-adclick="${key}">
+      ${photo ? `<img src="${photo}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="promo-ad-photo">` : ""}
+      <div class="promo-ad-tint" style="background:${a.grad}"></div>
+      <div class="promo-ad-scrim"></div>
+      <div class="promo-ad-body">
+        <div class="flex items-center gap-3">
+          <span class="promo-ad-chip">${icon(a.icon, 20)}</span>
+          <div class="flex items-center gap-[0.4rem] text-[0.6rem] font-bold uppercase tracking-[0.14em] text-on-dark-3">
+            <span class="sponsor-live"></span>Advertisement
+          </div>
+        </div>
+        <div class="mt-auto pt-6">
+          <div class="text-[0.72rem] font-extrabold uppercase tracking-[0.14em] text-white/85 [text-shadow:0_2px_10px_rgba(9,15,26,0.85)]">${a.advertiser}</div>
+          <div class="mt-[0.35rem] font-serif text-[1.45rem] font-black leading-[1.14] text-white [text-shadow:0_2px_16px_rgba(9,15,26,0.75)]">${a.headline}</div>
+          <div class="mt-[0.5rem] text-[0.72rem] leading-[1.55] text-white/60 [text-shadow:0_2px_10px_rgba(9,15,26,0.85)]">
+            ${c ? c.name : ""}${a.sub ? " · " + a.sub : ""}<br>${fmtDate(a.start)} – ${fmtDate(a.end)}
+          </div>
+          <span class="promo-ad-cta">Visit Link <span aria-hidden="true">→</span></span>
+        </div>
+      </div>
+    </div>`;
+      }
       function adDetailModal(key) {
         const a = PUBLIC_ADS[key];
         if (!a) return false;
@@ -5377,14 +5413,7 @@
       </div>
       <div class="mt-7 pt-6 border-t border-line">
         <div class="mb-3 flex items-center gap-[0.6rem] text-[0.72rem] font-bold uppercase tracking-[0.14em] text-adlabel after:h-px after:flex-1 after:bg-current after:opacity-30 after:content-['']">Advertisement</div>
-        <div class="promo-ad promo-ad--stack" data-adclick="Kumon Math & Reading">
-          <span class="promo-ad-chip">${icon("cap", 28)}</span>
-          <div class="flex-1 min-w-0">
-            <div class="font-extrabold text-[1.05rem] text-navy mb-1 leading-[1.35]">Kumon Math &amp; Reading Centers — Now Enrolling in Bergen County</div>
-            <div class="text-[0.88rem] text-muted font-medium leading-[1.5]">${adMeta("Kumon Math & Reading")}</div>
-          </div>
-          <span class="promo-ad-cta">Visit Link <span aria-hidden="true">→</span></span>
-        </div>
+        ${promoAdCard("Kumon Math & Reading")}
       </div>
     </div>`,
           true // wider drawer for the directory detail page
