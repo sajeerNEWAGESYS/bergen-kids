@@ -1152,6 +1152,125 @@
         background: var(--sun);
       }
 
+      /* ── Toasts ─────────────────────────────────────────────────
+         Top centre, clear of the nav. They used to sit bottom-centre, which is
+         where the sponsor bar and the corner ad live — messages landed behind
+         them. Above every overlay (z 2000) so modal flows can still confirm. */
+      #toast-root {
+        position: fixed;
+        top: 88px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.55rem;
+        pointer-events: none;
+      }
+
+      @media (max-width: 700px) {
+        #toast-root {
+          top: 74px;
+          left: 12px;
+          right: 12px;
+          transform: none;
+          align-items: stretch;
+        }
+      }
+
+      .toast {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        min-width: 260px;
+        max-width: min(440px, calc(100vw - 2rem));
+        padding: 0.6rem 1.15rem 0.6rem 0.6rem;
+        border-radius: 14px;
+        background: linear-gradient(150deg, rgba(26, 46, 74, 0.97), rgba(12, 26, 45, 0.97));
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        box-shadow:
+          0 16px 44px rgba(9, 15, 26, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        -webkit-backdrop-filter: blur(10px) saturate(1.4);
+        backdrop-filter: blur(10px) saturate(1.4);
+        color: #fff;
+        font-size: 0.94rem;
+        font-weight: 600;
+        line-height: 1.45;
+        overflow: hidden;
+        pointer-events: auto;
+        animation: toastPop 0.34s cubic-bezier(0.22, 1.2, 0.36, 1);
+      }
+
+      .toast-mark {
+        width: 32px;
+        height: 32px;
+        flex: none;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(150deg, #2d7a4f, #14685a);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      }
+
+      /* Depletes over the toast's life, so the dismissal is never a surprise. */
+      .toast-bar {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 2px;
+        width: 100%;
+        transform-origin: left;
+        background: linear-gradient(90deg, var(--sun), #7ee0b0);
+        animation: toastBar 2.6s linear forwards;
+      }
+
+      @keyframes toastPop {
+        from {
+          opacity: 0;
+          transform: translateY(-10px) scale(0.96);
+        }
+      }
+
+      @keyframes toastBar {
+        to {
+          transform: scaleX(0);
+        }
+      }
+
+      .toast.is-out {
+        opacity: 0;
+        transform: translateY(-8px);
+        transition:
+          opacity 0.3s ease,
+          transform 0.3s ease;
+      }
+
+      /* ── Split auth panel ───────────────────────────────────────
+         Capped to the viewport minus the overlay's own padding so the panel
+         never runs off screen; a long form scrolls inside .auth-form instead.
+         Kept as real CSS rather than a Tailwind arbitrary value because the
+         panel is injected at runtime and the cap must never be missing. */
+      .auth-panel {
+        display: flex;
+        max-height: calc(100dvh - 3rem);
+      }
+
+      .auth-form {
+        /* min-height:0 is what lets a flex item scroll rather than stretch. */
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+      }
+
+      @media (max-width: 700px) {
+        .auth-panel {
+          max-height: calc(100dvh - 1.5rem);
+        }
+      }
+
       .sponsor-live {
         width: 7px;
         height: 7px;
@@ -1492,10 +1611,7 @@
       </defs>
     </svg>
 
-    <div
-      id="toast-root"
-      class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[2000] flex flex-col gap-[0.6rem] items-center"
-    ></div>
+    <div id="toast-root"></div>
     <div id="modal-root"></div>
 
     <!-- NAV -->
@@ -5059,9 +5175,17 @@
       </div>
     </div></div>`;
       }
+      // `wide`: true widens to 760px, "split" to 940px for the two-column panels
+      // (auth) that carry a full-bleed image alongside the form.
       function openModal(html, wide) {
+        const width =
+          wide === "split" ? "max-w-[1100px]" : wide ? "max-w-[760px]" : "max-w-[560px]";
+        // The split panel is the tallest thing we open, so it gets a slimmer
+        // gutter — every rem here is a rem the form cannot use. Keep in step with
+        // the .auth-panel max-height, which subtracts exactly this much.
+        const pad = wide === "split" ? "py-6 max700:py-3" : "py-14 max700:py-5";
         el("modal-root").innerHTML =
-          `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex items-start justify-center px-4 py-14 overflow-y-auto animate-fade max700:px-3 max700:py-5"><div class="modal bg-white rounded-[22px] w-full shadow-[0_30px_80px_rgba(15,26,44,0.4)] animate-rise overflow-hidden max700:rounded-[18px] [&_h2]:font-serif [&_h2]:text-[1.6rem] [&_h2]:text-navy [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2] ${wide ? "max-w-[760px]" : "max-w-[560px]"}"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-navy flex items-center justify-center z-[5] shadow-[0_2px_10px_rgba(15,26,44,0.18)] hover:bg-white" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
+          `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex items-start justify-center px-4 ${pad} overflow-y-auto animate-fade max700:px-3"><div class="modal bg-white rounded-[22px] w-full shadow-[0_30px_80px_rgba(15,26,44,0.4)] animate-rise overflow-hidden max700:rounded-[18px] [&_h2]:font-serif [&_h2]:text-[1.6rem] [&_h2]:text-navy [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2] ${width}"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-navy flex items-center justify-center z-[5] shadow-[0_2px_10px_rgba(15,26,44,0.18)] hover:bg-white" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
         document.body.style.overflow = "hidden";
       }
       function closeModal() {
@@ -5220,10 +5344,11 @@
       function authBanner() {
         if (state.auth.pick) return "";
         const c = authCtx();
-        return `<div class="flex gap-3 items-start bg-mint border-l-[4px] border-l-grass-ink rounded-[12px] px-[1.1rem] py-[0.95rem] mb-[1.2rem]" style="margin-top:1.25rem">
-      <span class="w-[34px] h-[34px] rounded-[10px] bg-grass-ink text-white flex items-center justify-center shrink-0">${icon(c.icon, 17)}</span>
-      <div><div class="font-bold text-[0.95rem] text-navy leading-[1.35]">${c.bannerTitle}</div>
-        <div class="text-[0.9rem] text-muted leading-[1.5] mt-[0.15rem]">${c.bannerText}</div></div>
+        // Compact strip: the split panel is height-constrained, so the banner
+        // carries the headline only — the body copy repeated the subtitle above it.
+        return `<div class="flex gap-[0.7rem] items-center bg-mint border-l-[4px] border-l-grass-ink rounded-[10px] px-[0.85rem] py-[0.6rem]" style="margin-top:0.9rem">
+      <span class="w-[28px] h-[28px] rounded-[8px] bg-grass-ink text-white flex items-center justify-center shrink-0">${icon(c.icon, 15)}</span>
+      <div class="font-bold text-[0.88rem] text-navy leading-[1.3]">${c.bannerTitle}</div>
     </div>`;
       }
       function authModal(role) {
@@ -5240,12 +5365,77 @@
         state.auth.loginCode = "";
         state.auth.resendCount = 0;
         state.auth.signupData = null;
-        openModal(`<div class="p-7 max700:p-5">
-    <h2 id="auth-title">${authStepTitle(state.auth.mode)}</h2><div id="auth-subtitle" class="text-muted text-[0.98rem] mt-[0.35rem] leading-[1.55]">${authStepSubtitle(state.auth.mode)}</div>
-    ${authBanner()}
-    <div class="flex gap-2 bg-[#eaeff4] rounded-[12px] p-[4px] mb-[1.4rem]"><button class="auth-tab flex-1 p-[0.7rem] rounded-[9px] border-none bg-transparent font-bold text-[0.95rem] min-h-[46px] bg-white text-navy shadow-[0_2px_8px_rgba(26,46,74,0.12)]" data-action="auth-tab" data-tab="login">Log in</button><button class="auth-tab flex-1 p-[0.7rem] rounded-[9px] border-none bg-transparent font-bold text-[0.95rem] min-h-[46px] text-muted" data-action="auth-tab" data-tab="signup">Sign up</button></div>
-    <div id="auth-body">${authBody("login", sel, ROLES)}</div>
-  </div>`);
+        // Split panel: form column on the left, full-bleed photo on the right.
+        // Every part the flow re-renders (title, subtitle, body, swap link) lives
+        // in the left column, so the photo survives step and mode changes. The
+        // old segmented Log in / Sign up tabs are now the swap link at the foot.
+        openModal(
+          // The row is capped to the viewport minus the overlay's own padding, so
+          // the panel never pushes past the screen edge. Long forms (signup with a
+          // role picker and four fields) scroll inside the left column instead —
+          // the flex row keeps that column's height definite so it can.
+          `<div class="auth-panel">
+      <div class="auth-form flex w-[57%] flex-col px-[clamp(1.4rem,2.6vw,2.6rem)] py-[clamp(1.4rem,2.4vw,2rem)] max900:w-full max700:px-5 max700:py-6">
+        <div class="mb-[clamp(0.9rem,2vw,1.5rem)] font-serif text-[1.2rem] font-black tracking-[-0.02em] text-navy">
+          Bergen<span class="text-grass-ink">Kids</span><span class="text-sun">.</span>
+        </div>
+        <h2 id="auth-title">${authStepTitle(state.auth.mode)}</h2>
+        <div id="auth-subtitle" class="text-muted text-[0.95rem] mt-[0.35rem] leading-[1.55]">${authStepSubtitle(state.auth.mode)}</div>
+        ${authBanner()}
+        <div id="auth-body" class="mt-[1.15rem]">${authBody("login", sel, ROLES)}</div>
+        <div class="mt-auto pt-[1.1rem] text-center text-[0.88rem] text-muted">
+          <span id="auth-swap-q">Don't have an account?</span>
+          <button
+            type="button"
+            id="auth-swap-btn"
+            class="ml-1 border-none bg-transparent p-0 font-bold text-grass-ink underline underline-offset-[3px] hover:text-navy"
+            data-action="auth-tab"
+            data-tab="signup"
+          >Sign up</button>
+        </div>
+      </div>
+      ${authArtPanel()}
+    </div>`,
+          "split"
+        );
+      }
+      // The image column. Hidden below 900px, where the form takes the full width.
+      function authArtPanel() {
+        return `<div class="relative w-[46%] shrink-0 overflow-hidden bg-navy max900:hidden">
+      <img
+        src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=900&q=75"
+        alt=""
+        loading="lazy"
+        decoding="async"
+        onerror="this.remove()"
+        class="absolute inset-0 h-full w-full object-cover"
+      />
+      <div class="absolute inset-0 bg-[linear-gradient(200deg,rgba(15,26,44,0.12)_0%,rgba(15,26,44,0.5)_48%,rgba(15,26,44,0.93)_100%)]"></div>
+      <div class="absolute inset-0 flex flex-col justify-between p-8">
+        <div class="self-start text-[0.64rem] font-extrabold uppercase tracking-[0.18em] text-white/85 [text-shadow:0_2px_12px_rgba(9,15,26,0.7)]">
+          Bergen County · NJ
+        </div>
+        <div>
+          <div class="font-serif text-[2.1rem] font-black leading-[1.08] text-white [text-shadow:0_2px_18px_rgba(9,15,26,0.6)]">
+            Where families find their people.
+          </div>
+          <div class="mt-3 max-w-[34ch] text-[0.88rem] leading-[1.55] text-on-dark-2 [text-shadow:0_2px_12px_rgba(9,15,26,0.7)]">
+            Pediatricians, tutors, camps, classes and weekend events — organized town
+            by town, reviewed by local parents.
+          </div>
+        </div>
+      </div>
+    </div>`;
+      }
+      // Bottom line under the form — flips between the two modes.
+      function syncAuthSwap() {
+        const q = el("auth-swap-q");
+        const b = el("auth-swap-btn");
+        if (!q || !b) return;
+        const login = state.auth.mode === "login";
+        q.textContent = login ? "Don't have an account?" : "Already have an account?";
+        b.textContent = login ? "Sign up" : "Log in";
+        b.dataset.tab = login ? "signup" : "login";
       }
       function authStepTitle(mode) {
         if (state.auth.step === "entry") {
@@ -5291,52 +5481,57 @@
         if (state.auth.step !== "entry") return authVerifyBody(mode);
         const picker = state.auth.pick
           ? `
-    <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy" style="margin-bottom:0.9rem"><label>I am a…</label>
-      <div class="grid grid-cols-[repeat(3,1fr)] gap-2 mb-[1.1rem] max700:grid-cols-[1fr]">${roles.map((r) => `<label class="radio-card border-[1.5px] rounded-[12px] p-4 cursor-pointer transition-all duration-150 hover:border-grass-ink ${r[0] === sel ? "sel border-navy bg-[#e7f0fd] shadow-[inset_0_0_0_1px_#1a2e4a]" : "border-line bg-[#fbfcfd]"}" data-role-pick="${r[0]}"><div class="font-bold text-[0.95rem] text-navy flex items-center gap-[0.4rem]">${icon(r[2], 15)} ${r[1]}</div></label>`).join("")}</div></div>`
+    <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy" style="margin-bottom:0.7rem"><label>I am a…</label>
+      <div class="grid grid-cols-[repeat(3,1fr)] gap-2 max700:grid-cols-[1fr]">${roles.map((r) => `<label class="radio-card border-[1.5px] rounded-[12px] px-3 py-[0.65rem] cursor-pointer transition-all duration-150 hover:border-grass-ink ${r[0] === sel ? "sel border-navy bg-[#e7f0fd] shadow-[inset_0_0_0_1px_#1a2e4a]" : "border-line bg-[#fbfcfd]"}" data-role-pick="${r[0]}"><div class="font-bold text-[0.95rem] text-navy flex items-center gap-[0.4rem]">${icon(r[2], 15)} ${r[1]}</div></label>`).join("")}</div></div>`
           : "";
         return `${picker}
     <div id="auth-fields">${authFields(mode, sel)}</div>
-    <button class="bg-grass-ink text-white px-6 py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233] w-full mt-2" data-action="do-auth" data-mode="${mode}">${mode === "login" ? authCtaLabel() : "Create account"}</button>
-    <div class="text-center text-[0.85rem] text-adlabel my-[1.1rem] relative before:content-[''] before:absolute before:top-1/2 before:left-0 before:w-[38%] before:h-px before:bg-line after:content-[''] after:absolute after:top-1/2 after:right-0 after:w-[38%] after:h-px after:bg-line">demo prototype — any details work</div>`;
+    <button class="bg-grass-ink text-white px-6 py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233] w-full mt-2" data-action="do-auth" data-mode="${mode}">${mode === "login" ? authCtaLabel() : "Create account"}</button>`;
       }
       function auEmail(mode) {
-        return `<div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100" style="margin-bottom:0.8rem"><label>Email *</label><input id="au-email" placeholder="you@email.com" value="${mode === "login" ? authDemoEmail() : ""}"></div>`;
+        return `<div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100" style="margin-bottom:0.7rem"><label>Email *</label><input id="au-email" placeholder="you@email.com" value="${mode === "login" ? authDemoEmail() : ""}"></div>`;
       }
       function authFields(mode, role) {
         if (mode === "login") {
           const emailActive = state.auth.method === "email";
           const phoneActive = state.auth.method === "phone";
           return `
-      <div class="grid grid-cols-[1fr_1fr] gap-2 mb-[1rem] max700:grid-cols-[1fr]">
-        <button type="button" class="rounded-[10px] border-[1.5px] p-3 font-bold text-[0.95rem] ${emailActive ? "bg-white text-navy border-navy shadow-[0_2px_8px_rgba(26,46,74,0.12)]" : "bg-[#fbfcfd] text-muted border-line"}" data-action="set-auth-method" data-method="email">Email</button>
-        <button type="button" class="rounded-[10px] border-[1.5px] p-3 font-bold text-[0.95rem] ${phoneActive ? "bg-white text-navy border-navy shadow-[0_2px_8px_rgba(26,46,74,0.12)]" : "bg-[#fbfcfd] text-muted border-line"}" data-action="set-auth-method" data-method="phone">Phone</button>
+      <div class="grid grid-cols-[1fr_1fr] gap-2 mb-[0.8rem] max700:grid-cols-[1fr]">
+        <button type="button" class="rounded-[10px] border-[1.5px] px-3 py-[0.6rem] font-bold text-[0.95rem] ${emailActive ? "bg-white text-navy border-navy shadow-[0_2px_8px_rgba(26,46,74,0.12)]" : "bg-[#fbfcfd] text-muted border-line"}" data-action="set-auth-method" data-method="email">Email</button>
+        <button type="button" class="rounded-[10px] border-[1.5px] px-3 py-[0.6rem] font-bold text-[0.95rem] ${phoneActive ? "bg-white text-navy border-navy shadow-[0_2px_8px_rgba(26,46,74,0.12)]" : "bg-[#fbfcfd] text-muted border-line"}" data-action="set-auth-method" data-method="phone">Phone</button>
       </div>
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input]:focus]:border-grass-ink [&_input]:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]" style="margin-bottom:0.8rem">
+      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input]:focus]:border-grass-ink [&_input]:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]" style="margin-bottom:0.7rem">
         <label>${emailActive ? "Email *" : "Phone *"}</label>
         <input id="au-${emailActive ? "email" : "phone"}" placeholder="${emailActive ? "you@email.com" : "(201) 555-0000"}" value="${emailActive ? state.auth.email || authDemoEmail() : state.auth.phone || ""}">
       </div>`;
         }
         if (role === "business") {
           return `
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100" style="margin-bottom:0.8rem"><label>Business name *</label><input id="au-org" placeholder="e.g. Bright Minds Tutoring"></div>
-      <div class="grid grid-cols-[1fr_1fr] gap-[1.1rem] max700:grid-cols-[1fr]" style="gap:0.8rem;margin-bottom:0.8rem">
-        <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100"><label>Contact Person Name *</label><input id="au-name" placeholder="Your name"></div>
-        <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100"><label>Phone *</label><input id="au-phone" placeholder="(201) 555-0000"></div>
-      </div>
-      ${auEmail(mode)}`;
+    <div class="grid grid-cols-[1fr_1fr] max700:grid-cols-[1fr]" style="gap:0.7rem;margin-bottom:0.7rem">
+      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Business name *</label><input id="au-org" placeholder="e.g. Bright Minds Tutoring"></div>
+      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Contact Person Name *</label><input id="au-name" placeholder="Your name"></div>
+    </div>
+    <div class="grid grid-cols-[1fr_1fr] max700:grid-cols-[1fr]" style="gap:0.7rem;margin-bottom:0.7rem">
+      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Phone *</label><input id="au-phone" placeholder="(201) 555-0000"></div>
+      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Email *</label><input id="au-email" placeholder="you@email.com"></div>
+    </div>`;
         }
         if (role === "advertiser") {
           return `
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100" style="margin-bottom:0.8rem"><label>Company / advertiser name *</label><input id="au-org" placeholder="e.g. Ridgewood Learning Center"></div>
-      <div class="grid grid-cols-[1fr_1fr] gap-[1.1rem] max700:grid-cols-[1fr]" style="gap:0.8rem;margin-bottom:0.8rem">
-        <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100"><label>Contact Person Name *</label><input id="au-name" placeholder="Your name"></div>
-        <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100"><label>Phone *</label><input id="au-phone" placeholder="(201) 555-0000"></div>
-      </div>
-      ${auEmail(mode)}`;
+    <div class="grid grid-cols-[1fr_1fr] max700:grid-cols-[1fr]" style="gap:0.7rem;margin-bottom:0.7rem">
+      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Company / advertiser name *</label><input id="au-org" placeholder="e.g. Ridgewood Learning Center"></div>
+      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Contact Person Name *</label><input id="au-name" placeholder="Your name"></div>
+    </div>
+    <div class="grid grid-cols-[1fr_1fr] max700:grid-cols-[1fr]" style="gap:0.7rem;margin-bottom:0.7rem">
+      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Phone *</label><input id="au-phone" placeholder="(201) 555-0000"></div>
+      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Email *</label><input id="au-email" placeholder="you@email.com"></div>
+    </div>`;
         }
         return `
-    <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100" style="margin-bottom:0.8rem"><label>Full name *</label><input id="au-name" placeholder="Your name"></div>
-    <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input]:focus]:border-grass-ink [&_input]:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]" style="margin-bottom:0.8rem"><label>Phone *</label><input id="au-phone" placeholder="(201) 555-0000"></div>
+    <div class="grid grid-cols-[1fr_1fr] gap-[1.1rem] max700:grid-cols-[1fr]" style="gap:0.8rem;margin-bottom:0.8rem">
+      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Full name *</label><input id="au-name" placeholder="Your name"></div>
+      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Phone *</label><input id="au-phone" placeholder="(201) 555-0000"></div>
+    </div>
     ${auEmail(mode)}`;
       }
 
@@ -5506,18 +5701,18 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         closeModal();
         toast("Password updated", "check");
       }
+      const TOAST_MS = 2600;
       function toast(msg, ic = "check") {
         const t = document.createElement("div");
-        t.className =
-          "bg-navy text-white px-[1.35rem] py-[0.9rem] rounded-[12px] text-[0.98rem] font-semibold shadow-[0_12px_40px_rgba(15,26,44,0.35)] flex items-center gap-[0.6rem] animate-toastIn max-w-[calc(100vw-2rem)] [&_svg]:text-[#7ee0b0] [&_svg]:shrink-0";
-        t.innerHTML = `${icon(ic, 17)} ${msg}`;
+        t.className = "toast";
+        // role=status announces the message without stealing focus.
+        t.setAttribute("role", "status");
+        t.innerHTML = `<span class="toast-mark">${icon(ic, 17)}</span><span>${msg}</span><span class="toast-bar"></span>`;
         el("toast-root").appendChild(t);
         setTimeout(() => {
-          t.style.transition = "opacity .3s,transform .3s";
-          t.style.opacity = "0";
-          t.style.transform = "translateY(8px)";
+          t.classList.add("is-out");
           setTimeout(() => t.remove(), 300);
-        }, 2600);
+        }, TOAST_MS);
       }
       document.addEventListener("click", (e) => {
         if (e.target.classList && e.target.classList.contains("modal-overlay")) {
@@ -6217,17 +6412,11 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         state.auth.phoneCode = "";
         state.auth.loginCode = "";
         state.auth.resendCount = 0;
-        document.querySelectorAll(".auth-tab").forEach((t) => {
-          const on = t.dataset.tab === tab;
-          t.classList[on ? "add" : "remove"](
-            "bg-white",
-            "text-navy",
-            "shadow-[0_2px_8px_rgba(26,46,74,0.12)]"
-          );
-          t.classList[on ? "remove" : "add"]("text-muted");
-        });
-        const sel = state.auth.role || "parent";
-        el("auth-body").innerHTML = authBody(tab, sel, ROLES);
+        state.auth.role = state.auth.role || "parent";
+        syncAuthSwap();
+        // updateAuthModal repaints the heading and subtitle too — switching modes
+        // used to leave the previous mode's title above the new form.
+        updateAuthModal();
       }
       function seedBusinessListings() {
         LISTINGS.forEach((l) => (l._mine = false));
@@ -6282,7 +6471,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               ? `Enter the 4-digit code sent to ${state.auth.email}.`
               : `Enter the 4-digit code sent to ${state.auth.phone}.`;
         return `
-    <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input]:focus]:border-grass-ink [&_input]:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]" style="margin-bottom:0.8rem">
+    <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input]:focus]:border-grass-ink [&_input]:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]" style="margin-bottom:0.7rem">
       <div class="text-[0.95rem] text-navy">${hint}</div>
       <label>Verification code *</label>
       <input id="au-code" placeholder="1234" autocomplete="one-time-code">
