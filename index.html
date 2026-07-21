@@ -268,6 +268,90 @@
         display: block;
       }
 
+      /* Playful shapes tucked behind the hero photo cluster */
+      .hero-decor {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+      }
+      .hero-decor > * {
+        position: absolute;
+      }
+      .hero-blob {
+        border-radius: 50%;
+      }
+      .hero-blob--grass {
+        width: 210px;
+        height: 210px;
+        top: -34px;
+        right: -26px;
+        background: radial-gradient(circle at 32% 30%, rgba(45, 122, 79, 0.32), rgba(45, 122, 79, 0) 70%);
+      }
+      .hero-blob--sun {
+        width: 250px;
+        height: 250px;
+        bottom: -46px;
+        left: -34px;
+        background: radial-gradient(circle at 32% 30%, rgba(245, 166, 35, 0.4), rgba(245, 166, 35, 0) 70%);
+      }
+      .hero-dots {
+        width: 118px;
+        height: 86px;
+        top: 2%;
+        left: 0;
+        background-image: radial-gradient(rgba(26, 46, 74, 0.16) 2.1px, transparent 2.2px);
+        background-size: 15px 15px;
+      }
+      .hero-ring {
+        width: 128px;
+        height: 128px;
+        border-radius: 50%;
+        border: 2px dashed rgba(30, 140, 122, 0.45);
+        right: 2%;
+        bottom: 6%;
+        animation: heroSpin 26s linear infinite;
+      }
+      .hero-pop {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: rgba(124, 92, 168, 0.5);
+        right: 24%;
+        bottom: 0;
+        animation: heroFloat 5s ease-in-out infinite;
+      }
+      .hero-star {
+        width: 40px;
+        height: 40px;
+        color: var(--sun);
+        left: 28%;
+        top: -2px;
+        animation: heroFloat 6.5s ease-in-out infinite 0.6s;
+        filter: drop-shadow(0 3px 8px rgba(245, 166, 35, 0.4));
+      }
+      @keyframes heroFloat {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-12px);
+        }
+      }
+      @keyframes heroSpin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .hero-pop,
+        .hero-star,
+        .hero-ring {
+          animation: none;
+        }
+      }
+
       /* ── "What's Inside" band ───────────────────────────────── */
       .inside-band {
         position: relative;
@@ -2814,6 +2898,14 @@
           </div>
         </div>
         <div class="relative z-[1] h-[420px] animate-[fadeUp_0.8s_0.15s_ease_both] max900:h-[320px] max560:h-[260px]">
+          <div class="hero-decor" aria-hidden="true">
+            <span class="hero-blob hero-blob--grass"></span>
+            <span class="hero-blob hero-blob--sun"></span>
+            <span class="hero-dots"></span>
+            <span class="hero-ring"></span>
+            <span class="hero-pop"></span>
+            <svg class="hero-star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C13 6.6 17.4 11 24 12 17.4 13 13 17.4 12 24 11 17.4 6.6 13 0 12 6.6 11 11 6.6 12 0Z"/></svg>
+          </div>
           <div class="hero-photo absolute right-[6%] top-0 w-[56%] h-[80%] rotate-[4deg]"><img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=700&q=75" alt="Happy students learning" fetchpriority="high" decoding="async"></div>
           <div class="hero-photo absolute left-0 bottom-[4%] w-[52%] h-[70%] -rotate-[5deg]"><img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=700&q=75" alt="A smiling child" fetchpriority="high" decoding="async"></div>
         </div>
