@@ -4660,8 +4660,7 @@
           "flex gap-[0.6rem] items-center text-[0.95rem] text-navy leading-[1.5] [&_svg]:text-grass-ink [&_svg]:shrink-0 [&_a]:text-grass-ink [&_a]:font-bold [&_a]:underline [&_a]:break-words";
         const header = `<div class="relative h-[200px] overflow-hidden max560:h-[180px]" style="background:${c.grad}">
           <div class="absolute inset-0 flex items-center justify-center text-white">${icon(e.icon || c.icon, 52)}</div>
-          ${img ? `<img src="${img}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover grayscale contrast-[1.1]">` : ""}
-          ${img ? `<div class="absolute inset-0 mix-blend-multiply opacity-[0.88]" style="background:${c.grad}"></div>` : ""}
+          ${img ? `<img src="${img}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">` : ""}
           <span class="absolute top-3 left-3 z-[1] inline-flex items-center gap-[0.3rem] rounded-[100px] border border-white/30 bg-white/15 px-[0.6rem] py-[0.3rem] text-[0.72rem] font-extrabold uppercase tracking-[0.05em] text-white backdrop-blur-[3px]">${MONTHS[d.getMonth()]} ${d.getDate()}</span>
         </div>`;
         openDrawer(
@@ -4678,10 +4677,6 @@
         <div class="${ROW}">${icon("pin", 16)} ${e.town}, NJ</div>
         <div class="${ROW}">${icon("users", 16)} Ages ${e.ageMin}–${e.ageMax}</div>
         <div class="${ROW}">${icon("user", 16)} ${e.organizer}</div>
-      </div>
-      <div class="flex gap-3 flex-wrap mt-5 [&>*]:w-full [&>*]:justify-center">
-        <button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="rsvp" data-name="${e.name}">${icon("check", 16)} RSVP</button>
-        <button class="bg-white text-navy px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-[1.5px] border-line transition-[border-color,background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] hover:border-navy hover:bg-[#f5f5f5]" data-action="add-cal">${icon("calendar", 16)} Add to Calendar</button>
       </div>
     </div>`
         );
@@ -5383,17 +5378,6 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             case "book":
               closeModal();
               toast("Enquiry sent to " + actEl.dataset.name, "mail");
-              break;
-            case "rsvp":
-              closeModal();
-              toast("You're going to " + actEl.dataset.name + "!", "check");
-              pushNotif("calendar", "RSVP confirmed", "See you at " + actEl.dataset.name);
-              break;
-            case "add-cal":
-              toast("Added to your calendar", "calendar");
-              break;
-            case "add-cal2":
-              toast("Added to your calendar", "calendar");
               break;
             case "ext-link":
               toast("Opening " + actEl.dataset.url + " (external)", "globe");
