@@ -2576,6 +2576,7 @@
         adFilter: { cat: "", status: "", from: "", to: "" },
         bizAnalytics: { cat: "", from: "", to: "" },
         advAnalytics: { cat: "", place: "", from: "", to: "" },
+        advPieRange: "30d", // date window for the overview "impressions by category" pie
         articleFilter: "all",
         notifTab: "all",
         scrollTo: null,
@@ -2745,7 +2746,7 @@
         const MENU_BTN =
           "hidden relative w-[40px] h-[40px] rounded-[50%] border-[1.5px] border-line bg-white items-center justify-center text-navy transition-[border-color,background] duration-200 shrink-0 max900:flex max900:bg-navy max900:border-navy max900:text-white max900:hover:bg-[#12233a] max900:hover:border-[#12233a] max380:w-[36px] max380:h-[36px]";
         r.innerHTML = `
-    ${state.user ? `<button class="relative w-[40px] h-[40px] rounded-[50%] border-[1.5px] border-line bg-white flex items-center justify-center text-navy transition-[border-color,background] duration-200 shrink-0 hover:border-navy max900:bg-mint max900:border-transparent max900:text-grass-ink max900:hover:bg-mint-2 max900:hover:border-transparent max380:w-[36px] max380:h-[36px]" data-action="toggle-notif" aria-label="Notifications${notifUnread().length ? ` (${notifUnread().length} unread)` : ""}">${icon("bell", 18)}${notifBadge()}</button>` : ""}
+    ${state.user ? `<button class="relative w-[40px] h-[40px] rounded-full bg-[#f3f5f8] border border-transparent flex items-center justify-center text-navy transition-[background,color,box-shadow] duration-200 shrink-0 hover:bg-mint hover:text-grass-ink hover:shadow-[0_4px_14px_rgba(32,100,61,0.2)] max900:bg-mint max900:text-grass-ink max380:w-[36px] max380:h-[36px]" data-action="toggle-notif" aria-label="Notifications${notifUnread().length ? ` (${notifUnread().length} unread)` : ""}">${icon("bell", 18)}${notifBadge()}</button>` : ""}
     <button class="bg-grass-ink text-white px-5 py-[0.65rem] rounded-[100px] font-bold text-[0.95rem] border-none whitespace-nowrap min-h-[44px] shrink-0 hover:bg-[#1a5233] max900:hidden" data-nav="business" data-dashtab="add">List Your Business</button>
     ${acct}
     <button class="${MENU_BTN}" data-action="mobile-menu" aria-label="Menu">${icon("menu", 18)}</button>`;
@@ -4216,36 +4217,166 @@
         ];
         return `<div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
     <div class="mb-7"><div class="flex items-center gap-[0.4rem] text-[0.9rem] text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-grass-ink font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>Advertiser Dashboard</span></div>
-      <div class="font-serif text-[clamp(1.9rem,1.4rem_+_2.1vw,2.7rem)] font-black text-navy tracking-[-0.02em] leading-[1.15] text-balance">Advertiser Dashboard</div><p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Create banner campaigns and reach thousands of Bergen County parents.</p></div>
+      ${tab === "overview" || tab === "analytics" ? "" : `<div class="font-serif text-[clamp(1.9rem,1.4rem_+_2.1vw,2.7rem)] font-black text-navy tracking-[-0.02em] leading-[1.15] text-balance">Advertiser Dashboard</div><p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Create banner campaigns and reach thousands of Bergen County parents.</p>`}</div>
     <div class="grid grid-cols-[230px_minmax(0,1fr)] gap-8 [align-items:start] [&>*]:min-w-0 max1024:grid-cols-[1fr]">
-      <div class="dash-side bg-white border-[1.5px] border-line rounded-[18px] p-3 sticky top-[84px] min-w-0 max1024:static max1024:flex max1024:overflow-x-auto max1024:gap-[0.4rem] max1024:p-2 no-scrollbar">${tabs.map((t) => `<button class="${tab === t[0] ? "flex items-center gap-[0.7rem] w-full text-left border-none px-[0.85rem] py-3 rounded-[11px] text-[0.98rem] font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto bg-navy text-white [&_svg]:text-white [&_svg]:shrink-0" : "flex items-center gap-[0.7rem] w-full text-left bg-transparent border-none px-[0.85rem] py-3 rounded-[11px] text-[0.98rem] font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto text-muted [&_svg]:text-adlabel [&_svg]:shrink-0 hover:bg-[#eef5f0] hover:text-navy [&:hover_svg]:text-grass-ink"}" data-action="adv-tab" data-tab="${t[0]}">${icon(t[2], 18)} ${t[1]}</button>`).join("")}</div>
+      <div class="dash-side bg-white border-[1.5px] border-line rounded-[18px] p-3 sticky top-[84px] min-w-0 max1024:static max1024:flex max1024:items-center max1024:overflow-x-auto max1024:gap-[0.4rem] max1024:p-2 no-scrollbar">
+        <div class="flex flex-col items-center text-center px-2 pt-3 pb-4 mb-2 border-b border-line2 max1024:hidden">
+          ${avatarHtml(state.user, 66, "border-[3px] border-white shadow-[0_4px_16px_rgba(15,26,44,0.18)]")}
+          <div class="mt-3 font-serif text-[1.02rem] font-black text-navy leading-[1.2] break-words">${state.user.name}</div>
+          <div class="text-[0.8rem] text-muted mt-[0.15rem]">Advertiser</div>
+        </div>
+        ${tabs.map((t) => `<button class="${tab === t[0] ? "flex items-center gap-[0.7rem] w-full text-left border-none px-[0.85rem] py-3 rounded-[11px] text-[0.98rem] font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto bg-navy text-white [&_svg]:text-white [&_svg]:shrink-0" : "flex items-center gap-[0.7rem] w-full text-left bg-transparent border-none px-[0.85rem] py-3 rounded-[11px] text-[0.98rem] font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto text-muted [&_svg]:text-adlabel [&_svg]:shrink-0 hover:bg-[#eef5f0] hover:text-navy [&:hover_svg]:text-grass-ink"}" data-action="adv-tab" data-tab="${t[0]}">${icon(t[2], 18)} ${t[1]}</button>`).join("")}
+        <div class="pt-2 mt-2 border-t border-line2 max1024:hidden">
+          <button class="flex items-center gap-[0.7rem] w-full text-left bg-transparent border-none px-[0.85rem] py-3 rounded-[11px] text-[0.98rem] font-semibold text-muted [&_svg]:text-adlabel [&_svg]:shrink-0 min-h-[46px] transition-colors duration-150 hover:bg-[#fdf3f2] hover:text-[#a3271c] [&:hover_svg]:text-[#a3271c]" data-action="logout">${icon("logout", 18)} Log out</button>
+        </div>
+      </div>
       <div>${advertiserTab(tab)}</div>
     </div></div>`;
       }
-      function advertiserTab(tab) {
-        const imp = ADS.reduce((s, a) => s + a.impressions, 0),
-          clk = ADS.reduce((s, a) => s + a.clicks, 0);
-        if (tab === "overview") {
-          const ctr = imp ? ((clk / imp) * 100).toFixed(1) + "%" : "—";
-          const places = Object.keys(PLACE_RATE);
-          const impP = places.map((p) =>
-            ADS.filter((a) => a.placement === p).reduce((s, a) => s + a.impressions, 0)
-          );
-          const clkP = places.map((p) =>
-            ADS.filter((a) => a.placement === p).reduce((s, a) => s + a.clicks, 0)
-          );
-          return `<div class="grid grid-cols-[repeat(auto-fit,minmax(min(180px,100%),1fr))] gap-4 mb-7">
-      ${statCard("eye", imp.toLocaleString(), "Impressions", "")}
-      ${statCard("click", clk.toLocaleString(), "Clicks", "")}
-      ${statCard("megaphone", ADS.filter((a) => a.status === "live").length, "Live campaigns", "")}
-      ${statCard("trending", ctr, "Average CTR", "")}
+      // ── Crowz-style advertiser overview ──────────────────────────────
+      function compactNum(n) {
+        if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, "") + "m";
+        if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, "") + "k";
+        return String(n);
+      }
+      // Donut chart from [{label,value,color}] with a legend. Drawn with
+      // stroke-dasharray segments, so no arc-path math is needed.
+      function donutChart(items, centerLabel) {
+        const total = items.reduce((s, it) => s + it.value, 0) || 1;
+        const r = 54,
+          cx = 70,
+          cy = 70,
+          sw = 22,
+          C = 2 * Math.PI * r;
+        let acc = 0,
+          segs = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#eef1f4" stroke-width="${sw}"/>`;
+        items.forEach((it) => {
+          const len = (it.value / total) * C;
+          segs += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${it.color}" stroke-width="${sw}" stroke-dasharray="${len.toFixed(2)} ${(C - len).toFixed(2)}" stroke-dashoffset="${(-acc).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;
+          acc += len;
+        });
+        const legend = items
+          .map(
+            (it) =>
+              `<div class="flex items-center gap-2 text-[0.85rem] leading-[1.3]"><span class="w-[11px] h-[11px] rounded-[3px] shrink-0" style="background:${it.color}"></span><span class="text-navy font-semibold truncate flex-1 min-w-0">${it.label}</span><span class="text-muted font-medium shrink-0">${Math.round((it.value / total) * 100)}%</span></div>`
+          )
+          .join("");
+        return `<div class="flex items-center gap-5 max560:flex-col">
+          <svg viewBox="0 0 140 140" class="w-[148px] h-[148px] shrink-0" role="img" aria-label="Distribution chart">
+            ${segs}
+            <text x="70" y="66" text-anchor="middle" font-size="15" font-weight="800" fill="#12233a">${compactNum(total)}</text>
+            <text x="70" y="82" text-anchor="middle" font-size="8.5" fill="#93a1b1">${centerLabel || "Total"}</text>
+          </svg>
+          <div class="flex flex-col gap-[0.55rem] min-w-0 flex-1 w-full">${legend}</div>
+        </div>`;
+      }
+      function advStatTile(num, lbl) {
+        return `<div class="bg-white border-[1.5px] border-line rounded-[16px] p-4 max380:p-[0.9rem]">
+          <div class="flex items-center justify-between gap-2">
+            <div class="text-[0.85rem] text-muted font-semibold truncate">${lbl}</div>
+            <span class="w-[22px] h-[22px] rounded-full bg-mint text-grass-ink flex items-center justify-center shrink-0">${icon("trending", 11)}</span>
+          </div>
+          <div class="font-serif text-[1.7rem] font-black text-navy leading-[1] mt-3">${num}</div>
+        </div>`;
+      }
+      function advPerfRow(a) {
+        const c = catOf(a.cat);
+        const ctr = a.impressions ? ((a.clicks / a.impressions) * 100).toFixed(1) : "0.0";
+        const handle = "@" + String(a.dest || "").split(".")[0];
+        return `<div class="flex items-center gap-3 py-[0.7rem] border-b border-line2 last:border-b-0">
+          <span class="w-[40px] h-[40px] rounded-full flex items-center justify-center text-white shrink-0 shadow-[0_3px_10px_rgba(15,26,44,0.16)]" style="background:${c.grad}">${icon(c.icon, 18)}</span>
+          <div class="min-w-0 flex-1"><div class="font-bold text-[0.92rem] text-navy truncate leading-[1.25]">${a.name}</div><div class="text-[0.8rem] text-muted truncate">${handle}</div></div>
+          <div class="font-extrabold text-[0.95rem] text-navy shrink-0">${ctr}%</div>
+        </div>`;
+      }
+      function advChannelCard(a) {
+        const c = catOf(a.cat);
+        const ctr = a.impressions ? ((a.clicks / a.impressions) * 100).toFixed(1) : "0.0";
+        return `<div class="bg-white rounded-[16px] p-4 flex flex-col gap-2 w-[150px] shadow-[0_5px_18px_rgba(15,26,44,0.07)]">
+          <span class="w-[38px] h-[38px] rounded-full flex items-center justify-center text-white" style="background:${c.grad}">${icon(c.icon, 17)}</span>
+          <div class="font-bold text-[0.9rem] text-navy leading-[1.2] truncate mt-1">${c.name}</div>
+          <div class="text-[0.78rem] text-muted truncate">${a.placement}</div>
+          <div class="text-grass-ink font-extrabold text-[1.05rem] mt-1 inline-flex items-center gap-1">${icon("trending", 13)} ${ctr}%</div>
+        </div>`;
+      }
+      function advOverview() {
+        const imp = ADS.reduce((s, a) => s + a.impressions, 0);
+        const clk = ADS.reduce((s, a) => s + a.clicks, 0);
+        const live = ADS.filter((a) => a.status === "live").length;
+        const ranked = ADS.filter((a) => a.impressions > 0).sort(
+          (x, y) => y.clicks / y.impressions - x.clicks / x.impressions
+        );
+        const performers = ranked.slice(0, 3);
+        const channels = ranked.slice(0, 3);
+        // Date-filtered pie: impressions accrue per day of a campaign's elapsed
+        // flight, and only the days inside the chosen window are counted, so the
+        // category mix shifts as the range changes.
+        const RANGES = { "7d": 7, "30d": 30, "90d": 90, all: 100000 };
+        const rk = RANGES[state.advPieRange] !== undefined ? state.advPieRange : "30d";
+        const DAY = 86400000;
+        const dnum = (iso) => Math.round(Date.parse(iso + "T00:00:00Z") / DAY);
+        const todayN = dnum(adDate(0));
+        const wStartN = todayN - RANGES[rk];
+        const byCatP = {};
+        ADS.filter((a) => a.impressions > 0).forEach((a) => {
+          const s = dnum(a.start),
+            e = Math.min(dnum(a.end), todayN); // only elapsed days carry impressions
+          const perDay = a.impressions / Math.max(1, e - s);
+          const overlap = Math.max(0, Math.min(e, todayN) - Math.max(s, wStartN));
+          const v = Math.round(perDay * overlap);
+          if (v > 0) byCatP[a.cat] = (byCatP[a.cat] || 0) + v;
+        });
+        const pieItems = Object.keys(byCatP)
+          .sort((x, y) => byCatP[y] - byCatP[x])
+          .map((k) => {
+            const c = catOf(k);
+            return {
+              label: c.name,
+              value: byCatP[k],
+              color: (c.grad.match(/#[0-9a-fA-F]{6}/) || ["#2d7a4f"])[0],
+            };
+          });
+        const RANGE_OPTS = [
+          ["7d", "Last 7 days"],
+          ["30d", "Last 30 days"],
+          ["90d", "Last 90 days"],
+          ["all", "All time"],
+        ];
+        return `<div class="mb-6">
+      <div class="font-serif text-[clamp(1.6rem,1.2rem_+_1.4vw,2.1rem)] font-black text-navy leading-[1.1]">Dashboard</div><div class="text-[0.92rem] text-muted mt-1">Every metric for your campaigns, at a glance.</div>
     </div>
-    <div class="bg-white border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-[1.15rem] [&_h3]:text-navy [&_h3]:mb-[0.3rem] max380:p-[1.1rem]"><h3>Impressions and clicks by placement </h3><div class="text-[0.92rem] text-muted mb-5 leading-[1.55]">Where your ads are being seen this month</div>${dualBar(
-      [impP, clkP],
-      places.map((p) => (p === "Category page" ? "Category" : p))
-    )}</div>
-    <div class="bg-white border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-[1.15rem] [&_h3]:text-navy [&_h3]:mb-[0.3rem] max380:p-[1.1rem]"><h3>Recent Campaigns</h3>${adTable(ADS)}</div>`;
-        }
+    <div class="grid grid-cols-3 gap-4 mb-5 max560:grid-cols-1">
+      ${advStatTile(compactNum(imp), "Impressions")}
+      ${advStatTile(compactNum(clk), "Clicks")}
+      ${advStatTile(live, "Live campaigns")}
+    </div>
+    <div class="grid grid-cols-[1fr_1fr] gap-5 items-start mb-5 max900:grid-cols-1">
+      <div class="bg-white border-[1.5px] border-line rounded-[18px] p-5 max380:p-[1.1rem]">
+        <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+          <div class="font-serif text-[1.2rem] font-black text-navy leading-[1.15]">Impressions by category</div>
+          <div class="inline-flex items-center gap-1.5 text-[0.85rem] font-semibold text-navy bg-[#f6f8fa] border border-line rounded-[10px] pl-2.5 pr-1.5 py-[0.4rem]">${icon("calendar", 15)}<select id="adv-pie-range" class="bg-transparent border-none outline-none font-sans text-[0.85rem] font-semibold text-navy cursor-pointer">${RANGE_OPTS.map(([v, l]) => `<option value="${v}" ${rk === v ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+        </div>
+        ${pieItems.length ? donutChart(pieItems, "Impressions") : `<div class="text-muted text-[0.9rem] py-6 text-center">No impressions in this range.</div>`}
+      </div>
+      <div class="bg-white border-[1.5px] border-line rounded-[18px] p-5 max380:p-[1.1rem]">
+        <div class="font-serif text-[1.2rem] font-black text-navy leading-[1.15] mb-2">Top performers</div>
+        ${performers.length ? performers.map(advPerfRow).join("") : `<div class="text-muted text-[0.9rem] py-4">No performance data yet.</div>`}
+        <button class="mt-3 text-grass-ink font-bold text-[0.9rem] inline-flex items-center gap-1 transition-[gap] duration-200 hover:gap-2" data-action="adv-tab" data-tab="analytics">View more ${icon("arrow-right", 14)}</button>
+      </div>
+    </div>
+    <div class="rounded-[20px] p-6 mt-5 bg-[linear-gradient(135deg,#d9efe4,#e7f4ee)] max380:p-4">
+      <div class="mb-5"><div class="font-serif text-[1.4rem] font-black text-navy leading-[1.15]">Channels</div><div class="text-[0.9rem] text-muted mt-1">Your campaign stats for this <b class="text-navy font-bold">month</b>.</div></div>
+      <div class="flex gap-4 overflow-x-auto no-scrollbar pb-1 [&>*]:shrink-0">
+        ${channels.map(advChannelCard).join("")}
+        <div class="rounded-[16px] p-4 flex flex-col justify-between w-[150px] bg-[linear-gradient(150deg,#1e8c7a,#14685a)] text-white cursor-pointer transition-[filter] duration-200 hover:brightness-110" data-action="adv-tab" data-tab="analytics">
+          <div class="font-serif text-[1.2rem] font-black leading-[1.15]">Full Stats</div>
+          <span class="self-start w-[38px] h-[38px] rounded-full bg-white/20 flex items-center justify-center mt-4">${icon("arrow-right", 18)}</span>
+        </div>
+      </div>
+    </div>`;
+      }
+      function advertiserTab(tab) {
+        if (tab === "overview") return advOverview();
         if (tab === "ads") {
           const f = state.adFilter;
           const shown = ADS.filter(
@@ -4290,29 +4421,56 @@
           const fImp = shown.reduce((s, a) => s + a.impressions, 0);
           const fClk = shown.reduce((s, a) => s + a.clicks, 0);
           const fCtr = fImp ? ((fClk / fImp) * 100).toFixed(1) + "%" : "—";
-          const WEIGHTS = [0.125, 0.15, 0.175, 0.165, 0.185, 0.2];
-          const impW = WEIGHTS.map((w) => Math.round(fImp * w));
-          const clkW = WEIGHTS.map((w) => Math.round(fClk * w));
           const cats = CATEGORIES.filter((c) => ran.some((a) => a.cat === c.id));
           const FIELD =
             "flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-[#fbfcfd] min-h-[46px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]";
           const INPUT =
             "border-none outline-none bg-transparent font-sans text-[1rem] text-navy w-full min-w-0 cursor-pointer";
           const LABEL = "text-[0.75rem] font-bold tracking-[0.07em] uppercase text-adlabel pl-2";
-          return `<div class="grid gap-3 items-end mb-6 grid-cols-[1.4fr_1fr_1fr_1fr_auto] max900:!grid-cols-[1fr_1fr] max700:!grid-cols-[1fr]">
-      <div class="flex flex-col gap-1"><label class="${LABEL}">Category</label><div class="${FIELD}">${icon("tag", 16)}<select class="${INPUT}" id="an-cat"><option value="">All categories</option>${cats.map((c) => `<option value="${c.id}" ${f.cat === c.id ? "selected" : ""}>${c.name}</option>`).join("")}</select></div></div>
-      <div class="flex flex-col gap-1"><label class="${LABEL}">Placement</label><div class="${FIELD}">${icon("dashboard", 16)}<select class="${INPUT}" id="an-place"><option value="">All placements</option>${Object.keys(
-        PLACE_RATE
-      )
-        .map((p) => `<option value="${p}" ${f.place === p ? "selected" : ""}>${p}</option>`)
-        .join("")}</select></div></div>
-      <div class="flex flex-col gap-1"><label class="${LABEL}">Running from</label><div class="${FIELD}">${icon("calendar", 16)}<input class="${INPUT} cursor-text" type="date" id="an-from" value="${f.from || ""}"></div></div>
-      <div class="flex flex-col gap-1"><label class="${LABEL}">Running to</label><div class="${FIELD}">${icon("calendar", 16)}<input class="${INPUT} cursor-text" type="date" id="an-to" value="${f.to || ""}"></div></div>
-      <button class="bg-transparent border-none text-muted text-[0.9rem] font-bold flex items-center gap-[0.3rem] whitespace-nowrap self-end px-2 py-[0.7rem] min-h-[44px] hover:text-navy hover:underline max700:self-start max700:justify-center max700:border-[1.5px] max700:border-solid max700:border-line max700:rounded-[10px]" data-action="clear-adv-analytics">${icon("x", 15)} Clear</button>
+          const perf = shown
+            .filter((a) => a.impressions > 0)
+            .sort((x, y) => y.clicks / y.impressions - x.clicks / x.impressions)
+            .slice(0, 5);
+          const byCat = {};
+          shown.forEach((a) => (byCat[a.cat] = (byCat[a.cat] || 0) + a.impressions));
+          const catItems = Object.keys(byCat)
+            .filter((k) => byCat[k] > 0)
+            .sort((x, y) => byCat[y] - byCat[x])
+            .map((k) => {
+              const c = catOf(k);
+              return {
+                label: c.name,
+                value: byCat[k],
+                color: (c.grad.match(/#[0-9a-fA-F]{6}/) || ["#2d7a4f"])[0],
+              };
+            });
+          return `<div class="mb-6"><div class="font-serif text-[clamp(1.6rem,1.2rem_+_1.4vw,2.1rem)] font-black text-navy leading-[1.1]">Analytics</div><div class="text-[0.92rem] text-muted mt-1">Track how your campaigns are performing.</div></div>
+    <div class="bg-white border-[1.5px] border-line rounded-[18px] p-5 mb-5 max380:p-[1.1rem]">
+      <div class="grid gap-3 items-end grid-cols-[1.4fr_1fr_1fr_1fr_auto] max900:!grid-cols-[1fr_1fr] max700:!grid-cols-[1fr]">
+        <div class="flex flex-col gap-1"><label class="${LABEL}">Category</label><div class="${FIELD}">${icon("tag", 16)}<select class="${INPUT}" id="an-cat"><option value="">All categories</option>${cats.map((c) => `<option value="${c.id}" ${f.cat === c.id ? "selected" : ""}>${c.name}</option>`).join("")}</select></div></div>
+        <div class="flex flex-col gap-1"><label class="${LABEL}">Placement</label><div class="${FIELD}">${icon("dashboard", 16)}<select class="${INPUT}" id="an-place"><option value="">All placements</option>${Object.keys(PLACE_RATE).map((p) => `<option value="${p}" ${f.place === p ? "selected" : ""}>${p}</option>`).join("")}</select></div></div>
+        <div class="flex flex-col gap-1"><label class="${LABEL}">Running from</label><div class="${FIELD}">${icon("calendar", 16)}<input class="${INPUT} cursor-text" type="date" id="an-from" value="${f.from || ""}"></div></div>
+        <div class="flex flex-col gap-1"><label class="${LABEL}">Running to</label><div class="${FIELD}">${icon("calendar", 16)}<input class="${INPUT} cursor-text" type="date" id="an-to" value="${f.to || ""}"></div></div>
+        <button class="bg-transparent border-none text-muted text-[0.9rem] font-bold flex items-center gap-[0.3rem] whitespace-nowrap self-end px-2 py-[0.7rem] min-h-[44px] hover:text-navy hover:underline max700:self-start max700:justify-center max700:border-[1.5px] max700:border-solid max700:border-line max700:rounded-[10px]" data-action="clear-adv-analytics">${icon("x", 15)} Clear</button>
+      </div>
     </div>
-    <div class="grid grid-cols-[repeat(auto-fit,minmax(min(180px,100%),1fr))] gap-4 mb-7">${statCard("eye", fImp.toLocaleString(), "Impressions", "")}${statCard("click", fClk.toLocaleString(), "Clicks", "")}${statCard("megaphone", shown.filter((a) => a.status === "live").length, "Live campaigns", "")}${statCard("trending", fCtr, "Average CTR", "")}</div>
-    <div class="bg-white border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-[1.15rem] [&_h3]:text-navy [&_h3]:mb-[0.3rem] max380:p-[1.1rem]"><h3>Clicks and Impressions</h3><div class="text-[0.92rem] text-muted mb-5 leading-[1.55]">Last 6 weeks</div>${dualBar([impW, clkW], ["W1", "W2", "W3", "W4", "W5", "W6"])}</div>
-    <div class="bg-white border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-[1.15rem] [&_h3]:text-navy [&_h3]:mb-[0.3rem] max380:p-[1.1rem]"><h3>Campaign performance</h3>${shown.length ? adTable(shown) : emptyPanel("No campaigns match your filters", "Try widening the category, placement, or date range.")}</div>`;
+    <div class="grid grid-cols-4 gap-4 mb-5 max900:grid-cols-2 max560:grid-cols-1">
+      ${advStatTile(compactNum(fImp), "Impressions")}
+      ${advStatTile(compactNum(fClk), "Clicks")}
+      ${advStatTile(fCtr, "Average CTR")}
+      ${advStatTile(shown.filter((a) => a.status === "live").length, "Live campaigns")}
+    </div>
+    <div class="grid grid-cols-[1fr_1fr] gap-5 items-start mb-5 max900:grid-cols-1">
+      <div class="bg-white border-[1.5px] border-line rounded-[18px] p-5 min-w-0 max380:p-[1.1rem]">
+        <div class="font-serif text-[1.2rem] font-black text-navy leading-[1.15] mb-4">Impressions by category</div>
+        ${catItems.length ? donutChart(catItems, "Impressions") : `<div class="text-muted text-[0.9rem] py-4">No performance data yet.</div>`}
+      </div>
+      <div class="bg-white border-[1.5px] border-line rounded-[18px] p-5 max380:p-[1.1rem]">
+        <div class="font-serif text-[1.2rem] font-black text-navy leading-[1.15] mb-2">Top performers</div>
+        ${perf.length ? perf.map(advPerfRow).join("") : `<div class="text-muted text-[0.9rem] py-4">No performance data yet.</div>`}
+      </div>
+    </div>
+    <div class="bg-white border-[1.5px] border-line rounded-[18px] p-6 max380:p-[1.1rem]"><div class="font-serif text-[1.2rem] font-black text-navy leading-[1.15] mb-3">Campaign performance</div>${shown.length ? adTable(shown) : emptyPanel("No campaigns match your filters", "Try widening the category, placement, or date range.")}</div>`;
         }
       }
       function createAdForm() {
@@ -4345,13 +4503,10 @@
         </div></div>
       <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100 col-span-full"><label>Upload creative *</label>
         <div class="border-2 border-dashed border-[#b0bdc9] rounded-[12px] p-6 text-center text-muted cursor-pointer transition-all duration-150 bg-[#fbfcfd] text-[0.95rem] hover:border-grass-ink hover:text-navy hover:bg-[#e9f4ee] [&_svg]:text-grass-ink [&_svg]:mb-[0.4rem]" data-action="ad-upload">${icon("image", 26)}<div style="font-weight:600">Click to upload your banner</div><div style="font-size:0.88rem;margin-top:0.2rem">Recommended 970×250 · PNG or JPG</div></div>
-        <div id="ad-creative">${editing ? adCreativeHTML() : ""}</div></div>
+        </div>
     </div>
     <div class="flex gap-3 flex-wrap mt-5 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center"><button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="submit-ad">${icon(editing ? "check" : "arrow-right", 16)} ${editing ? "Save changes" : "Send for Review"}</button><button class="bg-white text-navy px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-[1.5px] border-line transition-[border-color,background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] hover:border-navy hover:bg-[#f5f5f5]" data-action="cancel-ad">Cancel</button></div>
   </div>`;
-      }
-      function adCreativeHTML() {
-        return `<div class="mt-3 rounded-[10px] overflow-hidden border-[1.5px] border-line [&_img]:w-full [&_img]:block [&_img]:max-h-[180px] [&_img]:object-cover"><div style="height:120px;background:linear-gradient(90deg,#1a2e4a,#1e8c7a);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fraunces',serif;font-weight:900;font-size:1.2rem">Your Banner Creative · 970×250</div></div>`;
       }
       function statCard(ic, num, lbl, trend) {
         return `<div class="bg-white border-[1.5px] border-line rounded-[16px] p-5 max380:p-4"><div class="w-[44px] h-[44px] rounded-[11px] bg-mint text-grass-ink flex items-center justify-center mb-3">${icon(ic, 20)}</div><div class="font-serif text-[2rem] font-black text-navy leading-[1]">${num}</div><div class="text-[0.9rem] text-muted mt-[0.35rem]">${lbl}</div>${trend ? `<div class="text-[0.82rem] font-bold text-grass-ink mt-[0.4rem] inline-flex items-center gap-1">${icon("trending", 12)} ${trend}</div>` : ""}</div>`;
@@ -4453,7 +4608,7 @@
         const n = notifUnread().length;
         if (!n) return "";
         const label = n > 9 ? "9+" : String(n);
-        return `<span class="absolute -top-[4px] -right-[4px] min-w-[19px] h-[19px] px-[5px] rounded-[100px] bg-dot text-white text-[0.7rem] font-extrabold leading-none flex items-center justify-center border-2 border-white shadow-[0_1px_4px_rgba(15,26,44,0.25)] max380:min-w-[17px] max380:h-[17px] max380:text-[0.65rem]" aria-hidden="true">${label}</span>`;
+        return `<span class="absolute -top-[5px] -right-[5px] min-w-[19px] h-[19px] px-[5px] rounded-full bg-[linear-gradient(135deg,#ff6b5e,#e0361f)] text-white text-[0.7rem] font-extrabold leading-none flex items-center justify-center border-2 border-white shadow-[0_2px_8px_rgba(224,54,31,0.5)] max380:min-w-[17px] max380:h-[17px] max380:text-[0.64rem]" aria-hidden="true">${label}</span>`;
       }
       const NOTIF_TABS = [
         ["all", "All", () => notifVisible().length],
@@ -5698,6 +5853,9 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         } else if (e.target.id === "ba-to") {
           state.bizAnalytics.to = e.target.value;
           render();
+        } else if (e.target.id === "adv-pie-range") {
+          state.advPieRange = e.target.value;
+          render();
         } else if (e.target.id === "an-cat") {
           state.advAnalytics.cat = e.target.value;
           render();
@@ -6286,8 +6444,6 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         navigate("advertiser");
       }
       function mockAdCreative() {
-        const box = el("ad-creative");
-        if (box) box.innerHTML = adCreativeHTML();
         toast("Creative uploaded (demo)", "image");
       }
       function pushNotif(ic, t, s) {
@@ -6375,9 +6531,13 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
       // background between the footer and the bar — so measure and match.
       function syncSponsorPad() {
         const bar = el("sponsor-bar");
-        if (!bar || document.body.classList.contains("sponsor-dismissed")) return;
-        // Banner floats 16px above the bottom, so reserve its height + the gaps.
-        document.body.style.paddingBottom = bar.offsetHeight + 32 + "px";
+        const footer = document.querySelector("footer");
+        const gone = document.body.classList.contains("sponsor-dismissed");
+        // Reserve the banner's height on the FOOTER (dark) rather than the body
+        // (cream), so the strip the floating banner sits over matches the footer
+        // colour instead of leaving a bare cream gap beneath it.
+        document.body.style.paddingBottom = "0px";
+        if (footer) footer.style.paddingBottom = !bar || gone ? "" : bar.offsetHeight + 40 + "px";
       }
       window.addEventListener("resize", syncSponsorPad);
       window.addEventListener("load", syncSponsorPad);
@@ -6440,6 +6600,8 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             stop();
             if (bar) bar.classList.add("is-hidden");
             document.body.classList.add("sponsor-dismissed");
+            const ft = document.querySelector("footer");
+            if (ft) ft.style.paddingBottom = "";
           });
         stage.addEventListener("mouseenter", stop);
         stage.addEventListener("mouseleave", start);
