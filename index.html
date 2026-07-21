@@ -608,6 +608,18 @@
         box-shadow: 0 16px 42px rgba(0, 0, 0, 0.3);
       }
 
+      /* Stacked variant for narrow containers, e.g. the listing detail drawer. */
+      .promo-ad--stack {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .promo-ad--stack .promo-ad-cta {
+        width: 100%;
+        justify-content: center;
+      }
+
       .promo-ad-chip {
         width: 52px;
         height: 52px;
@@ -759,13 +771,17 @@
         }
       }
 
-      /* ── Sponsor Bar (bottom, horizontally sticky) ──────────── */
+      /* ── Sponsor Bar — a floating banner-ad unit, sticky at the bottom ── */
       #sponsor-bar {
         position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        margin-inline: auto;
+        max-width: 1160px;
         z-index: 60;
+        border-radius: 18px;
+        overflow: hidden;
         /* Base shade. mountSponsorBar() layers the active slide's photo on top
            of this, so the flat gradient is also the fallback if an image fails.
            An opaque color plus border-box origin is what stops the 1px border
@@ -776,13 +792,22 @@
         background-clip: border-box;
         -webkit-backdrop-filter: saturate(1.5) blur(12px);
         backdrop-filter: saturate(1.5) blur(12px);
-        border-top: 1.5px solid rgba(255, 255, 255, 0.14);
-        box-shadow: 0 -10px 34px rgba(0, 0, 0, 0.28);
+        border: 1.5px solid rgba(255, 255, 255, 0.16);
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.42);
         transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
       }
 
+      @media (max-width: 560px) {
+        #sponsor-bar {
+          left: 10px;
+          right: 10px;
+          bottom: 10px;
+          border-radius: 14px;
+        }
+      }
+
       #sponsor-bar.is-hidden {
-        transform: translateY(115%);
+        transform: translateY(160%);
       }
 
       body.sponsor-dismissed {
@@ -793,7 +818,13 @@
         position: relative;
         flex: 1;
         min-width: 0;
-        height: 62px;
+        height: 124px;
+      }
+
+      @media (max-width: 560px) {
+        .sponsor-stage {
+          height: 96px;
+        }
       }
 
       .sponsor-slide {
@@ -1351,35 +1382,6 @@
               Visit Link →
             </span>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- FOOTER BANNER -->
-    <div class="bg-[#0d1e32] px-[clamp(1rem,5vw,7rem)] py-7">
-      <div class="mx-auto w-full max-w-[900px]">
-        <div
-          class="mb-2 flex items-center gap-[0.6rem] text-[0.72rem] font-bold uppercase tracking-[0.14em] text-on-dark-3 after:h-px after:flex-1 after:bg-current after:opacity-30 after:content-[''] max900:mb-[0.4rem] max900:text-[0.68rem] max900:tracking-[0.12em]"
-        >
-          Advertisement
-        </div>
-        <div class="promo-ad promo-ad--on-dark" data-adclick="Smiles for Kids Pediatric Dentistry">
-          <span class="promo-ad-chip">
-            <svg
-              class="icon inline-block align-middle shrink-0 [stroke-linecap:round] [stroke-linejoin:round] fill-none stroke-current [stroke-width:1.9]"
-              width="28"
-              height="28"
-            >
-              <use href="#ic-tooth" />
-            </svg>
-          </span>
-          <div class="flex-1 min-w-0">
-            <div class="font-extrabold text-[1.05rem] text-navy mb-[4px] leading-[1.35]">
-              Smiles for Kids Pediatric Dentistry — Bergen County's #1 Rated Kids' Dentist
-            </div>
-            <div class="text-[0.88rem] text-muted font-medium leading-[1.5]" id="footAd-meta"></div>
-          </div>
-          <span class="promo-ad-cta">Visit Link <span aria-hidden="true">→</span></span>
         </div>
       </div>
     </div>
@@ -2632,8 +2634,6 @@
         };
         root.innerHTML = (map[state.view] || viewHome)();
         if (el("topAd-meta")) el("topAd-meta").innerHTML = adMeta("Bergen Aquatic Center");
-        if (el("footAd-meta"))
-          el("footAd-meta").innerHTML = adMeta("Smiles for Kids Pediatric Dentistry");
         const NAV_ON = ["text-grass-ink", "bg-mint"];
         document.querySelectorAll("[data-navkey]").forEach((a) => {
           const on =
@@ -2701,9 +2701,9 @@
           (a, i) =>
             `<div class="sponsor-slide${i === 0 ? " is-active" : ""}" data-slide data-adclick="${a.key}">
         <div class="sponsor-chip" style="background:${a.grad}">${icon(a.icon, 22)}</div>
-        <div class="min-w-0 flex-1">
-          <div class="font-extrabold text-[0.95rem] text-white leading-[1.3] truncate">${a.title}</div>
-          <div class="text-[0.8rem] text-white/70 leading-[1.35] truncate [&_div]:inline-block [&_div:first-child]:mr-[0.6rem] max560:hidden">${adMeta(a.key)}</div>
+        <div class="min-w-0 flex-1 [text-shadow:0_2px_14px_rgba(0,0,0,0.92)]">
+          <div class="font-extrabold text-[1.05rem] text-white leading-[1.3] truncate">${a.title}</div>
+          <div class="text-[0.82rem] text-white/85 leading-[1.35] truncate [&_div]:inline-block [&_div:first-child]:mr-[0.6rem] max560:hidden">${adMeta(a.key)}</div>
         </div>
         <span class="inline-flex items-center gap-1 shrink-0 bg-grass-ink text-white text-[0.85rem] font-bold px-[1.1rem] py-[0.5rem] rounded-[100px] no-underline min-h-[40px] whitespace-nowrap hover:bg-[#1a5233] max380:hidden">Visit Link →</span>
       </div>`
@@ -2712,12 +2712,12 @@
           (a, i) =>
             `<button class="sponsor-dot${i === 0 ? " is-active" : ""}" data-sponsor-dot aria-label="Show sponsor ${i + 1}"></button>`
         ).join("");
-        return `<div id="sponsor-bar" role="complementary" aria-label="Sponsored">
-    <div class="mx-auto w-full max-w-[1400px] px-[clamp(1rem,5vw,7rem)] py-[1rem] flex items-center gap-4 max700:px-4 max700:gap-3">
-      <div class="flex items-center gap-[0.45rem] text-[0.62rem] font-bold tracking-[0.12em] uppercase text-white/70 shrink-0 max900:hidden"><span class="sponsor-live"></span>Sponsored</div>
+        return `<div id="sponsor-bar" role="complementary" aria-label="Advertisement">
+    <div class="w-full px-6 py-[0.85rem] flex items-center gap-4 max700:px-4 max700:gap-3">
+      <div class="flex items-center gap-[0.45rem] text-[0.62rem] font-bold tracking-[0.12em] uppercase text-white/80 shrink-0 max900:hidden [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]"><span class="sponsor-live"></span>Advertisement</div>
       <div class="sponsor-stage" id="sponsor-spotlight">${slides}</div>
       <div class="sponsor-dots max700:hidden">${dots}</div>
-      <button class="shrink-0 w-[34px] h-[34px] rounded-[50%] border-[1.5px] border-white/25 bg-white/10 flex items-center justify-center text-white/80 transition-[border-color,color,background] duration-200 hover:border-white/60 hover:bg-white/20 hover:text-white" id="sponsor-close" aria-label="Dismiss sponsored bar">${icon("x", 16)}</button>
+      <button class="shrink-0 w-[34px] h-[34px] rounded-[50%] border-[1.5px] border-white/25 bg-white/10 flex items-center justify-center text-white/80 transition-[border-color,color,background] duration-200 hover:border-white/60 hover:bg-white/20 hover:text-white" id="sponsor-close" aria-label="Dismiss advertisement">${icon("x", 16)}</button>
     </div>
   </div>`;
       }
@@ -2866,20 +2866,6 @@
         <div class="ev-track" id="ev-track">${evPrev.map((e, i) => `<div class="ev-slide">${eventCard(e, i)}</div>`).join("")}${evPrev.map((e, i) => `<div class="ev-slide" aria-hidden="true">${eventCard(e, i)}</div>`).join("")}</div>
       </div>
     </section>
-
-    <div class="px-[clamp(1rem,5vw,7rem)] py-8 bg-white">
-      <div class="mx-auto w-full max-w-[900px]">
-        <div class="mb-2 flex items-center gap-[0.6rem] text-[0.72rem] font-bold uppercase tracking-[0.14em] text-adlabel after:h-px after:flex-1 after:bg-current after:opacity-30 after:content-[''] max900:mb-[0.4rem] max900:text-[0.68rem] max900:tracking-[0.12em]">Advertisement</div>
-        <div class="promo-ad" data-adclick="Kumon Math & Reading">
-          <span class="promo-ad-chip">${icon("cap", 28)}</span>
-          <div class="flex-1 min-w-0">
-            <div class="font-extrabold text-[1.05rem] text-navy mb-1 leading-[1.35]">Kumon Math &amp; Reading Centers — Now Enrolling in Bergen County</div>
-            <div class="text-[0.88rem] text-muted font-medium leading-[1.5]">${adMeta("Kumon Math & Reading")}</div>
-          </div>
-          <span class="promo-ad-cta">Visit Link <span aria-hidden="true">→</span></span>
-        </div>
-      </div>
-    </div>
 
     <section class="px-[clamp(1rem,5vw,7rem)] py-20 bg-cream grid grid-cols-[1fr_1fr] gap-20 items-center max1200:gap-12 max900:grid-cols-1 max900:gap-10 max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
       <div class="relative max900:hidden">
@@ -4583,9 +4569,9 @@
       }
       // Right-side slide-in panel. Shares modal-root + close-modal wiring with openModal,
       // so closeModal() and Escape close it the same way.
-      function openDrawer(html) {
+      function openDrawer(html, wide) {
         el("modal-root").innerHTML =
-          `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex justify-end animate-fade"><div class="drawer relative bg-white w-full max-w-[440px] h-full shadow-[-16px_0_60px_rgba(15,26,44,0.35)] animate-slideInRight overflow-y-auto overscroll-contain max560:max-w-full [&_h2]:font-serif [&_h2]:text-[1.6rem] [&_h2]:text-navy [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2]"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-navy flex items-center justify-center z-[5] shadow-[0_2px_10px_rgba(15,26,44,0.18)] hover:bg-white" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
+          `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex justify-end animate-fade"><div class="drawer relative bg-white w-full ${wide ? "max-w-[600px]" : "max-w-[440px]"} h-full shadow-[-16px_0_60px_rgba(15,26,44,0.35)] animate-slideInRight overflow-y-auto overscroll-contain max560:max-w-full [&_h2]:font-serif [&_h2]:text-[1.6rem] [&_h2]:text-navy [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2]"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-navy flex items-center justify-center z-[5] shadow-[0_2px_10px_rgba(15,26,44,0.18)] hover:bg-white" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
         document.body.style.overflow = "hidden";
       }
 
@@ -4645,7 +4631,19 @@
       <div class="flex gap-3 flex-wrap mt-5 [&>*]:w-full [&>*]:justify-center">
         ${l.website ? `<button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="ext-link" data-url="${l.website}">${icon("globe", 16)} Visit Link</button>` : ""}
       </div>
-    </div>`
+      <div class="mt-7 pt-6 border-t border-line">
+        <div class="mb-3 flex items-center gap-[0.6rem] text-[0.72rem] font-bold uppercase tracking-[0.14em] text-adlabel after:h-px after:flex-1 after:bg-current after:opacity-30 after:content-['']">Advertisement</div>
+        <div class="promo-ad promo-ad--stack" data-adclick="Kumon Math & Reading">
+          <span class="promo-ad-chip">${icon("cap", 28)}</span>
+          <div class="flex-1 min-w-0">
+            <div class="font-extrabold text-[1.05rem] text-navy mb-1 leading-[1.35]">Kumon Math &amp; Reading Centers — Now Enrolling in Bergen County</div>
+            <div class="text-[0.88rem] text-muted font-medium leading-[1.5]">${adMeta("Kumon Math & Reading")}</div>
+          </div>
+          <span class="promo-ad-cta">Visit Link <span aria-hidden="true">→</span></span>
+        </div>
+      </div>
+    </div>`,
+          true // wider drawer for the directory detail page
         );
       }
 
@@ -6286,7 +6284,8 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
       function syncSponsorPad() {
         const bar = el("sponsor-bar");
         if (!bar || document.body.classList.contains("sponsor-dismissed")) return;
-        document.body.style.paddingBottom = bar.offsetHeight + "px";
+        // Banner floats 16px above the bottom, so reserve its height + the gaps.
+        document.body.style.paddingBottom = bar.offsetHeight + 32 + "px";
       }
       window.addEventListener("resize", syncSponsorPad);
       window.addEventListener("load", syncSponsorPad);
@@ -6302,23 +6301,23 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         const dots = Array.from(document.querySelectorAll("[data-sponsor-dot]"));
         if (!slides.length) return;
         syncSponsorPad();
-        const DUR = 5000;
+        const DUR = 3000;
         let idx = 0;
         function paint() {
           slides.forEach((s, i) => s.classList.toggle("is-active", i === idx));
           dots.forEach((d, i) => d.classList.toggle("is-active", i === idx));
-          // Each sponsor brings its own backdrop, kept under a heavy black shade
-          // so the white copy holds contrast whatever the photo looks like.
+          // Each sponsor brings its own photo, shown in full — the copy relies on
+          // its text-shadow (not a page-wide scrim) to stay legible over it.
           const photo = SPONSOR_ADS[idx] && SPONSOR_ADS[idx].img;
           if (bar) {
             bar.style.backgroundImage = photo
-              ? `linear-gradient(90deg, rgba(10,10,12,0.97) 0%, rgba(10,10,12,0.9) 55%, rgba(10,10,12,0.82) 100%), url("https://images.unsplash.com/photo-${photo}?auto=format&fit=crop&w=1600&q=60")`
+              ? `url("https://images.unsplash.com/photo-${photo}?auto=format&fit=crop&w=1600&q=60")`
               : "";
-            bar.style.backgroundSize = photo ? "cover, cover" : "";
-            bar.style.backgroundPosition = photo ? "center, center" : "";
-            bar.style.backgroundRepeat = photo ? "no-repeat, no-repeat" : "";
+            bar.style.backgroundSize = photo ? "cover" : "";
+            bar.style.backgroundPosition = photo ? "center" : "";
+            bar.style.backgroundRepeat = photo ? "no-repeat" : "";
             // Cover the border strip too, otherwise it renders as a bare seam.
-            bar.style.backgroundOrigin = photo ? "border-box, border-box" : "";
+            bar.style.backgroundOrigin = photo ? "border-box" : "";
           }
         }
         function go(n) {
