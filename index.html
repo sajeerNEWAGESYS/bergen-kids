@@ -576,15 +576,6 @@
         line-height: 1.3;
       }
 
-      .feature-item .feature-sub {
-        display: block;
-        margin-top: 0.15rem;
-        font-weight: 500;
-        font-size: 0.8rem;
-        line-height: 1.4;
-        color: var(--muted);
-      }
-
       .feature-item:hover .feature-title {
         text-decoration: underline;
       }
@@ -1798,7 +1789,6 @@
     <div id="cornerAd" role="complementary" aria-label="Advertisement">
       <div
         class="relative z-[1] overflow-hidden rounded-[16px] bg-navy shadow-[0_20px_54px_rgba(26,46,74,0.24)]"
-        data-adpoll
       >
         <img
           src="https://images.unsplash.com/photo-1600965962361-9035dbfd1c50?auto=format&fit=crop&w=640&q=75"
@@ -1845,31 +1835,28 @@
             How does your kid like to cool off?
           </div>
 
-          <div class="mt-4 flex flex-col gap-[0.55rem]" role="group" aria-label="Poll options">
+          <div class="mt-4">
             <button
               type="button"
-              data-adpoll-opt
-              onclick="event.stopPropagation();adPollVote(this,'Cannonballs')"
-              class="w-full rounded-[100px] border-[1.5px] border-white/25 bg-white/10 px-4 py-[0.6rem] text-[0.86rem] font-bold text-white backdrop-blur-[6px] transition-[background,transform,border-color] duration-200 hover:-translate-y-[1px] hover:border-white/40 hover:bg-white/20"
+              data-adclick="Bergen Aquatic Center"
+              class="flex w-full items-center justify-center gap-2 rounded-[100px] border-none bg-white px-4 py-[0.7rem] text-[0.9rem] font-extrabold text-navy shadow-[0_6px_20px_rgba(9,15,26,0.35)] transition-[transform,box-shadow] duration-200 hover:-translate-y-[1px] hover:shadow-[0_10px_26px_rgba(9,15,26,0.45)]"
             >
-              Cannonballs, always 🏊
-            </button>
-            <button
-              type="button"
-              data-adpoll-opt
-              onclick="event.stopPropagation();adPollVote(this,'Shallow end')"
-              class="w-full rounded-[100px] border-[1.5px] border-white/25 bg-white/10 px-4 py-[0.6rem] text-[0.86rem] font-bold text-white backdrop-blur-[6px] transition-[background,transform,border-color] duration-200 hover:-translate-y-[1px] hover:border-white/40 hover:bg-white/20"
-            >
-              Chill in the shallow end 🌊
+              <svg
+                class="icon inline-block align-middle shrink-0 [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:1.9] fill-none stroke-current"
+                width="16"
+                height="16"
+              >
+                <use href="#ic-globe" />
+              </svg>
+              Visit Link
             </button>
           </div>
 
           <div class="mt-auto pt-7">
             <div
               class="text-[0.82rem] font-semibold leading-[1.45] text-on-dark-2 [text-shadow:0_2px_10px_rgba(9,15,26,0.85)]"
-              data-adpoll-note
             >
-              Tell us their style &amp; unlock a free trial lesson.
+              Group lessons, private coaching &amp; family memberships in Paramus, NJ.
             </div>
             <div
               class="mt-[0.35rem] text-[0.62rem] leading-[1.5] text-white/55 [text-shadow:0_2px_10px_rgba(9,15,26,0.85)]"
@@ -2136,29 +2123,6 @@
       function fmtDate(iso) {
         const d = new Date(iso + "T00:00");
         return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-      }
-      function validPassword(p) {
-        return (
-          typeof p === "string" &&
-          p.length >= 8 &&
-          /[A-Z]/.test(p) &&
-          /[a-z]/.test(p) &&
-          /\d/.test(p) &&
-          /[^A-Za-z0-9]/.test(p)
-        );
-      }
-      const PASS_CRITERIA =
-        "Min 8 characters, with 1 uppercase, 1 lowercase, 1 number and 1 special character.";
-      function passInput(id, opts = {}) {
-        const val = opts.value || "";
-        return `<div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-navy [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-navy [&_input]:bg-[#fbfcfd] [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-grass-ink [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-[1rem] [&_select]:text-navy [&_select]:bg-[#fbfcfd] [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-grass-ink [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-[1rem] [&_textarea]:text-navy [&_textarea]:bg-[#fbfcfd] [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-grass-ink [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100" style="margin-bottom:${opts.mb || "0.8rem"}">
-    <label>${opts.label || "Password *"}</label>
-    <div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-[#fbfcfd] min-h-[46px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]" style="background:#fbfcfd;padding:0.15rem 0.35rem 0.15rem 0.75rem">
-      <input class="border-none outline-none bg-transparent font-sans text-[1rem] text-navy w-full min-w-0 cursor-text placeholder:text-muted placeholder:opacity-100" id="${id}" type="password" placeholder="${opts.ph || "••••••••"}" value="${val}" style="border:none;background:transparent;padding:0.55rem 0;width:100%">
-      <button type="button" class="pass-toggle" data-action="toggle-pass" data-target="${id}" title="Show / hide" style="background:none;border:none;color:var(--muted);line-height:0;padding:0.3rem">${icon("eye", 16)}</button>
-    </div>
-    ${opts.criteria ? `<div style="font-size:0.85rem;color:var(--muted);margin-top:0.3rem;line-height:1.5">${PASS_CRITERIA}</div>` : ""}
-  </div>`;
       }
       const TOWNS = [
         "Allendale",
@@ -2717,10 +2681,12 @@
           saved: false,
         };
       }
+      // Seed dates are relative to today so "Upcoming" always has a forward-looking
+      // slate whenever the demo is opened. Formatted from the local parts rather
+      // than toISOString(), which shifts the day back in timezones ahead of UTC.
       function evDate(offsetDays) {
-        const d = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
-        d.setDate(offsetDays);
-        return d.toISOString().slice(0, 10);
+        const d = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() + offsetDays);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       }
       let EVENTS = [
         ev(
@@ -3043,8 +3009,8 @@
         bizAnalytics: { cat: "", from: "", to: "" },
         advAnalytics: { cat: "", place: "", from: "", to: "" },
         advPieRange: "30d", // date window for the overview "impressions by category" pie
+        bizPieRange: "30d", // same, for the business overview pie
         articleFilter: "all",
-        notifTab: "all",
         scrollTo: null,
       };
       // Notifications differ per role — a parent hears about events, a business about listings, an advertiser about campaigns.
@@ -3274,16 +3240,13 @@
       }
 
       function viewHome() {
+        // Labels come straight from CATEGORIES so the strip always matches the
+        // category names, rather than carrying its own copy to keep in sync.
         const heroCards = [
-          {
-            icon: "stethoscope",
-            t: "Pediatricians",
-            s: "Top-rated doctors near you",
-            cat: "medical",
-          },
-          { icon: "palette", t: "Art Classes", s: "Creative programs for all ages", cat: "arts" },
-          { icon: "school", t: "Schools", s: "Public, private & preschool", cat: "schools" },
-          { icon: "soccer", t: "Sports & Camps", s: "Stay active year-round", cat: "sports" },
+          { icon: "stethoscope", cat: "medical" },
+          { icon: "palette", cat: "arts" },
+          { icon: "school", cat: "schools" },
+          { icon: "soccer", cat: "sports" },
         ];
         const featureTiles = [
           {
@@ -3310,14 +3273,6 @@
             tint: "#e2ebfa",
             accent: "#2d5a8e",
           },
-          {
-            icon: "pin",
-            t: "Search by town",
-            s: "Filter everything by town — wherever you are.",
-            nav: "directory",
-            tint: "#efe8f8",
-            accent: "#7b5ea7",
-          },
         ];
         const tagList = [
           ["stethoscope", "Pediatricians", "medical"],
@@ -3328,7 +3283,12 @@
           ["waves", "Swim Schools", "sports"],
           ["cake", "Birthday Venues", "parties"],
         ];
-        const evPrev = EVENTS.slice(0, 8);
+        // Soonest first, left to right. A multi-day event stays in the rail until
+        // its end date passes, so something running right now isn't dropped.
+        const todayISO = evDate(0);
+        const evPrev = EVENTS.filter((e) => (e.endDate || e.date) >= todayISO)
+          .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
+          .slice(0, 8);
         const flower = (ic) =>
           `<div class="flower-badge"><svg viewBox="-50 -50 100 100">${Array.from({ length: 8 })
             .map(
@@ -3358,15 +3318,6 @@
           <div class="mt-8">
             <a class="inline-flex items-center justify-center rounded-[100px] bg-navy px-9 py-[0.95rem] text-[1rem] font-extrabold text-white min-h-[52px] shadow-[0_10px_28px_rgba(26,46,74,0.22)] transition-transform duration-200 hover:-translate-y-[2px] cursor-pointer" data-nav="directory" data-authgate>Create a free account</a>
           </div>
-          <div class="mt-9 flex items-center gap-3">
-            <div class="flex -space-x-3">${[5, 12, 32]
-              .map(
-                (id) =>
-                  `<img src="https://i.pravatar.cc/72?img=${id}" alt="" width="44" height="44" decoding="async" class="w-11 h-11 rounded-full border-[3px] border-white object-cover">`
-              )
-              .join("")}</div>
-            <div class="text-[0.85rem] leading-[1.35] text-muted max-w-[20ch]">Trusted by Bergen County families</div>
-          </div>
         </div>
         <div class="relative z-[1] h-[420px] animate-[fadeUp_0.8s_0.15s_ease_both] max900:h-[320px] max560:h-[260px]">
           <div class="hero-decor" aria-hidden="true">
@@ -3388,7 +3339,7 @@
             (c) =>
               `<div class="feature-item" data-nav="directory" data-cat="${c.cat}" data-authgate>${flower(
                 c.icon
-              )}<span><span class="feature-title">${c.t}</span><span class="feature-sub">${c.s}</span></span></div>`
+              )}<span class="feature-title">${catOf(c.cat).name}</span></div>`
           )
           .join("")}</div>
       </div>
@@ -3401,7 +3352,7 @@
         <div class="font-serif text-[clamp(1.75rem,1.3rem_+_1.9vw,2.5rem)] font-black text-navy tracking-[-0.02em] mb-3 leading-[1.15] text-balance mx-auto max-w-[22ch]">Everything for Bergen County families, in one place.</div>
         <p class="text-muted text-[1.05rem] leading-[1.65] max-w-[60ch] mx-auto mb-12 text-pretty">From newborn care to college prep — Bergen Kids brings together every trusted local service in one place.</p>
       </div>
-      <div class="relative z-[1] grid grid-cols-4 gap-5 items-stretch max1024:gap-4 max900:grid-cols-2 max560:grid-cols-1 max560:gap-3">${featureTiles.map((t) => `<div class="inside-card" data-nav="${t.nav}" data-authgate><svg class="inside-card-wave" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M40 0 C 62 22 40 40 60 58 C 80 76 58 90 78 100 L 100 100 L 100 0 Z" fill="${t.accent}22"/><path d="M60 0 C 80 20 60 38 78 55 C 93 69 75 83 93 100 L 100 100 L 100 0 Z" fill="${t.accent}3a"/></svg><span class="inside-card-badge" style="background:${t.tint};color:${t.accent}">${icon(t.icon, 26)}</span><div class="inside-card-title">${t.t}</div><span class="inside-card-rule" style="background:${t.accent}"></span><div class="inside-card-desc">${t.s}</div><span class="inside-card-arrow" style="background:${t.tint};color:${t.accent}">${icon("arrow-right", 18)}</span></div>`).join("")}</div>
+      <div class="relative z-[1] grid grid-cols-3 gap-5 items-stretch max1024:gap-4 max900:grid-cols-2 max560:grid-cols-1 max560:gap-3">${featureTiles.map((t) => `<div class="inside-card" data-nav="${t.nav}" data-authgate><svg class="inside-card-wave" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M40 0 C 62 22 40 40 60 58 C 80 76 58 90 78 100 L 100 100 L 100 0 Z" fill="${t.accent}22"/><path d="M60 0 C 80 20 60 38 78 55 C 93 69 75 83 93 100 L 100 100 L 100 0 Z" fill="${t.accent}3a"/></svg><span class="inside-card-badge" style="background:${t.tint};color:${t.accent}">${icon(t.icon, 26)}</span><div class="inside-card-title">${t.t}</div><span class="inside-card-rule" style="background:${t.accent}"></span><div class="inside-card-desc">${t.s}</div><span class="inside-card-arrow" style="background:${t.tint};color:${t.accent}">${icon("arrow-right", 18)}</span></div>`).join("")}</div>
     </section>
 
     <section class="ta-band px-[clamp(1rem,5vw,7rem)] py-24 max700:py-16 max380:px-4">
@@ -4143,31 +4094,112 @@
         ];
         return `<div class="view-full  mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
     <div class="mb-7"><div class="flex items-center gap-[0.4rem] text-[0.9rem] text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-grass-ink font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>Business Dashboard</span></div>
-      <div class="font-serif text-[clamp(1.9rem,1.4rem_+_2.1vw,2.7rem)] font-black text-navy tracking-[-0.02em] leading-[1.15] text-balance">Business Dashboard</div><p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Welcome back, ${state.user.name}. Manage your presence on Bergen Kids.</p></div>
+      ${tab === "overview" || tab === "analytics" ? "" : `<div class="font-serif text-[clamp(1.9rem,1.4rem_+_2.1vw,2.7rem)] font-black text-navy tracking-[-0.02em] leading-[1.15] text-balance">Business Dashboard</div><p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Welcome back, ${state.user.name}. Manage your presence on Bergen Kids.</p>`}</div>
     <div class="grid grid-cols-[230px_minmax(0,1fr)] gap-8 [align-items:start] [&>*]:min-w-0 max1024:grid-cols-[1fr]">
-      <div class="dash-side bg-white border-[1.5px] border-line rounded-[18px] p-3 sticky top-[84px] min-w-0 max1024:static max1024:flex max1024:overflow-x-auto max1024:gap-[0.4rem] max1024:p-2 no-scrollbar">${tabs.map((t) => `<button class="${tab === t[0] ? "flex items-center gap-[0.7rem] w-full text-left border-none px-[0.85rem] py-3 rounded-[11px] text-[0.98rem] font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto bg-navy text-white [&_svg]:text-white [&_svg]:shrink-0" : "flex items-center gap-[0.7rem] w-full text-left bg-transparent border-none px-[0.85rem] py-3 rounded-[11px] text-[0.98rem] font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto text-muted [&_svg]:text-adlabel [&_svg]:shrink-0 hover:bg-[#eef5f0] hover:text-navy [&:hover_svg]:text-grass-ink"}" data-action="dash-tab" data-tab="${t[0]}">${icon(t[2], 18)} ${t[1]}</button>`).join("")}</div>
+      <div class="dash-side bg-white border-[1.5px] border-line rounded-[18px] p-3 sticky top-[84px] min-w-0 max1024:static max1024:flex max1024:items-center max1024:overflow-x-auto max1024:gap-[0.4rem] max1024:p-2 no-scrollbar">
+        <div class="flex flex-col items-center text-center px-2 pt-3 pb-4 mb-2 border-b border-line2 max1024:hidden">
+          ${avatarHtml(state.user, 66, "border-[3px] border-white shadow-[0_4px_16px_rgba(15,26,44,0.18)]")}
+          <div class="mt-3 font-serif text-[1.02rem] font-black text-navy leading-[1.2] break-words">${state.user.name}</div>
+          <div class="text-[0.8rem] text-muted mt-[0.15rem]">Business</div>
+        </div>
+        ${tabs.map((t) => `<button class="${tab === t[0] ? "flex items-center gap-[0.7rem] w-full text-left border-none px-[0.85rem] py-3 rounded-[11px] text-[0.98rem] font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto bg-navy text-white [&_svg]:text-white [&_svg]:shrink-0" : "flex items-center gap-[0.7rem] w-full text-left bg-transparent border-none px-[0.85rem] py-3 rounded-[11px] text-[0.98rem] font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto text-muted [&_svg]:text-adlabel [&_svg]:shrink-0 hover:bg-[#eef5f0] hover:text-navy [&:hover_svg]:text-grass-ink"}" data-action="dash-tab" data-tab="${t[0]}">${icon(t[2], 18)} ${t[1]}</button>`).join("")}
+        <div class="pt-2 mt-2 border-t border-line2 max1024:hidden">
+          <button class="flex items-center gap-[0.7rem] w-full text-left bg-transparent border-none px-[0.85rem] py-3 rounded-[11px] text-[0.98rem] font-semibold text-muted [&_svg]:text-adlabel [&_svg]:shrink-0 min-h-[46px] transition-colors duration-150 hover:bg-[#fdf3f2] hover:text-[#a3271c] [&:hover_svg]:text-[#a3271c]" data-action="logout">${icon("logout", 18)} Log out</button>
+        </div>
+      </div>
       <div>${businessTab(tab)}</div>
     </div></div>`;
       }
+      // ── Crowz-style business overview — mirrors the advertiser dashboard ──
+      function bizPerfRow(l) {
+        const c = catOf(l.cat);
+        const ctr = l.impressions ? ((l.clicks / l.impressions) * 100).toFixed(1) : "0.0";
+        return `<div class="flex items-center gap-3 py-[0.7rem] border-b border-line2 last:border-b-0">
+          <span class="w-[40px] h-[40px] rounded-full flex items-center justify-center text-white shrink-0 shadow-[0_3px_10px_rgba(15,26,44,0.16)]" style="background:${c.grad}">${icon(c.icon, 18)}</span>
+          <div class="min-w-0 flex-1"><div class="font-bold text-[0.92rem] text-navy truncate leading-[1.25]">${l.name}</div><div class="text-[0.8rem] text-muted truncate">${l.town}</div></div>
+          <div class="font-extrabold text-[0.95rem] text-navy shrink-0">${ctr}%</div>
+        </div>`;
+      }
+      function bizOverview() {
+        const mine = myListings();
+        const imp = mine.reduce((s, l) => s + l.impressions, 0);
+        const clk = mine.reduce((s, l) => s + l.clicks, 0);
+        const active = mine.filter((l) => l.status === "active").length;
+        const ctr = imp ? ((clk / imp) * 100).toFixed(1) + "%" : "—";
+        const performers = mine
+          .filter((l) => l.impressions > 0)
+          .sort((x, y) => y.clicks / y.impressions - x.clicks / x.impressions)
+          .slice(0, 3);
+        const recent = mine.slice().sort((x, y) => y.created.localeCompare(x.created)).slice(0, 5);
+        // Date-filtered pie: impressions accrue per day since a listing went up,
+        // and only the days inside the chosen window count, so the category mix
+        // shifts as the range changes.
+        const RANGES = { "7d": 7, "30d": 30, "90d": 90, all: 100000 };
+        const rk = RANGES[state.bizPieRange] !== undefined ? state.bizPieRange : "30d";
+        const DAY = 86400000;
+        const dnum = (iso) => Math.round(Date.parse(iso + "T00:00:00Z") / DAY);
+        const todayN = dnum(adDate(0));
+        const wStartN = todayN - RANGES[rk];
+        const byCatP = {};
+        mine
+          .filter((l) => l.impressions > 0)
+          .forEach((l) => {
+            const s = dnum(l.created);
+            const perDay = l.impressions / Math.max(1, todayN - s);
+            const overlap = Math.max(0, todayN - Math.max(s, wStartN));
+            const v = Math.round(perDay * overlap);
+            if (v > 0) byCatP[l.cat] = (byCatP[l.cat] || 0) + v;
+          });
+        const pieItems = Object.keys(byCatP)
+          .sort((x, y) => byCatP[y] - byCatP[x])
+          .map((k) => {
+            const c = catOf(k);
+            return {
+              label: c.name,
+              value: byCatP[k],
+              color: (c.grad.match(/#[0-9a-fA-F]{6}/) || ["#2d7a4f"])[0],
+            };
+          });
+        const RANGE_OPTS = [
+          ["7d", "Last 7 days"],
+          ["30d", "Last 30 days"],
+          ["90d", "Last 90 days"],
+          ["all", "All time"],
+        ];
+        return `<div class="mb-6">
+      <div class="font-serif text-[clamp(1.6rem,1.2rem_+_1.4vw,2.1rem)] font-black text-navy leading-[1.1]">Dashboard</div><div class="text-[0.92rem] text-muted mt-1">Every metric for your listings, at a glance.</div>
+    </div>
+    <div class="grid grid-cols-4 gap-4 mb-5 max900:grid-cols-2 max560:grid-cols-1">
+      ${advStatTile(compactNum(imp), "Impressions")}
+      ${advStatTile(compactNum(clk), "Clicks")}
+      ${advStatTile(ctr, "Average CTR")}
+      ${advStatTile(active, "Active listings")}
+    </div>
+    <div class="grid grid-cols-[1fr_1fr] gap-5 items-start mb-5 max900:grid-cols-1">
+      <div class="bg-white border-[1.5px] border-line rounded-[18px] p-5 max380:p-[1.1rem]">
+        <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+          <div class="font-serif text-[1.2rem] font-black text-navy leading-[1.15]">Impressions by category</div>
+          <div class="inline-flex items-center gap-1.5 text-[0.85rem] font-semibold text-navy bg-[#f6f8fa] border border-line rounded-[10px] pl-2.5 pr-1.5 py-[0.4rem]">${icon("calendar", 15)}<select id="biz-pie-range" class="bg-transparent border-none outline-none font-sans text-[0.85rem] font-semibold text-navy cursor-pointer">${RANGE_OPTS.map(([v, l]) => `<option value="${v}" ${rk === v ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+        </div>
+        ${pieItems.length ? donutChart(pieItems, "Impressions") : `<div class="text-muted text-[0.9rem] py-6 text-center">No impressions in this range.</div>`}
+      </div>
+      <div class="bg-white border-[1.5px] border-line rounded-[18px] p-5 max380:p-[1.1rem]">
+        <div class="font-serif text-[1.2rem] font-black text-navy leading-[1.15] mb-2">Top performers</div>
+        ${performers.length ? performers.map(bizPerfRow).join("") : `<div class="text-muted text-[0.9rem] py-4">No performance data yet.</div>`}
+        <button class="mt-3 text-grass-ink font-bold text-[0.9rem] inline-flex items-center gap-1 transition-[gap] duration-200 hover:gap-2" data-action="dash-tab" data-tab="analytics">View more ${icon("arrow-right", 14)}</button>
+      </div>
+    </div>
+    <div class="bg-white border-[1.5px] border-line rounded-[18px] p-6 max380:p-[1.1rem]">
+      <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
+        <div><div class="font-serif text-[1.2rem] font-black text-navy leading-[1.15]">Recent listings</div><div class="text-[0.9rem] text-muted mt-1">Your newest listings on Bergen Kids.</div></div>
+        <button class="text-grass-ink font-bold text-[0.9rem] inline-flex items-center gap-1 bg-transparent border-none transition-[gap] duration-200 hover:gap-2" data-action="dash-tab" data-tab="listings">Manage all ${icon("arrow-right", 14)}</button>
+      </div>
+      ${recent.length ? listingTable(recent) : emptyPanel("You have no listings yet", "Add your first listing to get discovered by families.")}
+    </div>`;
+      }
       function businessTab(tab) {
         const mine = myListings();
-        const activeCount = mine.filter((l) => l.status === "active").length;
-        if (tab === "overview") {
-          const imp = mine.reduce((s, l) => s + l.impressions, 0),
-            clk = mine.reduce((s, l) => s + l.clicks, 0);
-          const ctr = imp ? ((clk / imp) * 100).toFixed(1) + "%" : "—";
-          const WEIGHTS = [0.19, 0.23, 0.27, 0.31];
-          const impW = WEIGHTS.map((w) => Math.round(imp * w));
-          const clkW = WEIGHTS.map((w) => Math.round(clk * w));
-          return `<div class="grid grid-cols-[repeat(auto-fit,minmax(min(180px,100%),1fr))] gap-4 mb-7">
-      ${statCard("eye", imp.toLocaleString(), "Total impressions", "")}
-      ${statCard("click", clk.toLocaleString(), "Total clicks", "")}
-      ${statCard("tag", activeCount, "Active listings", "")}
-      ${statCard("trending", ctr, "Average CTR", "")}
-    </div>
-    <div class="bg-white border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-[1.15rem] [&_h3]:text-navy [&_h3]:mb-[0.3rem] max380:p-[1.1rem]"><h3>Performance this month</h3><div class="text-[0.92rem] text-muted mb-5 leading-[1.55]">Impressions &amp; clicks by week across your listings</div>${dualBar([impW, clkW], ["W1", "W2", "W3", "W4"])}</div>
-    <div class="bg-white border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-[1.15rem] [&_h3]:text-navy [&_h3]:mb-[0.3rem] max380:p-[1.1rem]"><h3>Recent Listings</h3><div class="text-[0.92rem] text-muted mb-5 leading-[1.55]">Quick view — go to My Listings to manage</div>${listingTable(mine)}</div>`;
-        }
+        if (tab === "overview") return bizOverview();
         if (tab === "listings") {
           const f = state.listingFilter;
           const shown = mine.filter(
@@ -4214,29 +4246,55 @@
             clk = shown.reduce((s, l) => s + l.clicks, 0);
           const ctr = imp ? ((clk / imp) * 100).toFixed(1) + "%" : "—";
           const active = shown.filter((l) => l.status === "active").length;
-          const WEIGHTS = [0.125, 0.15, 0.175, 0.165, 0.185, 0.2];
-          const impW = WEIGHTS.map((w) => Math.round(imp * w));
-          const clkW = WEIGHTS.map((w) => Math.round(clk * w));
           const cats = CATEGORIES.filter((c) => ran.some((l) => l.cat === c.id));
+          const perf = shown
+            .filter((l) => l.impressions > 0)
+            .sort((x, y) => y.clicks / y.impressions - x.clicks / x.impressions)
+            .slice(0, 5);
+          const byCat = {};
+          shown.forEach((l) => (byCat[l.cat] = (byCat[l.cat] || 0) + l.impressions));
+          const catItems = Object.keys(byCat)
+            .filter((k) => byCat[k] > 0)
+            .sort((x, y) => byCat[y] - byCat[x])
+            .map((k) => {
+              const c = catOf(k);
+              return {
+                label: c.name,
+                value: byCat[k],
+                color: (c.grad.match(/#[0-9a-fA-F]{6}/) || ["#2d7a4f"])[0],
+              };
+            });
           const FIELD =
             "flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-[#fbfcfd] min-h-[46px] focus-within:border-grass-ink focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]";
           const INPUT =
             "border-none outline-none bg-transparent font-sans text-[1rem] text-navy w-full min-w-0 cursor-pointer";
           const LABEL = "text-[0.75rem] font-bold tracking-[0.07em] uppercase text-adlabel pl-2";
-          return `<div class="grid gap-3 items-end mb-6 grid-cols-[1.4fr_1fr_1fr_auto] max900:!grid-cols-[1fr_1fr] max700:!grid-cols-[1fr]">
-      <div class="flex flex-col gap-1"><label class="${LABEL}">Category</label><div class="${FIELD}">${icon("tag", 16)}<select class="${INPUT}" id="ba-cat"><option value="">All categories</option>${cats.map((c) => `<option value="${c.id}" ${f.cat === c.id ? "selected" : ""}>${c.name}</option>`).join("")}</select></div></div>
-      <div class="flex flex-col gap-1"><label class="${LABEL}">Start Date</label><div class="${FIELD}">${icon("calendar", 16)}<input class="${INPUT} cursor-text" type="date" id="ba-from" value="${f.from || ""}"></div></div>
-      <div class="flex flex-col gap-1"><label class="${LABEL}">End Date</label><div class="${FIELD}">${icon("calendar", 16)}<input class="${INPUT} cursor-text" type="date" id="ba-to" value="${f.to || ""}"></div></div>
-      <button class="bg-transparent border-none text-muted text-[0.9rem] font-bold flex items-center gap-[0.3rem] whitespace-nowrap self-end px-2 py-[0.7rem] min-h-[44px] hover:text-navy hover:underline max700:self-start max700:justify-center max700:border-[1.5px] max700:border-solid max700:border-line max700:rounded-[10px]" data-action="clear-biz-analytics">${icon("x", 15)} Clear</button>
+          return `<div class="mb-6"><div class="font-serif text-[clamp(1.6rem,1.2rem_+_1.4vw,2.1rem)] font-black text-navy leading-[1.1]">Analytics</div><div class="text-[0.92rem] text-muted mt-1">Track how your listings are performing.</div></div>
+    <div class="bg-white border-[1.5px] border-line rounded-[18px] p-5 mb-5 max380:p-[1.1rem]">
+      <div class="grid gap-3 items-end grid-cols-[1.4fr_1fr_1fr_auto] max900:!grid-cols-[1fr_1fr] max700:!grid-cols-[1fr]">
+        <div class="flex flex-col gap-1"><label class="${LABEL}">Category</label><div class="${FIELD}">${icon("tag", 16)}<select class="${INPUT}" id="ba-cat"><option value="">All categories</option>${cats.map((c) => `<option value="${c.id}" ${f.cat === c.id ? "selected" : ""}>${c.name}</option>`).join("")}</select></div></div>
+        <div class="flex flex-col gap-1"><label class="${LABEL}">Start Date</label><div class="${FIELD}">${icon("calendar", 16)}<input class="${INPUT} cursor-text" type="date" id="ba-from" value="${f.from || ""}"></div></div>
+        <div class="flex flex-col gap-1"><label class="${LABEL}">End Date</label><div class="${FIELD}">${icon("calendar", 16)}<input class="${INPUT} cursor-text" type="date" id="ba-to" value="${f.to || ""}"></div></div>
+        <button class="bg-transparent border-none text-muted text-[0.9rem] font-bold flex items-center gap-[0.3rem] whitespace-nowrap self-end px-2 py-[0.7rem] min-h-[44px] hover:text-navy hover:underline max700:self-start max700:justify-center max700:border-[1.5px] max700:border-solid max700:border-line max700:rounded-[10px]" data-action="clear-biz-analytics">${icon("x", 15)} Clear</button>
+      </div>
     </div>
-    <div class="grid grid-cols-[repeat(auto-fit,minmax(min(180px,100%),1fr))] gap-4 mb-7">
-      ${statCard("eye", imp.toLocaleString(), "Impressions", "")}
-      ${statCard("click", clk.toLocaleString(), "Clicks", "")}
-      ${statCard("tag", active, "Active listings", "")}
-      ${statCard("trending", ctr, "Average CTR", "")}
+    <div class="grid grid-cols-4 gap-4 mb-5 max900:grid-cols-2 max560:grid-cols-1">
+      ${advStatTile(compactNum(imp), "Impressions")}
+      ${advStatTile(compactNum(clk), "Clicks")}
+      ${advStatTile(ctr, "Average CTR")}
+      ${advStatTile(active, "Active listings")}
     </div>
-    <div class="bg-white border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-[1.15rem] [&_h3]:text-navy [&_h3]:mb-[0.3rem] max380:p-[1.1rem]"><h3>Clicks and Impressions</h3><div class="text-[0.92rem] text-muted mb-5 leading-[1.55]">Last 6 weeks</div>${dualBar([impW, clkW], ["W1", "W2", "W3", "W4", "W5", "W6"])}</div>
-    <div class="bg-white border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-[1.15rem] [&_h3]:text-navy [&_h3]:mb-[0.3rem] max380:p-[1.1rem]"><h3>Listing breakdown</h3>${shown.length ? listingTable(shown, false, true) : emptyPanel("No listings match your filters", "Try widening the category or date range.")}</div>`;
+    <div class="grid grid-cols-[1fr_1fr] gap-5 items-start mb-5 max900:grid-cols-1">
+      <div class="bg-white border-[1.5px] border-line rounded-[18px] p-5 min-w-0 max380:p-[1.1rem]">
+        <div class="font-serif text-[1.2rem] font-black text-navy leading-[1.15] mb-4">Impressions by category</div>
+        ${catItems.length ? donutChart(catItems, "Impressions") : `<div class="text-muted text-[0.9rem] py-4">No performance data yet.</div>`}
+      </div>
+      <div class="bg-white border-[1.5px] border-line rounded-[18px] p-5 max380:p-[1.1rem]">
+        <div class="font-serif text-[1.2rem] font-black text-navy leading-[1.15] mb-2">Top performers</div>
+        ${perf.length ? perf.map(bizPerfRow).join("") : `<div class="text-muted text-[0.9rem] py-4">No performance data yet.</div>`}
+      </div>
+    </div>
+    <div class="bg-white border-[1.5px] border-line rounded-[18px] p-6 max380:p-[1.1rem]"><div class="font-serif text-[1.2rem] font-black text-navy leading-[1.15] mb-3">Listing performance</div>${shown.length ? listingTable(shown, false, true) : emptyPanel("No listings match your filters", "Try widening the category or date range.")}</div>`;
         }
         if (tab === "billing") return billingHistory();
       }
@@ -4644,29 +4702,6 @@
         const c = catOf(a.cat);
         return `<div>${c ? c.name : ""}${a.sub ? " · " + a.sub : ""}</div><div>${fmtDate(a.start)} – ${fmtDate(a.end)}</div>`;
       }
-      // Corner poll ad. Voting locks both options, highlights the pick, and swaps
-      // the footer line for a call to action — the unit still has somewhere to send
-      // the visitor once the tap that engaged them is spent.
-      function adPollVote(btn, choice) {
-        const poll = btn.closest("[data-adpoll]");
-        if (!poll || poll.dataset.voted) return;
-        poll.dataset.voted = choice;
-        poll.querySelectorAll("[data-adpoll-opt]").forEach((b) => {
-          b.disabled = true;
-          b.classList.remove("hover:-translate-y-[1px]", "hover:border-white/40", "hover:bg-white/20");
-          if (b === btn) {
-            b.classList.remove("border-white/25", "bg-white/10", "text-white");
-            b.classList.add("border-sun", "bg-sun", "text-navy");
-          } else {
-            b.classList.add("opacity-50");
-          }
-        });
-        const note = poll.querySelector("[data-adpoll-note]");
-        if (note)
-          note.innerHTML =
-            'Nice pick! <span class="text-sun">Free trial lesson unlocked →</span>';
-        toast("Thanks — your pick went to Bergen Aquatic Center.");
-      }
       // In-page ad unit, styled like the corner popup. Driven off PUBLIC_ADS so
       // any campaign renders without hand-written copy at the call site; clicking
       // it falls through to data-adclick → adDetailModal.
@@ -4807,32 +4842,21 @@
       function advPerfRow(a) {
         const c = catOf(a.cat);
         const ctr = a.impressions ? ((a.clicks / a.impressions) * 100).toFixed(1) : "0.0";
-        const handle = "@" + String(a.dest || "").split(".")[0];
         return `<div class="flex items-center gap-3 py-[0.7rem] border-b border-line2 last:border-b-0">
           <span class="w-[40px] h-[40px] rounded-full flex items-center justify-center text-white shrink-0 shadow-[0_3px_10px_rgba(15,26,44,0.16)]" style="background:${c.grad}">${icon(c.icon, 18)}</span>
-          <div class="min-w-0 flex-1"><div class="font-bold text-[0.92rem] text-navy truncate leading-[1.25]">${a.name}</div><div class="text-[0.8rem] text-muted truncate">${handle}</div></div>
+          <div class="min-w-0 flex-1"><div class="font-bold text-[0.92rem] text-navy truncate leading-[1.25]">${a.name}</div><div class="text-[0.8rem] text-muted truncate">${a.placement}</div></div>
           <div class="font-extrabold text-[0.95rem] text-navy shrink-0">${ctr}%</div>
-        </div>`;
-      }
-      function advChannelCard(a) {
-        const c = catOf(a.cat);
-        const ctr = a.impressions ? ((a.clicks / a.impressions) * 100).toFixed(1) : "0.0";
-        return `<div class="bg-white rounded-[16px] p-4 flex flex-col gap-2 w-[150px] shadow-[0_5px_18px_rgba(15,26,44,0.07)]">
-          <span class="w-[38px] h-[38px] rounded-full flex items-center justify-center text-white" style="background:${c.grad}">${icon(c.icon, 17)}</span>
-          <div class="font-bold text-[0.9rem] text-navy leading-[1.2] truncate mt-1">${c.name}</div>
-          <div class="text-[0.78rem] text-muted truncate">${a.placement}</div>
-          <div class="text-grass-ink font-extrabold text-[1.05rem] mt-1 inline-flex items-center gap-1">${icon("trending", 13)} ${ctr}%</div>
         </div>`;
       }
       function advOverview() {
         const imp = ADS.reduce((s, a) => s + a.impressions, 0);
         const clk = ADS.reduce((s, a) => s + a.clicks, 0);
         const live = ADS.filter((a) => a.status === "live").length;
-        const ranked = ADS.filter((a) => a.impressions > 0).sort(
-          (x, y) => y.clicks / y.impressions - x.clicks / x.impressions
-        );
-        const performers = ranked.slice(0, 3);
-        const channels = ranked.slice(0, 3);
+        const ctr = imp ? ((clk / imp) * 100).toFixed(1) + "%" : "—";
+        const performers = ADS.filter((a) => a.impressions > 0)
+          .sort((x, y) => y.clicks / y.impressions - x.clicks / x.impressions)
+          .slice(0, 3);
+        const recent = ADS.slice().sort((x, y) => y.start.localeCompare(x.start)).slice(0, 5);
         // Date-filtered pie: impressions accrue per day of a campaign's elapsed
         // flight, and only the days inside the chosen window are counted, so the
         // category mix shifts as the range changes.
@@ -4870,9 +4894,10 @@
         return `<div class="mb-6">
       <div class="font-serif text-[clamp(1.6rem,1.2rem_+_1.4vw,2.1rem)] font-black text-navy leading-[1.1]">Dashboard</div><div class="text-[0.92rem] text-muted mt-1">Every metric for your campaigns, at a glance.</div>
     </div>
-    <div class="grid grid-cols-3 gap-4 mb-5 max560:grid-cols-1">
+    <div class="grid grid-cols-4 gap-4 mb-5 max900:grid-cols-2 max560:grid-cols-1">
       ${advStatTile(compactNum(imp), "Impressions")}
       ${advStatTile(compactNum(clk), "Clicks")}
+      ${advStatTile(ctr, "Average CTR")}
       ${advStatTile(live, "Live campaigns")}
     </div>
     <div class="grid grid-cols-[1fr_1fr] gap-5 items-start mb-5 max900:grid-cols-1">
@@ -4889,15 +4914,12 @@
         <button class="mt-3 text-grass-ink font-bold text-[0.9rem] inline-flex items-center gap-1 transition-[gap] duration-200 hover:gap-2" data-action="adv-tab" data-tab="analytics">View more ${icon("arrow-right", 14)}</button>
       </div>
     </div>
-    <div class="rounded-[20px] p-6 mt-5 bg-[linear-gradient(135deg,#d9efe4,#e7f4ee)] max380:p-4">
-      <div class="mb-5"><div class="font-serif text-[1.4rem] font-black text-navy leading-[1.15]">Channels</div><div class="text-[0.9rem] text-muted mt-1">Your campaign stats for this <b class="text-navy font-bold">month</b>.</div></div>
-      <div class="flex gap-4 overflow-x-auto no-scrollbar pb-1 [&>*]:shrink-0">
-        ${channels.map(advChannelCard).join("")}
-        <div class="rounded-[16px] p-4 flex flex-col justify-between w-[150px] bg-[linear-gradient(150deg,#1e8c7a,#14685a)] text-white cursor-pointer transition-[filter] duration-200 hover:brightness-110" data-action="adv-tab" data-tab="analytics">
-          <div class="font-serif text-[1.2rem] font-black leading-[1.15]">Full Stats</div>
-          <span class="self-start w-[38px] h-[38px] rounded-full bg-white/20 flex items-center justify-center mt-4">${icon("arrow-right", 18)}</span>
-        </div>
+    <div class="bg-white border-[1.5px] border-line rounded-[18px] p-6 max380:p-[1.1rem]">
+      <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
+        <div><div class="font-serif text-[1.2rem] font-black text-navy leading-[1.15]">Recent campaigns</div><div class="text-[0.9rem] text-muted mt-1">Your most recently scheduled campaigns.</div></div>
+        <button class="text-grass-ink font-bold text-[0.9rem] inline-flex items-center gap-1 bg-transparent border-none transition-[gap] duration-200 hover:gap-2" data-action="adv-tab" data-tab="ads">Manage all ${icon("arrow-right", 14)}</button>
       </div>
+      ${adTable(recent)}
     </div>`;
       }
       function advertiserTab(tab) {
@@ -5067,7 +5089,7 @@
         return `<div class="table-scroll overflow-x-auto [-webkit-overflow-scrolling:touch] -mx-1 px-1"><table class="w-full border-collapse min-w-[560px] [&_th]:text-left [&_th]:text-[0.78rem] [&_th]:font-bold [&_th]:tracking-[0.05em] [&_th]:uppercase [&_th]:text-adlabel [&_th]:px-3 [&_th]:py-[0.7rem] [&_th]:border-b-[1.5px] [&_th]:border-b-line [&_th]:whitespace-nowrap [&_td]:px-3 [&_td]:py-[0.9rem] [&_td]:border-b [&_td]:border-b-line2 [&_td]:text-[0.95rem] [&_td]:text-navy [&_td]:align-middle [&_tr:last-child_td]:border-b-0"><thead><tr><th>Listing</th><th>Category</th>${hidePlan ? "" : "<th>Plan</th>"}<th>Status</th><th>Impressions</th><th>Clicks</th><th>CTR</th>${actions ? "<th></th>" : ""}</tr></thead><tbody>${list
           .map((l) => {
             const c = catOf(l.cat);
-            return `<tr><td class="font-semibold whitespace-nowrap">${l.name}</td><td class="whitespace-nowrap">${c.name}</td>${hidePlan ? "" : `<td><span class="text-[0.78rem] font-bold px-[11px] py-[4px] rounded-[100px] whitespace-nowrap ${l.plan === "deluxe" ? "bg-[#fdeed5] text-[#8a5200]" : "bg-[#e6ebf1] text-muted"}">${l.plan === "deluxe" ? "Deluxe" : "Basic"}</span></td>`}<td>${listingStatusPill(l.status)}</td><td>${l.impressions.toLocaleString()}</td><td>${l.clicks.toLocaleString()}</td><td class="whitespace-nowrap">${l.impressions ? ((l.clicks / l.impressions) * 100).toFixed(1) + "%" : "—"}</td>${actions ? `<td style="white-space:nowrap"><button class="w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-white text-muted inline-flex items-center justify-center hover:border-navy hover:text-navy" data-action="open-listing" data-id="${l.id}" title="View">${icon("eye", 15)}</button> ${l.plan !== "deluxe" ? `<button class="w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-white text-muted inline-flex items-center justify-center hover:border-navy hover:text-navy" data-action="choose-plan" data-plan="deluxe" title="Upgrade">${icon("trending", 15)}</button> ` : ""}${l.status !== "expired" ? `<button class="w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-white text-muted inline-flex items-center justify-center hover:border-navy hover:text-navy" data-action="delete-listing" data-id="${l.id}" title="Delete listing">${icon("trash", 15)}</button>` : ""}</td>` : ""}</tr>`;
+            return `<tr><td class="font-semibold whitespace-nowrap">${l.name}</td><td class="whitespace-nowrap">${c.name}</td>${hidePlan ? "" : `<td><span class="text-[0.78rem] font-bold px-[11px] py-[4px] rounded-[100px] whitespace-nowrap ${l.plan === "deluxe" ? "bg-[#fdeed5] text-[#8a5200]" : "bg-[#e6ebf1] text-muted"}">${l.plan === "deluxe" ? "Deluxe" : "Basic"}</span></td>`}<td>${listingStatusPill(l.status)}</td><td>${l.impressions.toLocaleString()}</td><td>${l.clicks.toLocaleString()}</td><td class="whitespace-nowrap">${l.impressions ? ((l.clicks / l.impressions) * 100).toFixed(1) + "%" : "—"}</td>${actions ? `<td style="white-space:nowrap"><button class="w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-white text-muted inline-flex items-center justify-center hover:border-navy hover:text-navy" data-action="open-listing" data-id="${l.id}" title="View">${icon("eye", 15)}</button> ${l.status !== "expired" ? `<button class="w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-white text-muted inline-flex items-center justify-center hover:border-navy hover:text-navy" data-action="delete-listing" data-id="${l.id}" title="Delete listing">${icon("trash", 15)}</button>` : ""}</td>` : ""}</tr>`;
           })
           .join("")}</tbody></table></div>`;
       }
@@ -5116,17 +5138,10 @@
       }
 
       // --- Notification centre -------------------------------------------------
-      // Read/archived live on the notification objects themselves; an absent flag
-      // simply means unread / not archived, so the seed data stays untouched.
-      const notifVisible = () => notifs().filter((n) => !n.archived);
+      // Read lives on the notification objects themselves; an absent flag simply
+      // means unread, so the seed data stays untouched.
+      const notifVisible = () => notifs();
       const notifUnread = () => notifVisible().filter((n) => !n.read);
-      const notifArchived = () => notifs().filter((n) => n.archived);
-      const notifTabList = () =>
-        state.notifTab === "unread"
-          ? notifUnread()
-          : state.notifTab === "archive"
-            ? notifArchived()
-            : notifVisible();
       // Unread count badge that sits on the header bell. Caps at 9+ so a long
       // count can never stretch past the button.
       function notifBadge() {
@@ -5135,24 +5150,10 @@
         const label = n > 9 ? "9+" : String(n);
         return `<span class="absolute -top-[5px] -right-[5px] min-w-[19px] h-[19px] px-[5px] rounded-full bg-[linear-gradient(135deg,#ff6b5e,#e0361f)] text-white text-[0.7rem] font-extrabold leading-none flex items-center justify-center border-2 border-white shadow-[0_2px_8px_rgba(224,54,31,0.5)] max380:min-w-[17px] max380:h-[17px] max380:text-[0.64rem]" aria-hidden="true">${label}</span>`;
       }
-      const NOTIF_TABS = [
-        ["all", "All", () => notifVisible().length],
-        ["unread", "Unread", () => notifUnread().length],
-        ["archive", "Archive", () => notifArchived().length],
-      ];
-      // Segmented pill control — the active segment lifts on a white chip.
-      function notifTabsHtml() {
-        const segs = NOTIF_TABS.map(([id, label, count]) => {
-          const active = state.notifTab === id;
-          const c = count();
-          return `<button class="inline-flex items-center gap-[0.4rem] px-[0.85rem] py-[0.45rem] rounded-[100px] text-[0.85rem] font-bold whitespace-nowrap transition-all duration-200 ${active ? "bg-white text-navy shadow-[0_1px_3px_rgba(15,26,44,0.14)]" : "text-muted hover:text-navy"}" data-action="notif-tab" data-tab="${id}" aria-pressed="${active}">${label}${c ? `<span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[5px] rounded-[100px] text-[0.68rem] font-extrabold leading-none transition-colors duration-200 ${active ? "bg-navy text-white" : "bg-[#dde3ea] text-muted"}">${c}</span>` : ""}</button>`;
-        }).join("");
-        return `<div class="inline-flex items-center gap-1 p-[3px] rounded-[100px] bg-[#eef1f5] shrink-0">${segs}</div>`;
-      }
       // One row, shared by the dropdown and the full page: round avatar with an
       // unread dot, title + detail on one line, then time and the row's action.
       function notifRow(n, page) {
-        const unread = !n.read && !n.archived;
+        const unread = !n.read;
         return `<div class="group relative flex gap-3 ${page ? "px-5 py-4 rounded-[16px] border-[1.5px] border-line" : "px-5 py-[0.9rem] border-b border-b-line2"} cursor-pointer transition-colors duration-150 bg-white hover:bg-[#f7faf8]" data-action="read-notif" data-id="${n.id}">
       <span class="relative shrink-0 self-start">
         <span class="w-[42px] h-[42px] rounded-full bg-mint text-grass-ink flex items-center justify-center">${icon(n.ic, 19)}</span>
@@ -5163,18 +5164,12 @@
         <span class="block text-[0.8rem] text-adlabel font-semibold mt-[4px]">${n.time}</span>
         <span class="flex items-center gap-2 mt-[0.6rem]">
           <button class="inline-flex items-center gap-[0.3rem] bg-navy text-white text-[0.82rem] font-bold px-[0.9rem] py-[0.4rem] rounded-[8px] border-none transition-colors duration-150 hover:bg-[#12233a]" data-action="open-notif" data-id="${n.id}">${n.cta}</button>
-          <button class="inline-flex items-center gap-[0.3rem] bg-white text-navy text-[0.82rem] font-bold px-[0.9rem] py-[0.4rem] rounded-[8px] border-[1.5px] border-line transition-[border-color,background] duration-150 hover:border-navy hover:bg-[#f5f5f5]" data-action="archive-notif" data-id="${n.id}">${n.archived ? "Restore" : "Archive"}</button>
         </span>
       </span>
     </div>`;
       }
-      const NOTIF_EMPTY = {
-        all: "You're all caught up.",
-        unread: "No unread notifications.",
-        archive: "Nothing archived yet.",
-      };
       function notifEmptyHtml(page) {
-        return `<div class="empty text-center px-4 ${page ? "py-16" : "py-10"} text-muted text-[0.95rem] leading-[1.6]">${icon("bell", page ? 40 : 30, "text-adlabel mb-3")}<div>${NOTIF_EMPTY[state.notifTab]}</div></div>`;
+        return `<div class="empty text-center px-4 ${page ? "py-16" : "py-10"} text-muted text-[0.95rem] leading-[1.6]">${icon("bell", page ? 40 : 30, "text-adlabel mb-3")}<div>You're all caught up.</div></div>`;
       }
       function viewNotifications() {
         if (!state.user)
@@ -5191,14 +5186,9 @@
       <p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">${NOTIF_SUBTITLE[state.user.role] || NOTIF_SUBTITLE.parent}</p>
     </div>
 
-    <div class="flex items-center gap-3 flex-wrap mb-5">
-      ${notifTabsHtml()}
-      ${notifUnread().length ? `<button class="ml-auto text-[0.88rem] font-bold text-navy underline underline-offset-2 whitespace-nowrap shrink-0 hover:text-grass-ink" data-action="mark-all-read">Mark all as read</button>` : ""}
-    </div>
-
     ${
-      notifTabList().length
-        ? `<div class="flex flex-col gap-3">${notifTabList()
+      notifVisible().length
+        ? `<div class="flex flex-col gap-3">${notifVisible()
             .map((n) => notifRow(n, true))
             .join("")}</div>`
         : notifEmptyHtml(true)
@@ -5296,7 +5286,7 @@
         <div class="text-[0.9rem] text-muted leading-[1.55] mb-4">${body}</div>${btn}</div>`;
         return `<div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
     <div class="mb-7"><div class="flex items-center gap-[0.4rem] text-[0.9rem] text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-grass-ink font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>My Profile</span></div>
-      <div class="font-serif text-[clamp(1.9rem,1.4rem_+_2.1vw,2.7rem)] font-black text-navy tracking-[-0.02em] leading-[1.15] text-balance">My Profile</div><p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Manage your photo, contact details, and account security.</p></div>
+      <div class="font-serif text-[clamp(1.9rem,1.4rem_+_2.1vw,2.7rem)] font-black text-navy tracking-[-0.02em] leading-[1.15] text-balance">My Profile</div><p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Manage your photo, contact details, and account settings.</p></div>
 
     ${profileHero(u)}
 
@@ -5309,12 +5299,6 @@
       </div>
 
       <div class="flex flex-col gap-4">
-        ${sideCard(
-          "lock",
-          "Security",
-          "Use a strong password you don't reuse anywhere else.",
-          `<button class="bg-white text-navy px-[1.3rem] py-[0.7rem] rounded-[100px] text-[0.95rem] font-bold border-[1.5px] border-line inline-flex items-center justify-center gap-2 min-h-[44px] w-full transition-[border-color,background] duration-200 hover:border-navy hover:bg-[#f5f5f5]" data-action="change-pass">${icon("lock", 15)} Change password</button>`
-        )}
         ${sideCard(
           "bell",
           "Notifications",
@@ -5736,14 +5720,12 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
       // Split out from toggleNotif so tab switches and read/archive actions can
       // repaint the panel in place instead of closing it.
       function renderNotifDropdown() {
-        const list = notifTabList();
+        const list = notifVisible();
         el("dropdown-root").innerHTML =
           `<div class="dropdown absolute top-0 right-[clamp(1rem,5vw,7rem)] max1200:right-[3%] max560:right-[4%] max380:right-3 w-[min(400px,calc(100vw-2rem))] bg-white border border-line rounded-[16px] shadow-[0_18px_50px_rgba(26,46,74,0.18)] z-[120] overflow-x-hidden overflow-y-auto animate-pop max-h-[calc(100vh-100px)] flex flex-col">
-    <div class="px-5 pt-[1.15rem] pb-[0.6rem] flex items-center justify-between gap-3">
+    <div class="px-5 pt-[1.15rem] pb-[0.85rem] border-b border-line">
       <h4 class="font-serif text-[1.3rem] font-black text-navy">Notifications</h4>
-      ${notifUnread().length ? `<button class="text-[0.85rem] font-bold text-navy underline underline-offset-2 whitespace-nowrap shrink-0 hover:text-grass-ink" data-action="mark-all-read">Mark all as read</button>` : ""}
     </div>
-    <div class="px-5 pb-[0.85rem] border-b border-line">${notifTabsHtml()}</div>
     <div class="overflow-y-auto">${list.length ? list.map((n) => notifRow(n)).join("") : notifEmptyHtml()}</div>
     <div class="flex items-stretch border-t border-t-line2 mt-auto">
       <button class="flex-1 min-h-[46px] text-[0.95rem] font-semibold text-muted bg-transparent border-none cursor-pointer hover:bg-[#f7faf8] hover:text-navy" data-action="close-drop">Close</button>
@@ -5818,37 +5800,6 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
     </div>
   </div>`);
       }
-      function changePasswordModal() {
-        closeDropdowns();
-        openModal(`<div class="p-7 max700:p-5">
-    <h2>Change password</h2><div class="text-muted text-[0.98rem] mt-[0.35rem] leading-[1.55]">Choose a strong password to keep your account secure.</div>
-    <div style="margin-top:1.25rem">
-      ${passInput("cp-cur", { label: "Current password *", value: "", mb: "0.8rem" })}
-      ${passInput("cp-new", { label: "New password *", value: "", criteria: true, mb: "0.8rem" })}
-      ${passInput("cp-conf", { label: "Confirm new password *", value: "", mb: "1rem" })}
-    </div>
-    <button class="bg-grass-ink text-white px-6 py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233] w-full mt-2" data-action="do-change-pass">${icon("lock", 15)} Update password</button>
-  </div>`);
-      }
-      function doChangePassword() {
-        const cur = el("cp-cur")?.value || "",
-          np = el("cp-new")?.value || "",
-          conf = el("cp-conf")?.value || "";
-        if (!cur) {
-          toast("Enter your current password", "x");
-          return;
-        }
-        if (!validPassword(np)) {
-          toast("New password does not meet the requirements", "x");
-          return;
-        }
-        if (np !== conf) {
-          toast("New passwords do not match", "x");
-          return;
-        }
-        closeModal();
-        toast("Password updated", "check");
-      }
       const TOAST_MS = 2600;
       function toast(msg, ic = "check") {
         const t = document.createElement("div");
@@ -5916,6 +5867,11 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               listingModal(id);
               break;
             case "open-event":
+              // Event details are for members — send anonymous visitors to sign in.
+              if (!state.user) {
+                authModal("parent");
+                break;
+              }
               eventModal(id);
               break;
             case "ev-prev":
@@ -6083,29 +6039,6 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             case "pay":
               doPay(actEl.dataset.amount);
               break;
-            case "notif-tab":
-              state.notifTab = actEl.dataset.tab;
-              if (el("dropdown-root").innerHTML) renderNotifDropdown();
-              else render();
-              break;
-            case "mark-all-read":
-              notifs().forEach((n) => (n.read = true));
-              if (el("dropdown-root").innerHTML) renderNotifDropdown();
-              else render();
-              renderNav();
-              toast("All notifications marked as read", "check");
-              break;
-            case "archive-notif": {
-              const n = notifs().find((x) => x.id == id);
-              if (!n) break;
-              n.archived = !n.archived;
-              if (n.archived) n.read = true;
-              if (el("dropdown-root").innerHTML) renderNotifDropdown();
-              else render();
-              renderNav();
-              toast(n.archived ? "Notification archived" : "Notification restored", "check");
-              break;
-            }
             case "read-notif": {
               const n = notifs().find((x) => x.id == id);
               if (n) n.read = true;
@@ -6233,16 +6166,6 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             case "toast":
               toast(actEl.dataset.msg || "Coming soon");
               break;
-            case "toggle-pass": {
-              const inp = el(actEl.dataset.target);
-              if (inp) {
-                const show = inp.type === "password";
-                inp.type = show ? "text" : "password";
-                actEl.innerHTML = icon(show ? "eye-off" : "eye", 16);
-                actEl.style.color = show ? "var(--navy)" : "var(--muted)";
-              }
-              break;
-            }
             case "edit-hours":
               hoursModal();
               break;
@@ -6260,12 +6183,6 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               state.user.avatar = "";
               refreshProfileHero();
               toast("Profile photo removed", "check");
-              break;
-            case "change-pass":
-              changePasswordModal();
-              break;
-            case "do-change-pass":
-              doChangePassword();
               break;
             case "delete-listing": {
               const idx = LISTINGS.findIndex((x) => x.id === id);
@@ -6449,6 +6366,9 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
           render();
         } else if (e.target.id === "ba-to") {
           state.bizAnalytics.to = e.target.value;
+          render();
+        } else if (e.target.id === "biz-pie-range") {
+          state.bizPieRange = e.target.value;
           render();
         } else if (e.target.id === "adv-pie-range") {
           state.advPieRange = e.target.value;
@@ -6706,17 +6626,12 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             }
             const email = el("au-email")?.value.trim() || "";
             const phone = el("au-phone")?.value.trim() || "";
-            const pass = el("au-pass")?.value || "";
             if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
               toast("Please enter a valid email", "x");
               return;
             }
             if (!phone || !/[0-9]/.test(phone)) {
               toast("Please enter a valid phone number", "x");
-              return;
-            }
-            if (el("au-pass") && !validPassword(pass)) {
-              toast("Password does not meet the requirements", "x");
               return;
             }
             state.auth.signupData = {
