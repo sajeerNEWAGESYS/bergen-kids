@@ -41,6 +41,9 @@
                 lavender: "#7b5ea7",
                 "lavender-ink": "#5c4382",
                 sun: "#f5a623",
+                orange: "#e0550f", // hero accent, graphics only
+                "orange-ink": "#c2410c", // CTA fill — white text is 5.2:1 on it
+                "orange-deep": "#9c3409", // its hover
                 star: "#bd7400", // meaningful graphic  —  3.7:1 on white
                 danger: "#a3271c",
                 dot: "#d64518", // unread dot          —  3.8:1 on mint
@@ -104,6 +107,9 @@
         --teal: #1e8c7a;
         --lavender: #7b5ea7;
         --grass-ink: #20643d;
+        --orange: #e0550f;
+        --orange-ink: #c2410c;
+        --orange-deep: #9c3409;
         --teal-ink: #14685a;
         --lavender-ink: #5c4382;
         --danger-ink: #a3271c;
@@ -238,6 +244,98 @@
           opacity: 1;
           transform: translateY(0);
         }
+      }
+
+      /* ── Scroll reveal ──────────────────────────────────────────
+         Sections play an entrance every time they scroll into view.
+         JS adds .rv (armed, hidden) then .rv-in (playing), and strips
+         both once the animation ends — so the element is left with its
+         own styles and its hover transform/transition still work. */
+      .rv {
+        opacity: 0;
+      }
+
+      .rv-in {
+        animation: rvUp 0.72s cubic-bezier(0.22, 0.68, 0.3, 1) var(--rv-delay, 0s) both;
+      }
+
+      [data-rv="left"].rv-in {
+        animation-name: rvLeft;
+      }
+
+      [data-rv="right"].rv-in {
+        animation-name: rvRight;
+      }
+
+      [data-rv="zoom"].rv-in {
+        animation-name: rvZoom;
+      }
+
+      [data-rv="fade"].rv-in {
+        animation-name: rvFade;
+      }
+
+      @keyframes rvUp {
+        from {
+          opacity: 0;
+          transform: translate3d(0, 34px, 0);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      @keyframes rvLeft {
+        from {
+          opacity: 0;
+          transform: translate3d(-42px, 0, 0);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      @keyframes rvRight {
+        from {
+          opacity: 0;
+          transform: translate3d(42px, 0, 0);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      @keyframes rvZoom {
+        from {
+          opacity: 0;
+          transform: scale(0.92);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      @keyframes rvFade {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      /* ── Card tilt ──────────────────────────────────────────────
+         Cards marked data-tilt lean toward the cursor. JS writes the
+         rotation to inline style; all this adds is the second speed —
+         quick while tracking, the card's own slower ease to settle. */
+      [data-tilt].is-tilting {
+        transition:
+          transform 0.14s ease-out,
+          box-shadow 0.25s ease;
       }
 
       /* ── Sunshine-style hero ────────────────────────────────── */
@@ -808,16 +906,19 @@
         margin-top: 0.9rem;
         padding: 0.7rem 1.5rem;
         border-radius: 100px;
-        background: var(--sun);
-        color: var(--navy);
+        background: var(--orange-ink);
+        color: #fff;
         font-weight: 800;
         font-size: 0.92rem;
         white-space: nowrap;
-        transition: transform 0.2s ease;
+        transition:
+          transform 0.2s ease,
+          background 0.2s ease;
       }
 
       .promo-ad:hover .promo-ad-cta {
         transform: translateY(-1px);
+        background: var(--orange-deep);
       }
 
       /* ── Site nav ───────────────────────────────────────────── */
@@ -1839,7 +1940,7 @@
             <button
               type="button"
               data-adclick="Bergen Aquatic Center"
-              class="flex w-full items-center justify-center gap-2 rounded-[100px] border-none bg-white px-4 py-[0.7rem] text-[0.9rem] font-extrabold text-navy shadow-[0_6px_20px_rgba(9,15,26,0.35)] transition-[transform,box-shadow] duration-200 hover:-translate-y-[1px] hover:shadow-[0_10px_26px_rgba(9,15,26,0.45)]"
+              class="flex w-full items-center justify-center gap-2 rounded-[100px] border-none bg-orange-ink px-4 py-[0.7rem] text-[0.9rem] font-extrabold text-white shadow-[0_6px_20px_rgba(9,15,26,0.35)] transition-[transform,box-shadow,background] duration-200 hover:bg-orange-deep hover:-translate-y-[1px] hover:shadow-[0_10px_26px_rgba(9,15,26,0.45)]"
             >
               <svg
                 class="icon inline-block align-middle shrink-0 [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:1.9] fill-none stroke-current"
@@ -1927,6 +2028,7 @@
       </div>
       <div
         class="relative z-[1] grid grid-cols-[2fr_1fr_1fr_1fr] gap-x-10 gap-y-12 pb-14 max-w-[1400px] mx-auto max900:grid-cols-[1fr_1fr] max900:gap-y-10 max700:grid-cols-[1fr] max700:gap-y-9 max700:pb-10"
+        data-rv-stagger="80"
       >
         <div class="max-w-[34ch]">
           <div
@@ -3222,7 +3324,7 @@
           <div class="font-extrabold text-[1.05rem] text-white leading-[1.3] truncate">${a.title}</div>
           <div class="text-[0.82rem] text-white/85 leading-[1.35] truncate [&_div]:inline-block [&_div:first-child]:mr-[0.6rem] max560:hidden">${adMeta(a.key)}</div>
         </div>
-        <span class="inline-flex items-center gap-1 shrink-0 bg-grass-ink text-white text-[0.85rem] font-bold px-[1.1rem] py-[0.5rem] rounded-[100px] no-underline min-h-[40px] whitespace-nowrap hover:bg-[#1a5233] max380:hidden">Visit Link →</span>
+        <span class="inline-flex items-center gap-1 shrink-0 bg-orange-ink text-white text-[0.85rem] font-bold px-[1.1rem] py-[0.5rem] rounded-[100px] no-underline min-h-[40px] whitespace-nowrap hover:bg-orange-deep max380:hidden">Visit Link →</span>
       </div>`
         ).join("");
         const dots = SPONSOR_ADS.map(
@@ -3334,7 +3436,7 @@
       </div>
       <div class="feature-strip">
         <svg class="torn-top" viewBox="0 0 1200 44" preserveAspectRatio="none">${tornPath}</svg>
-        <div class="feature-strip-inner">${heroCards
+        <div class="feature-strip-inner" data-rv-stagger="70">${heroCards
           .map(
             (c) =>
               `<div class="feature-item" data-nav="directory" data-cat="${c.cat}" data-authgate>${flower(
@@ -3347,16 +3449,16 @@
 
    
     <section id="inside" class="inside-band px-[clamp(1rem,5vw,7rem)] py-20 max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
-      <div class="relative z-[1] text-center">
+      <div class="relative z-[1] text-center" data-rv-stagger="110">
         <div class="text-[0.85rem] font-bold tracking-[0.1em] uppercase text-grass-ink mb-3">What's Inside</div>
         <div class="font-serif text-[clamp(1.75rem,1.3rem_+_1.9vw,2.5rem)] font-black text-navy tracking-[-0.02em] mb-3 leading-[1.15] text-balance mx-auto max-w-[22ch]">Everything for Bergen County families, in one place.</div>
         <p class="text-muted text-[1.05rem] leading-[1.65] max-w-[60ch] mx-auto mb-12 text-pretty">From newborn care to college prep — Bergen Kids brings together every trusted local service in one place.</p>
       </div>
-      <div class="relative z-[1] grid grid-cols-3 gap-5 items-stretch max1024:gap-4 max900:grid-cols-2 max560:grid-cols-1 max560:gap-3">${featureTiles.map((t) => `<div class="inside-card" data-nav="${t.nav}" data-authgate><svg class="inside-card-wave" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M40 0 C 62 22 40 40 60 58 C 80 76 58 90 78 100 L 100 100 L 100 0 Z" fill="${t.accent}22"/><path d="M60 0 C 80 20 60 38 78 55 C 93 69 75 83 93 100 L 100 100 L 100 0 Z" fill="${t.accent}3a"/></svg><span class="inside-card-badge" style="background:${t.tint};color:${t.accent}">${icon(t.icon, 26)}</span><div class="inside-card-title">${t.t}</div><span class="inside-card-rule" style="background:${t.accent}"></span><div class="inside-card-desc">${t.s}</div><span class="inside-card-arrow" style="background:${t.tint};color:${t.accent}">${icon("arrow-right", 18)}</span></div>`).join("")}</div>
+      <div class="relative z-[1] grid grid-cols-3 gap-5 items-stretch max1024:gap-4 max900:grid-cols-2 max560:grid-cols-1 max560:gap-3" data-rv-stagger="90">${featureTiles.map((t) => `<div class="inside-card" data-nav="${t.nav}" data-authgate data-tilt><svg class="inside-card-wave" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M40 0 C 62 22 40 40 60 58 C 80 76 58 90 78 100 L 100 100 L 100 0 Z" fill="${t.accent}22"/><path d="M60 0 C 80 20 60 38 78 55 C 93 69 75 83 93 100 L 100 100 L 100 0 Z" fill="${t.accent}3a"/></svg><span class="inside-card-badge" style="background:${t.tint};color:${t.accent}">${icon(t.icon, 26)}</span><div class="inside-card-title">${t.t}</div><span class="inside-card-rule" style="background:${t.accent}"></span><div class="inside-card-desc">${t.s}</div><span class="inside-card-arrow" style="background:${t.tint};color:${t.accent}">${icon("arrow-right", 18)}</span></div>`).join("")}</div>
     </section>
 
     <section class="ta-band px-[clamp(1rem,5vw,7rem)] py-24 max700:py-16 max380:px-4">
-      <div class="relative z-[1] mx-auto w-full max-w-[760px] text-center">
+      <div class="relative z-[1] mx-auto w-full max-w-[760px] text-center" data-rv-stagger="120">
         <h3 class="font-serif text-[clamp(1.75rem,1.3rem_+_1.9vw,2.5rem)] font-black text-white mb-[0.9rem] leading-[1.15] tracking-[-0.02em] text-balance">Trusted businesses, gathered for Bergen families.</h3>
         <p class="text-white/90 text-[1.05rem] leading-[1.7] mb-9 text-pretty">Bergen Kids brings the county's classes, camps, events, and kids' services into one place — every listing from a real local business, organized town by town and kept current by our team. No more digging through ten Facebook groups to find a swim class or a Saturday story time. Just what's near you, free for every family.</p>
         <ul class="list-none flex flex-wrap justify-center gap-3">
@@ -3366,7 +3468,7 @@
     </section>
 
     <section id="events" class="px-[clamp(1rem,5vw,7rem)] py-20 bg-cream max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
-      <div class="flex justify-between items-end mb-10 flex-wrap gap-4 max700:flex-col max700:items-start">
+      <div class="flex justify-between items-end mb-10 flex-wrap gap-4 max700:flex-col max700:items-start" data-rv="up">
         <div><div class="text-[0.85rem] font-bold tracking-[0.1em] uppercase text-grass-ink mb-3">What's Happening</div><div class="font-serif text-[clamp(1.75rem,1.3rem_+_1.9vw,2.5rem)] font-black text-navy tracking-[-0.02em] mb-3 leading-[1.15] text-balance">Upcoming in Bergen County</div></div>
         <div class="flex items-center gap-4 max700:w-full max700:justify-between">
           <a class="text-grass-ink font-bold text-[1rem] no-underline inline-flex items-center gap-[0.35rem] cursor-pointer transition-[gap] duration-200 min-h-[44px] hover:gap-[0.6rem] hover:underline" data-nav="calendar" data-authgate>See all events ${icon("arrow-right", 15)}</a>
@@ -3376,13 +3478,13 @@
           </div>
         </div>
       </div>
-      <div class="ev-rail">
+      <div class="ev-rail" data-rv="up" style="--rv-delay: 120ms">
         <div class="ev-track" id="ev-track">${evPrev.map((e, i) => `<div class="ev-slide">${eventCard(e, i)}</div>`).join("")}${evPrev.map((e, i) => `<div class="ev-slide" aria-hidden="true">${eventCard(e, i)}</div>`).join("")}</div>
       </div>
     </section>
 
     <section class="px-[clamp(1rem,5vw,7rem)] py-20 bg-cream grid grid-cols-[1fr_1fr] gap-20 items-center max1200:gap-12 max900:grid-cols-1 max900:gap-10 max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
-      <div class="relative max900:hidden">
+      <div class="relative max900:hidden" data-rv="left">
         <div class="relative w-full">
           <img src="https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=900&q=80" alt="Kids playing ball together on a grass field" loading="lazy" class="w-full h-[380px] object-cover rounded-[24px] shadow-[0_16px_50px_rgba(26,46,74,0.18)] z-[1] relative">
           <div class="absolute -top-[14px] right-[26px] bg-lavender-ink text-white rounded-[12px] px-4 py-[0.6rem] text-[0.88rem] font-bold shadow-[0_4px_20px_rgba(92,67,130,0.35)] flex items-center gap-[0.4rem] z-[3]">${icon("verified", 15)} Verified Business</div>
@@ -3396,7 +3498,7 @@
           </div>
         </div>
       </div>
-      <div>
+      <div data-rv="right">
         <div class="text-[0.85rem] font-bold tracking-[0.1em] uppercase text-grass-ink mb-3">For Local Businesses</div>
         <div class="font-serif text-[clamp(1.75rem,1.3rem_+_1.9vw,2.5rem)] font-black text-navy tracking-[-0.02em] mb-3 leading-[1.15] text-balance">Get discovered by Bergen County families</div>
         <p class="text-muted text-[1.05rem] leading-[1.65] max-w-[60ch] mb-10 text-pretty">Join hundreds of trusted local businesses already reaching parents in their community through Bergen Kids listings and advertising.</p>
@@ -3408,12 +3510,12 @@
     </section>
 
     <section class="plans-band px-[clamp(1rem,5vw,7rem)] py-20 relative overflow-hidden before:content-[''] before:absolute before:inset-0 before:bg-[radial-gradient(ellipse_at_70%_50%,rgba(45,122,79,0.15)_0%,transparent_60%)] max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4" id="plans">
-      <div class="relative z-[1] text-center">
+      <div class="relative z-[1] text-center" data-rv-stagger="110">
         <div class="text-[0.85rem] font-bold tracking-[0.1em] uppercase mb-3 text-sun">Business Listing Plans</div>
         <div class="font-serif text-[clamp(1.75rem,1.3rem_+_1.9vw,2.5rem)] font-black tracking-[-0.02em] mb-3 leading-[1.15] text-balance text-white">Choose how you want to be found</div>
         <p class="text-[1.05rem] leading-[1.65] max-w-[60ch] mx-auto text-pretty text-on-dark-2 mb-14">Pick a plan when you add a listing — payment is made per listing at creation, so there's nothing to buy here. Advertising is separate: banner campaigns are priced by placement and flight dates, paid per campaign.</p>
       </div>
-      <div class="grid grid-cols-3 gap-6 relative z-[1] items-stretch mx-auto w-full max-w-[960px] max900:max-w-[440px] max900:grid-cols-1 max900:gap-5">
+      <div class="grid grid-cols-3 gap-6 relative z-[1] items-stretch mx-auto w-full max-w-[960px] max900:max-w-[440px] max900:grid-cols-1 max900:gap-5" data-rv-stagger="120" data-rv-child="zoom">
         ${planCard("Basic", "Free", "per listing", ["Business name & address", "Single subcategory listing", "Phone & website link", "Standard directory placement"], null, "basic", false)}
         ${planCard("Deluxe", "$49", "/mo per listing", ["Everything in Basic", "Photo gallery & logo", "Featured placement in category", "Click & impression analytics"], null, "deluxe", true, "Most popular")}
         ${planCard("Advertiser", "Custom", "priced by placement &amp; flight dates", ["Leaderboard, sidebar &amp; category banners", "Category &amp; subcategory targeting", "Click-through to your site or listing", "Dedicated advertiser dashboard", "Impression &amp; click analytics"], "Start advertising", "advertiser", false)}
@@ -3429,7 +3531,7 @@
       <div class="absolute -bottom-[70px] right-[4%] text-white opacity-[0.07] pointer-events-none rotate-[14deg]">${icon("star", 200, "icon--solid")}</div>
 
       <div class="relative grid grid-cols-[1.05fr_0.95fr] gap-16 items-center mx-auto w-full max-w-[1180px] max1024:gap-10 max900:grid-cols-1 max900:gap-14">
-        <div class="max900:text-center max900:mx-auto max900:max-w-[560px]">
+        <div class="max900:text-center max900:mx-auto max900:max-w-[560px]" data-rv="left">
           <div class="inline-flex items-center gap-[0.45rem] border border-sun/70 bg-sun/10 text-sun text-[0.72rem] font-bold tracking-[0.12em] uppercase px-[0.9rem] py-[0.4rem] rounded-[100px] mb-6 backdrop-blur-sm"><span class="w-[6px] h-[6px] rounded-[50%] bg-sun animate-pulse"></span>Now on iPhone &amp; Android</div>
           <h2 class="font-serif text-[clamp(2rem,1.4rem_+_2.6vw,3.2rem)] font-black text-white mb-4 tracking-[-0.02em] leading-[1.08] text-balance">Bergen Kids, now in <span class="text-sun">your pocket.</span></h2>
           <p class="text-on-dark-2 text-[1.1rem] leading-[1.65] mb-8 max-w-[52ch] text-pretty max900:mx-auto">Join thousands of parents discovering the best for their kids — camps, classes, care and events, wherever you are.</p>
@@ -3465,7 +3567,7 @@
           </div>
         </div>
 
-        <div class="relative flex justify-center items-center max900:mt-2">
+        <div class="relative flex justify-center items-center max900:mt-2" data-rv="zoom" style="--rv-delay: 140ms">
           <div class="absolute w-[380px] h-[380px] rounded-full bg-[radial-gradient(circle,rgba(245,166,35,0.28)_0%,transparent_68%)] blur-[10px] pointer-events-none max560:w-[300px] max560:h-[300px]"></div>
 
           <div class="relative z-[3] w-[300px] max560:w-[268px] max380:w-[248px]">
@@ -4752,7 +4854,7 @@
         <div class="text-[0.72rem] font-extrabold tracking-[0.16em] uppercase text-adlabel mb-3">${c ? c.name : "Advertisement"}${a.sub ? " · " + a.sub : ""}</div>
         <div class="font-serif text-[1.4rem] font-black leading-[1.28] max700:text-[1.2rem]" style="color:var(--teal-ink)">${a.desc}</div>
         <div class="inline-flex items-center justify-center gap-2 text-[0.88rem] font-semibold text-navy mt-4 mb-6 [&_svg]:text-grass-ink">${icon("calendar", 16)} ${fmtDate(a.start)} – ${fmtDate(a.end)}</div>
-        <button class="w-full bg-[#f0563f] text-white px-6 py-[0.95rem] rounded-[12px] text-[1.05rem] font-extrabold border-none inline-flex items-center justify-center gap-2 min-h-[54px] shadow-[0_10px_26px_rgba(240,86,63,0.4)] transition-[transform,box-shadow] duration-200 hover:-translate-y-[2px] hover:shadow-[0_14px_34px_rgba(240,86,63,0.5)]" data-action="ext-link" data-url="${a.dest}">${icon("globe", 17)} Visit Link</button>
+        <button class="w-full bg-orange-ink text-white px-6 py-[0.95rem] rounded-[12px] text-[1.05rem] font-extrabold border-none inline-flex items-center justify-center gap-2 min-h-[54px] shadow-[0_10px_26px_rgba(194,65,12,0.4)] transition-[transform,box-shadow,background] duration-200 hover:bg-orange-deep hover:-translate-y-[2px] hover:shadow-[0_14px_34px_rgba(194,65,12,0.5)]" data-action="ext-link" data-url="${a.dest}">${icon("globe", 17)} Visit Link</button>
         <button class="mt-3 mx-auto text-[0.85rem] text-muted underline underline-offset-2 bg-transparent border-none cursor-pointer hover:text-navy" data-action="close-modal">No thanks</button>
       </div>
     </div>`,
@@ -5393,7 +5495,7 @@
       ${l.desc ? `<p style="color:var(--text);line-height:1.7;font-size:1rem">${l.desc}</p>` : ""}
       <div class="grid grid-cols-[1fr] gap-[0.85rem] my-5">${info}</div>
       <div class="flex gap-3 flex-wrap mt-5 [&>*]:w-full [&>*]:justify-center">
-        ${l.website ? `<button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="ext-link" data-url="${l.website}">${icon("globe", 16)} Visit Link</button>` : ""}
+        ${l.website ? `<button class="bg-orange-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow,background] duration-200 shadow-[0_4px_20px_rgba(194,65,12,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(194,65,12,0.4)] hover:bg-orange-deep" data-action="ext-link" data-url="${l.website}">${icon("globe", 16)} Visit Link</button>` : ""}
       </div>
       <div class="mt-7 pt-6 border-t border-line">
         <div class="mb-3 flex items-center gap-[0.6rem] text-[0.72rem] font-bold uppercase tracking-[0.14em] text-adlabel after:h-px after:flex-1 after:bg-current after:opacity-30 after:content-['']">Advertisement</div>
@@ -6908,7 +7010,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
     <div class="flex gap-3 flex-wrap mt-5 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center">
       ${
         a.dest
-          ? `<button class="bg-white text-navy px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-[1.5px] border-line transition-[border-color,background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] hover:border-navy hover:bg-[#f5f5f5]" data-action="ext-link" data-url="${a.dest}">${icon("globe", 16)} Visit Link
+          ? `<button class="bg-orange-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow,background] duration-200 shadow-[0_4px_20px_rgba(194,65,12,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(194,65,12,0.4)] hover:bg-orange-deep" data-action="ext-link" data-url="${a.dest}">${icon("globe", 16)} Visit Link
 </button>`
           : ""
       }
@@ -6990,7 +7092,102 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
           }
         }
         mountCounters();
+        mountReveals();
+        mountTilt();
       }
+
+      /* Cards marked data-tilt lean toward the cursor and carry a soft glow
+         under it. Fine pointers only — there is no hover to speak of on touch,
+         and reduced motion opts out entirely. */
+      const TILT_DEG = 7; // rotation at the far edge
+      function mountTilt() {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+        document.querySelectorAll("[data-tilt]:not([data-tilt-on])").forEach((card) => {
+          card.setAttribute("data-tilt-on", "");
+          let frame = 0;
+          let pt = null;
+          const draw = () => {
+            frame = 0;
+            if (!pt) return;
+            // Measured per frame, not cached on enter: the page can scroll out
+            // from under a stationary cursor, which would leave the box stale.
+            const box = card.getBoundingClientRect();
+            if (!box.width || !box.height) return;
+            const clamp = (n) => Math.min(1, Math.max(0, n));
+            const x = clamp((pt.x - box.left) / box.width); // 0 → 1 across the card
+            const y = clamp((pt.y - box.top) / box.height);
+            card.style.transform =
+              `perspective(900px) rotateX(${((0.5 - y) * TILT_DEG).toFixed(2)}deg) ` +
+              `rotateY(${((x - 0.5) * TILT_DEG).toFixed(2)}deg) ` +
+              `translate3d(0,-6px,0) scale(1.012)`;
+          };
+          card.addEventListener("pointerenter", (e) => {
+            if (e.pointerType === "touch") return;
+            card.classList.add("is-tilting");
+          });
+          card.addEventListener("pointermove", (e) => {
+            if (!card.classList.contains("is-tilting")) return;
+            pt = { x: e.clientX, y: e.clientY };
+            if (!frame) frame = requestAnimationFrame(draw);
+          });
+          const settle = () => {
+            pt = null;
+            if (frame) cancelAnimationFrame(frame);
+            frame = 0;
+            card.classList.remove("is-tilting");
+            card.style.transform = ""; // hand the lift back to the CSS :hover rule
+          };
+          card.addEventListener("pointerleave", settle);
+          card.addEventListener("pointercancel", settle);
+        });
+      }
+
+      /* Scroll reveals — sections animate in whenever they enter the viewport,
+         every time, not just the first. Elements opt in with data-rv="up|left|
+         right|zoom|fade"; a container marked data-rv-stagger hands the reveal
+         down to its own children, each one a beat behind the last. */
+      let revealIO = null;
+      function mountReveals() {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        document.querySelectorAll("[data-rv-stagger]:not([data-rv-armed])").forEach((box) => {
+          box.setAttribute("data-rv-armed", "");
+          const step = Number(box.dataset.rvStagger) || 90;
+          Array.from(box.children).forEach((kid, i) => {
+            if (kid.hasAttribute("data-rv")) return;
+            kid.setAttribute("data-rv", box.dataset.rvChild || "up");
+            kid.style.setProperty("--rv-delay", i * step + "ms");
+          });
+        });
+        if (revealIO) revealIO.disconnect(); // the previous view's nodes are gone
+        revealIO = new IntersectionObserver(
+          (entries) =>
+            entries.forEach((e) => {
+              if (e.isIntersecting) {
+                if (e.target.classList.contains("rv")) e.target.classList.add("rv-in");
+              } else {
+                // Re-arm on the way out so the next visit plays again.
+                e.target.classList.remove("rv-in");
+                e.target.classList.add("rv");
+              }
+            }),
+          { threshold: 0.01, rootMargin: "0px 0px -10% 0px" }
+        );
+        const vh = window.innerHeight || 800;
+        document.querySelectorAll("[data-rv]").forEach((n) => {
+          // Hide anything already below the fold before the observer's first
+          // callback lands, so it can't flash in at full opacity first.
+          if (n.getBoundingClientRect().top > vh * 0.9) n.classList.add("rv");
+          revealIO.observe(n);
+        });
+      }
+      // Once the entrance finishes, drop the reveal classes entirely: the
+      // animation's "both" fill would otherwise pin transform:none and swallow
+      // hover lifts on cards.
+      document.addEventListener("animationend", (e) => {
+        if (String(e.animationName).slice(0, 2) !== "rv") return;
+        e.target.classList.remove("rv", "rv-in");
+      });
 
       // Stat numbers count up once, when they first scroll into view. The markup
       // ships the final value, so without JS (or with reduced motion) it just
