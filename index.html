@@ -7,10 +7,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://images.unsplash.com" />
-    <!-- Weights are exactly what the page uses: Fraunces 700/900 (headings),
-         DM Sans 400-800. Dropping unused 300s and Fraunces italic. -->
+    <!-- One family for the whole page — headings included. Weights are exactly
+         what the markup uses: 400-800 for body and UI, 900 for the headings
+         that were previously set in a display serif. -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=DM+Sans:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -70,7 +71,10 @@
                 "on-dark-2": "rgba(255,255,255,0.88)",
                 "on-dark-3": "rgba(255,255,255,0.72)",
               },
-              fontFamily: { serif: ["Fraunces", "serif"], sans: ['"DM Sans"', "sans-serif"] },
+              // Both roles resolve to the same family now. The `font-serif`
+              // class stays valid so the ~200 headings that use it keep
+              // working; swapping the whole page is one token, --font.
+              fontFamily: { serif: ["var(--font)"], sans: ["var(--font)"] },
               transitionTimingFunction: { DEFAULT: "ease" },
               keyframes: {
                 fadeUp: {
@@ -125,8 +129,7 @@
           /* private mode — fall through to the system preference */
         }
         var dark =
-          saved === "dark" ||
-          (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches);
         document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
       })();
     </script>
@@ -185,6 +188,13 @@
         --on-dark: #ffffff;
         --on-dark-2: rgba(255, 255, 255, 0.88);
         --on-dark-3: rgba(255, 255, 255, 0.72);
+        /* The page's one typeface. Everything — body, UI and headings — goes
+           through this, so changing the font is changing this line. The
+           fallbacks are the host OS defaults, so the page still reads
+           correctly if the webfont is blocked or slow. */
+        --font:
+          "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+          Arial, sans-serif;
         --fs-micro: 0.75rem;
         --fs-sm: 0.875rem;
         --fs-base: 1rem;
@@ -267,7 +277,7 @@
       }
 
       body {
-        font-family: "DM Sans", sans-serif;
+        font-family: var(--font);
         background: var(--cream);
         color: var(--text);
         overflow-x: hidden;
@@ -478,14 +488,22 @@
         height: 210px;
         top: -34px;
         right: -26px;
-        background: radial-gradient(circle at 32% 30%, rgba(45, 122, 79, 0.32), rgba(45, 122, 79, 0) 70%);
+        background: radial-gradient(
+          circle at 32% 30%,
+          rgba(45, 122, 79, 0.32),
+          rgba(45, 122, 79, 0) 70%
+        );
       }
       .hero-blob--sun {
         width: 250px;
         height: 250px;
         bottom: -46px;
         left: -34px;
-        background: radial-gradient(circle at 32% 30%, rgba(245, 166, 35, 0.4), rgba(245, 166, 35, 0) 70%);
+        background: radial-gradient(
+          circle at 32% 30%,
+          rgba(245, 166, 35, 0.4),
+          rgba(245, 166, 35, 0) 70%
+        );
       }
       .hero-dots {
         width: 118px;
@@ -1321,7 +1339,6 @@
         box-shadow: 0 5px 16px rgba(26, 46, 74, 0.2);
       }
 
-
       .sponsor-dots {
         display: flex;
         gap: 6px;
@@ -1568,7 +1585,11 @@
       [data-theme="dark"] .hero-sun {
         background:
           radial-gradient(115% 85% at 92% 4%, rgba(45, 122, 79, 0.3) 0%, rgba(45, 122, 79, 0) 58%),
-          radial-gradient(85% 80% at 0% 92%, rgba(245, 166, 35, 0.16) 0%, rgba(245, 166, 35, 0) 62%),
+          radial-gradient(
+            85% 80% at 0% 92%,
+            rgba(245, 166, 35, 0.16) 0%,
+            rgba(245, 166, 35, 0) 62%
+          ),
           linear-gradient(150deg, #141b24 0%, #10151c 48%, #111e18 100%);
       }
 
@@ -2189,7 +2210,13 @@
         ></span>
         <span
           class="footer-bit footer-bit--sun"
-          style="left: 31%; width: 24px; height: 24px; animation-duration: 26s; animation-delay: -11s"
+          style="
+            left: 31%;
+            width: 24px;
+            height: 24px;
+            animation-duration: 26s;
+            animation-delay: -11s;
+          "
         ></span>
         <span
           class="footer-bit footer-bit--dot"
@@ -2197,11 +2224,23 @@
         ></span>
         <span
           class="footer-bit"
-          style="left: 63%; width: 12px; height: 12px; animation-duration: 23s; animation-delay: -14s"
+          style="
+            left: 63%;
+            width: 12px;
+            height: 12px;
+            animation-duration: 23s;
+            animation-delay: -14s;
+          "
         ></span>
         <span
           class="footer-bit footer-bit--sun"
-          style="left: 78%; width: 18px; height: 18px; animation-duration: 19s; animation-delay: -8s"
+          style="
+            left: 78%;
+            width: 18px;
+            height: 18px;
+            animation-duration: 19s;
+            animation-delay: -8s;
+          "
         ></span>
         <span
           class="footer-bit footer-bit--dot"
@@ -2241,8 +2280,7 @@
             class="font-serif font-black text-[1.5rem] text-white tracking-[-0.02em] whitespace-nowrap cursor-pointer mb-7 max560:text-[1.3rem]"
             data-nav="home"
           >
-            Bergen<span class="text-[#6cc48f]">Kids</span
-            ><em class="not-italic text-sun">.</em>
+            Bergen<span class="text-[#6cc48f]">Kids</span><em class="not-italic text-sun">.</em>
           </div>
           <p class="text-[0.95rem] leading-[1.75] mb-6">
             The hyper-local platform connecting Bergen County families with trusted kids' services,
@@ -4428,7 +4466,10 @@
           .filter((l) => l.impressions > 0)
           .sort((x, y) => y.clicks / y.impressions - x.clicks / x.impressions)
           .slice(0, 3);
-        const recent = mine.slice().sort((x, y) => y.created.localeCompare(x.created)).slice(0, 5);
+        const recent = mine
+          .slice()
+          .sort((x, y) => y.created.localeCompare(x.created))
+          .slice(0, 5);
         // Date-filtered pie: impressions accrue per day since a listing went up,
         // and only the days inside the chosen window count, so the category mix
         // shifts as the range changes.
@@ -4651,7 +4692,7 @@
         return `<div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-[1.15rem] [&_h3]:text-head [&_h3]:mb-[0.3rem] max380:p-[1.1rem]">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.1rem">
       <div><h3>Billing history</h3><div class="text-[0.92rem] text-muted mb-5 leading-[1.55]">All charges for your business listings.</div></div>
-      <div style="text-align:right"><div style="font-size:0.82rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--ad-label)">Total spent</div><div id="bl-total" style="font-family:'Fraunces',serif;font-size:1.9rem;font-weight:900;color:var(--head)">$${total.toFixed(2)}</div></div>
+      <div style="text-align:right"><div style="font-size:0.82rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--ad-label)">Total spent</div><div id="bl-total" style="font-family:var(--font);font-size:1.9rem;font-weight:900;color:var(--head)">$${total.toFixed(2)}</div></div>
     </div>
     <div class="filter-bar bg-surface border-[1.5px] border-line rounded-[18px] p-4 grid gap-3 items-center mb-6 grid-cols-[1.6fr_1.2fr_1fr_1fr_auto] max1200:!grid-cols-[1fr_1fr_1fr] max900:!grid-cols-[1fr_1fr] max700:!grid-cols-[1fr]" style="box-shadow:none;margin-bottom:1.25rem">
       <div class="flex flex-col gap-1"><label class="text-[0.75rem] font-bold tracking-[0.07em] uppercase text-adlabel pl-2">Search</label><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-surface-2 min-h-[46px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("search", 16, "text-muted shrink-0")}<input class="border-none outline-none bg-transparent font-sans text-[1rem] text-head w-full min-w-0 cursor-text placeholder:text-muted placeholder:opacity-100" type="text" id="bl-q" placeholder="Listing name…" value="${(f.q || "").replace(/"/g, "&quot;")}"></div></div>
@@ -5154,7 +5195,9 @@
         const performers = ADS.filter((a) => a.impressions > 0)
           .sort((x, y) => y.clicks / y.impressions - x.clicks / x.impressions)
           .slice(0, 3);
-        const recent = ADS.slice().sort((x, y) => y.start.localeCompare(x.start)).slice(0, 5);
+        const recent = ADS.slice()
+          .sort((x, y) => y.start.localeCompare(x.start))
+          .slice(0, 5);
         // Date-filtered pie: impressions accrue per day of a campaign's elapsed
         // flight, and only the days inside the chosen window are counted, so the
         // category mix shifts as the range changes.
@@ -5293,7 +5336,11 @@
     <div class="bg-surface border-[1.5px] border-line rounded-[18px] p-5 mb-5 max380:p-[1.1rem]">
       <div class="grid gap-3 items-end grid-cols-[1.4fr_1fr_1fr_1fr_auto] max900:!grid-cols-[1fr_1fr] max700:!grid-cols-[1fr]">
         <div class="flex flex-col gap-1"><label class="${LABEL}">Category</label><div class="${FIELD}">${icon("tag", 16)}<select class="${INPUT}" id="an-cat"><option value="">All categories</option>${cats.map((c) => `<option value="${c.id}" ${f.cat === c.id ? "selected" : ""}>${c.name}</option>`).join("")}</select></div></div>
-        <div class="flex flex-col gap-1"><label class="${LABEL}">Placement</label><div class="${FIELD}">${icon("dashboard", 16)}<select class="${INPUT}" id="an-place"><option value="">All placements</option>${Object.keys(PLACE_RATE).map((p) => `<option value="${p}" ${f.place === p ? "selected" : ""}>${p}</option>`).join("")}</select></div></div>
+        <div class="flex flex-col gap-1"><label class="${LABEL}">Placement</label><div class="${FIELD}">${icon("dashboard", 16)}<select class="${INPUT}" id="an-place"><option value="">All placements</option>${Object.keys(
+          PLACE_RATE
+        )
+          .map((p) => `<option value="${p}" ${f.place === p ? "selected" : ""}>${p}</option>`)
+          .join("")}</select></div></div>
         <div class="flex flex-col gap-1"><label class="${LABEL}">Running from</label><div class="${FIELD}">${icon("calendar", 16)}<input class="${INPUT} cursor-text" type="date" id="an-from" value="${f.from || ""}"></div></div>
         <div class="flex flex-col gap-1"><label class="${LABEL}">Running to</label><div class="${FIELD}">${icon("calendar", 16)}<input class="${INPUT} cursor-text" type="date" id="an-to" value="${f.to || ""}"></div></div>
         <button class="bg-transparent border-none text-muted text-[0.9rem] font-bold flex items-center gap-[0.3rem] whitespace-nowrap self-end px-2 py-[0.7rem] min-h-[44px] hover:text-head hover:underline max700:self-start max700:justify-center max700:border-[1.5px] max700:border-solid max700:border-line max700:rounded-[10px]" data-action="clear-adv-analytics">${icon("x", 15)} Clear</button>
@@ -5430,7 +5477,7 @@
       function gateView(role, title, desc, ic) {
         return `<div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4"><div class="empty text-center px-4 py-16 text-muted text-[1rem] leading-[1.6]" style="padding:5rem 1rem;max-width:460px;margin:0 auto">
   <div class="w-[44px] h-[44px] rounded-[11px] bg-mint text-brand flex items-center justify-center mb-3" style="width:64px;height:64px;margin:0 auto 1.25rem;background:var(--surface-5);color:var(--head);border-radius:18px">${icon(ic, 30, "text-adlabel mb-3")}</div>
-  <div style="font-family:'Fraunces',serif;font-size:1.6rem;font-weight:900;color:var(--head);margin-bottom:0.5rem">${title}</div>
+  <div style="font-family:var(--font);font-size:1.6rem;font-weight:900;color:var(--head);margin-bottom:0.5rem">${title}</div>
   <p style="margin-bottom:1.5rem">${desc}</p>
   <button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="open-auth" data-role="${role}">Log in / Sign up</button></div></div>`;
       }
@@ -6003,8 +6050,7 @@
         // The verify steps have no submit button — the last digit submits — so
         // this only ever relabels the entry step's button.
         const btn = document.querySelector('[data-action="do-auth"]');
-        if (btn)
-          btn.innerText = state.auth.mode === "login" ? authCtaLabel() : "Create account";
+        if (btn) btn.innerText = state.auth.mode === "login" ? authCtaLabel() : "Create account";
         const first = otpBoxes()[0];
         if (first) first.focus();
       }
@@ -6671,12 +6717,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             x.classList.add("border-line", "bg-surface-2");
           });
           rc.classList.remove("border-line", "bg-surface-2");
-          rc.classList.add(
-            "sel",
-            "border-navy",
-            "bg-sel",
-            "shadow-[inset_0_0_0_1px_var(--navy)]"
-          );
+          rc.classList.add("sel", "border-navy", "bg-sel", "shadow-[inset_0_0_0_1px_var(--navy)]");
           if (grp === "data-plan-pick") {
             const row = el("nl-photo-row");
             if (row) {
@@ -7320,7 +7361,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
       function adPreviewModal(d) {
         const c = catOf(d.cat);
         const days = Math.max(1, Math.round((new Date(d.end) - new Date(d.start)) / 86400000) + 1);
-        const banner = `<div style="height:120px;background:linear-gradient(90deg,#1a2e4a,#1e8c7a);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fraunces',serif;font-weight:900;font-size:1.15rem;position:relative"><span style="position:absolute;top:8px;left:8px;font-family:'DM Sans';font-size:0.7rem;font-weight:700;letter-spacing:0.1em;background:rgba(255,255,255,0.28);padding:3px 7px;border-radius:4px">AD</span>${d.name}</div>`;
+        const banner = `<div style="height:120px;background:linear-gradient(90deg,#1a2e4a,#1e8c7a);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font);font-weight:900;font-size:1.15rem;position:relative"><span style="position:absolute;top:8px;left:8px;font-size:0.7rem;font-weight:700;letter-spacing:0.1em;background:rgba(255,255,255,0.28);padding:3px 7px;border-radius:4px">AD</span>${d.name}</div>`;
         let context;
         if (d.placement === "Leaderboard")
           context = `<div class="text-muted text-[0.98rem] mt-[0.35rem] leading-[1.55]" style="margin-bottom:0.5rem">Shown as the top banner across pages:</div>${banner}`;
@@ -7383,7 +7424,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
       }
       function adViewModal(a) {
         const c = catOf(a.cat);
-        const banner = `<div style="height:120px;background:linear-gradient(90deg,#1a2e4a,#1e8c7a);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fraunces',serif;font-weight:900;font-size:1.15rem;position:relative"><span style="position:absolute;top:8px;left:8px;font-family:'DM Sans';font-size:0.7rem;font-weight:700;letter-spacing:0.1em;background:rgba(255,255,255,0.28);padding:3px 7px;border-radius:4px">AD</span>${a.name}</div>`;
+        const banner = `<div style="height:120px;background:linear-gradient(90deg,#1a2e4a,#1e8c7a);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font);font-weight:900;font-size:1.15rem;position:relative"><span style="position:absolute;top:8px;left:8px;font-size:0.7rem;font-weight:700;letter-spacing:0.1em;background:rgba(255,255,255,0.28);padding:3px 7px;border-radius:4px">AD</span>${a.name}</div>`;
         openModal(
           `<div class="p-7 max700:p-5">
     <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.75rem"><h2 style="margin:0">${a.name}</h2>${adStatusPill(a.status)}</div>
