@@ -3822,7 +3822,10 @@
         };
         return `<div class="w-full"><div class="min-w-0">
     <section class="hero-sun relative overflow-hidden">
-      <div class="grid grid-cols-[1.05fr_1fr] items-center gap-12 px-[clamp(1rem,5vw,7rem)] pt-[70px] pb-[170px] max900:grid-cols-1 max900:gap-10 max900:pt-[52px] max900:pb-10">
+      <!-- The bottom padding is the room the floating shortcut card sits in:
+           the card plus its clearance is ~150px, so the reserve has to exceed
+           that by however much air you want between the CTA and the card. -->
+      <div class="grid grid-cols-[1.05fr_1fr] items-center gap-12 px-[clamp(1rem,5vw,7rem)] pt-[70px] pb-[216px] max900:grid-cols-1 max900:gap-10 max900:pt-[52px] max900:pb-10">
         <div class="relative z-[1] animate-[fadeUp_0.7s_ease_both]">
           <div class="inline-flex items-center gap-2 rounded-[100px] bg-mint px-4 py-[0.5rem] text-[0.78rem] font-extrabold uppercase tracking-[0.08em] text-brand">${icon("pin", 14)} Bergen County, New Jersey</div>
           <h1 class="mt-6 font-serif font-black leading-[1.05] tracking-[-0.02em] text-head text-[clamp(2.1rem,1.2rem_+_3.6vw,4rem)]">Find the good stuff for <span class="text-[#e0550f]">your kids,</span> right in your town</h1>
