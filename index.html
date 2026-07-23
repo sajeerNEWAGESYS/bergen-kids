@@ -7251,14 +7251,10 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         });
         doAuth(state.auth.mode);
       }
+      // No line of instruction above the boxes: the subtitle right under the
+      // heading already says a code was sent and where to, so it was the same
+      // sentence twice.
       function authVerifyBody(mode) {
-        const step = state.auth.step;
-        const hint =
-          step === "verify-login"
-            ? `A ${OTP_LEN}-digit code was sent to your ${state.auth.method}.`
-            : step === "verify-email"
-              ? `Enter the ${OTP_LEN}-digit code sent to ${state.auth.email}.`
-              : `Enter the ${OTP_LEN}-digit code sent to ${state.auth.phone}.`;
         const boxes = Array.from({ length: OTP_LEN })
           .map(
             (_, i) =>
@@ -7266,10 +7262,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
           )
           .join("");
         return `
-    <div class="flex flex-col gap-[0.7rem]" style="margin-bottom:0.7rem">
-      <div class="text-[0.95rem] text-head">${hint}</div>
-      <div class="flex justify-center gap-3 max380:gap-2" id="au-code" role="group" aria-label="Verification code">${boxes}</div>
-    </div>
+    <div class="flex justify-center gap-3 max380:gap-2 mb-[1.1rem]" id="au-code" role="group" aria-label="Verification code">${boxes}</div>
     <div class="flex items-center justify-center gap-1 text-[0.9rem] text-muted mb-[0.9rem]"><span>Didn't get it?</span><button type="button" class="text-brand font-bold underline" data-action="resend-code">Resend code</button></div>`;
       }
       function doAuth(mode) {
