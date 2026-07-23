@@ -1548,6 +1548,19 @@
           box-shadow: 0 0 0 0 rgba(127, 214, 163, 0);
         }
       }
+      /* ── Native select popups ───────────────────────────────────
+         Every select on the page is transparent so it can sit inside a
+         bordered field wrapper. The option list is drawn by the OS, not
+         the page, and it takes its colours from the control — from a
+         transparent one Chrome paints a light list, so on a dark page
+         the options end up near-white text on white. Pin both ends
+         explicitly; in light mode these resolve to what already shipped. */
+      select option,
+      select optgroup {
+        background-color: var(--surface);
+        color: var(--text);
+      }
+
       /* ── Dark theme fix-ups ─────────────────────────────────────
          Everything the token swap cannot reach on its own: gradients,
          translucent chrome, and the few places where a light-tinted
@@ -3596,9 +3609,13 @@
           <div class="inline-flex items-center gap-2 rounded-[100px] bg-mint px-4 py-[0.5rem] text-[0.78rem] font-extrabold uppercase tracking-[0.08em] text-brand">${icon("pin", 14)} Bergen County, New Jersey</div>
           <h1 class="mt-6 font-serif font-black leading-[1.05] tracking-[-0.02em] text-head text-[clamp(2.1rem,1.2rem_+_3.6vw,4rem)]">Find the good stuff for <span class="text-[#e0550f]">your kids,</span> right in your town</h1>
           <p class="mt-5 max-w-[46ch] text-[1.05rem] leading-[1.65] text-muted text-pretty">Discover pediatricians, tutors, camps, schools and local family events — organized town by town. Make a free account to see what fits your family.</p>
-          <div class="mt-8">
+          ${
+            state.user
+              ? "" // signed in as any role — there is no account left to create
+              : `<div class="mt-8">
             <a class="inline-flex items-center justify-center gap-2 rounded-[100px] bg-navy px-9 py-[0.95rem] text-[1rem] font-extrabold text-white min-h-[52px] shadow-[0_10px_28px_rgba(26,46,74,0.22)] transition-transform duration-200 hover:-translate-y-[2px] cursor-pointer [&_svg]:transition-transform [&_svg]:duration-200 hover:[&_svg]:translate-x-[3px]" data-nav="directory" data-authgate="parent">Create a Parent Account ${icon("arrow-right", 17)}</a>
-          </div>
+          </div>`
+          }
         </div>
         <div class="relative z-[1] h-[420px] animate-[fadeUp_0.8s_0.15s_ease_both] max900:h-[320px] max560:h-[260px]">
           <div class="hero-decor" aria-hidden="true">
@@ -5480,6 +5497,109 @@
       // Themed label + input wrapper shared by every field on the profile form.
       const PF_FIELD =
         "flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100";
+      /* ── Phone field ────────────────────────────────────────────
+         A dial-code select welded onto the front of the number input,
+         shared by signup and every role's profile form. The dial code is
+         stored joined to the number ("+1 (201) 555-0000"), so a saved
+         phone round-trips through splitPhone() on the way back in.
+         Options read "US +1" rather than the country name: a native
+         select shows the picked option's full text when closed, and a
+         long name would crowd the number out of the field. */
+      const DIAL_CODES = [
+        ["US", "+1", "United States"],
+        ["CA", "+1", "Canada"],
+        ["MX", "+52", "Mexico"],
+        ["GB", "+44", "United Kingdom"],
+        ["IE", "+353", "Ireland"],
+        ["FR", "+33", "France"],
+        ["DE", "+49", "Germany"],
+        ["ES", "+34", "Spain"],
+        ["PT", "+351", "Portugal"],
+        ["IT", "+39", "Italy"],
+        ["NL", "+31", "Netherlands"],
+        ["BE", "+32", "Belgium"],
+        ["CH", "+41", "Switzerland"],
+        ["AT", "+43", "Austria"],
+        ["SE", "+46", "Sweden"],
+        ["NO", "+47", "Norway"],
+        ["DK", "+45", "Denmark"],
+        ["FI", "+358", "Finland"],
+        ["PL", "+48", "Poland"],
+        ["CZ", "+420", "Czechia"],
+        ["GR", "+30", "Greece"],
+        ["RO", "+40", "Romania"],
+        ["UA", "+380", "Ukraine"],
+        ["TR", "+90", "Türkiye"],
+        ["IL", "+972", "Israel"],
+        ["AE", "+971", "United Arab Emirates"],
+        ["SA", "+966", "Saudi Arabia"],
+        ["EG", "+20", "Egypt"],
+        ["ZA", "+27", "South Africa"],
+        ["NG", "+234", "Nigeria"],
+        ["KE", "+254", "Kenya"],
+        ["BR", "+55", "Brazil"],
+        ["AR", "+54", "Argentina"],
+        ["CO", "+57", "Colombia"],
+        ["CL", "+56", "Chile"],
+        ["IN", "+91", "India"],
+        ["PK", "+92", "Pakistan"],
+        ["BD", "+880", "Bangladesh"],
+        ["LK", "+94", "Sri Lanka"],
+        ["CN", "+86", "China"],
+        ["JP", "+81", "Japan"],
+        ["KR", "+82", "South Korea"],
+        ["PH", "+63", "Philippines"],
+        ["VN", "+84", "Vietnam"],
+        ["TH", "+66", "Thailand"],
+        ["MY", "+60", "Malaysia"],
+        ["SG", "+65", "Singapore"],
+        ["ID", "+62", "Indonesia"],
+        ["AU", "+61", "Australia"],
+        ["NZ", "+64", "New Zealand"],
+      ];
+      const DEFAULT_DIAL = "+1";
+      // Longest known dial code wins, so "+1" never swallows the leading
+      // digits of a "+1 201…" number that was stored without a separator.
+      function splitPhone(v) {
+        const s = (v || "").trim();
+        const dial = DIAL_CODES.map((c) => c[1])
+          .filter((d) => s.startsWith(d))
+          .sort((a, b) => b.length - a.length)[0];
+        return dial ? { dial, num: s.slice(dial.length).trim() } : { dial: DEFAULT_DIAL, num: s };
+      }
+      // Reads a phone field back out as one string. An empty number returns
+      // "" rather than a bare dial code, so the required-field checks still bite.
+      function readPhone(id) {
+        const num = (el(id)?.value || "").trim();
+        if (!num) return "";
+        return `${el(id + "-cc")?.value || DEFAULT_DIAL} ${num}`;
+      }
+      function phoneField(id, value, label = "Phone *", ph = "(201) 555-0000") {
+        const { dial, num } = splitPhone(value);
+        let picked = false; // +1 is shared by US and CA — only mark the first
+        const opts = DIAL_CODES.map(([iso, d, name]) => {
+          const on = !picked && d === dial;
+          if (on) picked = true;
+          return `<option value="${d}"${on ? " selected" : ""} title="${name}">${iso} ${d}</option>`;
+        }).join("");
+        // Inline styles beat the [&_input]/[&_select] rules the surrounding
+        // field wrappers apply, the same way the other composite fields do it.
+        const bare = "border:none;padding:0;min-height:0";
+        // The select states its own colours rather than going transparent:
+        // browsers derive the OS-drawn option list from the control, and a
+        // transparent one gets a light list that is unreadable on a dark page.
+        // --surface-2 is what the wrapper is painted with, so it stays seamless.
+        const ccStyle = `${bare};width:auto;background-color:var(--surface-2);color:var(--head)`;
+        const numStyle = `${bare};background:transparent;flex:1;width:100%`;
+        return `<div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head">
+      <label for="${id}">${label}</label>
+      <div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] pl-3 pr-3 py-[0.6rem] bg-surface-2 min-h-[46px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">
+        <select id="${id}-cc" aria-label="Country code" class="font-sans text-[0.95rem] font-semibold cursor-pointer outline-none shrink-0" style="${ccStyle}">${opts}</select>
+        <span class="w-px self-stretch bg-line shrink-0" aria-hidden="true"></span>
+        <input id="${id}" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="${ph}" value="${num.replace(/"/g, "&quot;")}" class="font-sans text-[1rem] text-head outline-none min-w-0 placeholder:text-muted placeholder:opacity-100" style="${numStyle}">
+      </div>
+    </div>`;
+      }
       function userInitials(name) {
         return (name || "")
           .split(" ")
@@ -5546,19 +5666,19 @@
           fields =
             field("Business name *", "pf-org", u.name, "", true) +
             field("Contact Person Name *", "pf-name", u.contact) +
-            field("Phone *", "pf-phone", u.phone, "(201) 555-0000") +
+            phoneField("pf-phone", u.phone) +
             field("Email *", "pf-email", u.email, "", true);
         } else if (u.role === "advertiser") {
           fields =
             field("Company / advertiser name *", "pf-org", u.name, "", true) +
             field("Contact Person Name *", "pf-name", u.contact) +
-            field("Phone *", "pf-phone", u.phone, "(201) 555-0000") +
+            phoneField("pf-phone", u.phone) +
             field("Website", "pf-web", u.web, "yourcompany.com") +
             field("Email *", "pf-email", u.email, "", true);
         } else {
           fields =
             field("Full name *", "pf-name", u.name, "", true) +
-            field("Phone *", "pf-phone", u.phone, "(201) 555-0000") +
+            phoneField("pf-phone", u.phone) +
             field("Email *", "pf-email", u.email, "", true);
         }
         const sideCard = (ic, title, body, btn) =>
@@ -5880,14 +6000,13 @@
         if (el("auth-title")) el("auth-title").innerText = authStepTitle(state.auth.mode);
         if (el("auth-subtitle")) el("auth-subtitle").innerText = authStepSubtitle(state.auth.mode);
         if (el("auth-body")) el("auth-body").innerHTML = authBody(state.auth.mode, sel, ROLES);
+        // The verify steps have no submit button — the last digit submits — so
+        // this only ever relabels the entry step's button.
         const btn = document.querySelector('[data-action="do-auth"]');
         if (btn)
-          btn.innerText =
-            state.auth.step === "entry"
-              ? state.auth.mode === "login"
-                ? authCtaLabel()
-                : "Create account"
-              : "Verify code";
+          btn.innerText = state.auth.mode === "login" ? authCtaLabel() : "Create account";
+        const first = otpBoxes()[0];
+        if (first) first.focus();
       }
       // Same label whether the popup was opened for one role or with the role
       // picker: either way the next step is a code, and saying so up front is
@@ -5916,10 +6035,14 @@
         <button type="button" class="rounded-[10px] border-[1.5px] px-3 py-[0.6rem] font-bold text-[0.95rem] ${emailActive ? "bg-surface text-head border-navy shadow-[0_2px_8px_rgba(26,46,74,0.12)]" : "bg-surface-2 text-muted border-line"}" data-action="set-auth-method" data-method="email">Email</button>
         <button type="button" class="rounded-[10px] border-[1.5px] px-3 py-[0.6rem] font-bold text-[0.95rem] ${phoneActive ? "bg-surface text-head border-navy shadow-[0_2px_8px_rgba(26,46,74,0.12)]" : "bg-surface-2 text-muted border-line"}" data-action="set-auth-method" data-method="phone">Phone</button>
       </div>
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input]:focus]:border-brand [&_input]:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]" style="margin-bottom:0.7rem">
-        <label>${emailActive ? "Email *" : "Phone *"}</label>
-        <input id="au-${emailActive ? "email" : "phone"}" placeholder="${emailActive ? "you@email.com" : "(201) 555-0000"}" value="${emailActive ? state.auth.email || authDemoEmail() : state.auth.phone || ""}">
-      </div>`;
+      <div style="margin-bottom:0.7rem">${
+        emailActive
+          ? `<div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100">
+        <label>Email *</label>
+        <input id="au-email" placeholder="you@email.com" value="${state.auth.email || authDemoEmail()}">
+      </div>`
+          : phoneField("au-phone", state.auth.phone)
+      }</div>`;
         }
         if (role === "business") {
           return `
@@ -5928,7 +6051,7 @@
       <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Contact Person Name *</label><input id="au-name" placeholder="Your name"></div>
     </div>
     <div class="grid grid-cols-[1fr_1fr] max700:grid-cols-[1fr]" style="gap:0.7rem;margin-bottom:0.7rem">
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Phone *</label><input id="au-phone" placeholder="(201) 555-0000"></div>
+      ${phoneField("au-phone", state.auth.phone)}
       <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Email *</label><input id="au-email" placeholder="you@email.com"></div>
     </div>`;
         }
@@ -5939,14 +6062,14 @@
       <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Contact Person Name *</label><input id="au-name" placeholder="Your name"></div>
     </div>
     <div class="grid grid-cols-[1fr_1fr] max700:grid-cols-[1fr]" style="gap:0.7rem;margin-bottom:0.7rem">
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Phone *</label><input id="au-phone" placeholder="(201) 555-0000"></div>
+      ${phoneField("au-phone", state.auth.phone)}
       <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Email *</label><input id="au-email" placeholder="you@email.com"></div>
     </div>`;
         }
         return `
     <div class="grid grid-cols-[1fr_1fr] gap-[1.1rem] max700:grid-cols-[1fr]" style="gap:0.8rem;margin-bottom:0.8rem">
       <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Full name *</label><input id="au-name" placeholder="Your name"></div>
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Phone *</label><input id="au-phone" placeholder="(201) 555-0000"></div>
+      ${phoneField("au-phone", state.auth.phone)}
     </div>
     ${auEmail(mode)}`;
       }
@@ -6319,6 +6442,12 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
                 state.auth.resendCount++;
                 sendAuthCode("phone");
               }
+              // Clear the old code out so the new one goes into empty boxes.
+              otpBoxes().forEach((b) => {
+                b.value = "";
+                b.disabled = false;
+              });
+              otpFocusNext();
               break;
             }
             case "do-auth":
@@ -6441,7 +6570,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               } else if (el("pf-name"))
                 state.user.name = el("pf-name").value.trim() || state.user.name;
               if (el("pf-email")) state.user.email = el("pf-email").value.trim();
-              if (el("pf-phone")) state.user.phone = el("pf-phone").value.trim();
+              if (el("pf-phone")) state.user.phone = readPhone("pf-phone");
               if (el("pf-web")) state.user.web = el("pf-web").value.trim();
               refreshProfileHero();
               toast("Profile saved", "check");
@@ -6606,6 +6735,12 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
           closeDropdowns();
       });
       document.addEventListener("input", (e) => {
+        if (e.target.classList && e.target.classList.contains("otp-box")) {
+          e.target.value = e.target.value.replace(/\D/g, "").slice(-1); // digits only
+          if (e.target.value) otpFocusNext();
+          otpMaybeSubmit();
+          return;
+        }
         if (e.target.id === "d-q") {
           state.dir.q = e.target.value;
           updateDirResults();
@@ -6715,11 +6850,49 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         }
       });
       document.addEventListener("keydown", (e) => {
+        if (e.target.classList && e.target.classList.contains("otp-box")) {
+          const boxes = otpBoxes();
+          const i = boxes.indexOf(e.target);
+          // Backspace in an empty box steps back and clears, so holding it
+          // walks the code out one digit at a time.
+          if (e.key === "Backspace" && !e.target.value && i > 0) {
+            e.preventDefault();
+            boxes[i - 1].value = "";
+            boxes[i - 1].focus();
+          } else if (e.key === "ArrowLeft" && i > 0) {
+            e.preventDefault();
+            boxes[i - 1].focus();
+          } else if (e.key === "ArrowRight" && i < boxes.length - 1) {
+            e.preventDefault();
+            boxes[i + 1].focus();
+          }
+          return;
+        }
         if (e.key === "Enter" && e.target.id === "home-search") doHomeSearch();
         if (e.key === "Escape") {
           closeModal();
           closeDropdowns();
         }
+      });
+      // maxlength="1" would truncate a pasted code to its first digit, so the
+      // paste is intercepted and spread across the boxes instead.
+      document.addEventListener("paste", (e) => {
+        const box = e.target.closest && e.target.closest(".otp-box");
+        if (!box) return;
+        const digits = ((e.clipboardData || window.clipboardData).getData("text") || "").replace(
+          /\D/g,
+          ""
+        );
+        if (!digits) return;
+        e.preventDefault();
+        const boxes = otpBoxes();
+        const start = boxes.indexOf(box);
+        digits
+          .slice(0, boxes.length - start)
+          .split("")
+          .forEach((ch, k) => (boxes[start + k].value = ch));
+        otpFocusNext();
+        otpMaybeSubmit();
       });
 
       function updateDirResults() {
@@ -6819,30 +6992,53 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               : state.auth.phoneCode;
         toast(`Sent code ${code} to ${type === "login" ? state.auth.method : type} ${target}`);
       }
+      /* ── Code entry ─────────────────────────────────────────────
+         Four single-digit boxes standing in for one field. There is no
+         submit button: filling the last box is the submit, which is why
+         the boxes carry the whole value and readAuthCode() joins them. */
+      const OTP_LEN = 4;
+      const otpBoxes = () => Array.from(document.querySelectorAll("#au-code .otp-box"));
+      const readAuthCode = () =>
+        otpBoxes()
+          .map((b) => b.value.trim())
+          .join("");
+      // Park the caret on the first gap, or the last box once it is full.
+      function otpFocusNext() {
+        const boxes = otpBoxes();
+        if (!boxes.length) return;
+        const empty = boxes.findIndex((b) => !b.value);
+        (empty === -1 ? boxes[boxes.length - 1] : boxes[empty]).focus();
+      }
+      // Called after every change. A complete code submits itself; the boxes
+      // are disabled first so a fast typist cannot fire the step twice.
+      function otpMaybeSubmit() {
+        if (readAuthCode().length < OTP_LEN) return;
+        otpBoxes().forEach((b) => {
+          b.blur();
+          b.disabled = true;
+        });
+        doAuth(state.auth.mode);
+      }
       function authVerifyBody(mode) {
         const step = state.auth.step;
-        const target =
-          step === "verify-login"
-            ? state.auth.method === "email"
-              ? state.auth.email
-              : state.auth.phone
-            : step === "verify-email"
-              ? state.auth.email
-              : state.auth.phone;
         const hint =
           step === "verify-login"
-            ? `A 4-digit code was sent to your ${state.auth.method}.`
+            ? `A ${OTP_LEN}-digit code was sent to your ${state.auth.method}.`
             : step === "verify-email"
-              ? `Enter the 4-digit code sent to ${state.auth.email}.`
-              : `Enter the 4-digit code sent to ${state.auth.phone}.`;
+              ? `Enter the ${OTP_LEN}-digit code sent to ${state.auth.email}.`
+              : `Enter the ${OTP_LEN}-digit code sent to ${state.auth.phone}.`;
+        const boxes = Array.from({ length: OTP_LEN })
+          .map(
+            (_, i) =>
+              `<input class="otp-box w-[58px] h-[62px] rounded-[12px] border-[1.5px] border-line bg-surface-2 text-center font-sans text-[1.5rem] font-extrabold text-head outline-none transition-[border-color,box-shadow] duration-150 focus:border-brand focus:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] max380:w-[48px] max380:h-[54px] max380:text-[1.25rem]" type="text" inputmode="numeric" maxlength="1" autocomplete="${i === 0 ? "one-time-code" : "off"}" aria-label="Digit ${i + 1} of ${OTP_LEN}">`
+          )
+          .join("");
         return `
-    <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input]:focus]:border-brand [&_input]:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]" style="margin-bottom:0.7rem">
+    <div class="flex flex-col gap-[0.7rem]" style="margin-bottom:0.7rem">
       <div class="text-[0.95rem] text-head">${hint}</div>
-      <label>Verification code *</label>
-      <input id="au-code" placeholder="1234" autocomplete="one-time-code">
+      <div class="flex justify-center gap-3 max380:gap-2" id="au-code" role="group" aria-label="Verification code">${boxes}</div>
     </div>
-    <div class="flex items-center justify-between text-[0.9rem] text-muted mb-[0.9rem]"><div>${target ? `<span class="font-semibold text-head">${target}</span>` : ""}</div><button type="button" class="text-brand font-bold underline" data-action="resend-code">Resend code</button></div>
-    <button class="bg-grass-ink text-white px-6 py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233] w-full mt-2" data-action="do-auth" data-mode="${mode}">Verify code</button>`;
+    <div class="flex items-center justify-center gap-1 text-[0.9rem] text-muted mb-[0.9rem]"><span>Didn't get it?</span><button type="button" class="text-brand font-bold underline" data-action="resend-code">Resend code</button></div>`;
       }
       function doAuth(mode) {
         const role = state.auth.role || "parent";
@@ -6850,8 +7046,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
           if (state.auth.step === "entry") {
             const method = state.auth.method;
             const value =
-              (method === "email" ? el("au-email")?.value.trim() : el("au-phone")?.value.trim()) ||
-              "";
+              (method === "email" ? el("au-email")?.value.trim() : readPhone("au-phone")) || "";
             if (!value) {
               toast(`Enter your ${method}`, "x");
               return;
@@ -6872,7 +7067,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             sendAuthCode("login");
             return;
           }
-          const entered = el("au-code")?.value.trim() || "";
+          const entered = readAuthCode();
           if (!entered) {
             toast("Enter the verification code", "x");
             return;
@@ -6892,9 +7087,11 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
           closeModal();
           toast("Welcome back, " + name.split(" ")[0] + "!", "user");
           renderNav();
+          // Every role lands on the thing it signed in to do — parents on the
+          // directory, not back on the marketing page they came from.
           if (role === "business") navigate("business");
           else if (role === "advertiser") navigate("advertiser");
-          else navigate("home");
+          else navigate("directory");
           return;
         }
         if (mode === "signup") {
@@ -6922,7 +7119,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               }
             }
             const email = el("au-email")?.value.trim() || "";
-            const phone = el("au-phone")?.value.trim() || "";
+            const phone = readPhone("au-phone");
             if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
               toast("Please enter a valid email", "x");
               return;
@@ -6949,7 +7146,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             sendAuthCode("email");
             return;
           }
-          const entered = el("au-code")?.value.trim() || "";
+          const entered = readAuthCode();
           if (!entered) {
             toast("Enter the verification code", "x");
             return;
@@ -6977,7 +7174,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             renderNav();
             if (data.role === "business") navigate("business");
             else if (data.role === "advertiser") navigate("advertiser");
-            else navigate("home");
+            else navigate("directory");
             return;
           }
         }
