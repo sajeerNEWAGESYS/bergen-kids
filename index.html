@@ -724,99 +724,185 @@
         }
       }
 
-      .flower-badge {
-        position: relative;
-        width: 58px;
-        height: 58px;
-        flex-shrink: 0;
-        filter: drop-shadow(0 5px 7px rgba(0, 0, 0, 0.15));
-      }
-
-      .flower-badge > svg {
+      /* ── Torn section edge ──────────────────────────────────────
+         A ragged "torn paper" cut across the foot of a section. The shape
+         is flat along the bottom, so it paints the NEXT section's colour up
+         into this one — set `color` to whatever sits below. Sits above the
+         section's own background and decor, below anything that floats
+         (the hero's shortcut card). */
+      .section-torn {
         position: absolute;
-        inset: 0;
+        left: 0;
+        /* -1px: sub-pixel rounding otherwise leaves a hairline of the
+           section's own background showing under the shape. */
+        bottom: -1px;
         width: 100%;
-        height: 100%;
+        height: clamp(22px, 3vw, 40px);
+        display: block;
+        z-index: 2;
+        pointer-events: none;
+        color: var(--cream);
       }
 
-      .flower-icon {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        line-height: 0;
-        color: #fff;
-      }
-
+      /* ── Hero feature strip ─────────────────────────────────────
+         Four category shortcuts on one card that floats over the foot of
+         the hero. It used to be a full-bleed white band with a torn-paper
+         top edge and four identical green flower badges; the card reads as
+         a control now, and each tile carries its own category colour so
+         the row is scannable rather than four of the same thing. */
       .feature-strip {
         position: absolute;
         left: 0;
         right: 0;
         bottom: 0;
-        background: var(--surface);
-        padding: 1.5rem clamp(1rem, 5vw, 7rem) 1.4rem;
+        /* Bottom padding clears the torn edge, so the card sits above the
+           cut rather than being sliced by it. */
+        padding: 0 clamp(1rem, 5vw, 7rem) clamp(2.5rem, 4vw, 3.5rem);
         z-index: 3;
       }
 
       .feature-strip-inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.4rem;
         max-width: 1400px;
         margin: 0 auto;
-        flex-wrap: wrap;
+        padding: 0.6rem;
+        border-radius: 24px;
+        background: var(--surface);
+        border: 1px solid var(--line2);
+        box-shadow: 0 20px 55px rgba(15, 26, 44, 0.16);
       }
 
       .feature-item {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.85rem;
+        min-width: 0;
+        padding: 0.8rem 0.9rem;
+        border-radius: 18px;
+        border: 1.5px solid transparent;
+        background: transparent;
         color: var(--head);
         cursor: pointer;
         text-align: left;
+        transition:
+          background 0.2s ease,
+          border-color 0.2s ease,
+          transform 0.2s ease;
+      }
+
+      .feature-item:hover {
+        background: var(--surface-2);
+        border-color: var(--line);
+        transform: translateY(-2px);
+      }
+
+      .feature-ic {
+        width: 46px;
+        height: 46px;
+        flex-shrink: 0;
+        border-radius: 15px;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        box-shadow: 0 6px 16px rgba(15, 26, 44, 0.2);
+        transition: transform 0.25s ease;
+      }
+
+      .feature-item:hover .feature-ic {
+        transform: scale(1.06) rotate(-4deg);
+      }
+
+      .feature-copy {
+        min-width: 0;
+      }
+
+      /* Both lines clip rather than wrap: four fixed columns, and a name
+         like "Schools & Preschools" would otherwise push the row taller
+         than its neighbours. */
+      .feature-item .feature-title,
+      .feature-item .feature-sub {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .feature-item .feature-title {
-        display: block;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.02em;
-        font-size: 0.9rem;
+        font-weight: 700;
+        font-size: 0.97rem;
         line-height: 1.3;
+        letter-spacing: -0.01em;
       }
 
-      .feature-item:hover .feature-title {
-        text-decoration: underline;
+      .feature-item .feature-sub {
+        margin-top: 1px;
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: var(--muted);
       }
 
-      .torn-top {
-        color: var(--surface);
-        position: absolute;
-        top: -26px;
-        left: 0;
-        width: 100%;
-        height: 30px;
-        display: block;
+      .feature-go {
+        margin-left: auto;
+        flex-shrink: 0;
+        line-height: 0;
+        color: var(--ad-label);
+        transition:
+          transform 0.2s ease,
+          color 0.2s ease;
       }
 
+      .feature-item:hover .feature-go {
+        color: var(--brand);
+        transform: translateX(3px);
+      }
+
+      @media (max-width: 1200px) {
+        .feature-item {
+          padding: 0.75rem 0.7rem;
+          gap: 0.7rem;
+        }
+
+        .feature-go {
+          display: none;
+        }
+      }
+
+      @media (max-width: 1024px) {
+        .feature-strip-inner {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      /* Below the hero's two-column breakpoint the card stops floating and
+         simply follows the hero content. */
       @media (max-width: 900px) {
         .feature-strip {
           position: static;
-          padding-top: 2rem;
-        }
-
-        .torn-top {
-          display: none;
+          /* Still needs the clearance — the torn edge stays pinned to the
+             section bottom even once the card stops floating. */
+          padding: 2rem clamp(1rem, 5vw, 7rem) clamp(2rem, 6vw, 3rem);
         }
 
         .feature-strip-inner {
-          justify-content: flex-start;
-          gap: 1.1rem 2rem;
+          box-shadow: 0 10px 30px rgba(15, 26, 44, 0.1);
+        }
+      }
+
+      @media (max-width: 560px) {
+        .feature-ic {
+          width: 40px;
+          height: 40px;
+          border-radius: 13px;
         }
 
-        .feature-item {
-          font-size: 0.82rem;
+        .feature-item .feature-title {
+          font-size: 0.88rem;
+        }
+
+        .feature-item .feature-sub {
+          display: none;
         }
       }
 
@@ -856,6 +942,31 @@
       }
 
       /* ── Events slider ──────────────────────────────────────── */
+      /* The band carries a soft two-corner wash so the rail reads as its own
+         chapter rather than more cream. Purely decorative and behind
+         everything, hence the ::before rather than a background on the
+         section — the arrows and cards need to paint over it. */
+      .ev-band {
+        position: relative;
+        overflow: hidden;
+        background: var(--cream);
+      }
+
+      .ev-band::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(46% 60% at 6% 6%, rgba(45, 122, 79, 0.11) 0%, rgba(45, 122, 79, 0) 68%),
+          radial-gradient(
+            44% 58% at 96% 94%,
+            rgba(245, 166, 35, 0.14) 0%,
+            rgba(245, 166, 35, 0) 68%
+          );
+      }
+
       .ev-rail {
         position: relative;
         margin: 0 calc(clamp(1rem, 5vw, 7rem) * -1);
@@ -864,7 +975,13 @@
 
       /* No snap and no CSS smooth scroll: the marquee sets scrollLeft every
          frame, and both would fight it. Arrow clicks pass behavior:"smooth"
-         themselves, so they still glide. */
+         themselves, so they still glide.
+
+         The edge fade is a mask on the cards rather than a cream gradient
+         painted over them: the band behind is no longer a flat colour, and a
+         colour fade would have to know what it is sitting on — in dark mode
+         it was tinting the edges milky. A mask fades the content itself, so
+         it is right on any background and in either theme. */
       .ev-track {
         display: flex;
         gap: 1.25rem;
@@ -872,6 +989,21 @@
         scrollbar-width: none;
         -ms-overflow-style: none;
         padding: 0.35rem 0 1.25rem;
+        --ev-fade: clamp(1.5rem, 4vw, 4rem);
+        -webkit-mask-image: linear-gradient(
+          90deg,
+          transparent 0,
+          #000 var(--ev-fade),
+          #000 calc(100% - var(--ev-fade)),
+          transparent 100%
+        );
+        mask-image: linear-gradient(
+          90deg,
+          transparent 0,
+          #000 var(--ev-fade),
+          #000 calc(100% - var(--ev-fade)),
+          transparent 100%
+        );
       }
 
       .ev-track::-webkit-scrollbar {
@@ -882,31 +1014,9 @@
         flex: 0 0 288px;
       }
 
-      /* Fades hint at more cards past each edge. */
-      .ev-rail::before,
-      .ev-rail::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 1.25rem;
-        width: clamp(1rem, 5vw, 5rem);
-        pointer-events: none;
-        z-index: 2;
-      }
-
-      .ev-rail::before {
-        left: 0;
-        background: linear-gradient(90deg, var(--cream), rgba(253, 248, 240, 0));
-      }
-
-      .ev-rail::after {
-        right: 0;
-        background: linear-gradient(270deg, var(--cream), rgba(253, 248, 240, 0));
-      }
-
       .ev-nav {
-        width: 42px;
-        height: 42px;
+        width: 46px;
+        height: 46px;
         border-radius: 50%;
         border: 1.5px solid var(--line);
         background: var(--surface);
@@ -915,21 +1025,58 @@
         place-items: center;
         cursor: pointer;
         padding: 0;
+        box-shadow: 0 6px 20px rgba(15, 26, 44, 0.16);
         transition:
           border-color 0.2s ease,
           background 0.2s ease,
-          transform 0.2s ease;
+          color 0.2s ease,
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
       }
 
       .ev-nav:hover {
-        border-color: var(--head);
+        border-color: var(--brand);
         background: var(--surface-4);
-        transform: translateY(-2px);
+        color: var(--brand);
+        box-shadow: 0 12px 28px rgba(15, 26, 44, 0.22);
+      }
+
+      /* One arrow per side, straddling the content edge so it reads as
+         attached to the rail. max() keeps it on screen once the page gutter
+         drops below the disc's own radius on narrow viewports. The transform
+         carries the vertical centring, so the hover/press scales have to
+         restate it. */
+      .ev-arrow {
+        position: absolute;
+        z-index: 3;
+        top: calc(50% - 0.45rem);
+        transform: translateY(-50%);
+      }
+
+      .ev-arrow--prev {
+        left: max(6px, calc(clamp(1rem, 5vw, 7rem) - 23px));
+      }
+
+      .ev-arrow--next {
+        right: max(6px, calc(clamp(1rem, 5vw, 7rem) - 23px));
+      }
+
+      .ev-arrow:hover {
+        transform: translateY(-50%) scale(1.07);
+      }
+
+      .ev-arrow:active {
+        transform: translateY(-50%) scale(0.95);
       }
 
       @media (max-width: 560px) {
         .ev-slide {
           flex-basis: 84%;
+        }
+
+        .ev-nav {
+          width: 38px;
+          height: 38px;
         }
       }
 
@@ -1601,6 +1748,16 @@
         box-shadow: 0 20px 44px rgba(0, 0, 0, 0.5);
       }
 
+      /* The shortcut card floats over the hero, so its lift has to come from
+         black rather than the navy tint that carries it on cream. */
+      [data-theme="dark"] .feature-strip-inner {
+        box-shadow: 0 20px 55px rgba(0, 0, 0, 0.55);
+      }
+
+      [data-theme="dark"] .feature-ic {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+      }
+
       /* The nav is translucent over whatever it floats above, so its tint
          has to be authored per theme rather than inherited. */
       [data-theme="dark"] #site-nav {
@@ -1633,8 +1790,27 @@
         box-shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
       }
 
+      /* The disc floats over cards on a dark page, so its shadow has to be
+         black rather than the navy tint that carries it on cream. */
+      [data-theme="dark"] .ev-nav {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+      }
+
       [data-theme="dark"] .ev-nav:hover {
         border-color: var(--brand);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
+      }
+
+      /* Green reads on cream but muddies on a dark page; the warm corner
+         does the lifting instead. */
+      [data-theme="dark"] .ev-band::before {
+        background:
+          radial-gradient(46% 60% at 6% 6%, rgba(45, 122, 79, 0.2) 0%, rgba(45, 122, 79, 0) 68%),
+          radial-gradient(
+            44% 58% at 96% 94%,
+            rgba(245, 166, 35, 0.09) 0%,
+            rgba(245, 166, 35, 0) 68%
+          );
       }
 
       [data-theme="dark"] #to-top .totop-track {
@@ -3571,15 +3747,25 @@
   </div>`;
       }
 
+      /* Ragged torn-paper cut for the foot of a section. The path is flat
+         along y=44 and jagged along the top, so dropped at a section's bottom
+         edge it tears that section away to reveal the one below. The colour
+         comes from CSS (.section-torn { color }), not from here, so a section
+         can match whatever follows it. preserveAspectRatio="none" lets the
+         24 peaks stretch to any width. */
+      const TORN_H = [
+        20, 8, 26, 12, 28, 10, 22, 6, 24, 14, 18, 8, 26, 12, 20, 8, 24, 14, 18, 10, 26, 12, 20, 10,
+      ];
+      const TORN_D = `M0 44 ${TORN_H.map(
+        (h, i) => `L${((i * 1200) / (TORN_H.length - 1)).toFixed(1)} ${h}`
+      ).join(" ")} L1200 44 Z`;
+      const tornEdge = (cls = "") =>
+        `<svg class="section-torn${cls ? " " + cls : ""}" viewBox="0 0 1200 44" preserveAspectRatio="none" aria-hidden="true"><path d="${TORN_D}" fill="currentColor"/></svg>`;
+
       function viewHome() {
-        // Labels come straight from CATEGORIES so the strip always matches the
-        // category names, rather than carrying its own copy to keep in sync.
-        const heroCards = [
-          { icon: "stethoscope", cat: "medical" },
-          { icon: "palette", cat: "arts" },
-          { icon: "school", cat: "schools" },
-          { icon: "soccer", cat: "sports" },
-        ];
+        // Just the ids — the name, icon and colour all come from CATEGORIES, so
+        // the strip cannot drift out of sync with the directory it links into.
+        const heroCards = ["medical", "arts", "schools", "sports"];
         const featureTiles = [
           {
             icon: "tag",
@@ -3621,25 +3807,19 @@
         const evPrev = EVENTS.filter((e) => (e.endDate || e.date) >= todayISO)
           .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
           .slice(0, 8);
-        const flower = (ic) =>
-          `<div class="flower-badge"><svg viewBox="-50 -50 100 100">${Array.from({ length: 8 })
-            .map(
-              (_, k) =>
-                `<ellipse cx="0" cy="-30" rx="15" ry="25" fill="#4fa544" transform="rotate(${
-                  k * 45
-                })"/>`
-            )
-            .join(
-              ""
-            )}<circle r="22" fill="#3f8f39"/></svg><span class="flower-icon">${icon(ic, 24)}</span></div>`;
-        const tornH = [
-          20, 8, 26, 12, 28, 10, 22, 6, 24, 14, 18, 8, 26, 12, 20, 8, 24, 14, 18, 10, 26, 12, 20,
-          10,
-        ];
-        const tornStep = 1200 / (tornH.length - 1);
-        const tornPath = `<path fill="currentColor" d="M0 44 ${tornH
-          .map((h, i) => `L${(i * tornStep).toFixed(1)} ${h}`)
-          .join(" ")} L1200 44 Z"/>`;
+        // One shortcut tile: the category's own gradient on the icon, its name,
+        // and its first two subcategories as the supporting line.
+        const featureShortcut = (id) => {
+          const c = catOf(id);
+          return `<button type="button" class="feature-item" data-nav="directory" data-cat="${id}" data-authgate>
+        <span class="feature-ic" style="background:${c.grad}">${icon(c.icon, 22)}</span>
+        <span class="feature-copy">
+          <span class="feature-title">${c.name}</span>
+          <span class="feature-sub">${c.sub.slice(0, 2).join(" · ")}</span>
+        </span>
+        <span class="feature-go">${icon("arrow-right", 16)}</span>
+      </button>`;
+        };
         return `<div class="w-full"><div class="min-w-0">
     <section class="hero-sun relative overflow-hidden">
       <div class="grid grid-cols-[1.05fr_1fr] items-center gap-12 px-[clamp(1rem,5vw,7rem)] pt-[70px] pb-[170px] max900:grid-cols-1 max900:gap-10 max900:pt-[52px] max900:pb-10">
@@ -3669,16 +3849,9 @@
         </div>
       </div>
       <div class="feature-strip">
-        <svg class="torn-top" viewBox="0 0 1200 44" preserveAspectRatio="none">${tornPath}</svg>
-        <div class="feature-strip-inner" data-rv-stagger="70">${heroCards
-          .map(
-            (c) =>
-              `<div class="feature-item" data-nav="directory" data-cat="${c.cat}" data-authgate>${flower(
-                c.icon
-              )}<span class="feature-title">${catOf(c.cat).name}</span></div>`
-          )
-          .join("")}</div>
+        <div class="feature-strip-inner">${heroCards.map(featureShortcut).join("")}</div>
       </div>
+      ${tornEdge()}
     </section>
 
    
@@ -3701,19 +3874,23 @@
       </div>
     </section>
 
-    <section id="events" class="px-[clamp(1rem,5vw,7rem)] py-20 bg-cream max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
-      <div class="flex justify-between items-end mb-10 flex-wrap gap-4 max700:flex-col max700:items-start" data-rv="up">
-        <div><div class="text-[0.85rem] font-bold tracking-[0.1em] uppercase text-brand mb-3">What's Happening</div><div class="font-serif text-[clamp(1.75rem,1.3rem_+_1.9vw,2.5rem)] font-black text-head tracking-[-0.02em] mb-3 leading-[1.15] text-balance">Upcoming in Bergen County</div></div>
-        <div class="flex items-center gap-4 max700:w-full max700:justify-between">
-          <a class="text-brand font-bold text-[1rem] no-underline inline-flex items-center gap-[0.35rem] cursor-pointer transition-[gap] duration-200 min-h-[44px] hover:gap-[0.6rem] hover:underline" data-nav="calendar" data-authgate>See all events ${icon("arrow-right", 15)}</a>
-          <div class="flex gap-2">
-            <button class="ev-nav" data-action="ev-prev" aria-label="Previous events">${icon("chev-left", 18)}</button>
-            <button class="ev-nav" data-action="ev-next" aria-label="Next events">${icon("chev-right", 18)}</button>
-          </div>
+    <section id="events" class="ev-band px-[clamp(1rem,5vw,7rem)] py-20 max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
+      <div class="relative z-[1] flex justify-between items-end mb-8 flex-wrap gap-x-8 gap-y-4 max700:flex-col max700:items-start" data-rv="up">
+        <!-- No width cap on this block: a ch-based cap resolves against its
+             own ~1rem font, which is far narrower than the 2.5rem heading
+             needs, and was breaking the title across two lines. The measure
+             belongs on the paragraph, the only part that needs one. -->
+        <div class="min-w-0">
+          <div class="inline-flex items-center gap-2 rounded-[100px] bg-mint px-[0.85rem] py-[0.35rem] text-[0.75rem] font-extrabold tracking-[0.1em] uppercase text-brand mb-3">${icon("calendar", 13)} What's Happening</div>
+          <div class="font-serif text-[clamp(1.75rem,1.3rem_+_1.9vw,2.5rem)] font-black text-head tracking-[-0.02em] mb-[0.5rem] leading-[1.15] text-balance">Upcoming in Bergen County</div>
+          <p class="text-muted text-[1.02rem] leading-[1.6] max-w-[68ch] text-pretty">Story times, clinics, camps and festivals — the next few weeks, town by town.</p>
         </div>
+        <a class="text-brand font-bold text-[1rem] no-underline inline-flex items-center gap-[0.35rem] cursor-pointer transition-[gap] duration-200 min-h-[44px] shrink-0 hover:gap-[0.6rem] hover:underline" data-nav="calendar" data-authgate>See all events ${icon("arrow-right", 15)}</a>
       </div>
-      <div class="ev-rail" data-rv="up" style="--rv-delay: 120ms">
+      <div class="ev-rail relative z-[1]" data-rv="up" style="--rv-delay: 120ms">
+        <button class="ev-nav ev-arrow ev-arrow--prev" data-action="ev-prev" aria-label="Previous events">${icon("chev-left", 18)}</button>
         <div class="ev-track" id="ev-track">${evPrev.map((e, i) => `<div class="ev-slide">${eventCard(e, i)}</div>`).join("")}${evPrev.map((e, i) => `<div class="ev-slide" aria-hidden="true">${eventCard(e, i)}</div>`).join("")}</div>
+        <button class="ev-nav ev-arrow ev-arrow--next" data-action="ev-next" aria-label="Next events">${icon("chev-right", 18)}</button>
       </div>
     </section>
 
@@ -4004,12 +4181,26 @@
         const c = catOf(e.cat);
         const d = new Date(e.date + "T00:00");
         const media = EV_IMG[e.id]
-          ? `<img src="${evImg(e.id, 600)}" srcset="${evImg(e.id, 600)} 600w, ${evImg(e.id, 900)} 900w" sizes="288px" alt="" loading="lazy" class="w-full h-full object-cover">`
+          ? `<img src="${evImg(e.id, 600)}" srcset="${evImg(e.id, 600)} 600w, ${evImg(e.id, 900)} 900w" sizes="288px" alt="" loading="lazy" class="w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.07]">`
           : `<div class="w-full h-full flex items-center justify-center text-head ${EH_BG[e.eh || (i % 6) + 1]}">${icon(e.icon, 44, "opacity-[0.82]")}</div>`;
-        return `<div class="h-full flex flex-col rounded-[20px] overflow-hidden border-[1.5px] border-line2 transition-[transform,box-shadow] duration-[250ms] cursor-pointer bg-surface hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(26,46,74,0.1)]" data-action="open-event" data-id="${e.id}">
-    <div class="h-[150px] shrink-0 relative bg-mint">${media}<div class="absolute top-[10px] left-[10px] bg-surface rounded-[8px] px-[0.65rem] py-[0.35rem] text-[0.8rem] font-extrabold text-head shadow-[0_2px_8px_rgba(0,0,0,0.12)]">${MONTHS[d.getMonth()]} ${d.getDate()}</div></div>
-    <div class="p-[1.15rem] flex flex-col flex-1"><div class="text-[0.78rem] font-bold tracking-[0.07em] uppercase text-teal-ink mb-[0.4rem]">${c.name}</div><div class="font-bold text-[1.05rem] text-head mb-[0.45rem] leading-[1.35]">${e.name}</div>
-      <div class="mt-auto text-[0.88rem] text-muted flex gap-x-[0.9rem] gap-y-2 items-center flex-wrap font-medium [&>span]:inline-flex [&>span]:items-center [&>span]:gap-1"><span>${icon("pin", 13)} ${e.town}</span><span>${icon("users", 13)} Ages ${e.ageMin}–${e.ageMax}</span></div></div></div>`;
+        // The date is a stacked tile — month strip in the category's own colour
+        // over the day — so the card is scannable by date at a glance, which a
+        // single "Aug 1" pill was not.
+        return `<div class="group h-full flex flex-col rounded-[20px] overflow-hidden border-[1.5px] border-line2 transition-[transform,box-shadow,border-color] duration-[250ms] cursor-pointer bg-surface hover:-translate-y-[6px] hover:border-line hover:shadow-[0_18px_44px_rgba(15,26,44,0.16)]" data-action="open-event" data-id="${e.id}">
+    <div class="h-[160px] shrink-0 relative overflow-hidden bg-mint">
+      ${media}
+      <div class="absolute inset-0 bg-[linear-gradient(to_top,rgba(10,20,36,0.5)_0%,rgba(10,20,36,0)_46%)]"></div>
+      <div class="absolute top-3 left-3 z-[1] w-[48px] overflow-hidden rounded-[12px] bg-surface text-center shadow-[0_4px_14px_rgba(15,26,44,0.28)]">
+        <div class="py-[3px] text-[0.58rem] font-extrabold uppercase tracking-[0.12em] text-white" style="background:${c.grad}">${MONTHS[d.getMonth()]}</div>
+        <div class="py-[1px] text-[1.05rem] font-extrabold leading-[1.35] text-head">${d.getDate()}</div>
+      </div>
+      <span class="absolute bottom-[10px] right-3 z-[1] inline-flex items-center gap-[0.3rem] rounded-[100px] bg-black/45 px-[0.55rem] py-[0.25rem] text-[0.72rem] font-bold text-white backdrop-blur-[3px]">${icon("clock", 11)} ${e.time}</span>
+    </div>
+    <div class="p-[1.15rem] flex flex-col flex-1">
+      <div class="flex items-center gap-[0.4rem] text-[0.72rem] font-bold tracking-[0.08em] uppercase text-teal-ink mb-[0.45rem]"><span class="h-[7px] w-[7px] shrink-0 rounded-full" style="background:${c.grad}"></span>${c.name}</div>
+      <div class="font-bold text-[1.05rem] text-head mb-[0.5rem] leading-[1.35] transition-colors duration-200 group-hover:text-brand">${e.name}</div>
+      <div class="mt-auto text-[0.88rem] text-muted flex gap-x-[0.9rem] gap-y-2 items-center flex-wrap font-medium [&>span]:inline-flex [&>span]:items-center [&>span]:gap-1"><span>${icon("pin", 13)} ${e.town}</span><span>${icon("users", 13)} Ages ${e.ageMin}–${e.ageMax}</span></div>
+    </div></div>`;
       }
       function filteredListings() {
         const f = state.dir;
