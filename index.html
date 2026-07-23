@@ -2240,12 +2240,13 @@
           </p>
         </div>
         <div class="footer-col">
-          <h4 class="text-[0.95rem] font-bold text-white mb-5">Discover</h4>
+          <h4 class="text-[0.95rem] font-bold text-white mb-5">Parent</h4>
           <ul class="list-none">
             <li>
               <a
                 class="text-on-dark-3 text-[0.95rem] no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
                 data-nav="directory"
+                data-authgate
                 >Directory</a
               >
             </li>
@@ -2253,6 +2254,7 @@
               <a
                 class="text-on-dark-3 text-[0.95rem] no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
                 data-nav="calendar"
+                data-authgate
                 >Events</a
               >
             </li>
@@ -2260,20 +2262,14 @@
               <a
                 class="text-on-dark-3 text-[0.95rem] no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
                 data-nav="articles"
+                data-authgate
                 >Articles &amp; Guides</a
-              >
-            </li>
-            <li>
-              <a
-                class="text-on-dark-3 text-[0.95rem] no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
-                data-nav="directory"
-                >Search by Town</a
               >
             </li>
           </ul>
         </div>
         <div class="footer-col">
-          <h4 class="text-[0.95rem] font-bold text-white mb-5">For Businesses</h4>
+          <h4 class="text-[0.95rem] font-bold text-white mb-5">Business/Advertiser</h4>
           <ul class="list-none">
             <li>
               <a
@@ -2295,15 +2291,9 @@
               <a
                 class="text-on-dark-3 text-[0.95rem] no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
                 data-nav="advertiser"
-                >Advertise</a
-              >
-            </li>
-            <li>
-              <a
-                class="text-on-dark-3 text-[0.95rem] no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
-                data-action="open-auth"
-                data-role="business"
-                >Business Login</a
+                data-authcommon
+                data-advtab="create"
+                >Start Campaign</a
               >
             </li>
           </ul>
@@ -2330,13 +2320,6 @@
                 class="text-on-dark-3 text-[0.95rem] no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
                 data-adclick="Twitter"
                 >Twitter</a
-              >
-            </li>
-            <li>
-              <a
-                class="text-on-dark-3 text-[0.95rem] no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
-                data-adclick="Contact"
-                >Contact</a
               >
             </li>
           </ul>
@@ -3326,7 +3309,7 @@
             t: "Listing expired",
             s: '"Ridgewood Learning Center" is no longer visible to families',
             time: "1d ago",
-            cta: "View Listing",
+            cta: "View listing",
             link: { nav: "business" },
           },
           {
@@ -3335,7 +3318,7 @@
             t: "Listing rejected",
             s: '"Ridgewood Learning Center" needs a valid business address',
             time: "3d ago",
-            cta: "View Listing",
+            cta: "View listing",
             link: { nav: "business" },
           },
         ],
@@ -3375,7 +3358,7 @@
             t: "Upcoming event",
             s: "Kids sports event starting 15th Aug in Paramus",
             time: "2h ago",
-            cta: "View events",
+            cta: "View event",
             link: { nav: "calendar" },
           },
           {
@@ -3614,7 +3597,7 @@
           <h1 class="mt-6 font-serif font-black leading-[1.05] tracking-[-0.02em] text-head text-[clamp(2.1rem,1.2rem_+_3.6vw,4rem)]">Find the good stuff for <span class="text-[#e0550f]">your kids,</span> right in your town</h1>
           <p class="mt-5 max-w-[46ch] text-[1.05rem] leading-[1.65] text-muted text-pretty">Discover pediatricians, tutors, camps, schools and local family events — organized town by town. Make a free account to see what fits your family.</p>
           <div class="mt-8">
-            <a class="inline-flex items-center justify-center gap-2 rounded-[100px] bg-navy px-9 py-[0.95rem] text-[1rem] font-extrabold text-white min-h-[52px] shadow-[0_10px_28px_rgba(26,46,74,0.22)] transition-transform duration-200 hover:-translate-y-[2px] cursor-pointer [&_svg]:transition-transform [&_svg]:duration-200 hover:[&_svg]:translate-x-[3px]" data-nav="directory" data-authgate>Create a free account ${icon("arrow-right", 17)}</a>
+            <a class="inline-flex items-center justify-center gap-2 rounded-[100px] bg-navy px-9 py-[0.95rem] text-[1rem] font-extrabold text-white min-h-[52px] shadow-[0_10px_28px_rgba(26,46,74,0.22)] transition-transform duration-200 hover:-translate-y-[2px] cursor-pointer [&_svg]:transition-transform [&_svg]:duration-200 hover:[&_svg]:translate-x-[3px]" data-nav="directory" data-authgate="parent">Create a Parent Account ${icon("arrow-right", 17)}</a>
           </div>
         </div>
         <div class="relative z-[1] h-[420px] animate-[fadeUp_0.8s_0.15s_ease_both] max900:h-[320px] max560:h-[260px]">
@@ -6123,15 +6106,24 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
 
         if (navEl && !actEl) {
           const v = navEl.dataset.nav;
+          // The directory, events and articles are open to every role, so a bare
+          // data-authgate opens the shared role picker. A value pins one role,
+          // for links that name it in their own label.
           if (navEl.dataset.authgate !== undefined && !state.user) {
-            authModal("parent");
+            authModal(navEl.dataset.authgate || undefined);
             return;
           }
+          // data-authcommon does the same for the two dashboards: ask who the
+          // visitor is rather than assuming the role the destination implies.
           if ((v === "business" || v === "advertiser") && (!state.user || state.user.role !== v)) {
-            authModal(v);
+            authModal(navEl.dataset.authcommon !== undefined ? undefined : v);
             return;
           }
           if (navEl.dataset.dashtab) state.dashTab = navEl.dataset.dashtab;
+          if (navEl.dataset.advtab) {
+            state.editAd = null; // arriving fresh, never mid-edit of another campaign
+            state.advTab = navEl.dataset.advtab;
+          }
           if (navEl.dataset.cat !== undefined || navEl.dataset.q !== undefined) {
             state.dir = {
               q: navEl.dataset.q || "",
@@ -6165,9 +6157,10 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               listingModal(id);
               break;
             case "open-event":
-              // Event details are for members — send anonymous visitors to sign in.
+              // Event details are for members of any role — send anonymous
+              // visitors to the shared login popup to pick one.
               if (!state.user) {
-                authModal("parent");
+                authModal();
                 break;
               }
               eventModal(id);
