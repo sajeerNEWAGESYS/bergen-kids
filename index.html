@@ -1181,6 +1181,18 @@
         background: var(--orange-deep);
       }
 
+      .promo-ad-carousel {
+        position: relative;
+      }
+
+      .promo-ad-carousel-slide {
+        display: none;
+      }
+
+      .promo-ad-carousel-slide.is-active {
+        display: block;
+      }
+
       /* ── Site nav ───────────────────────────────────────────── */
       /* Rests clear over the hero, then lifts on scroll.
          Height stays fixed on purpose: the nav is sticky and therefore in flow,
@@ -2295,6 +2307,7 @@
         class="relative z-[1] overflow-hidden rounded-[16px] bg-navy shadow-[0_20px_54px_rgba(26,46,74,0.24)]"
       >
         <img
+          id="cornerAd-photo"
           src="https://images.unsplash.com/photo-1600965962361-9035dbfd1c50?auto=format&fit=crop&w=640&q=75"
           alt=""
           loading="lazy"
@@ -2334,6 +2347,7 @@
           </div>
 
           <div
+            id="cornerAd-heading"
             class="mt-[1.1rem] font-serif text-[1.55rem] font-black leading-[1.14] text-white [text-shadow:0_2px_16px_rgba(9,15,26,0.75)] max380:text-[1.35rem]"
           >
             How does your kid like to cool off?
@@ -2341,6 +2355,7 @@
 
           <div class="mt-4">
             <button
+              id="cornerAd-visit"
               type="button"
               data-adclick="Bergen Aquatic Center"
               class="flex w-full items-center justify-center gap-2 rounded-[100px] border-none bg-orange-ink px-4 py-[0.7rem] text-[0.9rem] font-extrabold text-white shadow-[0_6px_20px_rgba(9,15,26,0.35)] transition-[transform,box-shadow,background] duration-200 hover:bg-orange-deep hover:-translate-y-[1px] hover:shadow-[0_10px_26px_rgba(9,15,26,0.45)]"
@@ -2359,12 +2374,13 @@
           <div class="mt-auto pt-7">
             <div
               class="text-[0.82rem] font-semibold leading-[1.45] text-on-dark-2 [text-shadow:0_2px_10px_rgba(9,15,26,0.85)]"
+              id="cornerAd-advertiser"
             >
-              Group lessons, private coaching &amp; family memberships in Paramus, NJ.
+              Bergen Aquatic Center
             </div>
             <div
               class="mt-[0.35rem] text-[0.62rem] leading-[1.5] text-white/55 [text-shadow:0_2px_10px_rgba(9,15,26,0.85)]"
-              id="topAd-meta"
+              id="cornerAd-meta"
             ></div>
           </div>
         </div>
@@ -3765,7 +3781,7 @@
       function viewHome() {
         // Just the ids — the name, icon and colour all come from CATEGORIES, so
         // the strip cannot drift out of sync with the directory it links into.
-        const heroCards = ["medical", "arts", "schools", "sports"];
+        const heroCards = ["arts", "schools", "sports"];
         const featureTiles = [
           {
             icon: "tag",
@@ -3793,7 +3809,6 @@
           },
         ];
         const tagList = [
-          ["stethoscope", "Pediatricians", "medical"],
           ["book", "Tutoring", "tutoring"],
           ["theater", "Theater Classes", "arts"],
           ["soccer", "Soccer Leagues", "sports"],
@@ -4283,7 +4298,7 @@
         const f = state.dir;
         const cat = f.cat ? catOf(f.cat) : null;
         const list = filteredListings();
-        const subs = cat ? cat.sub : [];
+        const subs = cat && cat.id !== "medical" ? cat.sub : [];
         const dirActiveCount = [f.q, f.cat, f.sub, f.age, f.town].filter(Boolean).length;
         return `<div class="w-full"><div class="min-w-0"><div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
     <div class="mb-7">
@@ -4306,7 +4321,9 @@
           <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-head mb-2">Category</div>
           <div class="flex flex-col gap-1">
             ${dirCatRow("", "All categories", !f.cat)}
-            ${CATEGORIES.map((c) => dirCatRow(c.id, c.name, f.cat === c.id)).join("")}
+            ${CATEGORIES.filter((c) => c.id !== "medical")
+              .map((c) => dirCatRow(c.id, c.name, f.cat === c.id))
+              .join("")}
           </div>
         </div>
 
@@ -5146,6 +5163,7 @@
           icon: "waves",
           grad: "linear-gradient(120deg,#1a2e4a,#2d5a8e 55%,#1e8c7a)",
           dest: "aquakidsswim.com",
+          img: "1600965962361-9035dbfd1c50",
           start: adDate(-10),
           end: adDate(20),
         },
@@ -5159,6 +5177,7 @@
           icon: "tooth",
           grad: "linear-gradient(120deg,#2d7a4f,#1e8c7a)",
           dest: "smilesforkidsnj.com",
+          img: "1503454537195-1dcabb73ffb9",
           start: adDate(-14),
           end: adDate(16),
         },
@@ -5172,6 +5191,7 @@
           icon: "cap",
           grad: "linear-gradient(120deg,#e8892a,#f5a623)",
           dest: "kumon.com/bergen",
+          img: "1554475901-4538ddfbccc2",
           start: adDate(-6),
           end: adDate(24),
         },
@@ -5185,6 +5205,7 @@
           icon: "school",
           grad: "linear-gradient(145deg,#1a2e4a,#2d5a8e)",
           dest: "montclairacademy.org",
+          img: "1509062522246-3755977927d7",
           start: adDate(-5),
           end: adDate(25),
         },
@@ -5198,6 +5219,7 @@
           icon: "soccer",
           grad: "linear-gradient(145deg,#2d7a4f,#1e8c7a)",
           dest: "bergenunitedsc.com",
+          img: "1526232761682-d26e03ac148e",
           start: adDate(-2),
           end: adDate(28),
         },
@@ -5211,6 +5233,7 @@
           icon: "theater",
           grad: "linear-gradient(145deg,#6b4f96,#a32f22)",
           dest: "njyouththeater.org",
+          img: "1503095396549-807759245b35",
           start: adDate(4),
           end: adDate(44),
         },
@@ -5224,6 +5247,7 @@
           icon: "cake",
           grad: "linear-gradient(145deg,#f5a623,#e8562a)",
           dest: "funzoneparamus.com",
+          img: "1530103862676-de8c9debad1d",
           start: adDate(-8),
           end: adDate(22),
         },
@@ -5242,7 +5266,9 @@
         const a = PUBLIC_ADS[key];
         if (!a) return "";
         const c = catOf(a.cat);
-        const photo = catImg(a.cat, 800);
+        const photo = a.img
+          ? `https://images.unsplash.com/photo-${a.img}?auto=format&fit=crop&w=800&q=75`
+          : catImg(a.cat, 800);
         return `<div class="promo-ad" data-adclick="${key}">
       ${photo ? `<img src="${photo}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="promo-ad-photo">` : ""}
       <div class="promo-ad-tint" style="background:${a.grad}"></div>
@@ -5953,6 +5979,12 @@
           "Signed in on this device. Log out when you're done.",
           `<button class="bg-surface px-[1.3rem] py-[0.7rem] rounded-[100px] text-[0.95rem] font-bold border-[1.5px] border-line inline-flex items-center justify-center gap-2 min-h-[44px] w-full transition-[border-color,background] duration-200 hover:bg-[#fdf3f2]" style="color:var(--danger-ink);border-color:rgba(163,39,28,0.25)" data-action="logout">${icon("logout", 15)} Log out</button>`
         )}
+        ${sideCard(
+          "trash",
+          "Delete Account",
+          "Permanently remove your account and sign out of Bergen Kids.",
+          `<button class="bg-surface px-[1.3rem] py-[0.7rem] rounded-[100px] text-[0.95rem] font-bold border-[1.5px] border-line inline-flex items-center justify-center gap-2 min-h-[44px] w-full transition-[border-color,background] duration-200 hover:bg-[#fdf3f2]" style="color:var(--danger-ink);border-color:rgba(163,39,28,0.25)" data-action="delete-account">${icon("trash", 15)} Delete Account</button>`
+        )}
       </div>
     </div></div>`;
       }
@@ -6039,11 +6071,12 @@
       </div>
       <div class="mt-7 pt-6 border-t border-line">
         <div class="mb-3 flex items-center gap-[0.6rem] text-[0.72rem] font-bold uppercase tracking-[0.14em] text-adlabel after:h-px after:flex-1 after:bg-current after:opacity-30 after:content-['']">Advertisement</div>
-        ${promoAdCard("Kumon Math & Reading")}
+        ${promoAdCarouselMarkup()}
       </div>
     </div>`,
           true // wider drawer for the directory detail page
         );
+        mountPromoAdCarousel();
       }
 
       // Opens in the same right-side drawer the directory uses for a listing.
@@ -6399,6 +6432,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
           `<div class="dropdown absolute top-0 right-[clamp(1rem,5vw,7rem)] max1200:right-[3%] max560:right-[4%] max380:right-3 w-[min(320px,calc(100vw-2rem))] bg-surface border border-line rounded-[16px] shadow-[0_18px_50px_rgba(26,46,74,0.18)] z-[120] overflow-x-hidden overflow-y-auto animate-pop max-h-[calc(100vh-100px)]" style="width:250px">
     <div class="px-[1.1rem] py-[0.9rem] border-b border-b-line2 flex items-center gap-3">${avatarHtml(state.user, 38)}<div class="min-w-0"><h4 class="text-[1rem] text-head truncate">${state.user.name}</h4><div class="text-[0.82rem] text-muted truncate">${state.user.email || state.user.phone || ""}</div></div></div>
     ${items.map((i) => `<button class="flex items-center gap-[0.7rem] px-[1.1rem] py-[0.8rem] text-[0.95rem] font-medium text-head cursor-pointer border-none bg-transparent w-full text-left min-h-[44px] hover:bg-surface-4" data-nav="${i[0]}">${icon(i[2], 17, "text-muted")} ${i[1]}</button>`).join("")}
+    <button class="flex items-center gap-[0.7rem] px-[1.1rem] py-[0.8rem] text-[0.95rem] font-medium text-head cursor-pointer border-none bg-transparent w-full text-left min-h-[44px] hover:bg-surface-4" data-action="delete-account" style="border-top:1px solid var(--line2);color:var(--danger-ink);font-weight:600">${icon("trash", 17, "text-muted")} Delete Account</button>
     <button class="flex items-center gap-[0.7rem] px-[1.1rem] py-[0.8rem] text-[0.95rem] font-medium text-head cursor-pointer border-none bg-transparent w-full text-left min-h-[44px] hover:bg-surface-4" data-action="logout" style="border-top:1px solid var(--line2);color:var(--danger-ink);font-weight:600">${icon("logout", 17, "text-muted")} Log out</button></div>`;
       }
       // Swaps only the hero, so anything typed into the form below is preserved.
@@ -6444,6 +6478,25 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
     <div class="flex gap-3 flex-wrap mt-6 max560:flex-col [&>*]:flex-1 [&>*]:max560:w-full">
       <button class="bg-surface text-head px-[1.6rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold border-[1.5px] border-line inline-flex items-center justify-center gap-2 min-h-[48px] transition-[border-color,background] duration-200 hover:border-head hover:bg-surface-3" data-action="close-modal">Stay logged in</button>
       <button class="text-white px-[1.6rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold border-none inline-flex items-center justify-center gap-2 min-h-[48px] transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(163,39,28,0.3)] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(163,39,28,0.4)]" style="background:var(--danger-ink)" data-action="do-logout">${icon("logout", 16)} Log out</button>
+    </div>
+  </div>`);
+      }
+      function deleteAccountModal() {
+        closeDropdowns();
+        const u = state.user;
+        if (!u) return;
+        openModal(`<div class="p-7 max700:p-5">
+    <div class="flex items-center gap-4 mb-5">
+      ${avatarHtml(u, 52)}
+      <div class="min-w-0">
+        <h2>Delete account?</h2>
+        <div class="text-muted text-[0.95rem] mt-[0.2rem] truncate">${u.name}</div>
+      </div>
+    </div>
+    <p class="text-[1rem] leading-[1.7]" style="color:var(--text)">This will permanently remove your account from Bergen Kids and sign you out. This action cannot be undone.</p>
+    <div class="flex gap-3 flex-wrap mt-6 max560:flex-col [&>*]:flex-1 [&>*]:max560:w-full">
+      <button class="bg-surface text-head px-[1.6rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold border-[1.5px] border-line inline-flex items-center justify-center gap-2 min-h-[48px] transition-[border-color,background] duration-200 hover:border-head hover:bg-surface-3" data-action="close-modal">Keep my account</button>
+      <button class="text-white px-[1.6rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold border-none inline-flex items-center justify-center gap-2 min-h-[48px] transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(163,39,28,0.3)] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(163,39,28,0.4)]" style="background:var(--danger-ink)" data-action="do-delete-account">${icon("trash", 16)} Delete account</button>
     </div>
   </div>`);
       }
@@ -6695,6 +6748,15 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               break;
             case "logout":
               logoutModal();
+              break;
+            case "delete-account":
+              deleteAccountModal();
+              break;
+            case "do-delete-account":
+              state.user = null;
+              closeModal();
+              toast("Account deleted");
+              navigate("home");
               break;
             case "do-logout":
               state.user = null;
@@ -7745,6 +7807,164 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         mountCounters();
         mountReveals();
         mountTilt();
+        mountCategoryMarquee();
+        mountSideAd();
+      }
+
+      function sideAdMarkup() {
+        return `
+          <div class="side-ad-head">
+            <span class="side-ad-pill"><span class="sponsor-live"></span>Sponsored</span>
+            <span class="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-white/60">Local picks</span>
+          </div>
+          ${SPONSOR_ADS.map(
+            (ad, i) => `
+              <div class="side-ad-slide${i === 0 ? " is-active" : ""}" data-side-ad-slide>
+                <div class="side-ad-visual">
+                  <img src="https://images.unsplash.com/photo-${ad.img}?auto=format&fit=crop&w=800&q=70" alt="" loading="lazy" decoding="async" />
+                  <div class="side-ad-scrim"></div>
+                  <div class="side-ad-body">
+                    <div class="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-white/75">Featured</div>
+                    <div class="side-ad-title">${ad.title}</div>
+                    <div class="side-ad-meta">${adMeta(ad.key)}</div>
+                    <button type="button" class="side-ad-btn" data-adclick="${ad.key}">${icon("globe", 15)} Visit now</button>
+                  </div>
+                </div>
+              </div>
+            `
+          ).join("")}
+          <div class="side-ad-dots">
+            ${SPONSOR_ADS.map(
+              (ad, i) =>
+                `<button type="button" class="side-ad-dot${i === 0 ? " is-active" : ""}" data-side-ad-dot aria-label="Show featured ad ${i + 1}"></button>`
+            ).join("")}
+          </div>`;
+      }
+
+      let sideAdTimer = null;
+      function mountSideAd() {
+        const host = el("side-ad-card");
+        if (!host) return;
+        if (sideAdTimer) clearInterval(sideAdTimer);
+        sideAdTimer = null;
+        host.innerHTML = sideAdMarkup();
+        const slides = Array.from(host.querySelectorAll("[data-side-ad-slide]"));
+        const dots = Array.from(host.querySelectorAll("[data-side-ad-dot]"));
+        if (!slides.length) return;
+        let idx = 0;
+        const paint = () => {
+          slides.forEach((slide, i) => slide.classList.toggle("is-active", i === idx));
+          dots.forEach((dot, i) => dot.classList.toggle("is-active", i === idx));
+        };
+        const go = (next) => {
+          idx = (next + slides.length) % slides.length;
+          paint();
+        };
+        const start = () => {
+          if (slides.length > 1 && !sideAdTimer)
+            sideAdTimer = setInterval(() => {
+              if (!document.hidden) go(idx + 1);
+            }, 3000);
+        };
+        const stop = () => {
+          if (!sideAdTimer) return;
+          clearInterval(sideAdTimer);
+          sideAdTimer = null;
+        };
+        dots.forEach((dot, i) =>
+          dot.addEventListener("click", () => {
+            stop();
+            go(i);
+            start();
+          })
+        );
+        host.addEventListener("mouseenter", stop);
+        host.addEventListener("mouseleave", start);
+        paint();
+        start();
+      }
+
+      let promoAdCarouselTimer = null;
+      function promoAdCarouselMarkup() {
+        const keys = Object.keys(PUBLIC_ADS);
+        return `<div class="promo-ad-carousel" data-promo-ad-carousel>
+          ${keys
+            .map(
+              (key, i) =>
+                `<div class="promo-ad-carousel-slide${i === 0 ? " is-active" : ""}" data-promo-ad-slide>${promoAdCard(key)}</div>`
+            )
+            .join("")}
+        </div>`;
+      }
+
+      function mountPromoAdCarousel(host = document) {
+        const carousel = host.querySelector("[data-promo-ad-carousel]");
+        if (!carousel) return;
+        if (promoAdCarouselTimer) {
+          clearInterval(promoAdCarouselTimer);
+          promoAdCarouselTimer = null;
+        }
+        const slides = Array.from(carousel.querySelectorAll("[data-promo-ad-slide]"));
+        if (!slides.length) return;
+        let idx = 0;
+        const paint = () => {
+          slides.forEach((slide, i) => slide.classList.toggle("is-active", i === idx));
+        };
+        const go = (next) => {
+          idx = (next + slides.length) % slides.length;
+          paint();
+        };
+        const start = () => {
+          if (slides.length > 1 && !promoAdCarouselTimer)
+            promoAdCarouselTimer = setInterval(() => {
+              if (!document.hidden) go(idx + 1);
+            }, 3000);
+        };
+        const stop = () => {
+          if (!promoAdCarouselTimer) return;
+          clearInterval(promoAdCarouselTimer);
+          promoAdCarouselTimer = null;
+        };
+        carousel.addEventListener("mouseenter", stop);
+        carousel.addEventListener("mouseleave", start);
+        paint();
+        start();
+      }
+
+      let categoryMarqueeFrame = null;
+      function mountCategoryMarquee() {
+        const track = el("category-track");
+        if (!track) return;
+        if (categoryMarqueeFrame) cancelAnimationFrame(categoryMarqueeFrame);
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        if (track.children.length < 2) return;
+        const set = track.scrollWidth / 2;
+        let pos = 0;
+        let last = 0;
+        let paused = false;
+        let onScreen = false;
+        const observer = new IntersectionObserver(([entry]) => (onScreen = entry.isIntersecting));
+        observer.observe(track);
+        const frame = (ts) => {
+          if (!track.isConnected) {
+            observer.disconnect();
+            return;
+          }
+          const dt = last ? Math.min(ts - last, 40) : 16;
+          last = ts;
+          if (!paused && onScreen && !document.hidden && !track.matches(":hover")) {
+            pos += dt * 0.07;
+            if (pos >= set) pos -= set;
+            track.scrollLeft = pos;
+          }
+          categoryMarqueeFrame = requestAnimationFrame(frame);
+        };
+        track.addEventListener("mouseenter", () => (paused = true));
+        track.addEventListener("mouseleave", () => (paused = false));
+        track.addEventListener("touchstart", () => (paused = true), { passive: true });
+        track.addEventListener("touchend", () => (paused = false), { passive: true });
+        track.scrollLeft = 0;
+        categoryMarqueeFrame = requestAnimationFrame(frame);
       }
 
       /* Cards marked data-tilt lean toward the cursor and carry a soft glow
@@ -7962,6 +8182,49 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         paint();
         start();
       }
+
+      let cornerAdTimer = null;
+      function mountCornerAd() {
+        const root = el("cornerAd");
+        if (!root) return;
+        const keys = Object.keys(PUBLIC_ADS);
+        if (keys.length < 2) return;
+        const photo = el("cornerAd-photo");
+        const heading = el("cornerAd-heading");
+        const visit = el("cornerAd-visit");
+        const advertiser = el("cornerAd-advertiser");
+        const meta = el("cornerAd-meta");
+        const panel = root.querySelector("[data-adclick]");
+        let idx = 0;
+        function renderAd(index) {
+          idx = (index + keys.length) % keys.length;
+          const key = keys[idx];
+          const ad = PUBLIC_ADS[key];
+          if (!ad || !panel) return;
+          panel.dataset.adclick = key;
+          if (visit) visit.dataset.adclick = key;
+          if (photo)
+            photo.src = `https://images.unsplash.com/photo-${ad.img}?auto=format&fit=crop&w=640&q=75`;
+          if (heading) heading.textContent = ad.headline;
+          if (advertiser) advertiser.textContent = ad.advertiser;
+          if (meta)
+            meta.innerHTML = `${catOf(ad.cat)?.name || ""}${ad.sub ? " · " + ad.sub : ""}<br>${fmtDate(ad.start)} – ${fmtDate(ad.end)}`;
+        }
+        function start() {
+          if (cornerAdTimer) return;
+          cornerAdTimer = setInterval(() => renderAd(idx + 1), 5000);
+        }
+        function stop() {
+          if (cornerAdTimer) {
+            clearInterval(cornerAdTimer);
+            cornerAdTimer = null;
+          }
+        }
+        root.addEventListener("mouseenter", stop);
+        root.addEventListener("mouseleave", start);
+        renderAd(0);
+        start();
+      }
       // Events slider — a continuous marquee rather than a stepped carousel.
       // The track holds the slide set twice, so at the halfway mark we rewind by
       // exactly one set onto an identical card and the seam is invisible.
@@ -8052,6 +8315,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
       }
       render();
       mountSponsorBar();
+      mountCornerAd();
       mountToTop();
       startEventAutoplay();
     </script>
