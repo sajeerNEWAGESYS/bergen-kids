@@ -1498,6 +1498,25 @@
         box-shadow: 0 5px 16px rgba(26, 46, 74, 0.2);
       }
 
+      .side-ad-visual {
+        position: relative;
+      }
+
+      .side-ad-chip {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+        z-index: 2;
+      }
+
       .sponsor-dots {
         display: flex;
         gap: 6px;
@@ -3746,7 +3765,7 @@
           <div class="font-extrabold text-[1.05rem] text-white leading-[1.3] truncate">${a.title}</div>
           <div class="text-[0.82rem] text-white/85 leading-[1.35] truncate [&_div]:inline-block [&_div:first-child]:mr-[0.6rem] max560:hidden">${adMeta(a.key)}</div>
         </div>
-        <span class="inline-flex items-center gap-1 shrink-0 bg-orange-ink text-white text-[0.85rem] font-bold px-[1.1rem] py-[0.5rem] rounded-[100px] no-underline min-h-[40px] whitespace-nowrap hover:bg-orange-deep max380:hidden">Visit Link →</span>
+        <span class="inline-flex items-center gap-2 shrink-0 bg-orange-ink text-white text-[0.85rem] font-bold px-[1.1rem] py-[0.5rem] rounded-[100px] no-underline min-h-[40px] whitespace-nowrap hover:bg-orange-deep max380:hidden">${icon("globe", 16)} Visit Link</span>
       </div>`
         ).join("");
         const dots = SPONSOR_ADS.map(
@@ -3781,7 +3800,7 @@
       function viewHome() {
         // Just the ids — the name, icon and colour all come from CATEGORIES, so
         // the strip cannot drift out of sync with the directory it links into.
-        const heroCards = ["arts", "schools", "sports"];
+        const heroCards = ["arts", "schools", "sports", "music"];
         const featureTiles = [
           {
             icon: "tag",
@@ -5257,7 +5276,7 @@
         const a = PUBLIC_ADS[key];
         if (!a) return "";
         const c = catOf(a.cat);
-        return `<div>${c ? c.name : ""}${a.sub ? " · " + a.sub : ""}</div><div>${fmtDate(a.start)} – ${fmtDate(a.end)}</div>`;
+        return `<div class="inline-flex items-center gap-[0.4rem] text-[0.82rem] font-semibold text-white/85"><span>${icon("tag", 13)}</span>${c ? c.name : ""}${a.sub ? " · " + a.sub : ""}</div><div class="inline-flex items-center gap-[0.4rem] text-[0.82rem] font-semibold text-white/85"><span>${icon("calendar", 13)}</span>${fmtDate(a.start)} – ${fmtDate(a.end)}</div>`;
       }
       // In-page ad unit, styled like the corner popup. Driven off PUBLIC_ADS so
       // any campaign renders without hand-written copy at the call site; clicking
@@ -7824,9 +7843,14 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
                   <img src="https://images.unsplash.com/photo-${ad.img}?auto=format&fit=crop&w=800&q=70" alt="" loading="lazy" decoding="async" />
                   <div class="side-ad-scrim"></div>
                   <div class="side-ad-body">
-                    <div class="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-white/75">Featured</div>
-                    <div class="side-ad-title">${ad.title}</div>
-                    <div class="side-ad-meta">${adMeta(ad.key)}</div>
+                    <div class="side-ad-header flex items-start gap-3 mb-3">
+                      <div class="side-ad-chip" style="background:${ad.grad}">${icon(ad.icon, 18)}</div>
+                      <div>
+                        <div class="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-white/75">Featured</div>
+                        <div class="side-ad-title">${ad.title}</div>
+                        <div class="side-ad-meta">${adMeta(ad.key)}</div>
+                      </div>
+                    </div>
                     <button type="button" class="side-ad-btn" data-adclick="${ad.key}">${icon("globe", 15)} Visit now</button>
                   </div>
                 </div>
