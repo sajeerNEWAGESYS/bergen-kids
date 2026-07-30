@@ -285,13 +285,6 @@
         line-height: 1.65;
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
-        padding-bottom: 104px;
-      }
-
-      @media (max-width: 700px) {
-        body {
-          padding-bottom: 92px;
-        }
       }
 
       a {
@@ -1205,11 +1198,14 @@
           box-shadow 0.25s ease;
       }
 
-      /* Anchor targets clear the sticky nav instead of hiding under it. */
+      /* Anchor targets clear the sticky nav — and the sponsor bar parked under
+         it — instead of hiding beneath them. syncSponsorPad() keeps
+         --sponsor-reserve equal to the band the bar occupies (0 once it is
+         dismissed), so this offset tracks the bar rather than guessing. */
       #inside,
       #events,
       #plans {
-        scroll-margin-top: 76px;
+        scroll-margin-top: calc(76px + var(--sponsor-reserve, 0px));
       }
 
       #site-nav.is-scrolled {
@@ -1225,7 +1221,7 @@
       #to-top {
         position: fixed;
         right: 20px;
-        bottom: 124px;
+        bottom: 20px;
         z-index: 56;
         width: 54px;
         height: 54px;
@@ -1334,7 +1330,7 @@
       @media (max-width: 560px) {
         #to-top {
           right: 12px;
-          bottom: 100px;
+          bottom: 12px;
           width: 48px;
           height: 48px;
         }
@@ -1344,7 +1340,7 @@
       #cornerAd {
         position: fixed;
         right: 20px;
-        bottom: 124px;
+        bottom: 20px;
         z-index: 55;
         width: 320px;
         max-width: calc(100vw - 32px);
@@ -1352,7 +1348,7 @@
         transform: scale(0.82) translateY(26px);
         opacity: 0;
         animation: cornerAdIn 0.5s cubic-bezier(0.22, 1.25, 0.36, 1) 1.4s forwards;
-        /* mountToTop() re-measures `bottom` when the sponsor bar changes height. */
+        /* mountToTop() re-measures `bottom` when the stack below changes. */
         transition: bottom 0.3s ease;
       }
 
@@ -1404,16 +1400,20 @@
           right: 12px;
           left: 12px;
           width: auto;
-          bottom: 100px;
+          bottom: 12px;
         }
       }
 
-      /* ── Sponsor Bar — a floating banner-ad unit, sticky at the bottom ── */
+      /* ── Sponsor Bar — a floating banner-ad unit, parked at the top ──
+         `top` is the nav's height (72px, 62px on phones) plus the same gutter
+         used left and right, so the banner sits just clear of the sticky
+         header. syncSponsorPad() reserves the band it covers on #view-root so
+         the unit never sits on top of a page heading. */
       #sponsor-bar {
         position: fixed;
         left: 16px;
         right: 16px;
-        bottom: 16px;
+        top: 88px;
         margin-inline: auto;
         max-width: 1160px;
         z-index: 60;
@@ -1438,17 +1438,15 @@
         #sponsor-bar {
           left: 10px;
           right: 10px;
-          bottom: 10px;
+          top: 72px;
           border-radius: 14px;
         }
       }
 
+      /* Dismissal slides the bar up behind the nav (z 100 beats the bar's 60),
+         so it reads as tucking back into the header. */
       #sponsor-bar.is-hidden {
-        transform: translateY(160%);
-      }
-
-      body.sponsor-dismissed {
-        padding-bottom: 0 !important;
+        transform: translateY(-190%);
       }
 
       .sponsor-stage {
@@ -1541,12 +1539,13 @@
       }
 
       /* ── Toasts ─────────────────────────────────────────────────
-         Top centre, clear of the nav. They used to sit bottom-centre, which is
-         where the sponsor bar and the corner ad live — messages landed behind
-         them. Above every overlay (z 2000) so modal flows can still confirm. */
+         Top centre, clear of the nav and of the sponsor bar parked beneath it
+         (--sponsor-reserve collapses to 0 once the bar is dismissed). They used
+         to sit bottom-centre, where the corner ad lives — messages landed
+         behind it. Above every overlay (z 2000) so modal flows can confirm. */
       #toast-root {
         position: fixed;
-        top: 88px;
+        top: calc(88px + var(--sponsor-reserve, 0px));
         left: 50%;
         transform: translateX(-50%);
         z-index: 2000;
@@ -1559,7 +1558,7 @@
 
       @media (max-width: 700px) {
         #toast-root {
-          top: 74px;
+          top: calc(74px + var(--sponsor-reserve, 0px));
           left: 12px;
           right: 12px;
           transform: none;
@@ -1651,6 +1650,29 @@
         min-height: 0;
         overflow-y: auto;
         overscroll-behavior: contain;
+      }
+
+      /* Sign-up carries the preference chips, so its panel is wider and gives
+         the form column more of it. Login is four fields at most and keeps the
+         narrower panel. syncAuthWidth() adds the class as the mode flips; the
+         class selectors outrank the Tailwind width utilities on the elements. */
+      .modal.auth-signup {
+        max-width: 1280px;
+      }
+
+      .modal.auth-signup .auth-form {
+        width: 64%;
+      }
+
+      .modal.auth-signup .auth-art {
+        width: 36%;
+      }
+
+      @media (max-width: 900px) {
+        /* Below 900 the photo is hidden and the form is the whole panel. */
+        .modal.auth-signup .auth-form {
+          width: 100%;
+        }
       }
 
       @media (max-width: 700px) {
@@ -2280,16 +2302,17 @@
         </li>
         <!-- <li><a
           class="no-underline text-muted text-[0.95rem] font-semibold transition-[color] duration-200 cursor-pointer px-[0.2rem] py-[0.6rem] inline-block hover:text-brand"
-          data-nav="business" data-navkey="business">For Business</a></li> -->
+          data-nav="advertiser" data-navkey="advertiser">For Advertisers</a></li> -->
       </ul>
       <div class="flex items-center gap-3 shrink-0 max380:gap-[0.35rem]" id="nav-right"></div>
       <div id="dropdown-root" class="absolute left-0 top-full w-full h-0"></div>
     </nav>
 
-    <div id="view-root"></div>
-
-    <!-- STICKY SPONSOR BAR (mounted once) -->
+    <!-- STICKY SPONSOR BAR (mounted once) — above the view in the DOM as well
+         as on screen, so reading order matches what you see. -->
     <div id="sponsor-bar-root"></div>
+
+    <div id="view-root"></div>
 
     <!-- BACK TO TOP — disc + scroll-progress ring -->
     <button id="to-top" type="button" aria-label="Back to top" title="Back to top">
@@ -2377,6 +2400,7 @@
               id="cornerAd-visit"
               type="button"
               data-adclick="Bergen Aquatic Center"
+              data-adgo
               class="flex w-full items-center justify-center gap-2 rounded-[100px] border-none bg-orange-ink px-4 py-[0.7rem] text-[0.9rem] font-extrabold text-white shadow-[0_6px_20px_rgba(9,15,26,0.35)] transition-[transform,box-shadow,background] duration-200 hover:bg-orange-deep hover:-translate-y-[1px] hover:shadow-[0_10px_26px_rgba(9,15,26,0.45)]"
             >
               <svg
@@ -2536,7 +2560,7 @@
             <li>
               <a
                 class="text-on-dark-3 text-[0.95rem] no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
-                data-nav="business"
+                data-nav="advertiser"
                 data-dashtab="add"
                 >Add a Listing</a
               >
@@ -3541,8 +3565,7 @@
         dirFiltersOpen: false,
         calFilter: { q: "", cat: "", age: "", town: "", sort: "date" },
         calFiltersOpen: false,
-        dashTab: "overview",
-        advTab: "overview",
+        advTab: "overview", // the one dashboard's tab — listings and campaigns both live in it
         billing: { q: "", cat: "", from: "", to: "" },
         listingFilter: { cat: "", plan: "", status: "", from: "", to: "" },
         adFilter: { cat: "", status: "", from: "", to: "" },
@@ -3551,40 +3574,151 @@
         advPieRange: "30d", // date window for the overview "impressions by category" pie
         bizPieRange: "30d", // same, for the business overview pie
         articleFilter: "all",
+        // Saved parent preferences act as default filters; this is the per-session
+        // "show me everything anyway" escape hatch, not a saved setting.
+        usePrefs: true,
+        prefDraft: null, // preferences being edited, in the signup step or profile
+        createType: "listing", // which kind of ad the advertiser dashboard is composing
         scrollTo: null,
       };
-      // Notifications differ per role — a parent hears about events, a business about listings, an advertiser about campaigns.
+
+      /* ── Parent preferences ─────────────────────────────────────
+         Age groups, towns and categories a parent picks at sign-up or later in
+         their profile. Every field is optional and multi-select, and an empty
+         list means "no preference" — which reads as *everything*, not nothing.
+         They are applied as default filters on the Directory and Events pages;
+         a filter the visitor picks by hand always wins for that one field. */
+      const emptyPrefs = () => ({ ages: [], towns: [], cats: [] });
+      const clonePrefs = (p) => ({
+        ages: [...((p && p.ages) || [])],
+        towns: [...((p && p.towns) || [])],
+        cats: [...((p && p.cats) || [])],
+      });
+      const prefCount = (p) => (p ? p.ages.length + p.towns.length + p.cats.length : 0);
+      // Signing out drops the half-edited draft and re-arms the filters, so the
+      // next account in this browser starts clean.
+      function forgetPrefs() {
+        state.prefDraft = null;
+        state.usePrefs = true;
+      }
+      // Only parents have preferences, and only while signed in.
+      function userPrefs() {
+        const u = state.user;
+        return u && u.role === "parent" && u.prefs ? u.prefs : null;
+      }
+      // The set that should be filtering right now — null when nothing is saved
+      // or the visitor has switched them off for this session.
+      function activePrefs() {
+        const p = userPrefs();
+        return state.usePrefs && prefCount(p) ? p : null;
+      }
+      // `f` is the page's own filter state, so a hand-picked category, town or
+      // age band overrides the saved list for that field alone.
+      function prefsPass(item, f) {
+        const p = activePrefs();
+        if (!p) return true;
+        if (!f.cat && p.cats.length && !p.cats.includes(item.cat)) return false;
+        if (!f.town && p.towns.length && !p.towns.includes(item.town)) return false;
+        if (!f.age && p.ages.length) {
+          const fits = p.ages.some((id) => {
+            const g = AGE_GROUPS.find((a) => a.id === id);
+            return g && item.ageMin <= g.max && item.ageMax >= g.min;
+          });
+          if (!fits) return false;
+        }
+        return true;
+      }
+      // Same pill as the directory sidebar filters, so a preference reads as the
+      // filter it becomes.
+      const PREF_CHIP =
+        "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150";
+      const PREF_CHIP_ON = PREF_CHIP + " bg-navy border-navy text-white";
+      const PREF_CHIP_OFF = PREF_CHIP + " bg-surface border-line text-head hover:border-head";
+      const PREF_LABEL = { ages: "Age Group", towns: "Town", cats: "Category" };
+      const prefSummary = (p, key) =>
+        p[key].length ? p[key].length + " selected" : "No preference — shows all";
+      // Options per field, as [value, label] pairs.
+      function prefOptions(key) {
+        if (key === "ages") return AGE_GROUPS.map((a) => [a.id, a.label]);
+        if (key === "towns") return TOWNS.map((t) => [t, t]);
+        return CATEGORIES.map((c) => [c.id, c.name]);
+      }
+      // Editing writes to state.prefDraft; nothing reaches the account until a
+      // save button commits it. Toggling repaints the one chip and its counter
+      // rather than the group, so the scrollable town list keeps its position.
+      function prefsEditorInner(p) {
+        const hints = {
+          ages: "Pick every age band in your family.",
+          towns: "The Bergen County towns you'd travel to.",
+          cats: "The services and activities you care about.",
+        };
+        return ["ages", "towns", "cats"]
+          .map(
+            (key) => `<div class="border-t border-line pt-4 mt-4 first:border-t-0 first:pt-0 first:mt-0">
+        <div class="flex items-baseline justify-between gap-3">
+          <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-head">${PREF_LABEL[key]}</div>
+          <span class="text-[0.78rem] font-semibold text-adlabel" id="pref-count-${key}">${prefSummary(p, key)}</span>
+        </div>
+        <div class="text-[0.85rem] text-muted mb-[0.7rem] mt-[0.15rem] leading-[1.5]">${hints[key]}</div>
+        <div class="flex gap-2 flex-wrap${key === "towns" ? " max-h-[176px] overflow-y-auto pr-1" : ""}">${prefOptions(key)
+          .map(
+            ([v, label]) =>
+              `<button type="button" class="${p[key].includes(v) ? PREF_CHIP_ON : PREF_CHIP_OFF}" data-action="toggle-pref" data-kind="${key}" data-val="${String(v).replace(/"/g, "&quot;")}" aria-pressed="${p[key].includes(v)}">${label}</button>`
+          )
+          .join("")}</div>
+      </div>`
+          )
+          .join("");
+      }
+      const prefsEditor = (p) => `<div id="prefs-editor">${prefsEditorInner(p)}</div>`;
+      // Strip above the Directory / Events results. Saved preferences quietly
+      // remove rows, so say so and give a one-click way out — and back in.
+      function prefsNoticeHtml() {
+        const p = userPrefs();
+        if (!prefCount(p)) return "";
+        const on = !!activePrefs();
+        const parts = [];
+        if (p.ages.length)
+          parts.push(
+            p.ages.map((id) => (AGE_GROUPS.find((a) => a.id === id) || {}).label).filter(Boolean)
+          );
+        if (p.towns.length) parts.push(p.towns);
+        if (p.cats.length) parts.push(p.cats.map((id) => (catOf(id) || {}).name).filter(Boolean));
+        const summary = parts.map((list) => list.join(", ")).join(" · ");
+        return `<div class="flex items-start gap-3 flex-wrap rounded-[14px] border-[1.5px] px-4 py-3 mb-4 ${on ? "border-[#cfe4d6] bg-mint" : "border-line bg-surface-2"}">
+      <span class="w-[30px] h-[30px] rounded-[9px] flex items-center justify-center shrink-0 ${on ? "bg-grass-ink text-white" : "bg-surface-4 text-muted"}">${icon("sliders", 15)}</span>
+      <div class="min-w-0 flex-1">
+        <div class="text-[0.92rem] font-bold text-head leading-[1.35]">${on ? "Filtered by your preferences" : "Your preferences are switched off"}</div>
+        <div class="text-[0.85rem] text-muted leading-[1.5] mt-[0.15rem]">${summary}</div>
+      </div>
+      <div class="flex items-center gap-3 shrink-0">
+        <button class="text-[0.9rem] font-bold text-brand underline underline-offset-2 hover:text-head" data-action="toggle-prefs-filter">${on ? "Show everything" : "Apply preferences"}</button>
+        <button class="text-[0.9rem] font-bold text-muted underline underline-offset-2 hover:text-head" data-nav="profile">Manage</button>
+      </div>
+    </div>`;
+      }
+      // Notifications differ per role — parents hear about events, advertisers
+      // about both kinds of ad they publish: directory listings and campaigns.
       const NOTIFS_BY_ROLE = {
-        business: [
+        advertiser: [
           {
-            id: 1,
+            id: 4,
             ic: "check",
             t: "Listing approved",
             s: '"Bright Minds Tutoring" is now live in the directory',
-            time: "2h ago",
+            time: "1h ago",
             cta: "View listing",
             link: { action: "open-listing", id: "l7" },
           },
           {
-            id: 2,
-            ic: "clock",
-            t: "Listing expired",
-            s: '"Ridgewood Learning Center" is no longer visible to families',
-            time: "1d ago",
-            cta: "View listing",
-            link: { nav: "business" },
-          },
-          {
-            id: 3,
+            id: 5,
             ic: "x",
             t: "Listing rejected",
             s: '"Ridgewood Learning Center" needs a valid business address',
             time: "3d ago",
             cta: "View listing",
-            link: { nav: "business" },
+            link: { nav: "advertiser", advtab: "listings" },
           },
-        ],
-        advertiser: [
           {
             id: 1,
             ic: "check",
@@ -3645,14 +3779,21 @@
       };
       const notifs = () => NOTIFS_BY_ROLE[(state.user && state.user.role) || "parent"];
       const NOTIF_SUBTITLE = {
-        business: "Stay notified on your listing updates.",
-        advertiser: "Stay notified on your campaign updates.",
+        advertiser: "Stay notified on your listing and campaign updates.",
         parent: "Stay notified on updates.",
       };
       // Scroll helpers — native scrolling.
       const NAV_OFFSET = -76; // clear the sticky header
+      // The sponsor bar parks under that header, so a scroll target has to clear
+      // both. syncSponsorPad() publishes the band the bar covers — 0 once it is
+      // dismissed — as --sponsor-reserve.
+      function sponsorReserve() {
+        const v = getComputedStyle(document.documentElement).getPropertyValue("--sponsor-reserve");
+        return parseFloat(v) || 0;
+      }
       function scrollToEl(t) {
-        const top = t.getBoundingClientRect().top + window.pageYOffset + NAV_OFFSET;
+        const top =
+          t.getBoundingClientRect().top + window.pageYOffset + NAV_OFFSET - sponsorReserve();
         window.scrollTo({ top, behavior: "smooth" });
       }
       function scrollToTop(immediate) {
@@ -3662,7 +3803,9 @@
         });
       }
       function navigate(view, opts = {}) {
-        state.view = view;
+        // The business dashboard folded into the advertiser one; anything still
+        // asking for it lands on the merged dashboard rather than nowhere.
+        state.view = view === "business" ? "advertiser" : view;
         if (opts.scrollTo) state.scrollTo = opts.scrollTo;
         closeDropdowns();
         closeModal(); // a drawer/modal must not outlive the page it was opened from
@@ -3684,7 +3827,6 @@
           directory: viewDirectory,
           calendar: viewCalendar,
           articles: viewArticles,
-          business: viewBusiness,
           advertiser: viewAdvertiser,
           profile: viewProfile,
           notifications: viewNotifications,
@@ -3695,8 +3837,7 @@
         document.querySelectorAll("[data-navkey]").forEach((a) => {
           const on =
             a.dataset.navkey === state.view ||
-            (state.view === "article" && a.dataset.navkey === "articles") ||
-            (state.view === "advertiser" && a.dataset.navkey === "business");
+            (state.view === "article" && a.dataset.navkey === "articles");
           a.classList[on ? "add" : "remove"](...NAV_ON);
           a.classList[on ? "remove" : "add"]("text-muted");
         });
@@ -3722,7 +3863,7 @@
         r.innerHTML = `
     ${themeBtn}
     ${state.user ? `<button class="relative w-[40px] h-[40px] rounded-full bg-surface-5 border border-transparent flex items-center justify-center text-head transition-[background,color,box-shadow] duration-200 shrink-0 hover:bg-mint hover:text-brand hover:shadow-[0_4px_14px_rgba(32,100,61,0.2)] max900:bg-mint max900:text-brand max380:w-[36px] max380:h-[36px]" data-action="toggle-notif" aria-label="Notifications${notifUnread().length ? ` (${notifUnread().length} unread)` : ""}">${icon("bell", 18)}${notifBadge()}</button>` : ""}
-    <button class="bg-grass-ink text-white px-5 py-[0.65rem] rounded-[100px] font-bold text-[0.95rem] border-none whitespace-nowrap min-h-[44px] shrink-0 hover:bg-[#1a5233] max900:hidden" data-nav="business" data-dashtab="add">List Your Business</button>
+    <button class="bg-grass-ink text-white px-5 py-[0.65rem] rounded-[100px] font-bold text-[0.95rem] border-none whitespace-nowrap min-h-[44px] shrink-0 hover:bg-[#1a5233] max900:hidden" data-nav="advertiser" data-dashtab="add">List Your Business</button>
     ${acct}
     <button class="${MENU_BTN}" data-action="mobile-menu" aria-label="Menu">${icon("menu", 18)}</button>`;
       }
@@ -3765,7 +3906,7 @@
           <div class="font-extrabold text-[1.05rem] text-white leading-[1.3] truncate">${a.title}</div>
           <div class="text-[0.82rem] text-white/85 leading-[1.35] truncate [&_div]:inline-block [&_div:first-child]:mr-[0.6rem] max560:hidden">${adMeta(a.key)}</div>
         </div>
-        <span class="inline-flex items-center gap-2 shrink-0 bg-orange-ink text-white text-[0.85rem] font-bold px-[1.1rem] py-[0.5rem] rounded-[100px] no-underline min-h-[40px] whitespace-nowrap hover:bg-orange-deep max380:hidden">${icon("globe", 16)} Visit Link</span>
+        <span class="inline-flex items-center gap-2 shrink-0 bg-orange-ink text-white text-[0.85rem] font-bold px-[1.1rem] py-[0.5rem] rounded-[100px] no-underline min-h-[40px] whitespace-nowrap hover:bg-orange-deep max380:hidden" data-adclick="${a.key}" data-adgo>${icon("globe", 16)} Visit Link</span>
       </div>`
         ).join("");
         const dots = SPONSOR_ADS.map(
@@ -3953,7 +4094,7 @@
         <div class="flex gap-3 items-center text-[1rem] mb-[0.85rem] text-ink font-medium"><span class="pf-ic bg-mint text-brand px-[0.6rem] py-[0.45rem] rounded-[8px] leading-[0] shrink-0">${icon("check", 18)}</span><span>Category-based listing with photos, description &amp; links</span></div>
         <div class="flex gap-3 items-center text-[1rem] mb-[0.85rem] text-ink font-medium"><span class="pf-ic bg-mint text-brand px-[0.6rem] py-[0.45rem] rounded-[8px] leading-[0] shrink-0">${icon("chart", 18)}</span><span>Real-time analytics — track clicks &amp; impressions</span></div>
         <div class="flex gap-3 items-center text-[1rem] mb-[0.85rem] text-ink font-medium"><span class="pf-ic bg-mint text-brand px-[0.6rem] py-[0.45rem] rounded-[8px] leading-[0] shrink-0">${icon("megaphone", 18)}</span><span>Banner ads across leaderboard, sidebar &amp; category pages</span></div>
-        <a class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-nav="business" data-dashtab="add" style="margin-top:1rem">Add Your Business ${icon("arrow-right", 17)}</a>
+        <a class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-nav="advertiser" data-dashtab="add" style="margin-top:1rem">Add Your Business ${icon("arrow-right", 17)}</a>
       </div>
     </section>
 
@@ -4242,6 +4383,7 @@
       function filteredListings() {
         const f = state.dir;
         return LISTINGS.filter((l) => {
+          if (!prefsPass(l, f)) return false;
           if (f.cat && l.cat !== f.cat) return false;
           if (f.sub && l.sub !== f.sub) return false;
           if (f.town && l.town !== f.town) return false;
@@ -4381,6 +4523,8 @@
           </div>
         </div>
 
+        ${prefsNoticeHtml()}
+
         <div class="dir-chips empty:hidden flex items-center gap-2 flex-wrap mb-5">${dirActiveChipsInner()}</div>
 
         ${
@@ -4417,6 +4561,7 @@
       function calEvents() {
         const f = state.calFilter;
         return EVENTS.filter((e) => {
+          if (!prefsPass(e, f)) return false;
           if (f.cat && e.cat !== f.cat) return false;
           if (f.town && e.town !== f.town) return false;
           if (f.age) {
@@ -4560,6 +4705,8 @@
           </div>
         </div>
 
+        ${prefsNoticeHtml()}
+
         <div class="cal-chips empty:hidden flex items-center gap-2 flex-wrap mb-5">${calActiveChipsInner()}</div>
 
         ${list.length ? calGridHtml(list) : CAL_EMPTY}
@@ -4642,41 +4789,9 @@
       function myListings() {
         return LISTINGS.filter((l) => l._mine);
       }
-      function viewBusiness() {
-        if (!state.user || state.user.role !== "business")
-          return gateView(
-            "business",
-            "Manage your business",
-            "Log in as a business to add listings, upgrade your plan, and track performance.",
-            "briefcase"
-          );
-        const tab = state.dashTab;
-        const tabs = [
-          ["overview", "Overview", "dashboard"],
-          ["listings", "My Listings", "tag"],
-          ["add", "Add Listing", "plus"],
-          ["analytics", "Analytics", "chart"],
-          ["billing", "Billing history", "card"],
-        ];
-        return `<div class="view-full  mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
-    <div class="mb-7"><div class="flex items-center gap-[0.4rem] text-[0.9rem] text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-brand font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>Business Dashboard</span></div>
-      ${tab === "overview" || tab === "analytics" ? "" : `<div class="font-serif text-[clamp(1.9rem,1.4rem_+_2.1vw,2.7rem)] font-black text-head tracking-[-0.02em] leading-[1.15] text-balance">Business Dashboard</div><p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Welcome back, ${state.user.name}. Manage your presence on Bergen Kids.</p>`}</div>
-    <div class="grid grid-cols-[230px_minmax(0,1fr)] gap-8 [align-items:start] [&>*]:min-w-0 max1024:grid-cols-[1fr]">
-      <div class="dash-side bg-surface border-[1.5px] border-line rounded-[18px] p-3 sticky top-[84px] min-w-0 max1024:static max1024:flex max1024:items-center max1024:overflow-x-auto max1024:gap-[0.4rem] max1024:p-2 no-scrollbar">
-        <div class="flex flex-col items-center text-center px-2 pt-3 pb-4 mb-2 border-b border-line2 max1024:hidden">
-          ${avatarHtml(state.user, 66, "border-[3px] border-white shadow-[0_4px_16px_rgba(15,26,44,0.18)]")}
-          <div class="mt-3 font-serif text-[1.02rem] font-black text-head leading-[1.2] break-words">${state.user.name}</div>
-          <div class="text-[0.8rem] text-muted mt-[0.15rem]">Business</div>
-        </div>
-        ${tabs.map((t) => `<button class="${tab === t[0] ? "flex items-center gap-[0.7rem] w-full text-left border-none px-[0.85rem] py-3 rounded-[11px] text-[0.98rem] font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto bg-navy text-white [&_svg]:text-white [&_svg]:shrink-0" : "flex items-center gap-[0.7rem] w-full text-left bg-transparent border-none px-[0.85rem] py-3 rounded-[11px] text-[0.98rem] font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto text-muted [&_svg]:text-adlabel [&_svg]:shrink-0 hover:bg-surface-4 hover:text-head [&:hover_svg]:text-brand"}" data-action="dash-tab" data-tab="${t[0]}">${icon(t[2], 18)} ${t[1]}</button>`).join("")}
-        <div class="pt-2 mt-2 border-t border-line2 max1024:hidden">
-          <button class="flex items-center gap-[0.7rem] w-full text-left bg-transparent border-none px-[0.85rem] py-3 rounded-[11px] text-[0.98rem] font-semibold text-muted [&_svg]:text-adlabel [&_svg]:shrink-0 min-h-[46px] transition-colors duration-150 hover:bg-[#fdf3f2] hover:text-[#a3271c] [&:hover_svg]:text-[#a3271c]" data-action="logout">${icon("logout", 18)} Log out</button>
-        </div>
-      </div>
-      <div>${businessTab(tab)}</div>
-    </div></div>`;
-      }
-      // ── Crowz-style business overview — mirrors the advertiser dashboard ──
+      // The business dashboard was folded into the advertiser one — see
+      // viewAdvertiser(). businessTab() below still renders the listing half.
+      // ── Crowz-style listings overview — mirrors the campaign overview ──
       function bizPerfRow(l) {
         const c = catOf(l.cat);
         const ctr = l.impressions ? ((l.clicks / l.impressions) * 100).toFixed(1) : "0.0";
@@ -4755,7 +4870,7 @@
       <div class="bg-surface border-[1.5px] border-line rounded-[18px] p-5 max380:p-[1.1rem]">
         <div class="font-serif text-[1.2rem] font-black text-head leading-[1.15] mb-2">Top performers</div>
         ${performers.length ? performers.map(bizPerfRow).join("") : `<div class="text-muted text-[0.9rem] py-4">No performance data yet.</div>`}
-        <button class="mt-3 text-brand font-bold text-[0.9rem] inline-flex items-center gap-1 transition-[gap] duration-200 hover:gap-2" data-action="dash-tab" data-tab="analytics">View more ${icon("arrow-right", 14)}</button>
+        <button class="mt-3 text-brand font-bold text-[0.9rem] inline-flex items-center gap-1 transition-[gap] duration-200 hover:gap-2" data-action="dash-tab" data-tab="listings">Manage listings ${icon("arrow-right", 14)}</button>
       </div>
     </div>
     <div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 max380:p-[1.1rem]">
@@ -5288,7 +5403,7 @@
         const photo = a.img
           ? `https://images.unsplash.com/photo-${a.img}?auto=format&fit=crop&w=800&q=75`
           : catImg(a.cat, 800);
-        return `<div class="promo-ad" data-adclick="${key}">
+        return `<div class="promo-ad" data-adclick="${key}" data-adgo>
       ${photo ? `<img src="${photo}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="promo-ad-photo">` : ""}
       <div class="promo-ad-tint" style="background:${a.grad}"></div>
       <div class="promo-ad-scrim"></div>
@@ -5338,24 +5453,30 @@
         );
         return true;
       }
+      // One dashboard for every advertiser. A directory listing and a banner
+      // campaign are just two kinds of ad, so both live here: their own list and
+      // create screens, and a shared Overview and Analytics that stack the two
+      // halves rather than making anyone switch accounts to see them.
+      const ADV_TABS = [
+        ["overview", "Overview", "dashboard"],
+        ["listings", "My Listings", "tag"],
+        ["ads", "My Ads", "megaphone"],
+        ["create", "Create Ad", "plus"],
+        ["billing", "Billing history", "card"],
+      ];
       function viewAdvertiser() {
         if (!state.user || state.user.role !== "advertiser")
           return gateView(
             "advertiser",
             "Advertise on Bergen Kids",
-            "Log in as an advertiser to publish banner campaigns and track performance.",
+            "Log in as an advertiser to publish directory listings and banner campaigns, and track how they perform.",
             "megaphone"
           );
         const tab = state.advTab;
-        const tabs = [
-          ["overview", "Overview", "dashboard"],
-          ["ads", "My Ads", "megaphone"],
-          ["create", "Create Ad", "plus"],
-          ["analytics", "Analytics", "chart"],
-        ];
+        const tabs = ADV_TABS;
         return `<div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
     <div class="mb-7"><div class="flex items-center gap-[0.4rem] text-[0.9rem] text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-brand font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>Advertiser Dashboard</span></div>
-      ${tab === "overview" || tab === "analytics" ? "" : `<div class="font-serif text-[clamp(1.9rem,1.4rem_+_2.1vw,2.7rem)] font-black text-head tracking-[-0.02em] leading-[1.15] text-balance">Advertiser Dashboard</div><p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Create banner campaigns and reach thousands of Bergen County parents.</p>`}</div>
+      ${tab === "overview" ? "" : `<div class="font-serif text-[clamp(1.9rem,1.4rem_+_2.1vw,2.7rem)] font-black text-head tracking-[-0.02em] leading-[1.15] text-balance">Advertiser Dashboard</div><p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Welcome back, ${state.user.name}. Manage your directory listings and banner campaigns in one place.</p>`}</div>
     <div class="grid grid-cols-[230px_minmax(0,1fr)] gap-8 [align-items:start] [&>*]:min-w-0 max1024:grid-cols-[1fr]">
       <div class="dash-side bg-surface border-[1.5px] border-line rounded-[18px] p-3 sticky top-[84px] min-w-0 max1024:static max1024:flex max1024:items-center max1024:overflow-x-auto max1024:gap-[0.4rem] max1024:p-2 no-scrollbar">
         <div class="flex flex-col items-center text-center px-2 pt-3 pb-4 mb-2 border-b border-line2 max1024:hidden">
@@ -5491,7 +5612,7 @@
       <div class="bg-surface border-[1.5px] border-line rounded-[18px] p-5 max380:p-[1.1rem]">
         <div class="font-serif text-[1.2rem] font-black text-head leading-[1.15] mb-2">Top performers</div>
         ${performers.length ? performers.map(advPerfRow).join("") : `<div class="text-muted text-[0.9rem] py-4">No performance data yet.</div>`}
-        <button class="mt-3 text-brand font-bold text-[0.9rem] inline-flex items-center gap-1 transition-[gap] duration-200 hover:gap-2" data-action="adv-tab" data-tab="analytics">View more ${icon("arrow-right", 14)}</button>
+        <button class="mt-3 text-brand font-bold text-[0.9rem] inline-flex items-center gap-1 transition-[gap] duration-200 hover:gap-2" data-action="adv-tab" data-tab="ads">Manage campaigns ${icon("arrow-right", 14)}</button>
       </div>
     </div>
     <div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 max380:p-[1.1rem]">
@@ -5502,7 +5623,76 @@
       ${adTable(recent)}
     </div>`;
       }
+      // "Add Listing" and "Create Ad" are the same tab now — which form it opens
+      // depends on the ad type that got you there.
+      const DASH_TO_ADV = { add: "create" };
+      function goDashTab(tab, type) {
+        state.editAd = null; // arriving fresh, never mid-edit of another campaign
+        if (tab === "create" && type) state.createType = type;
+        state.advTab = tab;
+        render();
+      }
+      // Router for the merged dashboard. The listing screens still come from
+      // businessTab(), the campaign screens from campaignTab(); only the shared
+      // Overview and the create flow are new. There is no Analytics tab — the
+      // overview already carries the performance read-out.
       function advertiserTab(tab) {
+        if (tab === "listings") return businessTab("listings");
+        if (tab === "billing") return businessTab("billing");
+        if (tab === "create") return createAdTab();
+        if (tab === "ads") return campaignTab("ads");
+        // Overview, and anything unrecognised (a tab that no longer exists).
+        return (
+          dashSection("Directory listings", "How your listings are performing.", businessTab("overview")) +
+          dashSection("Banner campaigns", "How your paid placements are performing.", campaignTab("overview"))
+        );
+      }
+      // Heading above each half of a shared screen, so the two dashboards that
+      // used to be separate still read as distinct sections.
+      function dashSection(title, sub, body) {
+        return `<div class="mb-9 last:mb-0">
+      <div class="flex items-baseline gap-3 flex-wrap mb-4 pb-3 border-b-[1.5px] border-line">
+        <div class="font-serif text-[1.35rem] font-black text-head leading-[1.15]">${title}</div>
+        <div class="text-[0.9rem] text-muted">${sub}</div>
+      </div>
+      ${body}
+    </div>`;
+      }
+      // The two kinds of ad an advertiser can publish. Picking one swaps in the
+      // form that already exists for it — nothing else about either flow changes.
+      const CREATE_TYPES = [
+        [
+          "listing",
+          "Directory listing",
+          "tag",
+          "A profile families browse in the directory — category, town, ages, photos and contact details.",
+        ],
+        [
+          "campaign",
+          "Banner campaign",
+          "megaphone",
+          "A paid placement in the sponsor bar and ad slots, with a click-through destination and a run schedule.",
+        ],
+      ];
+      function createAdTab() {
+        // Editing an existing campaign pins the choice — the listing form has
+        // nothing to do with the ad being edited.
+        if (state.editAd) return campaignTab("create");
+        const sel = state.createType === "campaign" ? "campaign" : "listing";
+        const cards = CREATE_TYPES.map(
+          ([id, name, ic, desc]) => `<button type="button" class="text-left border-[1.5px] rounded-[14px] px-4 py-[0.9rem] transition-all duration-150 ${id === sel ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="set-create-type" data-type="${id}" aria-pressed="${id === sel}">
+        <div class="flex items-center gap-[0.5rem] font-bold text-[1rem] text-head">${icon(ic, 17)} ${name}</div>
+        <div class="text-[0.88rem] text-muted leading-[1.5] mt-[0.3rem]">${desc}</div>
+      </button>`
+        ).join("");
+        return `<div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 mb-6 max380:p-[1.1rem]">
+      <div class="font-serif text-[1.25rem] font-black text-head mb-[0.3rem]">What are you publishing?</div>
+      <div class="text-[0.92rem] text-muted mb-4 leading-[1.55]">Both run under this one account — pick the kind of ad and fill in the form below.</div>
+      <div class="grid grid-cols-2 gap-3 max700:grid-cols-1">${cards}</div>
+    </div>
+    ${sel === "listing" ? businessTab("add") : campaignTab("create")}`;
+      }
+      function campaignTab(tab) {
         if (tab === "overview") return advOverview();
         if (tab === "ads") {
           const f = state.adFilter;
@@ -5902,7 +6092,6 @@
       }
       const ROLE_CHIP = {
         parent: ["Parent account", "user", "bg-mint text-brand"],
-        business: ["Business account", "briefcase", "bg-[#eaf0fb] text-[#2d5a8e]"],
         advertiser: ["Advertiser account", "megaphone", "bg-[#f0eafa] text-lavender-ink"],
       };
       // Re-rendered on its own after a photo change so unsaved form edits survive.
@@ -5948,15 +6137,9 @@
         const field = (label, id, value, ph = "", full = false) =>
           `<div class="${PF_FIELD}${full ? " col-span-full" : ""}"><label>${label}</label><input id="${id}" value="${esc(value)}"${ph ? ` placeholder="${ph}"` : ""}></div>`;
         let fields;
-        if (u.role === "business") {
+        if (u.role === "advertiser") {
           fields =
-            field("Business name *", "pf-org", u.name, "", true) +
-            field("Contact Person Name *", "pf-name", u.contact) +
-            phoneField("pf-phone", u.phone) +
-            field("Email *", "pf-email", u.email, "", true);
-        } else if (u.role === "advertiser") {
-          fields =
-            field("Company / advertiser name *", "pf-org", u.name, "", true) +
+            field("Business / advertiser name *", "pf-org", u.name, "", true) +
             field("Contact Person Name *", "pf-name", u.contact) +
             phoneField("pf-phone", u.phone) +
             field("Website", "pf-web", u.web, "yourcompany.com") +
@@ -5967,6 +6150,21 @@
             phoneField("pf-phone", u.phone) +
             field("Email *", "pf-email", u.email, "", true);
         }
+        // Preferences are a parent-only concept. Editing starts from a copy of
+        // what is saved, so leaving the page without saving changes nothing.
+        if (u.role === "parent") state.prefDraft = clonePrefs(u.prefs);
+        const prefsCard =
+          u.role !== "parent"
+            ? ""
+            : `<div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 shadow-[0_4px_20px_rgba(26,46,74,0.05)] mt-6 max380:p-[1.1rem]">
+        <div class="font-serif text-[1.25rem] font-black text-head mb-[0.3rem]">Preferences</div>
+        <div class="text-[0.92rem] text-muted mb-5 leading-[1.55]">Applied as your default filters on the Directory and Events pages. Leave a section empty and it won't narrow anything — you'll see every result.</div>
+        ${prefsEditor(state.prefDraft)}
+        <div class="flex gap-3 flex-wrap items-center mt-6 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center">
+          <button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="save-prefs">${icon("check", 16)} Save preferences</button>
+          <button class="bg-surface text-head px-[1.3rem] py-[0.7rem] rounded-[100px] text-[0.95rem] font-bold border-[1.5px] border-line inline-flex items-center justify-center gap-2 min-h-[44px] transition-[border-color,background] duration-200 hover:border-head hover:bg-surface-3" data-action="clear-prefs">Clear all</button>
+        </div>
+      </div>`;
         const sideCard = (ic, title, body, btn) =>
           `<div class="bg-surface border-[1.5px] border-line rounded-[18px] p-5 shadow-[0_4px_20px_rgba(26,46,74,0.05)]">
         <div class="flex items-center gap-[0.6rem] mb-[0.4rem]"><span class="w-[34px] h-[34px] rounded-[10px] bg-mint text-brand flex items-center justify-center shrink-0">${icon(ic, 17)}</span><div class="font-serif text-[1.1rem] font-black text-head">${title}</div></div>
@@ -5978,11 +6176,14 @@
     ${profileHero(u)}
 
     <div class="grid grid-cols-[minmax(0,1fr)_320px] gap-6 [align-items:start] max900:grid-cols-[1fr]">
+      <div class="min-w-0">
       <div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 shadow-[0_4px_20px_rgba(26,46,74,0.05)] max380:p-[1.1rem]">
         <div class="font-serif text-[1.25rem] font-black text-head mb-[0.3rem]">Account details</div>
         <div class="text-[0.92rem] text-muted mb-5 leading-[1.55]">Keep your information up to date.</div>
         <div class="grid grid-cols-[1fr_1fr] gap-[1.1rem] max700:grid-cols-[1fr]">${fields}</div>
         <div class="flex gap-3 flex-wrap mt-6 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center"><button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="save-profile">${icon("check", 16)} Save changes</button></div>
+      </div>
+      ${prefsCard}
       </div>
 
       <div class="flex flex-col gap-4">
@@ -6017,7 +6218,7 @@
         // the .auth-panel max-height, which subtracts exactly this much.
         const pad = wide === "split" ? "py-6 max700:py-3" : "py-14 max700:py-5";
         el("modal-root").innerHTML =
-          `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex items-start justify-center px-4 ${pad} overflow-y-auto animate-fade max700:px-3"><div class="modal bg-surface rounded-[22px] w-full shadow-[0_30px_80px_rgba(15,26,44,0.4)] animate-rise overflow-hidden max700:rounded-[18px] [&_h2]:font-serif [&_h2]:text-[1.6rem] [&_h2]:text-head [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2] ${width}"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-[#1a2e4a] flex items-center justify-center z-[5] shadow-[0_2px_10px_rgba(15,26,44,0.18)] hover:bg-surface" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
+          `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex items-start justify-center px-4 ${pad} overflow-y-auto animate-fade max700:px-3"><div class="modal relative bg-surface rounded-[22px] w-full shadow-[0_30px_80px_rgba(15,26,44,0.4)] animate-rise overflow-hidden max700:rounded-[18px] [&_h2]:font-serif [&_h2]:text-[1.6rem] [&_h2]:text-head [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2] ${width}"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-[#1a2e4a] flex items-center justify-center z-[5] shadow-[0_2px_10px_rgba(15,26,44,0.18)] hover:bg-surface" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
         document.body.style.overflow = "hidden";
       }
       function closeModal() {
@@ -6131,9 +6332,12 @@
         );
       }
 
+      // Two account types. Businesses and advertisers are the same customer —
+      // they differ only in the kind of ad they publish (a directory listing or
+      // a banner campaign), and that is a choice inside the one dashboard rather
+      // than a separate account to sign up for.
       const ROLES = [
         ["parent", "Parent", "user"],
-        ["business", "Business", "briefcase"],
         ["advertiser", "Advertiser", "megaphone"],
       ];
       // Role-specific copy for the auth modal — the popup is always opened for one role.
@@ -6146,22 +6350,13 @@
           bannerText: `Log in or sign up as a <strong>parent</strong> to browse kids' services, activities, and events across Bergen County.`,
           demoEmail: "sarah.miller@gmail.com",
         },
-        business: {
-          icon: "briefcase",
-          loginTitle: "List your business on Bergen Kids",
-          signupTitle: "Create your business account",
-          bannerTitle: "You need a business account to add listings",
-          bannerText:
-            "To publish and manage listings that families can find, log in or sign up as a <strong>business</strong> below.",
-          demoEmail: "hello@brightmindstutor.com",
-        },
         advertiser: {
           icon: "megaphone",
           loginTitle: "Advertise on Bergen Kids",
           signupTitle: "Create your advertiser account",
-          bannerTitle: "You need an advertiser account to create campaigns",
+          bannerTitle: "You need an advertiser account to publish ads",
           bannerText:
-            "To run campaigns across the site, log in or sign up as an <strong>advertiser</strong> below.",
+            "To publish directory listings and banner campaigns families can find, log in or sign up as an <strong>advertiser</strong> below.",
           demoEmail: "ads@ridgewoodlearning.com",
         },
       };
@@ -6191,6 +6386,7 @@
         state.auth.loginCode = "";
         state.auth.resendCount = 0;
         state.auth.signupData = null;
+        state.prefDraft = emptyPrefs(); // the sign-up form's preference chips start clear
         // Split panel: form column on the left, full-bleed photo on the right.
         // Every part the flow re-renders (title, subtitle, body, swap link) lives
         // in the left column, so the photo survives step and mode changes. The
@@ -6209,7 +6405,7 @@
         <div id="auth-subtitle" class="text-muted text-[0.95rem] mt-[0.35rem] leading-[1.55]">${authStepSubtitle(state.auth.mode)}</div>
         ${authBanner()}
         <div id="auth-body" class="mt-[1.15rem]">${authBody("login", sel, ROLES)}</div>
-        <div class="mt-auto pt-[1.1rem] text-center text-[0.88rem] text-muted">
+        <div id="auth-swap" class="mt-auto pt-[1.1rem] text-center text-[0.88rem] text-muted">
           <span id="auth-swap-q">Don't have an account?</span>
           <button
             type="button"
@@ -6227,7 +6423,7 @@
       }
       // The image column. Hidden below 900px, where the form takes the full width.
       function authArtPanel() {
-        return `<div class="relative w-[46%] shrink-0 overflow-hidden bg-navy max900:hidden">
+        return `<div class="auth-art relative w-[46%] shrink-0 overflow-hidden bg-navy max900:hidden">
       <img
         src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=900&q=75"
         alt=""
@@ -6288,8 +6484,14 @@
           return `Enter the 4-digit code sent to ${state.auth.phone}.`;
         return "";
       }
+      // Only the sign-up panel widens — see the .auth-signup rules.
+      function syncAuthWidth() {
+        const modal = document.querySelector(".modal");
+        if (modal) modal.classList.toggle("auth-signup", state.auth.mode === "signup");
+      }
       function updateAuthModal() {
         const sel = state.auth.role;
+        syncAuthWidth();
         if (el("auth-title")) el("auth-title").innerText = authStepTitle(state.auth.mode);
         if (el("auth-subtitle")) el("auth-subtitle").innerText = authStepSubtitle(state.auth.mode);
         if (el("auth-body")) el("auth-body").innerHTML = authBody(state.auth.mode, sel, ROLES);
@@ -6309,7 +6511,7 @@
         const picker = state.auth.pick
           ? `
     <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head" style="margin-bottom:0.7rem"><label>I am a…</label>
-      <div class="grid grid-cols-[repeat(3,1fr)] gap-2 max700:grid-cols-[1fr]">${roles.map((r) => `<label class="radio-card border-[1.5px] rounded-[12px] px-3 py-[0.65rem] cursor-pointer transition-all duration-150 hover:border-brand ${r[0] === sel ? "sel border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2"}" data-role-pick="${r[0]}"><div class="font-bold text-[0.95rem] text-head flex items-center gap-[0.4rem]">${icon(r[2], 15)} ${r[1]}</div></label>`).join("")}</div></div>`
+      <div class="grid grid-cols-[repeat(2,1fr)] gap-2 max700:grid-cols-[1fr]">${roles.map((r) => `<label class="radio-card border-[1.5px] rounded-[12px] px-3 py-[0.65rem] cursor-pointer transition-all duration-150 hover:border-brand ${r[0] === sel ? "sel border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2"}" data-role-pick="${r[0]}"><div class="font-bold text-[0.95rem] text-head flex items-center gap-[0.4rem]">${icon(r[2], 15)} ${r[1]}</div></label>`).join("")}</div></div>`
           : "";
         return `${picker}
     <div id="auth-fields">${authFields(mode, sel)}</div>
@@ -6336,21 +6538,10 @@
           : phoneField("au-phone", state.auth.phone)
       }</div>`;
         }
-        if (role === "business") {
-          return `
-    <div class="grid grid-cols-[1fr_1fr] max700:grid-cols-[1fr]" style="gap:0.7rem;margin-bottom:0.7rem">
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Business name *</label><input id="au-org" placeholder="e.g. Bright Minds Tutoring"></div>
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Contact Person Name *</label><input id="au-name" placeholder="Your name"></div>
-    </div>
-    <div class="grid grid-cols-[1fr_1fr] max700:grid-cols-[1fr]" style="gap:0.7rem;margin-bottom:0.7rem">
-      ${phoneField("au-phone", state.auth.phone)}
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Email *</label><input id="au-email" placeholder="you@email.com"></div>
-    </div>`;
-        }
         if (role === "advertiser") {
           return `
     <div class="grid grid-cols-[1fr_1fr] max700:grid-cols-[1fr]" style="gap:0.7rem;margin-bottom:0.7rem">
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Company / advertiser name *</label><input id="au-org" placeholder="e.g. Ridgewood Learning Center"></div>
+      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Business / advertiser name *</label><input id="au-org" placeholder="e.g. Ridgewood Learning Center"></div>
       <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Contact Person Name *</label><input id="au-name" placeholder="Your name"></div>
     </div>
     <div class="grid grid-cols-[1fr_1fr] max700:grid-cols-[1fr]" style="gap:0.7rem;margin-bottom:0.7rem">
@@ -6358,12 +6549,27 @@
       <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Email *</label><input id="au-email" placeholder="you@email.com"></div>
     </div>`;
         }
+        // Name, phone and email each get their own row — the preference chips
+        // below already fill the width, so pairing fields up just made the top
+        // of the form read as a denser, unrelated block.
         return `
-    <div class="grid grid-cols-[1fr_1fr] gap-[1.1rem] max700:grid-cols-[1fr]" style="gap:0.8rem;margin-bottom:0.8rem">
-      <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Full name *</label><input id="au-name" placeholder="Your name"></div>
-      ${phoneField("au-phone", state.auth.phone)}
-    </div>
-    ${auEmail(mode)}`;
+    <div class="flex flex-col gap-[0.4rem] [&_label]:text-[0.92rem] [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-[1rem] [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100" style="margin-bottom:0.7rem"><label>Full name *</label><input id="au-name" placeholder="Your name"></div>
+    <div style="margin-bottom:0.7rem">${phoneField("au-phone", state.auth.phone)}</div>
+    ${auEmail(mode)}
+    ${authPrefsFields()}`;
+      }
+      // Preferences on the parent sign-up form. Everything here is optional —
+      // leaving a field untouched means "no preference", which shows everything
+      // — so nothing in it can block the Create account button.
+      function authPrefsFields() {
+        return `<div class="border-t border-line pt-4 mt-1 mb-1">
+      <div class="flex items-baseline justify-between gap-3 flex-wrap">
+        <label class="text-[0.92rem] font-bold text-head">Preferences</label>
+        <span class="text-[0.8rem] font-semibold text-adlabel">Optional — you can skip this</span>
+      </div>
+      <div class="text-[0.87rem] text-muted leading-[1.5] mt-[0.2rem] mb-1">Pick what fits your family and we'll use it as your default filter on the Directory and Events pages. Change it any time in your profile.</div>
+      ${prefsEditor(state.prefDraft || emptyPrefs())}
+    </div>`;
       }
 
       function checkoutModal(plan) {
@@ -6440,9 +6646,6 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         const items = [
           ["profile", "My Profile", "user"],
           ["notifications", "Notifications", "bell"],
-          ...(state.user.role === "business"
-            ? [["business", "Business Dashboard", "dashboard"]]
-            : []),
           ...(state.user.role === "advertiser"
             ? [["advertiser", "Advertiser Dashboard", "megaphone"]]
             : []),
@@ -6551,16 +6754,24 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             authModal(navEl.dataset.authgate || undefined);
             return;
           }
-          // data-authcommon does the same for the two dashboards: ask who the
-          // visitor is rather than assuming the role the destination implies.
-          if ((v === "business" || v === "advertiser") && (!state.user || state.user.role !== v)) {
-            authModal(navEl.dataset.authcommon !== undefined ? undefined : v);
+          // data-authcommon does the same for the dashboard: ask who the visitor
+          // is rather than assuming the role the destination implies.
+          if (v === "advertiser" && (!state.user || state.user.role !== "advertiser")) {
+            authModal(navEl.dataset.authcommon !== undefined ? undefined : "advertiser");
             return;
           }
-          if (navEl.dataset.dashtab) state.dashTab = navEl.dataset.dashtab;
+          // data-dashtab still names the old business tabs, and still means
+          // "open this for a directory listing".
+          if (navEl.dataset.dashtab) {
+            state.editAd = null;
+            const t = navEl.dataset.dashtab;
+            state.advTab = DASH_TO_ADV[t] || t;
+            if (state.advTab === "create") state.createType = "listing";
+          }
           if (navEl.dataset.advtab) {
             state.editAd = null; // arriving fresh, never mid-edit of another campaign
             state.advTab = navEl.dataset.advtab;
+            if (navEl.dataset.advtab === "create") state.createType = "campaign";
           }
           if (navEl.dataset.cat !== undefined || navEl.dataset.q !== undefined) {
             state.dir = {
@@ -6717,13 +6928,17 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               state.calFilter = { q: "", cat: "", age: "", town: "", sort: state.calFilter.sort };
               render();
               break;
+            // The listing screens still speak the old business-dashboard tab
+            // names; DASH_TO_ADV translates them onto the merged sidebar.
             case "dash-tab":
-              state.dashTab = actEl.dataset.tab;
-              render();
+              goDashTab(DASH_TO_ADV[actEl.dataset.tab] || actEl.dataset.tab, "listing");
               break;
             case "adv-tab":
-              state.editAd = null;
-              state.advTab = actEl.dataset.tab;
+              goDashTab(actEl.dataset.tab, "campaign");
+              break;
+            case "set-create-type":
+              state.createType = actEl.dataset.type;
+              state.editAd = null; // a half-edited campaign has no meaning in the other form
               render();
               break;
             case "choose-plan":
@@ -6773,12 +6988,14 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               break;
             case "do-delete-account":
               state.user = null;
+              forgetPrefs();
               closeModal();
               toast("Account deleted");
               navigate("home");
               break;
             case "do-logout":
               state.user = null;
+              forgetPrefs();
               closeModal();
               toast("Logged out");
               navigate("home");
@@ -6802,8 +7019,12 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               if (L.action === "open-listing") {
                 render();
                 listingModal(L.id);
-              } else if (L.nav) navigate(L.nav, L.scroll ? { scrollTo: L.scroll } : {});
-              else render();
+              } else if (L.nav) {
+                // A listing alert has to land on the listing half of the merged
+                // dashboard, not wherever it was left.
+                if (L.advtab) state.advTab = L.advtab;
+                navigate(L.nav, L.scroll ? { scrollTo: L.scroll } : {});
+              } else render();
               break;
             }
             case "submit-listing":
@@ -6842,6 +7063,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               }
               closeModal();
               state.editAd = id;
+              state.createType = "campaign"; // editing a campaign, not composing a listing
               state.advTab = "create";
               render();
               break;
@@ -6893,10 +7115,57 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               if (el("pf-email")) state.user.email = el("pf-email").value.trim();
               if (el("pf-phone")) state.user.phone = readPhone("pf-phone");
               if (el("pf-web")) state.user.web = el("pf-web").value.trim();
+              // Preferences sit in their own card on the same page with their own
+              // button, but "Save changes" has to mean the whole page.
+              if (state.user.role === "parent" && state.prefDraft) {
+                state.user.prefs = clonePrefs(state.prefDraft);
+                state.usePrefs = true;
+              }
               refreshProfileHero();
               toast("Profile saved", "check");
               break;
             }
+            case "toggle-pref": {
+              const kind = actEl.dataset.kind;
+              const val = actEl.dataset.val;
+              if (!state.prefDraft) state.prefDraft = emptyPrefs();
+              const list = state.prefDraft[kind];
+              if (!list) break;
+              const at = list.indexOf(val);
+              if (at === -1) list.push(val);
+              else list.splice(at, 1);
+              // Repaint the chip and its counter only — re-rendering the group
+              // would throw the scrollable town list back to the top.
+              const on = at === -1;
+              actEl.className = on ? PREF_CHIP_ON : PREF_CHIP_OFF;
+              actEl.setAttribute("aria-pressed", String(on));
+              const count = el("pref-count-" + kind);
+              if (count) count.textContent = prefSummary(state.prefDraft, kind);
+              break;
+            }
+            case "save-prefs": {
+              if (!state.user) break;
+              state.user.prefs = clonePrefs(state.prefDraft);
+              state.usePrefs = true;
+              toast(
+                prefCount(state.user.prefs)
+                  ? "Preferences saved"
+                  : "Preferences cleared — showing everything",
+                "check"
+              );
+              render();
+              break;
+            }
+            case "clear-prefs":
+              state.prefDraft = emptyPrefs();
+              if (state.user) state.user.prefs = emptyPrefs();
+              toast("Preferences cleared — showing everything", "check");
+              render();
+              break;
+            case "toggle-prefs-filter":
+              state.usePrefs = !state.usePrefs;
+              render();
+              break;
             case "book":
               closeModal();
               toast("Enquiry sent to " + actEl.dataset.name, "mail");
@@ -6970,6 +7239,15 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
 
         if (adEl) {
           const key = adEl.dataset.adclick;
+          // The Visit buttons on the top sponsor bar and the side rail are the
+          // ad's own call to action — honour it and go straight out instead of
+          // interrupting with the detail popup. Clicking the ad's body still
+          // opens the popup, which is where the full creative lives.
+          if (adEl.dataset.adgo !== undefined) {
+            const dest = (PUBLIC_ADS[key] || {}).dest;
+            toast("Opening " + (dest || key) + " (external)", "globe");
+            return;
+          }
           if (adDetailModal(key)) return;
           toast("Sponsored: " + key + " (demo ad click tracked)", "megaphone");
           return;
@@ -7251,7 +7529,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
           return;
         }
         if (!state.user) {
-          authModal("business");
+          authModal("advertiser");
           return;
         }
         checkoutModal(plan);
@@ -7267,6 +7545,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         state.auth.loginCode = "";
         state.auth.resendCount = 0;
         state.auth.role = state.auth.role || "parent";
+        state.prefDraft = emptyPrefs();
         syncAuthSwap();
         // updateAuthModal repaints the heading and subtitle too — switching modes
         // used to leave the previous mode's title above the new form.
@@ -7381,38 +7660,32 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             toast("Enter the verification code", "x");
             return;
           }
-          const name = {
-            parent: "Sarah Miller",
-            business: "Bright Minds Tutoring",
-            advertiser: "Ridgewood Learning",
-          }[role];
+          const name = { parent: "Sarah Miller", advertiser: "Ridgewood Learning" }[role];
           state.user = {
             name,
             email: state.auth.method === "email" ? state.auth.email : "",
             phone: state.auth.method === "phone" ? state.auth.phone : "",
             role,
+            prefs: emptyPrefs(),
           };
-          if (role === "business") seedBusinessListings();
+          forgetPrefs();
+          if (role === "advertiser") seedBusinessListings();
           closeModal();
           toast("Welcome back, " + name.split(" ")[0] + "!", "user");
           renderNav();
           // Every role lands on the thing it signed in to do — parents on the
           // directory, not back on the marketing page they came from.
-          if (role === "business") navigate("business");
-          else if (role === "advertiser") navigate("advertiser");
+          if (role === "advertiser") navigate("advertiser");
           else navigate("directory");
           return;
         }
         if (mode === "signup") {
           if (state.auth.step === "entry") {
             let name;
-            if (role === "business" || role === "advertiser") {
+            if (role === "advertiser") {
               const org = el("au-org")?.value.trim();
               if (!org) {
-                toast(
-                  "Please enter your " + (role === "business" ? "business" : "company") + " name",
-                  "x"
-                );
+                toast("Please enter your business / advertiser name", "x");
                 return;
               }
               if (!el("au-name")?.value.trim()) {
@@ -7444,6 +7717,9 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               role,
               contact: el("au-name")?.value.trim() || "",
               web: el("au-web")?.value.trim() || "",
+              // Parents may have ticked some preferences on the form. Nothing is
+              // required, so an untouched draft simply saves as empty lists.
+              prefs: role === "parent" ? clonePrefs(state.prefDraft) : emptyPrefs(),
             };
             state.auth.email = email;
             state.auth.phone = phone;
@@ -7476,13 +7752,17 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               role: data.role,
               contact: data.contact,
               web: data.web,
+              prefs: data.prefs || emptyPrefs(),
             };
-            if (data.role === "business") seedBusinessListings();
+            state.usePrefs = true;
+            state.prefDraft = null;
+            if (data.role === "advertiser") seedBusinessListings();
             closeModal();
             toast("Welcome, " + (data.name || "there") + "!", "user");
+            if (prefCount(state.user.prefs))
+              toast("Your preferences are set as your default filters", "sliders");
             renderNav();
-            if (data.role === "business") navigate("business");
-            else if (data.role === "advertiser") navigate("advertiser");
+            if (data.role === "advertiser") navigate("advertiser");
             else navigate("directory");
             return;
           }
@@ -7511,12 +7791,13 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             state.user = {
               name: "Bright Minds Tutoring",
               email: "biz@example.com",
-              role: "business",
+              role: "advertiser",
+              prefs: emptyPrefs(),
             };
             seedBusinessListings();
             renderNav();
           }
-          navigate("business");
+          navigate("advertiser");
         }
       });
 
@@ -7565,7 +7846,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         LISTINGS.unshift(nl);
         toast("Listing published!", "check");
         pushNotif("tag", "Listing live", '"' + name + '" is now visible to families');
-        state.dashTab = "listings";
+        state.advTab = "listings";
         render();
       }
       let PENDING_AD = null;
@@ -7770,8 +8051,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             ["articles", "Articles", "book"],
           ]
         : []),
-      ["business", "For Business", "briefcase"],
-      ["advertiser", "Advertise", "megaphone"],
+      ["advertiser", "Advertise with us", "megaphone"],
       ...(state.user
         ? [
             ["notifications", "Notifications", "bell"],
@@ -7851,7 +8131,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
                         <div class="side-ad-meta">${adMeta(ad.key)}</div>
                       </div>
                     </div>
-                    <button type="button" class="side-ad-btn" data-adclick="${ad.key}">${icon("globe", 15)} Visit now</button>
+                    <button type="button" class="side-ad-btn" data-adclick="${ad.key}" data-adgo>${icon("globe", 15)} Visit now</button>
                   </div>
                 </div>
               </div>
@@ -8121,21 +8401,24 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         });
       }
 
-      /* Sticky bottom sponsor bar — mounted once, persists across view renders */
+      /* Sticky top sponsor bar — mounted once, persists across view renders */
       let sponsorTimer = null;
-      // The CSS reserves a fixed 104px at the bottom of the page, but the bar's
-      // real height depends on its content and the viewport. When the reserve is
-      // taller than the bar, the difference shows through as a strip of page
-      // background between the footer and the bar — so measure and match.
+      // The bar is fixed just under the nav, so the band it covers is dead space
+      // for the page behind it: whatever sits there is hidden for good, not just
+      // until you scroll. Reserve that band on #view-root (the element survives
+      // every render, so the inline style sticks) and publish it as
+      // --sponsor-reserve for anchor offsets. The bar's real height depends on
+      // its content and the viewport, so it is measured rather than hard-coded.
       function syncSponsorPad() {
         const bar = el("sponsor-bar");
-        const footer = document.querySelector("footer");
+        const root = el("view-root");
         const gone = document.body.classList.contains("sponsor-dismissed");
-        // Reserve the banner's height on the FOOTER (dark) rather than the body
-        // (cream), so the strip the floating banner sits over matches the footer
-        // colour instead of leaving a bare cream gap beneath it.
-        document.body.style.paddingBottom = "0px";
-        if (footer) footer.style.paddingBottom = !bar || gone ? "" : bar.offsetHeight + 40 + "px";
+        // Gutter above the bar plus the same again below it, matching the
+        // left/right insets in the CSS.
+        const gutter = window.innerWidth <= 560 ? 10 : 16;
+        const reserve = !bar || gone ? 0 : bar.offsetHeight + gutter * 2;
+        document.documentElement.style.setProperty("--sponsor-reserve", reserve + "px");
+        if (root) root.style.paddingTop = reserve ? reserve + "px" : "";
       }
       window.addEventListener("resize", syncSponsorPad);
       window.addEventListener("load", syncSponsorPad);
@@ -8151,6 +8434,9 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         const dots = Array.from(document.querySelectorAll("[data-sponsor-dot]"));
         if (!slides.length) return;
         syncSponsorPad();
+        // Slides differ in height, so the bar resizes as it rotates — the band
+        // reserved for it has to follow.
+        if (window.ResizeObserver && bar) new ResizeObserver(syncSponsorPad).observe(bar);
         const DUR = 3000;
         let idx = 0;
         function paint() {
@@ -8198,8 +8484,9 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             stop();
             if (bar) bar.classList.add("is-hidden");
             document.body.classList.add("sponsor-dismissed");
-            const ft = document.querySelector("footer");
-            if (ft) ft.style.paddingBottom = "";
+            // Give back the reserved band only once the bar has slid away —
+            // collapsing it immediately yanks the page up under the reader.
+            setTimeout(syncSponsorPad, 500);
           });
         stage.addEventListener("mouseenter", stop);
         stage.addEventListener("mouseleave", start);
@@ -8291,23 +8578,19 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         requestAnimationFrame(frame);
       }
 
-      // Back to top — the bottom-right corner is a stack: sponsor bar, then the
-      // corner ad, then this button. Every one of them is fixed and any of them
-      // can be dismissed or change height, so the offsets are measured rather
-      // than hard-coded — a constant here left the ad's footer under the bar.
+      // Back to top — the bottom-right corner is a stack: the corner ad, then
+      // this button. Both are fixed and the ad can be dismissed or change
+      // height, so the offset is measured rather than hard-coded — a constant
+      // here left the button sitting on the ad's footer.
       function mountToTop() {
         const btn = el("to-top");
         const ad = el("cornerAd");
         if (!btn) return;
-        const bar = el("sponsor-bar");
         const shown = (n) => n && !n.classList.contains("is-hidden");
         const place = () => {
-          const gutter = window.innerWidth <= 560 ? 10 : 16;
-          const floor = window.innerWidth <= 560 ? 100 : 124;
-          // Clear the sponsor bar if it is up, otherwise fall back to the floor.
-          const base = Math.max(floor, shown(bar) ? bar.offsetHeight + gutter + 12 : 0);
-          if (ad) ad.style.bottom = base + "px";
-          btn.style.bottom = (shown(ad) ? base + ad.offsetHeight + 12 : base) + "px";
+          const floor = window.innerWidth <= 560 ? 12 : 20;
+          if (ad) ad.style.bottom = floor + "px";
+          btn.style.bottom = (shown(ad) ? floor + ad.offsetHeight + 12 : floor) + "px";
         };
         const nav = el("site-nav");
         const ring = btn.querySelector(".totop-bar");
@@ -8326,13 +8609,7 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         };
         window.addEventListener("scroll", toggle, { passive: true });
         window.addEventListener("resize", place, { passive: true });
-        const watch = { attributeFilter: ["class"] };
-        if (ad) new MutationObserver(place).observe(ad, watch);
-        if (bar) {
-          new MutationObserver(place).observe(bar, watch);
-          // Slides differ in height, so the bar resizes as it rotates.
-          if (window.ResizeObserver) new ResizeObserver(place).observe(bar);
-        }
+        if (ad) new MutationObserver(place).observe(ad, { attributeFilter: ["class"] });
         btn.addEventListener("click", () => scrollToTop(false));
         place();
         toggle();
