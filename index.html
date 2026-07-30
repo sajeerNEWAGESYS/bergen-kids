@@ -7,6 +7,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="preconnect" href="https://bergenapi.newagesmb.com" />
+    <!-- No favicon was declared, so browsers fell back to whatever /favicon.ico
+         they had cached — which is the old icon that kept coming back on
+         reload. Pointing them at the logo settles it. -->
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://bergenapi.newagesmb.com/cdn/images/article-banner/1785408316818-aec863df-c1a6-4a3e-872b-03c40f49b19c.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="https://bergenapi.newagesmb.com/cdn/images/article-banner/1785408316818-aec863df-c1a6-4a3e-872b-03c40f49b19c.png"
+    />
     <!-- One family for the whole page — headings included. Weights are exactly
          what the markup uses: 400-800 for body and UI, 900 for the headings
          that were previously set in a display serif. -->
@@ -1205,13 +1218,52 @@
       #inside,
       #events,
       #plans {
-        scroll-margin-top: calc(76px + var(--sponsor-reserve, 0px));
+        scroll-margin-top: calc(96px + var(--sponsor-reserve, 0px));
       }
 
       #site-nav.is-scrolled {
         background-color: rgba(253, 248, 240, 0.94);
         border-bottom-color: rgba(26, 46, 74, 0.08);
         box-shadow: 0 8px 28px rgba(26, 46, 74, 0.09);
+      }
+
+      /* ── Brand ──────────────────────────────────────────────────
+         The logo image is the brand and shows from the first paint — waiting
+         for its onload meant the old wordmark flashed on every reload. The
+         wordmark is kept purely as a fallback: the image's onerror marks the
+         wrapper `no-logo`, which is the only thing that reveals it. */
+      .brand-text {
+        display: none;
+      }
+
+      .brand.no-logo .brand-text {
+        display: inline;
+      }
+
+      /* ── Filter bar ─────────────────────────────────────────────
+         Sits above the results and stays put while they scroll under it, so
+         changing a filter never means scrolling back up to reach it. It parks
+         below the nav, and below whatever height the sponsor bar is taking —
+         syncSponsorPad() keeps --sponsor-reserve in step and it collapses to 0
+         once the bar is dismissed. Opaque on purpose: results pass behind it. */
+      .filters-top {
+        position: sticky;
+        top: calc(104px + var(--sponsor-reserve, 0px));
+        z-index: 30;
+        box-shadow: 0 6px 18px rgba(26, 46, 74, 0.07);
+      }
+
+      /* Opt-out: the bar still sits above the results, it just scrolls away
+         with them instead of following you down the page. */
+      .filters-top.is-unpinned {
+        position: static;
+      }
+
+      @media (max-width: 560px) {
+        /* Shorter nav, tighter gutters. */
+        .filters-top {
+          top: calc(86px + var(--sponsor-reserve, 0px));
+        }
       }
 
       /* ── Back-to-top button ─────────────────────────────────────
@@ -1405,7 +1457,7 @@
       }
 
       /* ── Sponsor Bar — a floating banner-ad unit, parked at the top ──
-         `top` is the nav's height (72px, 62px on phones) plus the same gutter
+         `top` is the nav's height (92px, 76px on phones) plus the same gutter
          used left and right, so the banner sits just clear of the sticky
          header. syncSponsorPad() reserves the band it covers on #view-root so
          the unit never sits on top of a page heading. */
@@ -1413,12 +1465,13 @@
         position: fixed;
         left: 16px;
         right: 16px;
-        top: 88px;
+        top: 108px;
         margin-inline: auto;
         max-width: 1160px;
         z-index: 60;
         border-radius: 18px;
         overflow: hidden;
+        /* nav height + gutter — see the block comment above. */
         /* Base shade. mountSponsorBar() layers the active slide's photo on top
            of this, so the flat gradient is also the fallback if an image fails.
            An opaque color plus border-box origin is what stops the 1px border
@@ -1429,7 +1482,10 @@
         background-clip: border-box;
         -webkit-backdrop-filter: saturate(1.5) blur(12px);
         backdrop-filter: saturate(1.5) blur(12px);
-        border: 1.5px solid rgba(255, 255, 255, 0.16);
+        /* No static border: the beam below is the edge now. Leaving the old
+           white hairline in place would have shown as a second ring outside it,
+           since the clipped beam can only be painted inside the border box. */
+        border: none;
         box-shadow: 0 18px 50px rgba(0, 0, 0, 0.42);
         transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
       }
@@ -1438,9 +1494,43 @@
         #sponsor-bar {
           left: 10px;
           right: 10px;
-          top: 72px;
+          top: 86px;
           border-radius: 14px;
         }
+      }
+
+      /* The same border beam the corner ad wears, sharing its --beamAngle
+         property and beamSpin keyframes. It cannot be an outset ::before like
+         the corner ad's: this bar clips its children (overflow: hidden) to keep
+         the slide photo inside the rounded corners, so anything outside the box
+         would be cut away. Instead the ring is painted inside the box and a
+         mask punches out the middle — the border area is all that survives. */
+      #sponsor-bar::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 3; /* over the slides, which lift to 2 when active */
+        border-radius: inherit;
+        padding: 2px; /* ring thickness */
+        pointer-events: none;
+        background: conic-gradient(
+          from var(--beamAngle),
+          #f5a623,
+          #ffe6bd,
+          #1e8c7a,
+          #2d5a8e,
+          #c3b1e6,
+          #f5a623
+        );
+        -webkit-mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        mask-composite: exclude;
+        animation: beamSpin 3.4s linear infinite;
       }
 
       /* Dismissal slides the bar up behind the nav (z 100 beats the bar's 60),
@@ -1515,6 +1605,36 @@
         z-index: 2;
       }
 
+      /* The side ad's slide indicator. It shipped with markup but no styles, so
+         the dots rendered as default buttons — these are the sponsor bar's, so
+         the two carousels read as the same control. Centred because the side ad
+         is a stacked card rather than a row. */
+      .side-ad-dots {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        justify-content: center;
+        padding: 0.85rem 0 0.15rem;
+      }
+
+      .side-ad-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 100px;
+        border: none;
+        background: rgba(255, 255, 255, 0.3);
+        transition:
+          width 0.35s ease,
+          background 0.35s ease;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .side-ad-dot.is-active {
+        width: 22px;
+        background: var(--sun);
+      }
+
       .sponsor-dots {
         display: flex;
         gap: 6px;
@@ -1545,7 +1665,7 @@
          behind it. Above every overlay (z 2000) so modal flows can confirm. */
       #toast-root {
         position: fixed;
-        top: calc(88px + var(--sponsor-reserve, 0px));
+        top: calc(108px + var(--sponsor-reserve, 0px));
         left: 50%;
         transform: translateX(-50%);
         z-index: 2000;
@@ -1558,7 +1678,7 @@
 
       @media (max-width: 700px) {
         #toast-root {
-          top: calc(74px + var(--sponsor-reserve, 0px));
+          top: calc(88px + var(--sponsor-reserve, 0px));
           left: 12px;
           right: 12px;
           transform: none;
@@ -2234,13 +2354,23 @@
     <!-- NAV -->
     <nav
       id="site-nav"
-      class="sticky top-0 w-full z-[100] bg-[rgba(253,248,240,0.72)] backdrop-blur-[14px] border-b-[1.5px] border-b-transparent px-[clamp(1rem,5vw,7rem)] flex items-center justify-between h-[72px] gap-4 max1200:px-[3%] max1200:gap-3 max900:bg-transparent max900:bg-[linear-gradient(180deg,#ffffff_0%,#fdf8f0_100%)] max900:border-b-0 max900:shadow-[0_2px_14px_rgba(26,46,74,0.07)] max900:after:content-[''] max900:after:absolute max900:after:left-0 max900:after:right-0 max900:after:bottom-0 max900:after:h-[3px] max900:after:bg-[linear-gradient(90deg,#2d7a4f_0_25%,#f5a623_25%_50%,#1e8c7a_50%_75%,#7b5ea7_75%_100%)] max560:px-[4%] max560:h-[62px] max380:px-3 max380:gap-2"
+      class="sticky top-0 w-full z-[100] bg-[rgba(253,248,240,0.72)] backdrop-blur-[14px] border-b-[1.5px] border-b-transparent px-[clamp(1rem,5vw,7rem)] flex items-center justify-between h-[92px] gap-4 max1200:px-[3%] max1200:gap-3 max900:bg-transparent max900:bg-[linear-gradient(180deg,#ffffff_0%,#fdf8f0_100%)] max900:border-b-0 max900:shadow-[0_2px_14px_rgba(26,46,74,0.07)] max900:after:content-[''] max900:after:absolute max900:after:left-0 max900:after:right-0 max900:after:bottom-0 max900:after:h-[3px] max900:after:bg-[linear-gradient(90deg,#2d7a4f_0_25%,#f5a623_25%_50%,#1e8c7a_50%_75%,#7b5ea7_75%_100%)] max560:px-[4%] max560:h-[76px] max380:px-3 max380:gap-2"
     >
-      <div
-        class="font-serif font-black text-[1.5rem] text-head tracking-[-0.02em] cursor-pointer whitespace-nowrap shrink-0 max560:text-[1.3rem] max380:text-[1rem] max380:shrink max380:min-w-0 max380:overflow-hidden max380:text-ellipsis"
-        data-nav="home"
-      >
-        Bergen<span class="text-grass">Kids</span><em class="not-italic text-sun">.</em>
+      <!-- The wordmark is the fallback, not decoration: if the logo image fails
+           the brand still reads, so the <img> hides its sibling on load rather
+           than the text being removed up front. -->
+      <div class="brand flex items-center shrink-0 cursor-pointer min-w-0" data-nav="home">
+        <img
+          src="https://bergenapi.newagesmb.com/cdn/images/article-banner/1785408316818-aec863df-c1a6-4a3e-872b-03c40f49b19c.png"
+          alt="Bergen Kids"
+          class="brand-logo h-[80px] w-auto max-w-[340px] object-contain max560:h-[62px] max380:h-[50px]"
+          decoding="async"
+          onerror="this.parentElement.classList.add('no-logo'); this.remove()"
+        />
+        <span
+          class="brand-text font-serif font-black text-[1.5rem] text-head tracking-[-0.02em] whitespace-nowrap max560:text-[1.3rem] max380:text-[1rem] max380:overflow-hidden max380:text-ellipsis"
+          >Bergen<span class="text-grass">Kids</span><em class="not-italic text-sun">.</em></span
+        >
       </div>
       <!-- Home section anchors: navigate home first, then scroll to the id. -->
       <ul
@@ -2511,11 +2641,20 @@
         data-rv-stagger="80"
       >
         <div class="max-w-[34ch]">
-          <div
-            class="font-serif font-black text-[1.5rem] text-white tracking-[-0.02em] whitespace-nowrap cursor-pointer mb-7 max560:text-[1.3rem]"
-            data-nav="home"
-          >
-            Bergen<span class="text-[#6cc48f]">Kids</span><em class="not-italic text-sun">.</em>
+          <div class="brand flex items-center cursor-pointer mb-7" data-nav="home">
+            <img
+              src="https://bergenapi.newagesmb.com/cdn/images/article-banner/1785408316818-aec863df-c1a6-4a3e-872b-03c40f49b19c.png"
+              alt="Bergen Kids"
+              class="brand-logo h-[74px] w-auto max-w-[310px] object-contain max560:h-[58px]"
+              loading="lazy"
+              decoding="async"
+              onerror="this.parentElement.classList.add('no-logo'); this.remove()"
+            />
+            <span
+              class="brand-text font-serif font-black text-[1.5rem] text-white tracking-[-0.02em] whitespace-nowrap max560:text-[1.3rem]"
+              >Bergen<span class="text-[#6cc48f]">Kids</span
+              ><em class="not-italic text-sun">.</em></span
+            >
           </div>
           <p class="text-[0.95rem] leading-[1.75] mb-6">
             The hyper-local platform connecting Bergen County families with trusted kids' services,
@@ -3562,9 +3701,7 @@
           signupData: null,
         },
         dir: { q: "", cat: "", sub: "", age: "", town: "", sort: "featured" },
-        dirFiltersOpen: false,
         calFilter: { q: "", cat: "", age: "", town: "", sort: "date" },
-        calFiltersOpen: false,
         advTab: "overview", // the one dashboard's tab — listings and campaigns both live in it
         billing: { q: "", cat: "", from: "", to: "" },
         listingFilter: { cat: "", plan: "", status: "", from: "", to: "" },
@@ -3783,7 +3920,7 @@
         parent: "Stay notified on updates.",
       };
       // Scroll helpers — native scrolling.
-      const NAV_OFFSET = -76; // clear the sticky header
+      const NAV_OFFSET = -96; // clear the sticky header (92px tall)
       // The sponsor bar parks under that header, so a scroll target has to clear
       // both. syncSponsorPad() publishes the band the bar covers — 0 once it is
       // dismissed — as --sponsor-reserve.
@@ -4443,17 +4580,58 @@
           )
           .join(
             ""
-          )}<button class="text-[0.9rem] font-bold text-brand underline underline-offset-2 ml-1 hover:text-head" data-action="clear-all-dir">Clear All</button>`;
+          )}<button type="button" class="${CLEAR_BTN}" data-action="clear-all-dir">${icon("x", 14, "text-muted")} Clear All</button>`;
       }
       function dirShowingText(list) {
         return `Showing <b class="text-head">${list.length}</b> of <b class="text-head">${LISTINGS.length}</b> result${LISTINGS.length !== 1 ? "s" : ""}`;
       }
-      // One selectable row in the sidebar Category list (checkbox on the left).
-      function dirCatRow(id, name, active) {
-        return `<button class="flex items-center gap-[0.65rem] w-full text-left px-[0.6rem] py-[0.6rem] rounded-[10px] transition-colors duration-150 ${active ? "bg-mint" : "hover:bg-surface-4"}" data-action="set-cat" data-cat="${id}">
-      <span class="w-[20px] h-[20px] rounded-[6px] border-[1.5px] flex items-center justify-center shrink-0 transition-colors duration-150 ${active ? "bg-grass-ink border-brand text-white" : "border-line bg-surface text-transparent"}">${icon("check", 13)}</span>
-      <span class="text-[0.93rem] leading-tight ${active ? "text-head font-bold" : "text-muted font-medium"}">${name}</span>
-    </button>`;
+      /* ── Filter bar ─────────────────────────────────────────────
+         The filters used to be a tall left rail, which meant scrolling down to
+         a control and back up to see what it did. They now sit in one row
+         directly above the results, and that row sticks to the top of the
+         viewport as you scroll, so the control and the thing it changes are
+         always on screen together. Everything is a <select> for that reason: a
+         nine-row checkbox list of categories cannot live in a single row. */
+      const FT_FIELD =
+        "flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.55rem] bg-surface-2 min-h-[46px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]";
+      const FT_INPUT =
+        "border-none outline-none bg-transparent font-sans text-[0.95rem] text-head w-full min-w-0 cursor-pointer";
+      const FT_LABEL = "text-[0.72rem] font-bold tracking-[0.07em] uppercase text-adlabel pl-1";
+      // "Clear all" is a real button everywhere it appears — the bar's header and
+      // the end of the active-filter chips — so the two read as the same control
+      // rather than one button and one piece of underlined text.
+      const CLEAR_BTN =
+        "inline-flex items-center gap-[0.4rem] rounded-[100px] border-[1.5px] border-line bg-surface px-[0.9rem] py-[0.4rem] text-[0.85rem] font-bold text-head min-h-[38px] shrink-0 transition-[border-color,background] duration-150 hover:border-head hover:bg-surface-3";
+      function ftField(label, id, body) {
+        return `<div class="flex flex-col gap-[0.3rem] min-w-0"><label class="${FT_LABEL}" for="${id}">${label}</label><div class="${FT_FIELD}">${body}</div></div>`;
+      }
+      function ftSelect(label, id, value, options, ic) {
+        return ftField(
+          label,
+          id,
+          `${icon(ic, 16, "text-muted shrink-0")}<select class="${FT_INPUT}" id="${id}">${options
+            .map(
+              ([v, lbl]) =>
+                `<option value="${String(v).replace(/"/g, "&quot;")}" ${value === v ? "selected" : ""}>${lbl}</option>`
+            )
+            .join("")}</select>`
+        );
+      }
+      // Header row of the card. Split out so the partial result updates (typing
+      // in the search box, changing a select) can keep the active count honest
+      // without re-rendering the whole view.
+      function ftHead(count, clearAction) {
+        return `<div class="flex items-center gap-2 text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-head">${icon("sliders", 15, "text-brand")} Filters${count ? `<span class="inline-flex items-center justify-center min-w-[21px] h-[21px] px-[6px] rounded-[100px] bg-navy text-white text-[0.72rem] font-extrabold">${count}</span>` : ""}</div>
+      ${count ? `<button type="button" class="${CLEAR_BTN}" data-action="${clearAction}">${icon("x", 14, "text-muted")} Clear all</button>` : ""}`;
+      }
+      // Wrapper card, so both pages' bars look and space the same.
+      // `unpinned` opts the bar out of sticking to the top of the viewport — the
+      // directory uses it, so its bar scrolls away with the page.
+      function filtersTop(inner, count, clearAction, unpinned) {
+        return `<div class="filters-top${unpinned ? " is-unpinned" : ""} bg-surface border-[1.5px] border-line rounded-[18px] p-4 mb-5 max380:p-3">
+      <div class="ft-head flex items-center justify-between gap-3 mb-[0.6rem] flex-wrap">${ftHead(count, clearAction)}</div>
+      ${inner}
+    </div>`;
       }
       function viewDirectory() {
         const f = state.dir;
@@ -4468,52 +4646,20 @@
       <p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">${cat ? "Browse trusted " + cat.name.toLowerCase() + " for children across Bergen County." : "Search and filter every trusted kids service and activity in Bergen County by category, age, and town."}</p>
     </div>
 
-    <button class="hidden max900:flex items-center justify-center gap-2 w-full mb-4 border-[1.5px] border-line rounded-[12px] bg-surface px-4 py-3 font-bold text-head min-h-[50px] shadow-[0_4px_20px_rgba(26,46,74,0.05)] hover:border-head" data-action="toggle-dir-filters" aria-expanded="${state.dirFiltersOpen}">${icon("sliders", 17, "text-brand")} ${state.dirFiltersOpen ? "Hide Filters" : "Show Filters"}${dirActiveCount ? `<span class="inline-flex items-center justify-center min-w-[22px] h-[22px] px-[6px] rounded-[100px] bg-navy text-white text-[0.75rem] font-extrabold">${dirActiveCount}</span>` : ""}</button>
+    ${filtersTop(
+      `<div class="grid gap-3 items-end ${subs.length ? "grid-cols-[1.5fr_1fr_1fr_1fr_1fr]" : "grid-cols-[1.6fr_1fr_1fr_1fr]"} max1200:!grid-cols-[1fr_1fr_1fr] max900:!grid-cols-[1fr_1fr] max560:!grid-cols-[1fr]">
+      ${ftField("Search", "d-q", `${icon("search", 16, "text-muted shrink-0")}<input class="${FT_INPUT} cursor-text placeholder:text-muted placeholder:opacity-100" type="text" id="d-q" placeholder="Name, service or town..." value="${f.q.replace(/"/g, "&quot;")}">`)}
+      ${ftSelect("Category", "d-cat", f.cat, [["", "All categories"], ...CATEGORIES.filter((c) => c.id !== "medical").map((c) => [c.id, c.name])], "tag")}
+      ${subs.length ? ftSelect(cat.name.split(" ")[0] + " type", "d-sub", f.sub, [["", "All types"], ...subs.map((s) => [s, s])], "filter") : ""}
+      ${ftSelect("Age group", "d-age", f.age, [["", "All ages"], ...AGE_GROUPS.map((a) => [a.id, a.label])], "users")}
+      ${ftSelect("Town", "d-town", f.town, [["", "All towns"], ...TOWNS.map((t) => [t, t])], "pin")}
+    </div>`,
+      dirActiveCount,
+      "clear-all-dir",
+      true // the directory's bar scrolls away with the page
+    )}
 
-    <div class="grid grid-cols-[250px_minmax(0,1fr)] gap-7 [align-items:start] [&>*]:min-w-0 max900:grid-cols-[1fr]">
-      <aside class="dir-side bg-surface border-[1.5px] border-line rounded-[18px] p-5 sticky top-[84px] shadow-[0_4px_20px_rgba(26,46,74,0.05)] max900:static max900:top-auto ${state.dirFiltersOpen ? "" : "max900:hidden"}">
-        <div class="flex items-center mb-4">
-          <div class="font-serif text-[1.25rem] font-black text-head">Filter Options</div>
-        </div>
-
-        <div class="mb-5"><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-surface-2 min-h-[46px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("search", 16, "text-muted shrink-0")}<input class="border-none outline-none bg-transparent font-sans text-[0.95rem] text-head w-full min-w-0 cursor-text placeholder:text-muted placeholder:opacity-100" type="text" id="d-q" placeholder="Name..." value="${f.q.replace(/"/g, "&quot;")}"></div></div>
-
-        <div class="border-t border-line pt-4 mb-4">
-          <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-head mb-2">Category</div>
-          <div class="flex flex-col gap-1">
-            ${dirCatRow("", "All categories", !f.cat)}
-            ${CATEGORIES.filter((c) => c.id !== "medical")
-              .map((c) => dirCatRow(c.id, c.name, f.cat === c.id))
-              .join("")}
-          </div>
-        </div>
-
-        ${
-          subs.length
-            ? `<div class="border-t border-line pt-4 mb-4">
-          <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-head mb-2">${cat.name.split(" ")[0]} Type</div>
-          <div class="flex gap-2 flex-wrap">
-            <span class="${!f.sub ? "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-navy border-navy text-white" : "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-surface border-line text-head hover:border-head"}" data-action="set-sub" data-sub="">All</span>
-            ${subs.map((s) => `<span class="${f.sub === s ? "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-navy border-navy text-white" : "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-surface border-line text-head hover:border-head"}" data-action="set-sub" data-sub="${s}">${s}</span>`).join("")}
-          </div>
-        </div>`
-            : ""
-        }
-
-        <div class="border-t border-line pt-4 mb-4">
-          <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-head mb-2">Age Group</div>
-          <div class="flex gap-2 flex-wrap">
-            <span class="${!f.age ? "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-navy border-navy text-white" : "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-surface border-line text-head hover:border-head"}" data-action="set-age" data-age="">All ages</span>
-            ${AGE_GROUPS.map((a) => `<span class="${f.age === a.id ? "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-navy border-navy text-white" : "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-surface border-line text-head hover:border-head"}" data-action="set-age" data-age="${a.id}">${a.label}</span>`).join("")}
-          </div>
-        </div>
-
-        <div class="border-t border-line pt-4">
-          <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-head mb-2">Location</div>
-          <div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-surface-2 min-h-[46px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("pin", 16, "text-muted shrink-0")}<select class="border-none outline-none bg-transparent font-sans text-[0.95rem] text-head w-full min-w-0 cursor-pointer" id="d-town"><option value="">All towns</option>${TOWNS.map((t) => `<option value="${t}" ${f.town === t ? "selected" : ""}>${t}</option>`).join("")}</select></div>
-        </div>
-      </aside>
-
+    <div class="grid grid-cols-[minmax(0,1fr)] [&>*]:min-w-0">
       <div class="min-w-0">
         <div class="flex justify-between items-center gap-3 flex-wrap mb-4 max560:flex-col max560:items-start">
           <div class="dir-showing text-[0.95rem] text-muted">${dirShowingText(list)}</div>
@@ -4633,17 +4779,10 @@
           )
           .join(
             ""
-          )}<button class="text-[0.9rem] font-bold text-brand underline underline-offset-2 ml-1 hover:text-head" data-action="clear-cal">Clear All</button>`;
+          )}<button type="button" class="${CLEAR_BTN}" data-action="clear-cal">${icon("x", 14, "text-muted")} Clear All</button>`;
       }
       function calShowingText(list) {
         return `Showing <b class="text-head">${list.length}</b> of <b class="text-head">${EVENTS.length}</b> event${EVENTS.length !== 1 ? "s" : ""}`;
-      }
-      // One selectable row in the events sidebar Category list (checkbox on the left).
-      function calCatRow(id, name, active) {
-        return `<button class="flex items-center gap-[0.65rem] w-full text-left px-[0.6rem] py-[0.6rem] rounded-[10px] transition-colors duration-150 ${active ? "bg-mint" : "hover:bg-surface-4"}" data-action="set-cal-cat" data-cat="${id}">
-      <span class="w-[20px] h-[20px] rounded-[6px] border-[1.5px] flex items-center justify-center shrink-0 transition-colors duration-150 ${active ? "bg-grass-ink border-brand text-white" : "border-line bg-surface text-transparent"}">${icon("check", 13)}</span>
-      <span class="text-[0.93rem] leading-tight ${active ? "text-head font-bold" : "text-muted font-medium"}">${name}</span>
-    </button>`;
       }
       const CAL_SORTS = [
         ["date", "Date"],
@@ -4664,38 +4803,18 @@
       <p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Browse every kids' event across Bergen County. Filter by category, age, or town, then tap any event for the full details.</p>
     </div>
 
-    <button class="hidden max900:flex items-center justify-center gap-2 w-full mb-4 border-[1.5px] border-line rounded-[12px] bg-surface px-4 py-3 font-bold text-head min-h-[50px] shadow-[0_4px_20px_rgba(26,46,74,0.05)] hover:border-head" data-action="toggle-cal-filters" aria-expanded="${state.calFiltersOpen}">${icon("sliders", 17, "text-brand")} ${state.calFiltersOpen ? "Hide Filters" : "Show Filters"}${activeCount ? `<span class="inline-flex items-center justify-center min-w-[22px] h-[22px] px-[6px] rounded-[100px] bg-navy text-white text-[0.75rem] font-extrabold">${activeCount}</span>` : ""}</button>
+    ${filtersTop(
+      `<div class="grid gap-3 items-end grid-cols-[1.6fr_1fr_1fr_1fr] max1200:!grid-cols-[1fr_1fr_1fr] max900:!grid-cols-[1fr_1fr] max560:!grid-cols-[1fr]">
+      ${ftField("Search", "c-q", `${icon("search", 16, "text-muted shrink-0")}<input class="${FT_INPUT} cursor-text placeholder:text-muted placeholder:opacity-100" type="text" id="c-q" placeholder="Event name, organizer or town..." value="${f.q.replace(/"/g, "&quot;")}">`)}
+      ${ftSelect("Category", "c-cat", f.cat, [["", "All categories"], ...CATEGORIES.map((c) => [c.id, c.name])], "tag")}
+      ${ftSelect("Age group", "c-age", f.age, [["", "All ages"], ...AGE_GROUPS.map((a) => [a.id, a.label])], "users")}
+      ${ftSelect("Town", "c-town", f.town, [["", "All towns"], ...TOWNS.map((t) => [t, t])], "pin")}
+    </div>`,
+      activeCount,
+      "clear-cal"
+    )}
 
-    <div class="grid grid-cols-[250px_minmax(0,1fr)] gap-7 [align-items:start] [&>*]:min-w-0 max900:grid-cols-[1fr]">
-      <aside class="cal-side bg-surface border-[1.5px] border-line rounded-[18px] p-5 sticky top-[84px] shadow-[0_4px_20px_rgba(26,46,74,0.05)] max900:static max900:top-auto ${state.calFiltersOpen ? "" : "max900:hidden"}">
-        <div class="flex items-center mb-4">
-          <div class="font-serif text-[1.25rem] font-black text-head">Filter Options</div>
-        </div>
-
-        <div class="mb-5"><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-surface-2 min-h-[46px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("search", 16, "text-muted shrink-0")}<input class="border-none outline-none bg-transparent font-sans text-[0.95rem] text-head w-full min-w-0 cursor-text placeholder:text-muted placeholder:opacity-100" type="text" id="c-q" placeholder="Event name..." value="${f.q.replace(/"/g, "&quot;")}"></div></div>
-
-        <div class="border-t border-line pt-4 mb-4">
-          <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-head mb-2">Category</div>
-          <div class="flex flex-col gap-1">
-            ${calCatRow("", "All categories", !f.cat)}
-            ${CATEGORIES.map((c) => calCatRow(c.id, c.name, f.cat === c.id)).join("")}
-          </div>
-        </div>
-
-        <div class="border-t border-line pt-4 mb-4">
-          <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-head mb-2">Age Group</div>
-          <div class="flex gap-2 flex-wrap">
-            <span class="${!f.age ? "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-navy border-navy text-white" : "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-surface border-line text-head hover:border-head"}" data-action="set-cal-age" data-age="">All ages</span>
-            ${AGE_GROUPS.map((a) => `<span class="${f.age === a.id ? "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-navy border-navy text-white" : "border-[1.5px] text-[0.85rem] font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150 bg-surface border-line text-head hover:border-head"}" data-action="set-cal-age" data-age="${a.id}">${a.label}</span>`).join("")}
-          </div>
-        </div>
-
-        <div class="border-t border-line pt-4">
-          <div class="text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-head mb-2">Location</div>
-          <div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-surface-2 min-h-[46px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("pin", 16, "text-muted shrink-0")}<select class="border-none outline-none bg-transparent font-sans text-[0.95rem] text-head w-full min-w-0 cursor-pointer" id="c-town"><option value="">All towns</option>${TOWNS.map((t) => `<option value="${t}" ${f.town === t ? "selected" : ""}>${t}</option>`).join("")}</select></div>
-        </div>
-      </aside>
-
+    <div class="grid grid-cols-[minmax(0,1fr)] [&>*]:min-w-0">
       <div class="min-w-0">
         <div class="flex justify-between items-center gap-3 flex-wrap mb-4 max560:flex-col max560:items-start">
           <div class="cal-showing text-[0.95rem] text-muted">${calShowingText(list)}</div>
@@ -5478,7 +5597,7 @@
     <div class="mb-7"><div class="flex items-center gap-[0.4rem] text-[0.9rem] text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-brand font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>Advertiser Dashboard</span></div>
       ${tab === "overview" ? "" : `<div class="font-serif text-[clamp(1.9rem,1.4rem_+_2.1vw,2.7rem)] font-black text-head tracking-[-0.02em] leading-[1.15] text-balance">Advertiser Dashboard</div><p class="text-muted text-[1.05rem] leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Welcome back, ${state.user.name}. Manage your directory listings and banner campaigns in one place.</p>`}</div>
     <div class="grid grid-cols-[230px_minmax(0,1fr)] gap-8 [align-items:start] [&>*]:min-w-0 max1024:grid-cols-[1fr]">
-      <div class="dash-side bg-surface border-[1.5px] border-line rounded-[18px] p-3 sticky top-[84px] min-w-0 max1024:static max1024:flex max1024:items-center max1024:overflow-x-auto max1024:gap-[0.4rem] max1024:p-2 no-scrollbar">
+      <div class="dash-side bg-surface border-[1.5px] border-line rounded-[18px] p-3 sticky top-[104px] min-w-0 max1024:static max1024:flex max1024:items-center max1024:overflow-x-auto max1024:gap-[0.4rem] max1024:p-2 no-scrollbar">
         <div class="flex flex-col items-center text-center px-2 pt-3 pb-4 mb-2 border-b border-line2 max1024:hidden">
           ${avatarHtml(state.user, 66, "border-[3px] border-white shadow-[0_4px_16px_rgba(15,26,44,0.18)]")}
           <div class="mt-3 font-serif text-[1.02rem] font-black text-head leading-[1.2] break-words">${state.user.name}</div>
@@ -6398,8 +6517,17 @@
           // the flex row keeps that column's height definite so it can.
           `<div class="auth-panel">
       <div class="auth-form flex w-[57%] flex-col px-[clamp(1.4rem,2.6vw,2.6rem)] py-[clamp(1.4rem,2.4vw,2rem)] max900:w-full max700:px-5 max700:py-6">
-        <div class="mb-[clamp(0.9rem,2vw,1.5rem)] font-serif text-[1.2rem] font-black tracking-[-0.02em] text-head">
-          Bergen<span class="text-brand">Kids</span><span class="text-sun">.</span>
+        <div class="brand flex items-center mb-[clamp(0.9rem,2vw,1.5rem)]">
+          <img
+            src="https://bergenapi.newagesmb.com/cdn/images/article-banner/1785408316818-aec863df-c1a6-4a3e-872b-03c40f49b19c.png"
+            alt="Bergen Kids"
+            class="brand-logo h-[56px] w-auto max-w-[240px] object-contain"
+            decoding="async"
+            onerror="this.parentElement.classList.add('no-logo'); this.remove()"
+          />
+          <span class="brand-text font-serif text-[1.2rem] font-black tracking-[-0.02em] text-head"
+            >Bergen<span class="text-brand">Kids</span><span class="text-sun">.</span></span
+          >
         </div>
         <h2 id="auth-title">${authStepTitle(state.auth.mode)}</h2>
         <div id="auth-subtitle" class="text-muted text-[0.95rem] mt-[0.35rem] leading-[1.55]">${authStepSubtitle(state.auth.mode)}</div>
@@ -6873,19 +7001,6 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               state.dir = { q: "", cat: "", sub: "", age: "", town: "", sort: state.dir.sort };
               render();
               break;
-            case "toggle-dir-filters":
-              state.dirFiltersOpen = !state.dirFiltersOpen;
-              render();
-              break;
-            case "set-cat":
-              state.dir.cat = actEl.dataset.cat;
-              state.dir.sub = "";
-              render();
-              break;
-            case "set-age":
-              state.dir.age = actEl.dataset.age;
-              render();
-              break;
             case "rm-filter": {
               const k = actEl.dataset.key;
               if (k === "cat") {
@@ -6899,25 +7014,9 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
               render();
               break;
             }
-            case "set-sub":
-              state.dir.sub = actEl.dataset.sub;
-              render();
-              break;
             case "near-me":
               state.dir.town = "Hackensack";
               toast("Location set to Hackensack (nearest)");
-              render();
-              break;
-            case "toggle-cal-filters":
-              state.calFiltersOpen = !state.calFiltersOpen;
-              render();
-              break;
-            case "set-cal-cat":
-              state.calFilter.cat = actEl.dataset.cat;
-              render();
-              break;
-            case "set-cal-age":
-              state.calFilter.age = actEl.dataset.age;
               render();
               break;
             case "rm-cal-filter":
@@ -7355,11 +7454,29 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         } else if (e.target.id === "d-sort") {
           state.dir.sort = e.target.value;
           updateDirResults();
+        } else if (e.target.id === "d-cat") {
+          // Sub-types belong to a category, so changing it drops the old one —
+          // and the bar itself gains or loses a control, hence a full render.
+          state.dir.cat = e.target.value;
+          state.dir.sub = "";
+          render();
+        } else if (e.target.id === "d-sub") {
+          state.dir.sub = e.target.value;
+          updateDirResults();
+        } else if (e.target.id === "d-age") {
+          state.dir.age = e.target.value;
+          updateDirResults();
         } else if (e.target.id === "c-town") {
           state.calFilter.town = e.target.value;
           updateCalResults();
         } else if (e.target.id === "c-sort") {
           state.calFilter.sort = e.target.value;
+          updateCalResults();
+        } else if (e.target.id === "c-cat") {
+          state.calFilter.cat = e.target.value;
+          updateCalResults();
+        } else if (e.target.id === "c-age") {
+          state.calFilter.age = e.target.value;
           updateCalResults();
         } else if (e.target.id === "nl-cat") {
           const s = el("nl-sub");
@@ -7497,6 +7614,15 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         if (showing) showing.innerHTML = dirShowingText(list);
         const chips = document.querySelector(".dir-chips");
         if (chips) chips.innerHTML = dirActiveChipsInner();
+        // The bar's count badge would otherwise go stale as you type.
+        const head = document.querySelector(".ft-head");
+        if (head) {
+          const d = state.dir;
+          head.innerHTML = ftHead(
+            [d.q, d.cat, d.sub, d.age, d.town].filter(Boolean).length,
+            "clear-all-dir"
+          );
+        }
         const container = document.querySelector(".view-full");
         if (!container) return;
         const target = grid || empty;
@@ -7518,6 +7644,11 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         if (showing) showing.innerHTML = calShowingText(list);
         const chips = document.querySelector(".cal-chips");
         if (chips) chips.innerHTML = calActiveChipsInner();
+        const head = document.querySelector(".ft-head");
+        if (head) {
+          const c = state.calFilter;
+          head.innerHTML = ftHead([c.q, c.cat, c.age, c.town].filter(Boolean).length, "clear-cal");
+        }
         const target =
           document.querySelector(".ev-grid") || document.querySelector(".view-full .empty");
         if (target) target.outerHTML = list.length ? calGridHtml(list) : CAL_EMPTY;
@@ -8108,6 +8239,9 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         mountTilt();
         mountCategoryMarquee();
         mountSideAd();
+        // The band reserved for the sponsor bar lives on the view's first block,
+        // which this render just replaced.
+        syncSponsorPad();
       }
 
       function sideAdMarkup() {
@@ -8413,12 +8547,20 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         const bar = el("sponsor-bar");
         const root = el("view-root");
         const gone = document.body.classList.contains("sponsor-dismissed");
-        // Gutter above the bar plus the same again below it, matching the
-        // left/right insets in the CSS.
+        // Just the gutter above the bar plus the bar itself, so the page starts
+        // level with its bottom edge. Reserving a second gutter below it as well
+        // stacked on top of the section's own top padding and read as a gap.
         const gutter = window.innerWidth <= 560 ? 10 : 16;
-        const reserve = !bar || gone ? 0 : bar.offsetHeight + gutter * 2;
+        const reserve = !bar || gone ? 0 : bar.offsetHeight + gutter;
         document.documentElement.style.setProperty("--sponsor-reserve", reserve + "px");
-        if (root) root.style.paddingTop = reserve ? reserve + "px" : "";
+        if (!root) return;
+        // Reserve it on the view's first painted block rather than on #view-root:
+        // that element carries the section's own background, so the band behind
+        // the bar is the hero's gradient instead of a bare strip of page colour.
+        // Re-applied from afterRender(), since this element dies with each view.
+        const host = root.querySelector("section, .view-full") || root;
+        if (host !== root) root.style.paddingTop = "";
+        host.style.paddingTop = reserve ? reserve + "px" : "";
       }
       window.addEventListener("resize", syncSponsorPad);
       window.addEventListener("load", syncSponsorPad);
