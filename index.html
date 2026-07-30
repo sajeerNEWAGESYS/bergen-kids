@@ -663,12 +663,12 @@
       }
 
       /* ── Listing plan cards ─────────────────────────────────── */
+      /* A flat brand gradient rather than a photo behind a dark scrim: the
+         section is dense with prices and small print, and a photo underneath
+         fought it for attention (and cost a 1600px download). The band's own
+         radial highlight still sits on top of this. */
       .plans-band {
-        background:
-          linear-gradient(160deg, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0.68) 100%),
-          url("https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?auto=format&fit=crop&w=1600&q=72")
-            center / cover no-repeat;
-        background-color: #1a2e4a;
+        background: linear-gradient(150deg, #16324f 0%, #1a2e4a 42%, #14453a 100%);
       }
 
       .plan-card {
@@ -2563,7 +2563,7 @@
             class="no-underline text-muted text-[0.95rem] font-semibold transition-[color,background] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] rounded-[100px] inline-block whitespace-nowrap hover:text-brand hover:bg-mint"
             data-nav="home"
             data-scroll="plans"
-            >Plans</a
+            >Listing Plans</a
           >
         </li>
       </ul>
@@ -4415,14 +4415,38 @@
 
     <section class="plans-band px-[clamp(1rem,5vw,7rem)] py-20 relative overflow-hidden before:content-[''] before:absolute before:inset-0 before:bg-[radial-gradient(ellipse_at_70%_50%,rgba(45,122,79,0.15)_0%,transparent_60%)] max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4" id="plans">
       <div class="relative z-[1] text-center" data-rv-stagger="110">
-        <div class="text-[0.85rem] font-bold tracking-[0.1em] uppercase mb-3 text-sun">Business Listing Plans</div>
-        <div class="font-serif text-[clamp(1.75rem,1.3rem_+_1.9vw,2.5rem)] font-black tracking-[-0.02em] mb-3 leading-[1.15] text-balance text-white">Choose how you want to be found</div>
-        <p class="text-[1.05rem] leading-[1.65] max-w-[60ch] mx-auto text-pretty text-on-dark-2 mb-14">Pick a plan when you add a listing — payment is made per listing at creation, so there's nothing to buy here. Advertising is separate: banner campaigns are priced by placement and flight dates, paid per campaign.</p>
+        <div class="text-[0.85rem] font-bold tracking-[0.1em] uppercase mb-3 text-sun">Listing Plans</div>
+        <div class="font-serif text-[clamp(1.75rem,1.3rem_+_1.9vw,2.5rem)] font-black tracking-[-0.02em] mb-3 leading-[1.15] text-balance text-white">Pick what your ad does, then how you pay for it</div>
+        <p class="text-[1.05rem] leading-[1.65] max-w-[62ch] mx-auto text-pretty text-on-dark-2 mb-12">Every ad starts as a free Basic Listing. Add the placements you want on top, then choose a billing term — a subscription that renews, or a one-time fee for the same run. Add-on costs are added to whichever you pick.</p>
       </div>
-      <div class="grid grid-cols-3 gap-6 relative z-[1] items-stretch mx-auto w-full max-w-[960px] max900:max-w-[440px] max900:grid-cols-1 max900:gap-5" data-rv-stagger="120" data-rv-child="zoom">
-        ${planCard("Basic", "Free", "per listing", ["Business name & address", "Single subcategory listing", "Phone & website link", "Standard directory placement"], null, "basic", false)}
-        ${planCard("Deluxe", "$49", "/mo per listing", ["Everything in Basic", "Photo gallery & logo", "Featured placement in category", "Click & impression analytics"], null, "deluxe", true, "Most popular")}
-        ${planCard("Advertiser", "Custom", "priced by placement &amp; flight dates", ["Leaderboard, sidebar &amp; category banners", "Category &amp; subcategory targeting", "Click-through to your site or listing", "Dedicated advertiser dashboard", "Impression &amp; click analytics"], "Start advertising", "advertiser", false)}
+
+      <div class="relative z-[1] mx-auto w-full max-w-[1080px]">
+        <!-- Step 1 — what the ad is -->
+        <div class="flex items-center gap-3 mb-5">
+          <span class="w-[30px] h-[30px] rounded-full bg-sun text-navy grid place-items-center text-[0.9rem] font-black shrink-0">1</span>
+          <div class="font-serif text-[1.35rem] font-black text-white leading-[1.2]">Choose the ad type</div>
+        </div>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(215px,1fr))] gap-4 mb-4" data-rv-stagger="90" data-rv-child="zoom">
+          ${adTypeCard({ id: "basic", name: "Basic Listing", icon: "check", desc: "Name, address, phone, website and a standard place in the directory.", rate: 0 })}
+          ${AD_ADDONS.map(adTypeCard).join("")}
+        </div>
+        <p class="text-[0.9rem] text-on-dark-3 mb-12 leading-[1.6]">Add-ons are optional and stack — take one, all four, or none at all.</p>
+
+        <!-- Step 2 — how it is paid for -->
+        <div class="flex items-center gap-3 mb-5">
+          <span class="w-[30px] h-[30px] rounded-full bg-sun text-navy grid place-items-center text-[0.9rem] font-black shrink-0">2</span>
+          <div class="font-serif text-[1.35rem] font-black text-white leading-[1.2]">Choose a billing term</div>
+        </div>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(235px,1fr))] gap-4" data-rv-stagger="90" data-rv-child="zoom">
+          ${BILLING_PLANS.map((p) => billingPlanCard(p, p.id === "annual")).join("")}
+        </div>
+
+        <div class="mt-8 rounded-[16px] border-[1.5px] border-white/15 bg-white/[0.05] px-5 py-4 flex items-start gap-3">
+          <span class="w-[30px] h-[30px] rounded-[9px] bg-white/10 text-mint-2 grid place-items-center shrink-0">${icon("card", 16)}</span>
+          <div class="text-[0.92rem] leading-[1.6] text-on-dark-2">
+            <b class="text-white">What you pay</b> = the billing term you chose + the monthly rate of each add-on across that term. A Basic Listing on its own is just the billing term. Every rate on this page is set by Bergen Kids in the admin panel.
+          </div>
+        </div>
       </div>
     </section>
 
@@ -4580,38 +4604,96 @@
     </section>
   </div></div>`;
       }
-      function planCard(name, price, period, feats, btn, plan, featured, badge) {
-        const base =
-          "plan-card relative flex flex-col h-full rounded-[26px] px-7 py-10 max1024:px-6 max1024:py-8 max560:p-6 ";
-        const card = base + (featured ? "plan-card--pop" : "plan-card--glass");
-        const nameC =
-          "text-[0.85rem] font-bold tracking-[0.1em] uppercase mb-3 " +
-          (featured ? "text-brand" : "text-sun");
-        const priceC =
-          "font-serif text-[2.75rem] font-black leading-[1] tracking-[-0.02em] " +
-          (featured ? "text-head" : "text-white");
-        const periodC =
-          "text-[0.92rem] font-medium leading-[1.4] " +
-          (featured ? "text-muted" : "text-on-dark-2");
-        const liC =
-          "text-[0.95rem] flex items-start gap-[0.65rem] leading-[1.5] " +
-          (featured ? "text-ink" : "text-white");
-        const chipC =
-          "mt-[0.15rem] w-[18px] h-[18px] rounded-full grid place-items-center shrink-0 " +
-          (featured ? "bg-mint text-brand" : "bg-mint-2/25 text-mint-2");
-        const btnC =
-          "mt-auto cursor-pointer flex items-center justify-center text-center no-underline p-[0.9rem] rounded-[100px] font-bold text-[1rem] transition-[background,transform] duration-200 min-h-[48px] " +
-          (featured
-            ? "bg-navy text-white hover:bg-ink"
-            : "bg-mint-2/[0.14] text-white border-[1.5px] border-mint-2/50 hover:bg-mint-2/[0.26]");
-        return `<div class="${card}">
-    ${badge ? `<div class="plan-badge">${badge}</div>` : ""}
-    <div class="${nameC}">${name}</div>
-    <div class="flex items-baseline gap-x-2 gap-y-1 flex-wrap mb-7"><span class="${priceC}">${price}</span><span class="${periodC}">${period}</span></div>
-    <ul class="list-none mb-8 flex-1 flex flex-col gap-[0.7rem]">${feats.map((f) => `<li class="${liC}"><span class="${chipC}">${icon("check", 11)}</span><span>${f}</span></li>`).join("")}</ul>
-    ${btn ? `<a class="${btnC}" data-action="choose-plan" data-plan="${plan}">${btn}</a>` : ""}</div>`;
+      /* ── Listing pricing ────────────────────────────────────────
+         What an ad costs, in one place. Every figure here is meant to be
+         editable from the admin panel, so the Listing Plans section reads these
+         rather than hard-coding prices into the markup — when rates change
+         there is exactly one thing to edit, and the create-ad flow can price
+         itself off the same numbers.
+
+         The model: every ad is a Basic Listing, which costs nothing extra. On
+         top of that an advertiser may take any combination of paid add-ons.
+         Whether or not they do, the ad still needs a billing term — either a
+         renewing subscription or a one-off payment for the same duration — and
+         the add-on cost is added to whichever is chosen. */
+      const AD_ADDONS = [
+        {
+          id: "deluxe",
+          name: "Deluxe listing",
+          icon: "star",
+          desc: "Photo gallery, logo, and featured placement inside your category.",
+          rate: 25,
+        },
+        {
+          id: "leaderboard",
+          name: "Leaderboard placement",
+          icon: "megaphone",
+          desc: "Your banner in the wide slot that rides the top of every page.",
+          rate: 60,
+        },
+        {
+          id: "sidebar",
+          name: "Sidebar placement",
+          icon: "sliders",
+          desc: "The featured card in the side rail, alongside listings and events.",
+          rate: 40,
+        },
+        {
+          id: "category",
+          name: "Category banner",
+          icon: "tag",
+          desc: "A banner shown only to families browsing your category.",
+          rate: 35,
+        },
+      ];
+      // `price` renews every `days`; `oneTime` buys the same run once and stops.
+      const BILLING_PLANS = [
+        { id: "monthly", name: "Monthly", days: 30, months: 1, price: 29, oneTime: 39 },
+        { id: "quarterly", name: "Quarterly", days: 90, months: 3, price: 79, oneTime: 99 },
+        {
+          id: "semiannual",
+          name: "Semi-annually",
+          days: 180,
+          months: 6,
+          price: 145,
+          oneTime: 185,
+        },
+        { id: "annual", name: "Annually", days: 365, months: 12, price: 260, oneTime: 330 },
+      ];
+      const money = (n) => "$" + n.toLocaleString("en-US");
+      // Add-ons are quoted per month, so a longer term multiplies them.
+      const addonTotal = (ids, plan) =>
+        AD_ADDONS.filter((a) => ids.includes(a.id)).reduce(
+          (sum, a) => sum + a.rate * plan.months,
+          0
+        );
+      function adTypeCard(a) {
+        const free = !a.rate;
+        return `<div class="rounded-[18px] border-[1.5px] p-5 h-full flex flex-col ${free ? "border-sun/60 bg-sun/[0.08]" : "border-white/15 bg-white/[0.05]"}">
+      <div class="flex items-start justify-between gap-3 mb-2">
+        <span class="w-[34px] h-[34px] rounded-[10px] grid place-items-center shrink-0 ${free ? "bg-sun text-navy" : "bg-white/10 text-mint-2"}">${icon(a.icon, 17)}</span>
+        <span class="text-[0.8rem] font-extrabold whitespace-nowrap ${free ? "text-sun" : "text-white"}">${free ? "Included" : money(a.rate) + "<span class='font-semibold text-on-dark-3'>/mo</span>"}</span>
+      </div>
+      <div class="font-bold text-[1rem] text-white leading-[1.3]">${a.name}</div>
+      <div class="text-[0.88rem] leading-[1.55] text-on-dark-3 mt-[0.35rem]">${a.desc}</div>
+    </div>`;
       }
-      const TA_BG = { ta1: "bg-[#c8ead8]", ta2: "bg-[#fde9c0]", ta3: "bg-[#d4e8fb]" };
+      function billingPlanCard(p, best) {
+        return `<div class="relative rounded-[20px] border-[1.5px] p-6 h-full flex flex-col ${best ? "border-sun bg-white/[0.1]" : "border-white/15 bg-white/[0.04]"} max560:p-5">
+      ${best ? `<div class="absolute -top-[11px] left-6 rounded-[100px] bg-sun px-[0.7rem] py-[0.2rem] text-[0.68rem] font-extrabold uppercase tracking-[0.08em] text-navy">Best value</div>` : ""}
+      <div class="text-[0.85rem] font-bold tracking-[0.08em] uppercase text-sun">${p.name}</div>
+      <div class="text-[0.82rem] text-on-dark-3 mb-4">${p.days} days</div>
+      <div class="flex items-baseline gap-2 flex-wrap">
+        <span class="font-serif text-[2.1rem] font-black leading-[1] text-white">${money(p.price)}</span>
+        <span class="text-[0.88rem] text-on-dark-2">subscription, renews every ${p.days} days</span>
+      </div>
+      <div class="mt-4 pt-4 border-t border-white/15 flex items-baseline gap-2 flex-wrap">
+        <span class="font-serif text-[1.5rem] font-black leading-[1] text-mint-2">${money(p.oneTime)}</span>
+        <span class="text-[0.88rem] text-on-dark-2">one-time, no renewal</span>
+      </div>
+    </div>`;
+      }
+      const TA_BG ={ ta1: "bg-[#c8ead8]", ta2: "bg-[#fde9c0]", ta3: "bg-[#d4e8fb]" };
       function testi(quote, name, loc, initials, cls, img) {
         return `<div class="bg-surface rounded-[20px] p-7 shadow-[0_2px_16px_rgba(26,46,74,0.06)] border-[1.5px] border-line2 max560:p-[1.35rem]">
     <div class="text-star mb-3 flex gap-[2px]">${stars(5)}</div>
