@@ -1635,6 +1635,34 @@
         background: var(--sun);
       }
 
+      /* Same indicator on the corner ad, which rotates through every public ad
+         on a timer. It sits over the card's photo, so it takes the same
+         white-on-dark treatment as the other two. */
+      .corner-ad-dots {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        margin-top: 0.85rem;
+      }
+
+      .corner-ad-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 100px;
+        border: none;
+        background: rgba(255, 255, 255, 0.35);
+        transition:
+          width 0.35s ease,
+          background 0.35s ease;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .corner-ad-dot.is-active {
+        width: 22px;
+        background: var(--sun);
+      }
+
       .sponsor-dots {
         display: flex;
         gap: 6px;
@@ -2008,17 +2036,154 @@
         filter: brightness(0.92);
       }
 
-      /* ── Theme toggle ───────────────────────────────────────────
-         One button, two icons: the visible one is whichever theme you
-         would switch TO. Both ship in the markup so the swap is a class
-         flip with no re-render. */
-      .theme-toggle [data-icon-dark],
-      [data-theme="dark"] .theme-toggle [data-icon-light] {
-        display: none;
+      /* ── Theme switch ───────────────────────────────────────────
+         A track with both destinations on it and a knob that slides between
+         them, rather than a button showing one icon. Nothing re-renders: the
+         knob's position and the icon emphasis are driven off <html data-theme>,
+         which the theme bootstrap already sets. */
+      .theme-switch {
+        position: relative;
+        flex-shrink: 0;
+        width: 62px;
+        height: 34px;
+        padding: 0;
+        border: 1.5px solid var(--line);
+        border-radius: 100px;
+        background: var(--surface-4);
+        cursor: pointer;
+        /* How far the knob travels. Kept as a variable so the press-squish can
+           compose with the slide without every rule repeating the distance. */
+        --knob-x: 0px;
+        transition:
+          background 0.28s ease,
+          border-color 0.28s ease;
       }
 
-      [data-theme="dark"] .theme-toggle [data-icon-dark] {
-        display: block;
+      .theme-switch:hover {
+        border-color: var(--head);
+      }
+
+      [data-theme="dark"] .theme-switch {
+        background: #0e1520;
+        border-color: rgba(255, 255, 255, 0.16);
+        --knob-x: 28px; /* 62 track − 26 knob − 3 each side − border */
+      }
+
+      /* The knob carries the current icon. It used to sit on top of icons laid
+         out in the track, which meant the knob covered whichever one was active
+         — the only icon you could see was the mode you were NOT in. */
+      .theme-switch-knob {
+        position: absolute;
+        top: 50%;
+        left: 3px;
+        width: 26px;
+        height: 26px;
+        margin-top: -13px;
+        border-radius: 50%;
+        background: var(--surface);
+        box-shadow: 0 2px 8px rgba(15, 26, 44, 0.28);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: translateX(var(--knob-x));
+        transform-origin: left center;
+        transition:
+          transform 0.34s cubic-bezier(0.34, 1.56, 0.5, 1),
+          background 0.28s ease,
+          box-shadow 0.28s ease;
+        z-index: 1;
+      }
+
+      [data-theme="dark"] .theme-switch-knob {
+        background: #f5f7fa;
+        box-shadow: 0 2px 12px rgba(180, 205, 255, 0.4);
+        /* Squishing has to grow from the trailing edge, which swaps with side. */
+        transform-origin: right center;
+      }
+
+      /* Press-and-hold stretches the knob toward the side it will land on, so
+         the switch feels physical rather than instant. */
+      .theme-switch:active .theme-switch-knob {
+        transform: translateX(var(--knob-x)) scaleX(1.22);
+      }
+
+      /* Both icons stack in the centre of the knob; only the current one is
+         opaque. They are always on the pale knob, never on the track, so the
+         contrast holds in either theme. */
+      .theme-switch-ic {
+        position: absolute;
+        display: flex;
+        line-height: 0;
+        transition:
+          opacity 0.24s ease,
+          transform 0.34s cubic-bezier(0.34, 1.56, 0.5, 1);
+      }
+
+      /* The outgoing icon spins away and the incoming one spins upright, so the
+         swap reads as a dial turning rather than a hard cut. */
+      .theme-switch-ic--sun {
+        color: #c47f0a;
+        opacity: 1;
+        transform: rotate(0deg) scale(1);
+      }
+
+      .theme-switch-ic--moon {
+        color: #1a2e4a;
+        opacity: 0;
+        transform: rotate(70deg) scale(0.5);
+      }
+
+      [data-theme="dark"] .theme-switch-ic--sun {
+        opacity: 0;
+        transform: rotate(-70deg) scale(0.5);
+      }
+
+      [data-theme="dark"] .theme-switch-ic--moon {
+        opacity: 1;
+        transform: rotate(0deg) scale(1);
+      }
+
+      /* Faint hint of the other mode on the empty half of the track. The knob
+         hides the one on its own side, which is exactly the icon it is already
+         showing crisply. */
+      .theme-switch-ghost {
+        position: absolute;
+        top: 50%;
+        margin-top: -7px;
+        display: flex;
+        line-height: 0;
+        color: var(--muted);
+        opacity: 0.45;
+      }
+
+      .theme-switch-ghost--sun {
+        left: 8px;
+      }
+
+      .theme-switch-ghost--moon {
+        right: 9px;
+      }
+
+      [data-theme="dark"] .theme-switch-ghost {
+        color: rgba(255, 255, 255, 0.75);
+        opacity: 0.5;
+      }
+
+      @media (max-width: 380px) {
+        .theme-switch {
+          width: 54px;
+          height: 30px;
+        }
+
+        .theme-switch-knob {
+          width: 22px;
+          height: 22px;
+          margin-top: -11px;
+        }
+
+        [data-theme="dark"] .theme-switch {
+          --knob-x: 24px;
+        }
       }
     </style>
   </head>
@@ -2493,6 +2658,7 @@
         <div
           class="relative flex min-h-[clamp(310px,52vh,420px)] cursor-pointer flex-col p-[1.15rem]"
           data-adclick="Bergen Aquatic Center"
+          data-adgo
         >
           <div class="flex items-start justify-between gap-3">
             <div
@@ -2555,6 +2721,9 @@
               class="mt-[0.35rem] text-[0.62rem] leading-[1.5] text-white/55 [text-shadow:0_2px_10px_rgba(9,15,26,0.85)]"
               id="cornerAd-meta"
             ></div>
+            <!-- Filled by mountCornerAd(): the slide count comes from
+                 PUBLIC_ADS at runtime, not from this markup. -->
+            <div class="corner-ad-dots" id="cornerAd-dots"></div>
           </div>
         </div>
       </div>
@@ -3991,12 +4160,21 @@
         if (state.user) {
           acct = `<button class="flex items-center gap-2 bg-surface border-[1.5px] border-line rounded-[100px] pl-[0.35rem] pr-[0.85rem] py-[0.3rem] font-bold text-[0.95rem] text-head min-h-[44px] whitespace-nowrap shrink-0 hover:border-head max900:px-[0.45rem] max380:px-[0.3rem] max380:py-[0.25rem]" data-action="toggle-account">${avatarHtml(state.user, 30)}<span class="max900:hidden">${state.user.name.split(" ")[0]}</span>${icon("chev-down", 15)}</button>`;
         } else {
-          acct = `<button class="bg-surface border-[1.5px] border-line text-head px-[1.15rem] py-[0.6rem] rounded-[100px] font-bold text-[0.95rem] min-h-[44px] whitespace-nowrap shrink-0 hover:border-head max900:bg-grass-ink max900:border-brand max900:text-white max900:px-[1.05rem] max900:hover:bg-[#1a5233] max900:hover:border-[#1a5233]" data-action="open-auth">Log in</button>`;
+          acct = `<button class="bg-surface border-[1.5px] border-line text-head px-[1.15rem] py-[0.6rem] rounded-[100px] font-bold text-[0.95rem] min-h-[44px] whitespace-nowrap shrink-0 hover:border-head max900:bg-grass-ink max900:border-brand max900:text-white max900:px-[1.05rem] max900:hover:bg-[#1a5233] max900:hover:border-[#1a5233] inline-flex items-center gap-2" data-action="open-auth">Log in ${icon("logout", 16, "-scale-x-100")}</button>`;
         }
         const MENU_BTN =
           "hidden relative w-[40px] h-[40px] rounded-[50%] border-[1.5px] border-line bg-surface items-center justify-center text-head transition-[border-color,background] duration-200 shrink-0 max900:flex max900:bg-navy max900:border-navy max900:text-white max900:hover:bg-[#12233a] max900:hover:border-[#12233a] max380:w-[36px] max380:h-[36px]";
-        // Both icons ship; CSS shows whichever theme you'd switch TO.
-        const themeBtn = `<button class="theme-toggle relative w-[40px] h-[40px] rounded-full bg-surface border-[1.5px] border-line flex items-center justify-center text-head transition-[border-color,background,color] duration-200 shrink-0 hover:border-head hover:bg-surface-3 max380:w-[36px] max380:h-[36px]" data-action="toggle-theme" aria-label="Switch colour theme" title="Switch light / dark"><span data-icon-light class="leading-[0]">${icon("moon", 18)}</span><span data-icon-dark class="leading-[0]">${icon("sun-toggle", 18)}</span></button>`;
+        // A switch, not a button: both destinations are on the track at once and
+        // the knob shows which one you are on. aria-checked is what tells a
+        // screen reader it is a switch rather than a toggle button.
+        const themeBtn = `<button class="theme-switch" data-action="toggle-theme" role="switch" aria-checked="${document.documentElement.getAttribute("data-theme") === "dark"}" aria-label="Dark mode" title="Switch light / dark">
+      <span class="theme-switch-ghost theme-switch-ghost--sun" aria-hidden="true">${icon("sun-toggle", 14)}</span>
+      <span class="theme-switch-ghost theme-switch-ghost--moon" aria-hidden="true">${icon("moon", 13)}</span>
+      <span class="theme-switch-knob" aria-hidden="true">
+        <span class="theme-switch-ic theme-switch-ic--sun">${icon("sun-toggle", 15)}</span>
+        <span class="theme-switch-ic theme-switch-ic--moon">${icon("moon", 14)}</span>
+      </span>
+    </button>`;
         r.innerHTML = `
     ${themeBtn}
     ${state.user ? `<button class="relative w-[40px] h-[40px] rounded-full bg-surface-5 border border-transparent flex items-center justify-center text-head transition-[background,color,box-shadow] duration-200 shrink-0 hover:bg-mint hover:text-brand hover:shadow-[0_4px_14px_rgba(32,100,61,0.2)] max900:bg-mint max900:text-brand max380:w-[36px] max380:h-[36px]" data-action="toggle-notif" aria-label="Notifications${notifUnread().length ? ` (${notifUnread().length} unread)` : ""}">${icon("bell", 18)}${notifBadge()}</button>` : ""}
@@ -4037,7 +4215,7 @@
       function sponsorBar() {
         const slides = SPONSOR_ADS.map(
           (a, i) =>
-            `<div class="sponsor-slide${i === 0 ? " is-active" : ""}" data-slide data-adclick="${a.key}">
+            `<div class="sponsor-slide${i === 0 ? " is-active" : ""}" data-slide data-adclick="${a.key}" data-adgo>
         <div class="sponsor-chip" style="background:${a.grad}">${icon(a.icon, 22)}</div>
         <div class="min-w-0 flex-1 [text-shadow:0_2px_14px_rgba(0,0,0,0.92)]">
           <div class="font-extrabold text-[1.05rem] text-white leading-[1.3] truncate">${a.title}</div>
@@ -4054,7 +4232,7 @@
     <div class="w-full px-6 py-[0.85rem] flex items-center gap-4 max700:px-4 max700:gap-3">
       <div class="flex items-center gap-[0.45rem] text-[0.62rem] font-bold tracking-[0.12em] uppercase text-white/80 shrink-0 max900:hidden [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]"><span class="sponsor-live"></span>Advertisement</div>
       <div class="sponsor-stage" id="sponsor-spotlight">${slides}</div>
-      <div class="sponsor-dots max700:hidden">${dots}</div>
+      <div class="sponsor-dots">${dots}</div>
       <button class="shrink-0 w-[34px] h-[34px] rounded-[50%] border-[1.5px] border-white/25 bg-white/10 flex items-center justify-center text-white/80 transition-[border-color,color,background] duration-200 hover:border-white/60 hover:bg-white/20 hover:text-white" id="sponsor-close" aria-label="Dismiss advertisement">${icon("x", 16)}</button>
     </div>
   </div>`;
@@ -7338,10 +7516,11 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
 
         if (adEl) {
           const key = adEl.dataset.adclick;
-          // The Visit buttons on the top sponsor bar and the side rail are the
-          // ad's own call to action — honour it and go straight out instead of
-          // interrupting with the detail popup. Clicking the ad's body still
-          // opens the popup, which is where the full creative lives.
+          // Anything marked data-adgo goes straight to the advertiser instead of
+          // opening the detail popup: the whole top sponsor bar and the whole
+          // corner ad, plus the Visit buttons on the side rail and the promo
+          // card. An ad's own call to action is worth honouring rather than
+          // interrupting with another panel about the same ad.
           if (adEl.dataset.adgo !== undefined) {
             const dest = (PUBLIC_ADS[key] || {}).dest;
             toast("Opening " + (dest || key) + " (external)", "globe");
@@ -8213,6 +8392,12 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
       }
       function setTheme(next, remember) {
         document.documentElement.setAttribute("data-theme", next);
+        // The switch's look is CSS off <html data-theme>, but its announced
+        // state is an attribute — and toggling the theme does not re-render the
+        // nav, so it has to be set here or a screen reader reads it stale.
+        document
+          .querySelectorAll(".theme-switch")
+          .forEach((s) => s.setAttribute("aria-checked", next === "dark"));
         if (!remember) return;
         try {
           localStorage.setItem(THEME_KEY, next);
@@ -8648,11 +8833,23 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
         const advertiser = el("cornerAd-advertiser");
         const meta = el("cornerAd-meta");
         const panel = root.querySelector("[data-adclick]");
+        // One dot per ad in the rotation, so the card reads as the carousel it
+        // is rather than copy that changes on its own every five seconds.
+        const dotsHost = el("cornerAd-dots");
+        if (dotsHost)
+          dotsHost.innerHTML = keys
+            .map(
+              (k, i) =>
+                `<button type="button" class="corner-ad-dot" data-corner-dot="${i}" aria-label="Show advertisement ${i + 1}"></button>`
+            )
+            .join("");
+        const dotEls = dotsHost ? Array.from(dotsHost.querySelectorAll("[data-corner-dot]")) : [];
         let idx = 0;
         function renderAd(index) {
           idx = (index + keys.length) % keys.length;
           const key = keys[idx];
           const ad = PUBLIC_ADS[key];
+          dotEls.forEach((d, i) => d.classList.toggle("is-active", i === idx));
           if (!ad || !panel) return;
           panel.dataset.adclick = key;
           if (visit) visit.dataset.adclick = key;
@@ -8673,6 +8870,16 @@ ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [
             cornerAdTimer = null;
           }
         }
+        // The dots sit inside the card, which is itself one big ad link — so a
+        // dot has to swallow its click or picking a slide would open the ad.
+        dotEls.forEach((d, i) =>
+          d.addEventListener("click", (e) => {
+            e.stopPropagation();
+            stop();
+            renderAd(i);
+            start();
+          })
+        );
         root.addEventListener("mouseenter", stop);
         root.addEventListener("mouseleave", start);
         renderAd(0);
