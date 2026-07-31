@@ -1243,29 +1243,10 @@
       }
 
       /* ── Filter bar ─────────────────────────────────────────────
-         Sits above the results and stays put while they scroll under it, so
-         changing a filter never means scrolling back up to reach it. It parks
-         below the nav, and below whatever height the sponsor bar is taking —
-         syncSponsorPad() keeps --sponsor-reserve in step and it collapses to 0
-         once the bar is dismissed. Opaque on purpose: results pass behind it. */
+         Sits above the results and scrolls away with them on both the directory
+         and the events page, rather than following you down the viewport. */
       .filters-top {
-        position: sticky;
-        top: calc(104px + var(--sponsor-reserve, 0px));
-        z-index: 30;
         box-shadow: 0 6px 18px rgba(26, 46, 74, 0.07);
-      }
-
-      /* Opt-out: the bar still sits above the results, it just scrolls away
-         with them instead of following you down the page. */
-      .filters-top.is-unpinned {
-        position: static;
-      }
-
-      @media (max-width: 560px) {
-        /* Shorter nav, tighter gutters. */
-        .filters-top {
-          top: calc(86px + var(--sponsor-reserve, 0px));
-        }
       }
 
       /* ── Back-to-top button ─────────────────────────────────────
@@ -4967,45 +4948,105 @@
                viewport as you scroll, so the control and the thing it changes are
                always on screen together. Everything is a <select> for that reason: a
                nine-row checkbox list of categories cannot live in a single row. */
-            const FT_FIELD =
-              "flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.55rem] bg-surface-2 min-h-[46px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]";
+            /* ── Filter controls ────────────────────────────────────────
+               One row of controls in a single tray, rather than a labelled card of
+               boxed form fields. Each control carries its own icon and states what
+               it is through its own value ("All towns"), so the stacked uppercase
+               captions that used to sit above every field are gone — the label
+               survives as sr-only text for screen readers.
+
+               A control that is actually narrowing the results paints itself navy,
+               so which filters are on is legible at a glance instead of having to
+               read all four values. */
+            /* The on/off look is driven by a `data-on` attribute on the wrapper
+               rather than by swapping class lists, so syncFilterStates() can flip a
+               control's whole appearance — border, fill, icon colour, weight — by
+               writing one attribute, without re-rendering the tray and costing the
+               search box its caret position mid-keystroke. */
+            const FT_CTL =
+              "ft-ctl group flex items-center gap-[0.45rem] rounded-[12px] border-[1.5px] px-[0.7rem] min-h-[48px] min-w-0 transition-[border-color,background,box-shadow] duration-150 border-line bg-surface-2 hover:border-[#9fb0c2] data-[on=true]:border-navy data-[on=true]:bg-sel data-[on=true]:shadow-[inset_0_0_0_1px_var(--navy)] focus-within:!border-brand focus-within:!shadow-[0_0_0_3px_rgba(32,100,61,0.15)]";
+            const FT_ICON = "shrink-0 text-muted group-data-[on=true]:text-navy";
+            // The navy border, fill and icon already say a control is on, so the
+            // value is left at normal weight — bolding it cost ~8% more width, and
+            // the longest category names have none to spare.
             const FT_INPUT =
-              "border-none outline-none bg-transparent font-sans text-[0.95rem] text-head w-full min-w-0 cursor-pointer";
-            const FT_LABEL = "text-[0.72rem] font-bold tracking-[0.07em] uppercase text-adlabel pl-1";
-            // "Clear all" is a real button everywhere it appears — the bar's header and
+              "border-none outline-none bg-transparent font-sans text-[0.95rem] text-head w-full min-w-0 cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap";
+            // "Clear all" is a real button everywhere it appears — the filter tray and
             // the end of the active-filter chips — so the two read as the same control
             // rather than one button and one piece of underlined text.
             const CLEAR_BTN =
               "inline-flex items-center gap-[0.4rem] rounded-[100px] border-[1.5px] border-line bg-surface px-[0.9rem] py-[0.4rem] text-[0.85rem] font-bold text-head min-h-[38px] shrink-0 transition-[border-color,background] duration-150 hover:border-head hover:bg-surface-3";
-            function ftField(label, id, body) {
-              return `<div class="flex flex-col gap-[0.3rem] min-w-0"><label class="${FT_LABEL}" for="${id}">${label}</label><div class="${FT_FIELD}">${body}</div></div>`;
-            }
-            function ftSelect(label, id, value, options, ic) {
-              return ftField(
-                label,
-                id,
-                `${icon(ic, 16, "text-muted shrink-0")}<select class="${FT_INPUT}" id="${id}">${options
-                  .map(
-                    ([v, lbl]) =>
-                      `<option value="${String(v).replace(/"/g, "&quot;")}" ${value === v ? "selected" : ""}>${lbl}</option>`
-                  )
-                  .join("")}</select>`
+            const ftCtl = (on, grow, body) =>
+              `<div class="${FT_CTL} ${grow}" data-on="${!!on}">${body}</div>`;
+            // The search box leads the tray and takes twice the slack of a select.
+            // clearAction differs per page, so the inline reset is passed in.
+            function ftSearch(id, value, placeholder, label, clearAction) {
+              const on = !!value;
+              return ftCtl(
+                on,
+                "flex-[1.6_1_264px]",
+                `${icon("search", 16, FT_ICON)}
+              <label class="sr-only" for="${id}">${label}</label>
+              <input class="${FT_INPUT} cursor-text placeholder:text-muted placeholder:opacity-100 placeholder:font-normal" type="text" id="${id}" placeholder="${placeholder}" value="${String(value || "").replace(/"/g, "&quot;")}">
+              <button type="button" class="ft-clear shrink-0 w-[24px] h-[24px] rounded-full grid place-items-center text-muted transition-colors duration-150 hover:bg-surface-5 hover:text-head group-data-[on=false]:hidden" data-action="${clearAction}" data-key="q" aria-label="Clear search">${icon("x", 13)}</button>`
               );
             }
-            // Header row of the card. Split out so the partial result updates (typing
-            // in the search box, changing a select) can keep the active count honest
-            // without re-rendering the whole view.
-            function ftHead(count, clearAction) {
-              return `<div class="flex items-center gap-2 text-[0.8rem] font-extrabold tracking-[0.05em] uppercase text-head">${icon("sliders", 15, "text-brand")} Filters${count ? `<span class="inline-flex items-center justify-center min-w-[21px] h-[21px] px-[6px] rounded-[100px] bg-navy text-white text-[0.72rem] font-extrabold">${count}</span>` : ""}</div>
-            ${count ? `<button type="button" class="${CLEAR_BTN}" data-action="${clearAction}">${icon("x", 14, "text-muted")} Clear all</button>` : ""}`;
+            /* Controls are sized to the values they hold rather than all alike.
+               Category carries the longest ("Schools & Preschools"), subcategory the
+               shortest ("Public", "Math"), so the slack goes where the text needs it
+               — otherwise picking a category adds a fifth control and squeezes the
+               category's own name into an ellipsis. `title` discloses the full value
+               on hover for the widths where it still has to truncate. */
+            /* Bases are each control's real content need plus 71px of chrome (icon,
+               gaps, padding, chevron), measured from the widest value it can hold —
+               so a full row fits without squeezing, and below that the row wraps
+               rather than shaving the values. Only the handful of very long town
+               names ("Washington Township") still ellipsise, and `title` covers it. */
+            const FT_SIZE = {
+              wide: "flex-[1.2_1_252px]",
+              narrow: "flex-[0.7_1_162px]",
+              "": "flex-[1_1_192px]",
+            };
+            function ftSelect(label, id, value, options, ic, size) {
+              const current = (options.find(([v]) => v === value) || options[0] || ["", ""])[1];
+              return ftCtl(
+                !!value,
+                FT_SIZE[size || ""] || FT_SIZE[""],
+                `${icon(ic, 16, FT_ICON)}
+              <label class="sr-only" for="${id}">${label}</label>
+              <select class="${FT_INPUT} appearance-none" id="${id}" title="${String(current).replace(/"/g, "&quot;")}">${options
+                .map(
+                  ([v, lbl]) =>
+                    `<option value="${String(v).replace(/"/g, "&quot;")}" ${value === v ? "selected" : ""}>${lbl}</option>`
+                )
+                .join("")}</select>
+              ${icon("chev-down", 15, FT_ICON + " pointer-events-none")}`
+              );
             }
-            // Wrapper card, so both pages' bars look and space the same.
-            // `unpinned` opts the bar out of sticking to the top of the viewport — the
-            // directory uses it, so its bar scrolls away with the page.
-            function filtersTop(inner, count, clearAction, unpinned) {
-              return `<div class="filters-top${unpinned ? " is-unpinned" : ""} bg-surface border-[1.5px] border-line rounded-[18px] p-4 mb-5 max380:p-3">
-            <div class="ft-head flex items-center justify-between gap-3 mb-[0.6rem] flex-wrap">${ftHead(count, clearAction)}</div>
-            ${inner}
+            // Flip every control's on/off look from its current value. Called by the
+            // partial result updates, which change values without a re-render.
+            function syncFilterStates() {
+              document.querySelectorAll(".filters-top .ft-ctl").forEach((box) => {
+                const field = box.querySelector("select,input");
+                if (field) box.dataset.on = String(!!field.value);
+              });
+            }
+            // Tail of the tray. Split out so the partial result updates (typing in the
+            // search box, changing a select) can keep the active count honest without
+            // re-rendering the whole view.
+            function ftHead(count, clearAction) {
+              // Nothing to clear, nothing to show — the controls speak for themselves.
+              if (!count) return "";
+              return `<button type="button" class="${CLEAR_BTN}" data-action="${clearAction}">${icon("x", 14, "text-muted")} Clear ${count} filter${count > 1 ? "s" : ""}</button>`;
+            }
+            // Wrapper tray, so both pages' bars look and space the same. Neither
+            // sticks — the tray scrolls away with the results it sits above.
+            function filtersTop(inner, count, clearAction) {
+              return `<div class="filters-top bg-surface border-[1.5px] border-line rounded-[18px] p-[0.6rem] mb-5">
+            <div class="flex items-center gap-2 flex-wrap">
+              ${inner}
+              <div class="ft-head flex items-center gap-2 shrink-0 pl-1 pr-[0.35rem]">${ftHead(count, clearAction)}</div>
+            </div>
           </div>`;
             }
             function viewDirectory() {
@@ -5022,16 +5063,13 @@
           </div>
 
           ${filtersTop(
-            `<div class="grid gap-3 items-end ${subs.length ? "grid-cols-[1.5fr_1fr_1fr_1fr_1fr]" : "grid-cols-[1.6fr_1fr_1fr_1fr]"} max1200:!grid-cols-[1fr_1fr_1fr] max900:!grid-cols-[1fr_1fr] max560:!grid-cols-[1fr]">
-            ${ftField("Search", "d-q", `${icon("search", 16, "text-muted shrink-0")}<input class="${FT_INPUT} cursor-text placeholder:text-muted placeholder:opacity-100" type="text" id="d-q" placeholder="Name, service or town..." value="${f.q.replace(/"/g, "&quot;")}">`)}
-            ${ftSelect("Category", "d-cat", f.cat, [["", "All categories"], ...CATEGORIES.filter((c) => c.id !== "medical").map((c) => [c.id, c.name])], "tag")}
-            ${subs.length ? ftSelect(cat.name.split(" ")[0] + " type", "d-sub", f.sub, [["", "All types"], ...subs.map((s) => [s, s])], "filter") : ""}
+            `${ftSearch("d-q", f.q, "Name, service or town…", "Search listings", "rm-filter")}
+            ${ftSelect("Category", "d-cat", f.cat, [["", "All categories"], ...CATEGORIES.filter((c) => c.id !== "medical").map((c) => [c.id, c.name])], "tag", "wide")}
+            ${subs.length ? ftSelect(cat.name.split(" ")[0] + " type", "d-sub", f.sub, [["", "All types"], ...subs.map((s) => [s, s])], "filter", "narrow") : ""}
             ${ftSelect("Age group", "d-age", f.age, [["", "All ages"], ...AGE_GROUPS.map((a) => [a.id, a.label])], "users")}
-            ${ftSelect("Town", "d-town", f.town, [["", "All towns"], ...TOWNS.map((t) => [t, t])], "pin")}
-          </div>`,
+            ${ftSelect("Town", "d-town", f.town, [["", "All towns"], ...TOWNS.map((t) => [t, t])], "pin")}`,
             dirActiveCount,
-            "clear-all-dir",
-            true // the directory's bar scrolls away with the page
+            "clear-all-dir"
           )}
 
           <div class="grid grid-cols-[minmax(0,1fr)] [&>*]:min-w-0">
@@ -5192,12 +5230,10 @@
           </div>
 
           ${filtersTop(
-            `<div class="grid gap-3 items-end grid-cols-[1.6fr_1fr_1fr_1fr] max1200:!grid-cols-[1fr_1fr_1fr] max900:!grid-cols-[1fr_1fr] max560:!grid-cols-[1fr]">
-            ${ftField("Search", "c-q", `${icon("search", 16, "text-muted shrink-0")}<input class="${FT_INPUT} cursor-text placeholder:text-muted placeholder:opacity-100" type="text" id="c-q" placeholder="Event name, organizer or town..." value="${f.q.replace(/"/g, "&quot;")}">`)}
-            ${ftSelect("Category", "c-cat", f.cat, [["", "All categories"], ...CATEGORIES.map((c) => [c.id, c.name])], "tag")}
+            `${ftSearch("c-q", f.q, "Event name, organizer or town…", "Search events", "rm-cal-filter")}
+            ${ftSelect("Category", "c-cat", f.cat, [["", "All categories"], ...CATEGORIES.map((c) => [c.id, c.name])], "tag", "wide")}
             ${ftSelect("Age group", "c-age", f.age, [["", "All ages"], ...AGE_GROUPS.map((a) => [a.id, a.label])], "users")}
-            ${ftSelect("Town", "c-town", f.town, [["", "All towns"], ...TOWNS.map((t) => [t, t])], "pin")}
-          </div>`,
+            ${ftSelect("Town", "c-town", f.town, [["", "All towns"], ...TOWNS.map((t) => [t, t])], "pin")}`,
             activeCount,
             "clear-cal"
           )}
@@ -8398,6 +8434,7 @@
                   "clear-all-dir"
                 );
               }
+              syncFilterStates();
               const container = document.querySelector(".view-full");
               if (!container) return;
               const target = grid || empty;
@@ -8424,6 +8461,7 @@
                 const c = state.calFilter;
                 head.innerHTML = ftHead([c.q, c.cat, c.age, c.town].filter(Boolean).length, "clear-cal");
               }
+              syncFilterStates();
               const target =
                 document.querySelector(".ev-grid") || document.querySelector(".view-full .empty");
               if (target) target.outerHTML = list.length ? calGridHtml(list) : CAL_EMPTY;
