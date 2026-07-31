@@ -4427,24 +4427,33 @@
             <div class="relative z-[1] text-center" data-rv-stagger="110">
               <div class="text-[0.85rem] font-bold tracking-[0.1em] uppercase mb-3 text-sun">Listing Plans</div>
               <div class="font-serif text-[clamp(1.75rem,1.3rem_+_1.9vw,2.5rem)] font-black tracking-[-0.02em] mb-3 leading-[1.15] text-balance text-white">Pick what your ad does, then how you pay for it</div>
-              <p class="text-[1.05rem] leading-[1.65] max-w-[62ch] mx-auto text-pretty text-on-dark-2 mb-12">Every ad starts as a free Basic Listing. Add the placements you want on top, then choose a billing term — a subscription that renews, or a one-time fee for the same run. Add-on costs are added to whichever you pick.</p>
+              <p class="text-[1.05rem] leading-[1.65] max-w-[62ch] mx-auto text-pretty text-on-dark-2 mb-12">Every ad starts as a free Basic Listing. Upgrade the type if you want photos, add the placements you want on top, then choose a billing term — a subscription that renews, or a one-time fee for the same run. Type and placement are charged once per ad.</p>
             </div>
 
             <div class="relative z-[1] mx-auto w-full max-w-[1080px]">
-              <!-- Step 1 — what the ad is -->
+              <!-- Step 1 — what tier the ad runs at -->
               <div class="flex items-center gap-3 mb-5">
                 <span class="w-[30px] h-[30px] rounded-full bg-sun text-navy grid place-items-center text-[0.9rem] font-black shrink-0">1</span>
                 <div class="font-serif text-[1.35rem] font-black text-white leading-[1.2]">Choose the ad type</div>
               </div>
               <div class="grid grid-cols-[repeat(auto-fit,minmax(215px,1fr))] gap-4 mb-4" data-rv-stagger="90" data-rv-child="zoom">
-                ${adTypeCard({ id: "basic", name: "Basic Listing", icon: "check", desc: "Name, address, phone, website and a standard place in the directory.", rate: 0 })}
-                ${AD_ADDONS.map(adTypeCard).join("")}
+                ${AD_TYPES.map(adTypeCard).join("")}
               </div>
-              <p class="text-[0.9rem] text-on-dark-3 mb-12 leading-[1.6]">Add-ons are optional and stack — take one, all four, or none at all.</p>
+              <p class="text-[0.9rem] text-on-dark-3 mb-12 leading-[1.6]">Every ad is one or the other. Basic costs nothing beyond the billing term.</p>
 
-              <!-- Step 2 — how it is paid for -->
+              <!-- Step 2 — where it is placed -->
               <div class="flex items-center gap-3 mb-5">
                 <span class="w-[30px] h-[30px] rounded-full bg-sun text-navy grid place-items-center text-[0.9rem] font-black shrink-0">2</span>
+                <div class="font-serif text-[1.35rem] font-black text-white leading-[1.2]">Choose the placement as add-ons</div>
+              </div>
+              <div class="grid grid-cols-[repeat(auto-fit,minmax(215px,1fr))] gap-4 mb-4" data-rv-stagger="90" data-rv-child="zoom">
+                ${OPEN_PLACEMENTS.map(adTypeCard).join("")}
+              </div>
+              <p class="text-[0.9rem] text-on-dark-3 mb-12 leading-[1.6]">Add-ons are optional and stack — take one, all three, or none at all.</p>
+
+              <!-- Step 3 — how it is paid for -->
+              <div class="flex items-center gap-3 mb-5">
+                <span class="w-[30px] h-[30px] rounded-full bg-sun text-navy grid place-items-center text-[0.9rem] font-black shrink-0">3</span>
                 <div class="font-serif text-[1.35rem] font-black text-white leading-[1.2]">Choose a billing term</div>
               </div>
               <div class="grid grid-cols-[repeat(auto-fit,minmax(235px,1fr))] gap-4" data-rv-stagger="90" data-rv-child="zoom">
@@ -4454,7 +4463,7 @@
               <div class="mt-8 rounded-[16px] border-[1.5px] border-white/15 bg-white/[0.05] px-5 py-4 flex items-start gap-3">
                 <span class="w-[30px] h-[30px] rounded-[9px] bg-white/10 text-mint-2 grid place-items-center shrink-0">${icon("card", 16)}</span>
                 <div class="text-[0.92rem] leading-[1.6] text-on-dark-2">
-                  <b class="text-white">What you pay</b> = the billing term you chose + the monthly rate of each add-on across that term. A Basic Listing on its own is just the billing term. Every rate on this page is set by Bergen Kids in the admin panel.
+                  <b class="text-white">What you pay</b> = the billing term you chose + your ad type + each placement you take, both charged once per ad. A Basic Listing with no placements is just the billing term. Every rate on this page is set by Bergen Kids in the admin panel.
                 </div>
               </div>
             </div>
@@ -4622,13 +4631,14 @@
                itself off the same numbers.
 
                The model: every ad is a Basic Listing, which costs nothing extra. On
-               top of that an advertiser may take any combination of paid add-ons.
-               Whether or not they do, the ad still needs a billing term — either a
-               renewing subscription or a one-off payment for the same duration — and
-               the add-on cost is added to whichever is chosen. */
+               top of that an advertiser may upgrade to Deluxe and take any
+               combination of paid placements. Both are quoted per ad — a flat
+               "+$60/ad", not a rate that multiplies out over the term. Whether or
+               not any are taken, the ad still needs a billing term — either a
+               renewing subscription or a one-off payment for the same duration —
+               and the add-on costs are added to whichever is chosen. */
             // The tier the ad itself runs at. Deluxe is the only one that costs
-            // anything, and it is a flat upgrade rather than a per-month rate — it
-            // unlocks the photo gallery once, for the whole term.
+            // anything: a flat per-ad upgrade that unlocks the photo gallery.
             const AD_TYPES = [
               {
                 id: "basic",
@@ -4642,13 +4652,12 @@
                 name: "Deluxe",
                 icon: "star",
                 rate: 10,
-                flat: true,
                 desc: "Everything in Basic, plus a photo gallery on your ad.",
               },
             ];
             const adTypeOf = (id) => AD_TYPES.find((t) => t.id === id) || AD_TYPES[0];
-            // Where the ad is placed. Quoted per month, so a longer billing term
-            // multiplies them. Any combination may be taken, or none at all.
+            // Where the ad is placed. Charged once per ad, whatever the billing
+            // term. Any combination may be taken, or none at all.
             const AD_PLACEMENTS = [
               {
                 id: "leaderboard",
@@ -4677,6 +4686,9 @@
                 icon: "trending",
                 desc: "Pinned inside the first ten directory results, on All or your own category.",
                 rate: 50,
+                // Inventory-limited, so it is offered inside the create form only
+                // when a slot is free — never on the public pricing page.
+                limited: true,
               },
             ];
             const placementOf = (id) => AD_PLACEMENTS.find((p) => p.id === id);
@@ -4692,8 +4704,9 @@
               ADS.filter((a) => (a.addons || []).includes("top10") && TOP10_HOLDING.includes(a.status))
                 .length;
             const top10Left = () => Math.max(0, TOP10_SLOTS - top10Used());
-            // The public pricing grid lists the Deluxe upgrade beside the placements.
-            const AD_ADDONS = [{ ...adTypeOf("deluxe"), name: "Deluxe listing" }, ...AD_PLACEMENTS];
+            // What the public pricing page quotes — everything an advertiser can
+            // buy off the shelf, which is every placement except the capped one.
+            const OPEN_PLACEMENTS = AD_PLACEMENTS.filter((p) => !p.limited);
             // `price` renews every `days`; `oneTime` buys the same run once and stops.
             const BILLING_PLANS = [
               { id: "monthly", name: "1 Month", days: 30, months: 1, price: 29, oneTime: 39 },
@@ -4712,17 +4725,18 @@
             const money = (n) => "$" + n.toLocaleString("en-US");
             const usd = (n) => "$" + (n || 0).toFixed(2);
             /* Every figure the advertiser is ever shown, derived in one place: the ad
-               type, each placement add-on across the term, and the term itself. The
+               type, each placement add-on, and the billing term. Type and add-ons are
+               flat per-ad charges; only the term itself changes with duration. The
                create form, the checkout and the ad detail page all read this, so a
                price can never disagree with itself between screens. */
             function adBilling(d) {
               const plan = planOf(d.plan);
               const type = adTypeOf(d.type);
-              const typeCost = type.flat ? type.rate : type.rate * plan.months;
+              const typeCost = type.rate;
               const addons = (d.addons || [])
                 .map(placementOf)
                 .filter(Boolean)
-                .map((p) => ({ id: p.id, name: p.name, rate: p.rate, cost: p.rate * plan.months }));
+                .map((p) => ({ id: p.id, name: p.name, cost: p.rate }));
               const addonCost = addons.reduce((s, a) => s + a.cost, 0);
               const planCost = d.payMode === "subscription" ? plan.price : plan.oneTime;
               return {
@@ -4732,7 +4746,6 @@
                 addons,
                 addonCost,
                 planCost,
-                months: plan.months,
                 subscription: d.payMode === "subscription",
                 total: typeCost + addonCost + planCost,
               };
@@ -4742,7 +4755,7 @@
               return `<div class="rounded-[18px] border-[1.5px] p-5 h-full flex flex-col ${free ? "border-sun/60 bg-sun/[0.08]" : "border-white/15 bg-white/[0.05]"}">
             <div class="flex items-start justify-between gap-3 mb-2">
               <span class="w-[34px] h-[34px] rounded-[10px] grid place-items-center shrink-0 ${free ? "bg-sun text-navy" : "bg-white/10 text-mint-2"}">${icon(a.icon, 17)}</span>
-              <span class="text-[0.8rem] font-extrabold whitespace-nowrap ${free ? "text-sun" : "text-white"}">${free ? "Included" : money(a.rate) + `<span class='font-semibold text-on-dark-3'>${a.flat ? " one-off" : "/mo"}</span>`}</span>
+              <span class="text-[0.8rem] font-extrabold whitespace-nowrap ${free ? "text-sun" : "text-white"}">${free ? "Included" : "+" + money(a.rate) + `<span class='font-semibold text-on-dark-3'>/ad</span>`}</span>
             </div>
             <div class="font-bold text-[1rem] text-white leading-[1.3]">${a.name}</div>
             <div class="text-[0.88rem] leading-[1.55] text-on-dark-3 mt-[0.35rem]">${a.desc}</div>
@@ -6422,14 +6435,13 @@
               return `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-type" data-val="${t.id}" aria-pressed="${on}">
             <div class="flex items-start justify-between gap-3">
               <div class="font-bold text-[0.95rem] text-head flex items-center gap-[0.4rem]">${icon(t.icon, 15)} ${t.name}</div>
-              <span class="text-[0.85rem] font-extrabold whitespace-nowrap ${t.rate ? "text-orange-ink" : "text-muted"}">${t.rate ? "+" + money(t.rate) : "Included"}</span>
+              <span class="text-[0.85rem] font-extrabold whitespace-nowrap ${t.rate ? "text-orange-ink" : "text-muted"}">${t.rate ? "+" + money(t.rate) + `<span class="font-semibold text-muted">/ad</span>` : "Included"}</span>
             </div>
             <div class="text-[0.85rem] text-muted mt-[0.3rem] leading-[1.45]">${t.desc}</div>
             ${t.rate ? `<div class="text-[0.82rem] text-orange-ink font-semibold mt-[0.4rem]">Adds ${usd(t.rate)} to the amount payable.</div>` : ""}
           </button>`;
             }
-            function adAddonPick(p, on, months, note) {
-              const cost = p.rate * months;
+            function adAddonPick(p, on, note) {
               return `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-addon" data-val="${p.id}" aria-pressed="${on}">
             <div class="flex items-start justify-between gap-3">
               <div class="font-bold text-[0.95rem] text-head flex items-center gap-[0.4rem]">${icon(p.icon, 15)} ${p.name}</div>
@@ -6437,7 +6449,7 @@
             </div>
             <div class="text-[0.85rem] text-muted mt-[0.3rem] leading-[1.45]">${p.desc}</div>
             ${note ? `<div class="text-[0.82rem] font-semibold text-brand mt-[0.4rem]">${note}</div>` : ""}
-            <div class="mt-[0.45rem] text-[0.9rem] font-extrabold text-head">+${usd(cost)} <span class="text-[0.8rem] font-semibold text-muted">· ${usd(p.rate)}/mo × ${months} month${months > 1 ? "s" : ""}</span></div>
+            <div class="mt-[0.45rem] text-[0.9rem] font-extrabold text-head">+${usd(p.rate)} <span class="text-[0.8rem] font-semibold text-muted">/ad</span></div>
           </button>`;
             }
             function adPlanPick(p, on, sub) {
@@ -6454,18 +6466,10 @@
             function billingSplit(b, totalLabel) {
               const row = (l, v, sub) =>
                 `<div class="flex justify-between gap-4 text-[0.98rem] py-[0.4rem] text-head"><span>${l}${sub ? `<span class="block text-[0.82rem] text-muted leading-[1.4] font-normal">${sub}</span>` : ""}</span><b class="whitespace-nowrap">${v}</b></div>`;
-              return `${row("Ad type", usd(b.typeCost), b.type.name + (b.typeCost ? " — one-off upgrade" : " — included"))}
+              return `${row("Ad type", usd(b.typeCost), b.type.name + (b.typeCost ? " — upgrade, charged once per ad" : " — included"))}
             ${
               b.addons.length
-                ? b.addons
-                    .map((a) =>
-                      row(
-                        "Add-on · " + a.name,
-                        usd(a.cost),
-                        usd(a.rate) + "/mo × " + b.months + " month" + (b.months > 1 ? "s" : "")
-                      )
-                    )
-                    .join("")
+                ? b.addons.map((a) => row("Add-on · " + a.name, usd(a.cost), "Placement, charged once per ad")).join("")
                 : row("Add-ons for placement", usd(0), "None selected")
             }
             ${row(b.subscription ? "Subscription plan" : "One time fee", usd(b.planCost), b.plan.name + " (" + b.plan.days + " days)")}
@@ -6488,7 +6492,6 @@
             function adFormInner() {
               const d = state.adDraft;
               const b = adBilling(d);
-              const months = b.months;
               const left = top10Left();
               const cat = catOf(d.cat) || CATEGORIES[0];
               const renewal = addDays(adDate(0), b.plan.days);
@@ -6518,7 +6521,7 @@
           ${adStep(
             2,
             "Ad type",
-            "Basic covers the essentials. Deluxe adds a photo gallery for a one-off " + money(adTypeOf("deluxe").rate) + ".",
+            "Basic covers the essentials. Deluxe adds a photo gallery for " + money(adTypeOf("deluxe").rate) + "/ad.",
             `<div class="grid grid-cols-2 gap-3 max700:grid-cols-1">${AD_TYPES.map((t) => adTypePick(t, d.type === t.id)).join("")}</div>
           ${
             deluxe
@@ -6531,7 +6534,7 @@
           ${adStep(
             3,
             "Add-ons for placement",
-            "Where the ad appears. Take any combination, or none — each is charged per month across the billing term you choose below.",
+            "Where the ad appears. Take any combination, or none — each is charged once per ad.",
             `<div class="grid grid-cols-2 gap-3 max700:grid-cols-1">${AD_PLACEMENTS.filter(
               (p) => p.id !== "top10" || left > 0 || d.addons.includes("top10")
             )
@@ -6539,7 +6542,6 @@
                 adAddonPick(
                   p,
                   d.addons.includes(p.id),
-                  months,
                   p.id === "top10" ? `${left} of ${TOP10_SLOTS} slots left` : ""
                 )
               )
@@ -8988,7 +8990,7 @@
               ? `<div class="bg-surface-4 border-[1.5px] border-line2 rounded-[14px] px-5 py-[0.8rem]">${b.addons
                   .map((x) =>
                     line(
-                      `${x.name} <span class="font-normal text-muted text-[0.85rem]">· ${usd(x.rate)}/mo × ${b.months}</span>`,
+                      `${x.name} <span class="font-normal text-muted text-[0.85rem]">· charged once per ad</span>`,
                       usd(x.cost)
                     )
                   )
