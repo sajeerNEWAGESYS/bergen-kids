@@ -1221,8 +1221,10 @@
         scroll-margin-top: calc(96px + var(--sponsor-reserve, 0px));
       }
 
+      /* White rather than the page's cream, so the nav reads as a distinct
+         surface floating over the content instead of blending into it. */
       #site-nav.is-scrolled {
-        background-color: rgba(253, 248, 240, 0.94);
+        background-color: rgba(255, 255, 255, 0.94);
         border-bottom-color: rgba(26, 46, 74, 0.08);
         box-shadow: 0 8px 28px rgba(26, 46, 74, 0.09);
       }
@@ -2519,7 +2521,7 @@
     <!-- NAV -->
     <nav
       id="site-nav"
-      class="sticky top-0 w-full z-[100] bg-[rgba(253,248,240,0.72)] backdrop-blur-[14px] border-b-[1.5px] border-b-transparent px-[clamp(1rem,5vw,7rem)] flex items-center justify-between h-[92px] gap-4 max1200:px-[3%] max1200:gap-3 max900:bg-transparent max900:bg-[linear-gradient(180deg,#ffffff_0%,#fdf8f0_100%)] max900:border-b-0 max900:shadow-[0_2px_14px_rgba(26,46,74,0.07)] max900:after:content-[''] max900:after:absolute max900:after:left-0 max900:after:right-0 max900:after:bottom-0 max900:after:h-[3px] max900:after:bg-[linear-gradient(90deg,#2d7a4f_0_25%,#f5a623_25%_50%,#1e8c7a_50%_75%,#7b5ea7_75%_100%)] max560:px-[4%] max560:h-[76px] max380:px-3 max380:gap-2"
+      class="sticky top-0 w-full z-[100] bg-[rgba(255,255,255,0.72)] backdrop-blur-[14px] border-b-[1.5px] border-b-transparent px-[clamp(1rem,5vw,7rem)] flex items-center justify-between h-[92px] gap-4 max1200:px-[3%] max1200:gap-3 max900:bg-[#ffffff] max900:border-b-0 max900:shadow-[0_2px_14px_rgba(26,46,74,0.07)] max900:after:content-[''] max900:after:absolute max900:after:left-0 max900:after:right-0 max900:after:bottom-0 max900:after:h-[3px] max900:after:bg-[linear-gradient(90deg,#2d7a4f_0_25%,#f5a623_25%_50%,#1e8c7a_50%_75%,#7b5ea7_75%_100%)] max560:px-[4%] max560:h-[76px] max380:px-3 max380:gap-2"
     >
       <!-- The wordmark is the fallback, not decoration: if the logo image fails
            the brand still reads, so the <img> hides its sibling on load rather
@@ -3543,6 +3545,8 @@
                 ageMin,
                 ageMax,
                 plan,
+                rating,
+                reviews,
                 icon: ic,
                 verified,
                 desc,
@@ -4813,6 +4817,34 @@
               CAT_IMG[id]
                 ? `https://images.unsplash.com/photo-${CAT_IMG[id]}?auto=format&fit=crop&w=${w}&q=75`
                 : "";
+            /* A photo per listing. Without these the directory grid draws the one
+               category photo on every card in that category, so three tutoring
+               listings in a row look like the same business repeated. Anything
+               missing here still falls back to the category photo. */
+            const LISTING_IMG = {
+              l1: "1519494026892-80bbd2d6fd0d", // paediatric check-up
+              l2: "1606811841689-23dfddce3e95", // dental chair
+              l3: "1516627145497-ae6968895b74", // therapy session
+              l4: "1580582932707-520aed937b7b", // school classroom
+              l5: "1587616211892-f743fcca64f9", // preschool play
+              l6: "1567168544813-cc03465b4fa8", // robotics / STEM
+              l7: "1503676260728-1c00da094a0b", // reading with a tutor
+              l8: "1434030216411-0b793f4b4173", // exam prep desk
+              l9: "1596495578065-6e0763fa1178", // maths worksheet
+              l10: "1499892477393-f675706cbe6e", // paints and brushes
+              l11: "1493106641515-6b5631de4bb9", // hands throwing a pot
+              l12: "1526232761682-d26e03ac148e", // kids soccer team
+              l13: "1600965962361-9035dbfd1c50", // swimming pool
+              l14: "1555597673-b21d5c935865", // martial arts class
+              l15: "1552422535-c45813c61732", // piano keys
+              l16: "1518834107812-67b0b7c58434", // ballet studio
+              l17: "1441974231531-c6227db76b6e", // forest trail — camp
+              l18: "1530103862676-de8c9debad1d", // party balloons
+            };
+            const listingImg = (l, w = 600) =>
+              LISTING_IMG[l.id]
+                ? `https://images.unsplash.com/photo-${LISTING_IMG[l.id]}?auto=format&fit=crop&w=${w}&q=75`
+                : catImg(l.cat, w);
             // Article card photo per article. A broken/missing image falls back to the
             // category gradient + icon underneath (see viewArticles' onerror handler).
             const ART_IMG = {
@@ -5004,46 +5036,59 @@
 
           <div class="grid grid-cols-[minmax(0,1fr)] [&>*]:min-w-0">
             <div class="min-w-0">
-              <div class="flex justify-between items-center gap-3 flex-wrap mb-4 max560:flex-col max560:items-start">
-                <div class="dir-showing text-[0.95rem] text-muted">${dirShowingText(list)}</div>
-                <div class="flex items-center gap-2 shrink-0">
-                  <label class="text-[0.9rem] text-muted font-medium whitespace-nowrap" for="d-sort">Sort By:</label>
-                  <div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.5rem] bg-surface min-h-[42px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]"><select class="appearance-none border-none outline-none bg-transparent font-sans text-[0.95rem] font-semibold text-head cursor-pointer pr-1" id="d-sort">${DIR_SORTS.map(([v, lbl]) => `<option value="${v}" ${f.sort === v ? "selected" : ""}>${lbl}</option>`).join("")}</select>${icon("chev-down", 15, "text-muted shrink-0")}</div>
+              <!-- Results header: what you are looking at on the left, how it is
+                   ordered on the right, the filters that got you here underneath.
+                   One ruled band, so the grid always starts at the same place. -->
+              <div class="border-b-[1.5px] border-line pb-4 mb-5">
+                <div class="flex justify-between items-center gap-3 flex-wrap max560:flex-col max560:items-start">
+                  <div class="dir-showing text-[0.95rem] text-muted">${dirShowingText(list)}</div>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <label class="text-[0.9rem] text-muted font-medium whitespace-nowrap" for="d-sort">Sort By:</label>
+                    <div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.5rem] bg-surface min-h-[42px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]"><select class="appearance-none border-none outline-none bg-transparent font-sans text-[0.95rem] font-semibold text-head cursor-pointer pr-1" id="d-sort">${DIR_SORTS.map(([v, lbl]) => `<option value="${v}" ${f.sort === v ? "selected" : ""}>${lbl}</option>`).join("")}</select>${icon("chev-down", 15, "text-muted shrink-0")}</div>
+                  </div>
                 </div>
+                <div class="dir-chips empty:hidden flex items-center gap-2 flex-wrap mt-3">${dirActiveChipsInner()}</div>
               </div>
 
               ${prefsNoticeHtml()}
 
-              <div class="dir-chips empty:hidden flex items-center gap-2 flex-wrap mb-5">${dirActiveChipsInner()}</div>
-
               ${
                 list.length
-                  ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-5">${list.map(listingCard).join("")}</div>`
+                  ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-5 items-stretch">${list.map(listingCard).join("")}</div>`
                   : `<div class="empty text-center px-4 py-16 text-muted text-[1rem] leading-[1.6]">${icon("search", 40, "text-adlabel mb-3")}<div style="font-weight:700;color:var(--head);margin-bottom:0.3rem">No results found</div><div>Try adjusting your filters or clearing them to see everything.</div></div>`
               }
             </div>
           </div>
         </div></div></div>`;
             }
+            /* Every card is the same four bands, top to bottom: photo, category
+               line, name, then a footer of town / ages / rating. The name is
+               clamped to two lines and the footer is pushed down with mt-auto, so
+               a long name never shunts the footer out of line with its
+               neighbours — the grid reads as rows rather than a ragged mosaic. */
             function listingCard(l) {
               const c = catOf(l.cat);
               const dlx = l.plan === "deluxe";
+              const photo = listingImg(l);
               return `<div class="lcard group bg-surface border-[1.5px] rounded-[18px] overflow-hidden cursor-pointer transition-[transform,box-shadow] duration-200 flex flex-col hover:-translate-y-1 hover:shadow-[0_14px_40px_rgba(26,46,74,0.12)] ${dlx ? "border-[#f0c98a] shadow-[0_4px_18px_rgba(245,166,35,0.12)]" : "border-line"}" data-action="open-listing" data-id="${l.id}">
-          <div class="relative h-[168px] overflow-hidden" style="background:${c.grad}">
+          <div class="relative h-[168px] overflow-hidden shrink-0" style="background:${c.grad}">
             <div class="absolute inset-0 flex items-center justify-center text-white">${icon(l.icon, 54, "opacity-95")}</div>
-            ${catImg(l.cat) ? `<img src="${catImg(l.cat)}" alt="${c.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">` : ""}
+            ${photo ? `<img src="${photo}" alt="${l.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">` : ""}
             <span class="absolute top-3 left-3 z-[1] text-[0.68rem] font-extrabold tracking-[0.05em] uppercase px-[10px] py-[5px] rounded-[100px] shadow-[0_2px_8px_rgba(26,46,74,0.18)] ${dlx ? "bg-sun text-navy" : "bg-white/95 text-[#465569]"}">${dlx ? "Featured" : "Basic"}</span>
-            ${l.verified ? `<span class="absolute top-3 right-3 z-[1] w-[26px] h-[26px] rounded-full bg-white/95 text-[#20643d] flex items-center justify-center shadow-[0_2px_8px_rgba(26,46,74,0.18)]" title="Verified">${icon("check", 15)}</span>` : ""}
+            ${l.verified ? `<span class="absolute top-3 right-3 z-[1] inline-flex items-center gap-[0.25rem] pl-[6px] pr-[9px] py-[4px] rounded-[100px] bg-white/95 text-[#20643d] text-[0.68rem] font-extrabold shadow-[0_2px_8px_rgba(26,46,74,0.18)]" title="Verified by Bergen Kids">${icon("verified", 14)} Verified</span>` : ""}
           </div>
-          <div class="px-[1.1rem] pt-[0.9rem] pb-[1.1rem] flex flex-col flex-1">
-            <div class="text-[0.78rem] font-bold text-adlabel mb-[0.35rem]">${l.sub} · ${c.name.split(" ")[0]}</div>
-            <div class="flex items-start justify-between gap-2 mb-[0.55rem]">
-              <div class="font-extrabold text-[1.05rem] text-head leading-[1.25] min-w-0">${l.name}</div>
-              <span class="inline-flex items-center gap-[0.2rem] text-[0.82rem] font-bold text-star shrink-0">${icon("star", 13, "icon--solid")}${l.rating}</span>
-            </div>
-            <div class="flex items-center gap-x-4 gap-y-1 text-[0.85rem] text-muted flex-wrap font-medium mt-auto [&>span]:inline-flex [&>span]:items-center [&>span]:gap-[0.3rem]">
-              <span>${icon("pin", 13)} ${l.town}</span>
-              <span>${icon("users", 13)} Ages ${l.ageMin}–${l.ageMax}</span>
+          <div class="px-[1.1rem] pt-[0.9rem] pb-[1.05rem] flex flex-col flex-1 min-w-0">
+            <div class="text-[0.75rem] font-bold tracking-[0.04em] uppercase text-adlabel truncate">${l.sub} · ${c.name.split(" ")[0]}</div>
+            <div class="font-extrabold text-[1.05rem] text-head leading-[1.3] mt-[0.3rem] line-clamp-2 min-h-[2.73rem]">${l.name}</div>
+            <div class="mt-auto pt-[0.85rem] flex items-center justify-between gap-3 border-t border-line2">
+              <div class="min-w-0 text-[0.85rem] text-muted font-medium leading-[1.5]">
+                <div class="flex items-center gap-[0.3rem] truncate">${icon("pin", 13, "shrink-0")}<span class="truncate">${l.town}</span></div>
+                <div class="flex items-center gap-[0.3rem] truncate">${icon("users", 13, "shrink-0")}<span class="truncate">Ages ${l.ageMin}–${l.ageMax}</span></div>
+              </div>
+              <div class="shrink-0 text-right">
+                <div class="inline-flex items-center gap-[0.25rem] text-[0.92rem] font-extrabold text-star leading-none">${icon("star", 14, "icon--solid")}${l.rating.toFixed(1)}</div>
+                <div class="text-[0.75rem] text-muted mt-[0.2rem] whitespace-nowrap">${l.reviews} reviews</div>
+              </div>
             </div>
           </div></div>`;
             }
@@ -7026,10 +7071,10 @@
               if (!l) return;
               const c = catOf(l.cat);
               l.clicks++; // track a click
-              const img = catImg(l.cat, 800);
+              const img = listingImg(l, 800); // the same photo the card showed
               const header = `<div class="relative h-[200px] overflow-hidden max560:h-[180px]" style="background:${c.grad}">
                 <div class="absolute inset-0 flex items-center justify-center text-white">${icon(l.icon || c.icon, 52)}</div>
-                ${img ? `<img src="${img}" alt="${c.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">` : ""}
+                ${img ? `<img src="${img}" alt="${l.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">` : ""}
                 <span class="absolute top-3 left-3 z-[1] text-[0.68rem] font-extrabold tracking-[0.05em] uppercase px-[10px] py-[5px] rounded-[100px] shadow-[0_2px_8px_rgba(26,46,74,0.18)] ${l.plan === "deluxe" ? "bg-sun text-navy" : "bg-white/95 text-[#465569]"}">${l.plan === "deluxe" ? "Featured" : "Basic"}</span>
               </div>`;
               const logo = l.logo
