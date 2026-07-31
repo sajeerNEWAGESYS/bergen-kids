@@ -4160,7 +4160,7 @@
         if (state.user) {
           acct = `<button class="flex items-center gap-2 bg-surface border-[1.5px] border-line rounded-[100px] pl-[0.35rem] pr-[0.85rem] py-[0.3rem] font-bold text-[0.95rem] text-head min-h-[44px] whitespace-nowrap shrink-0 hover:border-head max900:px-[0.45rem] max380:px-[0.3rem] max380:py-[0.25rem]" data-action="toggle-account">${avatarHtml(state.user, 30)}<span class="max900:hidden">${state.user.name.split(" ")[0]}</span>${icon("chev-down", 15)}</button>`;
         } else {
-          acct = `<button class="bg-surface border-[1.5px] border-line text-head px-[1.15rem] py-[0.6rem] rounded-[100px] font-bold text-[0.95rem] min-h-[44px] whitespace-nowrap shrink-0 hover:border-head max900:bg-grass-ink max900:border-brand max900:text-white max900:px-[1.05rem] max900:hover:bg-[#1a5233] max900:hover:border-[#1a5233] inline-flex items-center gap-2" data-action="open-auth">Log in ${icon("logout", 16, "-scale-x-100")}</button>`;
+          acct = `<button class="bg-surface border-[1.5px] border-line text-head px-[1.15rem] py-[0.6rem] rounded-[100px] font-bold text-[0.95rem] min-h-[44px] whitespace-nowrap shrink-0 hover:border-head max900:bg-grass-ink max900:border-brand max900:text-white max900:px-[1.05rem] max900:hover:bg-[#1a5233] max900:hover:border-[#1a5233] inline-flex items-center justify-center" data-action="open-auth">Log in</button>`;
         }
         const MENU_BTN =
           "hidden relative w-[40px] h-[40px] rounded-[50%] border-[1.5px] border-line bg-surface items-center justify-center text-head transition-[border-color,background] duration-200 shrink-0 max900:flex max900:bg-navy max900:border-navy max900:text-white max900:hover:bg-[#12233a] max900:hover:border-[#12233a] max380:w-[36px] max380:h-[36px]";
