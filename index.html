@@ -111,9 +111,9 @@
                   from: { transform: "translateX(100%)" },
                   to: { transform: "translateX(0)" },
                 },
-                slideInLeft: {
-                  from: { transform: "translateX(-100%)" },
-                  to: { transform: "translateX(0)" },
+                slideInUp: {
+                  from: { transform: "translateY(100%)" },
+                  to: { transform: "translateY(0)" },
                 },
                 spin: { to: { transform: "rotate(360deg)" } },
               },
@@ -124,7 +124,7 @@
                 fade: "fade 0.15s ease",
                 toastIn: "toastIn 0.25s ease",
                 slideInRight: "slideInRight 0.3s cubic-bezier(0.16,1,0.3,1)",
-                slideInLeft: "slideInLeft 0.3s cubic-bezier(0.16,1,0.3,1)",
+                slideInUp: "slideInUp 0.32s cubic-bezier(0.16,1,0.3,1)",
                 spin: "spin 0.7s linear infinite",
               },
             },
@@ -5306,15 +5306,15 @@
           </div>
         </div>`;
             }
-            // Article detail slides in from the left, mirroring the events drawer.
+            // Article detail rises from the bottom, same sheet as the event detail.
             function articleModal(id) {
               const a = ARTICLES.find((x) => x.id === id);
               if (!a) return;
               const c = catOf(a.cat);
               const more = ARTICLES.filter((x) => x.id !== a.id).slice(0, 3);
-              openDrawerLeft(
+              openSheet(
                 `
-          <div class="h-[200px] relative flex items-center justify-center text-white overflow-hidden max560:h-[160px]" style="background:${c.grad}">${icon(c.icon, 56)}${ART_IMG[a.id] ? `<img src="${artImg(a.id, 900)}" srcset="${artImg(a.id, 900)} 900w, ${artImg(a.id, 1200)} 1200w" sizes="620px" alt="" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">` : ""}</div>
+          <div class="h-[200px] relative flex items-center justify-center text-white overflow-hidden max560:h-[160px]" style="background:${c.grad}">${icon(c.icon, 56)}${ART_IMG[a.id] ? `<img src="${artImg(a.id, 900)}" srcset="${artImg(a.id, 900)} 900w, ${artImg(a.id, 1200)} 1200w" sizes="760px" alt="" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">` : ""}</div>
           <div class="p-7 max560:p-5 [&_p]:text-[1.05rem] [&_p]:leading-[1.8] [&_p]:text-ink [&_p]:mb-[1.25rem] [&_p]:text-pretty [&_h3]:font-serif [&_h3]:text-[1.3rem] [&_h3]:font-black [&_h3]:text-head [&_h3]:mt-7 [&_h3]:mb-3 [&_h3]:leading-[1.25]">
             <div class="text-[0.78rem] font-bold tracking-[0.06em] uppercase mb-2" style="color:var(--teal-ink)">${c.name}</div>
             <h2>${a.title}</h2>
@@ -5325,8 +5325,7 @@
               ${more.map((m) => `<div class="bg-surface border-[1.5px] border-line rounded-[14px] px-4 py-[0.9rem] mb-3 cursor-pointer transition-all duration-150 flex gap-[0.85rem] items-center hover:border-brand hover:translate-x-[2px]" data-action="open-article" data-id="${m.id}"><div class="w-[52px] h-[52px] shrink-0 rounded-[10px] flex items-center justify-center text-head" style="background:${catOf(m.cat).tint}">${icon(catOf(m.cat).icon, 20)}</div><div class="min-w-0"><div class="font-bold text-[0.98rem] text-head leading-[1.35]">${m.title}</div><div class="text-[0.85rem] text-muted mt-[4px]">${m.author}</div></div></div>`).join("")}
               <button class="bg-surface text-head px-[1.9rem] py-[0.9rem] rounded-[100px] text-[1rem] font-bold border-[1.5px] border-line transition-[border-color,background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] w-full mt-4 hover:border-head hover:bg-surface-3" data-nav="articles">${icon("arrow-left", 16)} Back to all articles</button>
             </div>
-          </div>`,
-                true
+          </div>`
               );
             }
             function myListings() {
@@ -7094,11 +7093,18 @@
               document.body.style.overflow = "hidden";
             }
 
-            // Left-hand twin of openDrawer, for long-form reading panels. `wide` widens it
-            // to a comfortable measure for article text.
-            function openDrawerLeft(html, wide) {
+            /* Bottom sheet — rises from the foot of the screen rather than sliding in
+               from a side. Used by the event and article detail panels. Shares
+               modal-root and close-modal wiring with the drawers, so closeModal() and
+               Escape still shut it. It stops short of the full height so the page
+               stays visible behind it, and carries a grab handle so it reads as
+               something you pull up rather than a panel that flew in.
+               It spans the full width of the viewport. */
+            function openSheet(html) {
               el("modal-root").innerHTML =
-                `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex justify-start animate-fade"><div class="drawer relative bg-surface w-full ${wide ? "max-w-[620px]" : "max-w-[440px]"} h-full shadow-[16px_0_60px_rgba(15,26,44,0.35)] animate-slideInLeft overflow-y-auto overscroll-contain max700:max-w-full [&_h2]:font-serif [&_h2]:text-[1.6rem] [&_h2]:text-head [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2]"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-[#1a2e4a] flex items-center justify-center z-[5] shadow-[0_2px_10px_rgba(15,26,44,0.18)] hover:bg-surface" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
+                `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex items-end justify-center animate-fade"><div class="drawer relative bg-surface w-full max-h-[90dvh] rounded-t-[22px] shadow-[0_-16px_60px_rgba(15,26,44,0.35)] animate-slideInUp overflow-y-auto overscroll-contain [&_h2]:font-serif [&_h2]:text-[1.6rem] [&_h2]:text-head [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2]">
+            <span class="absolute top-[0.6rem] left-1/2 -translate-x-1/2 z-[6] h-[5px] w-[44px] rounded-[100px] bg-white/60 pointer-events-none"></span>
+            <button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-[#1a2e4a] flex items-center justify-center z-[5] shadow-[0_2px_10px_rgba(15,26,44,0.18)] hover:bg-surface" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
               document.body.style.overflow = "hidden";
             }
 
@@ -7160,7 +7166,7 @@
               mountPromoAdCarousel();
             }
 
-            // Opens in the same right-side drawer the directory uses for a listing.
+            // Opens as a bottom sheet, rising from the foot of the screen.
             function eventModal(id) {
               const e = EVENTS.find((x) => x.id === id);
               if (!e) return;
@@ -7174,7 +7180,7 @@
                 ${img ? `<img src="${img}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">` : ""}
                 <span class="absolute top-3 left-3 z-[1] inline-flex items-center gap-[0.3rem] rounded-[100px] border border-white/30 bg-white/15 px-[0.6rem] py-[0.3rem] text-[0.72rem] font-extrabold uppercase tracking-[0.05em] text-white backdrop-blur-[3px]">${MONTHS[d.getMonth()]} ${d.getDate()}</span>
               </div>`;
-              openDrawer(
+              openSheet(
                 `
           ${header}
           <div class="p-6 max560:p-5">
