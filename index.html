@@ -4404,8 +4404,10 @@
       const PREF_CHIP_ON = PREF_CHIP + " bg-navy border-navy text-white";
       const PREF_CHIP_OFF = PREF_CHIP + " bg-surface border-line text-head hover:border-head";
       const PREF_LABEL = { ages: "Age Group", towns: "Town", cats: "Category" };
-      const prefSummary = (p, key) =>
-        p[key].length ? p[key].length + " selected" : "No preference — shows all";
+      // Nothing chosen reads as nothing at all — the old "No preference — shows
+      // all" wording explained a default the onboarding no longer spells out.
+      // The count still appears the moment there is something to count.
+      const prefSummary = (p, key) => (p[key].length ? p[key].length + " selected" : "");
       // Options per field, as [value, label] pairs.
       function prefOptions(key) {
         if (key === "ages") return AGE_GROUPS.map((a) => [a.id, a.label]);
@@ -4449,18 +4451,18 @@
       const ONBOARD_STEPS = [
         {
           key: "ages",
-          title: "Who are you shopping for?",
-          lead: "Pick every age band in your family and we'll lead with what fits them.",
+          title: "Choose Your Preferred Age Groups",
+          lead: "Your feed will be personalized for these age groups.",
         },
         {
           key: "towns",
-          title: "Where will you travel?",
-          lead: "Choose the Bergen County towns that are realistic for you on a weekday.",
+          title: "Choose Your Preferred Towns",
+          lead: "Discover businesses, events, and resources from these towns first.",
         },
         {
           key: "cats",
-          title: "What are you looking for?",
-          lead: "The services and activities you care about — pick as many as you like.",
+          title: "Choose Your Interests",
+          lead: "We'll prioritize your content with these categories.",
         },
       ];
       // Preferences are saved on the way out, whichever button ends the run,
@@ -4542,9 +4544,7 @@
             <span class="flex-1 max560:hidden"></span>
             <button class="text-base font-bold text-muted underline underline-offset-[3px] bg-transparent border-none cursor-pointer min-h-[44px] px-2 hover:text-head" data-action="onboard-skip">${last ? "Skip and finish" : "Skip for now"}</button>
             <button class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep" data-action="onboard-next">${last ? `${icon("check", 16)} Done` : `Continue ${icon("arrow-right", 16)}`}</button>
-          </div>
-
-          <div class="text-sm text-muted leading-[1.55] mt-4 text-center">Nothing here is required. Anything you leave empty just means no preference, and you can change all of it later in your profile.</div>`;
+          </div>`;
       }
       /* Strip above the Directory / Events results, shown only while the page
                filters still are the saved preferences.
