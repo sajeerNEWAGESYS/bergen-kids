@@ -622,6 +622,41 @@
         animation: beamSpin 3.4s linear infinite;
       }
 
+      /* ── Hero pill, rolling location ────────────────────────────
+         The pill used to state one fixed place. The site covers 70 Bergen
+         County towns, and this is the one spot on the page where that can be
+         felt rather than claimed, so the label alternates between the county
+         and a real town from TOWNS.
+
+         The window clips to a single line and animates its own width, so a
+         long name like "Washington Township" widens the pill smoothly instead
+         of snapping it. The county name is always every other step — it stays
+         on screen half the time rather than scrolling away into a list of
+         towns nobody outside Bergen would recognise. */
+      .hero-pill-roll {
+        display: inline-block;
+        overflow: hidden;
+        vertical-align: bottom;
+        white-space: nowrap;
+        transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .hero-pill-word {
+        display: inline-block;
+        animation: pillRoll 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      @keyframes pillRoll {
+        from {
+          opacity: 0;
+          transform: translateY(100%);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
       .hero-photo {
         border-radius: 20px;
         overflow: hidden;
@@ -4965,7 +5000,10 @@
                  with it, so .hero-grid owns it in the stylesheet rather than here. -->
             <div class="hero-grid grid grid-cols-[1.05fr_1fr] items-center gap-12 px-[clamp(1rem,5vw,7rem)] pb-[216px] max900:grid-cols-1 max900:gap-10 max900:pb-10">
               <div class="hero-copy relative z-[1] animate-[fadeUp_0.7s_ease_both]">
-                <div class="hero-pill inline-flex items-center gap-2 rounded-[100px] bg-mint px-4 py-[0.5rem] text-sm font-extrabold uppercase tracking-[0.08em] text-brand">${icon("pin", 14)} Bergen County, New Jersey</div>
+                <!-- aria-label carries the stable name; the rolling window is
+                     hidden from assistive tech so the label does not change
+                     under a screen reader every few seconds. -->
+                <div class="hero-pill inline-flex items-center gap-2 rounded-[100px] bg-mint px-4 py-[0.5rem] text-sm font-extrabold uppercase tracking-[0.08em] text-brand" aria-label="${HERO_PILL_HOME}">${icon("pin", 14)}<span class="hero-pill-roll" id="hero-pill-roll" aria-hidden="true">${HERO_PILL_HOME}</span></div>
                 <h1 class="mt-6 font-serif font-black leading-[1.05] tracking-[-0.02em] text-head text-display-1">Find the good stuff for <span class="hero-accent">your kids,</span> right in your town</h1>
                 <p class="mt-5 max-w-[46ch] text-lg leading-[1.65] text-muted text-pretty">Discover pediatricians, tutors, camps, schools and local family events — organized town by town. Make a free account to see what fits your family.</p>
                 ${
@@ -10420,6 +10458,7 @@
         mountReveals();
         mountTilt();
         mountCategoryMarquee();
+        mountHeroPill();
         mountSideAd();
         // The slot this view offers the sponsor bar was just recreated.
         placeSponsorBar();
@@ -10458,6 +10497,36 @@
                       `<button type="button" class="side-ad-dot${i === 0 ? " is-active" : ""}" data-side-ad-dot aria-label="Show featured ad ${i + 1}"></button>`
                   ).join("")}
                 </div>`;
+      }
+
+      /* The hero pill's rolling location. Steps county → town → county → next
+         town, so the place name is only ever one step from the county it
+         belongs to. Towns come from TOWNS, the same list the filters use, so
+         the pill can never advertise a town the directory does not cover. */
+      const HERO_PILL_HOME = "Bergen County, New Jersey";
+      let heroPillTimer = null;
+      function mountHeroPill() {
+        if (heroPillTimer) {
+          clearInterval(heroPillTimer);
+          heroPillTimer = null;
+        }
+        const box = el("hero-pill-roll");
+        if (!box) return;
+        // Width is measured from the word itself, which keeps its intrinsic
+        // size inside the clipped window — so the pill can ease to the new
+        // width instead of jumping when a longer town comes round.
+        const show = (text, roll) => {
+          box.innerHTML = `<span class="hero-pill-word"${roll ? "" : ' style="animation:none"'}>${text}</span>`;
+          const word = box.firstElementChild;
+          if (word) box.style.width = word.offsetWidth + "px";
+        };
+        show(HERO_PILL_HOME, false);
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        let i = 0;
+        heroPillTimer = setInterval(() => {
+          i++;
+          show(i % 2 ? TOWNS[Math.floor(i / 2) % TOWNS.length] : HERO_PILL_HOME, true);
+        }, 2600);
       }
 
       let sideAdTimer = null;
