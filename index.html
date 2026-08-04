@@ -56,6 +56,7 @@
                 "logo-green-deep": "var(--logo-green-deep)",
                 "logo-yellow": "var(--logo-yellow)",
                 "logo-orange": "var(--logo-orange)",
+                coral: "var(--accent-coral)", // the hero's italic emphasis word
                 sun: "#f5a623", // fixed: also used as bg-sun/10, border-sun/70
                 orange: "var(--orange)", // hero accent, graphics only
                 "orange-ink": "var(--orange-ink)", // CTA fill — white text is 5.2:1
@@ -211,6 +212,11 @@
         --logo-green-deep: #00623a;
         --logo-yellow: #ffcf00;
         --logo-orange: #ff8a00;
+        /* The hero's emphasis word. A softer, pinker coral than --orange, which
+           is a burnt orange; this is the tone the reference sets its italic in.
+           Held at 3.7:1 on cream and 4.7:1 on the dark page — above the 3:1
+           large-text floor in both, which is the bar that applies at 44-56px. */
+        --accent-coral: #dd5240;
         --sun: #f5a623;
         --orange: #e0550f;
         --orange-ink: #c2410c;
@@ -392,6 +398,31 @@
       .font-serif.font-bold.font-bold,
       .brand-text.brand-text.brand-text {
         font-weight: 700;
+      }
+
+      /* The hero's emphasis word, set the way the reference sets its own: the
+         display serif turned italic in coral, so it reads as hand-set stress
+         inside an otherwise upright headline rather than just a recoloured
+         word. It slides a third of its own width into place a beat after the
+         headline lands — inline-block is what makes the transform apply at all,
+         and it keeps "your kids," from breaking across two lines. The global
+         prefers-reduced-motion rule already collapses the animation. */
+      .hero-accent {
+        display: inline-block;
+        font-style: italic;
+        color: var(--accent-coral);
+        animation: heroAccentIn 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
+      }
+
+      @keyframes heroAccentIn {
+        from {
+          opacity: 0;
+          transform: translateX(-0.32em);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
       }
 
       a {
@@ -2368,6 +2399,25 @@
         color: #fff;
         transform: translateY(-1px);
         box-shadow: 0 8px 22px rgba(163, 39, 28, 0.32);
+      }
+
+      /* The inputs inside the Stripe-style card group carry no chrome of their
+         own — the group draws the border, the fill and the focus ring, and each
+         input is just text sitting in it. */
+      .cf-input {
+        width: 100%;
+        min-width: 0;
+        border: none;
+        outline: none;
+        background: transparent;
+        font-family: var(--font);
+        font-size: var(--fs-base);
+        color: var(--head);
+      }
+
+      .cf-input::placeholder {
+        color: var(--muted);
+        opacity: 1;
       }
 
       /* billingSplit() is shared with the checkout modal, so it keeps its own
@@ -4916,7 +4966,7 @@
             <div class="hero-grid grid grid-cols-[1.05fr_1fr] items-center gap-12 px-[clamp(1rem,5vw,7rem)] pb-[216px] max900:grid-cols-1 max900:gap-10 max900:pb-10">
               <div class="hero-copy relative z-[1] animate-[fadeUp_0.7s_ease_both]">
                 <div class="hero-pill inline-flex items-center gap-2 rounded-[100px] bg-mint px-4 py-[0.5rem] text-sm font-extrabold uppercase tracking-[0.08em] text-brand">${icon("pin", 14)} Bergen County, New Jersey</div>
-                <h1 class="mt-6 font-serif font-black leading-[1.05] tracking-[-0.02em] text-head text-display-1">Find the good stuff for <span class="text-[#e0550f]">your kids,</span> right in your town</h1>
+                <h1 class="mt-6 font-serif font-black leading-[1.05] tracking-[-0.02em] text-head text-display-1">Find the good stuff for <span class="hero-accent">your kids,</span> right in your town</h1>
                 <p class="mt-5 max-w-[46ch] text-lg leading-[1.65] text-muted text-pretty">Discover pediatricians, tutors, camps, schools and local family events — organized town by town. Make a free account to see what fits your family.</p>
                 ${
                   state.user
@@ -6517,8 +6567,7 @@
         { id: "review", name: "Awaiting Review", cls: "bg-[#fdeed5] text-[#8a5200]" },
         { id: "live", name: "Live", cls: "bg-mint text-brand" },
         { id: "rejected", name: "Rejected", cls: "bg-[#fbe0e0] text-[#9b2226]" },
-        { id: "cancelled", name: "Cancelled", cls: "bg-[#efe3fb] text-[#5b3a91]" },
-        { id: "expired", name: "Expired", cls: "bg-surface-5 text-muted" },
+        { id: "expired", name: "Ended", cls: "bg-surface-5 text-muted" },
       ];
       let _adSeq = 0;
       const stripeId = () =>
@@ -6694,7 +6743,9 @@
           payMode: "subscription",
           plan: "semiannual",
           start: adDate(-20),
-          status: "cancelled",
+          // Was the seeded "Cancelled" row. That status is gone, so this one
+          // now demonstrates a subscription ad that has run its course.
+          status: "expired",
           impressions: 9800,
           clicks: 265,
           payment: {
@@ -7556,10 +7607,10 @@
               const btn = (act, ttl, ic) =>
                 `<button class="w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-surface text-muted inline-flex items-center justify-center hover:border-head hover:text-head" data-action="${act}" data-id="${a.id}" title="${ttl}">${icon(ic, 15)}</button> `;
               ctrls += btn("view-ad", "View details", "eye");
+              // An ad awaiting review can still be edited, but not withdrawn —
+              // it is paid for and queued, so the only bin is on a live ad.
               if (a.status === "review") ctrls += btn("edit-ad", "Edit", "edit");
               if (a.status === "live") ctrls += btn("confirm-remove-ad", "Take down", "trash");
-              else if (a.status === "review")
-                ctrls += btn("confirm-remove-ad", "Withdraw", "trash");
             }
             const ac = catOf(a.cat);
             const b = a.billing || adBilling(a);
@@ -7852,6 +7903,41 @@
               </div>
               <div class="mt-5">${prefsChosenHtml(u.prefs || emptyPrefs())}</div>
             </div>`;
+        /* Saved cards. Only advertisers can be charged, so only they get the
+           section — the same way Preferences is parent-only. Delete is rendered
+           disabled rather than hidden when a card is locked, so the reason is
+           discoverable instead of the button silently going missing. */
+        const ICON_BTN =
+          "w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-surface text-muted inline-flex items-center justify-center shrink-0 transition-colors duration-150 hover:border-head hover:text-head disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-line disabled:hover:text-muted";
+        const cardRow = (c) => {
+          const why = cardLockReason(c);
+          return `<div class="flex items-center gap-3 border-[1.5px] border-line rounded-[12px] px-4 py-3 bg-surface-2">
+              ${cardBrandMark(c.brand)}
+              <div class="min-w-0 flex-1">
+                <div class="font-bold text-base text-head">${maskCard(c)}${c.primary ? ` <span class="text-xs font-extrabold uppercase tracking-[0.08em] text-brand bg-mint rounded-[100px] px-[0.5rem] py-[0.1rem] align-middle">Primary</span>` : ""}</div>
+                <div class="text-sm text-muted">Expires ${c.exp}</div>
+              </div>
+              ${c.primary ? "" : `<button class="${ICON_BTN}" data-action="make-card-primary" data-id="${c.id}" title="Make primary" aria-label="Make ${maskCard(c)} primary">${icon("check", 15)}</button>`}
+              <button class="${ICON_BTN}" data-action="delete-card" data-id="${c.id}"${why ? " disabled" : ""} title="${why || "Delete card"}" aria-label="Delete ${maskCard(c)}">${icon("trash", 15)}</button>
+            </div>`;
+        };
+        const cardsCard =
+          u.role !== "advertiser"
+            ? ""
+            : `<div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 shadow-[0_4px_20px_rgba(26,46,74,0.05)] mt-6 max380:p-[1.1rem]">
+              <div class="flex items-start justify-between gap-3 flex-wrap">
+                <div class="min-w-0">
+                  <div class="font-serif text-xl font-black text-head mb-[0.3rem]">Saved cards</div>
+                  <div class="text-sm text-muted leading-[1.55]">Used for ad payments. One card always stays on file as primary so subscription renewals can be auto-debited — neither the primary card nor the last remaining card can be deleted.</div>
+                </div>
+                <button class="bg-surface text-head px-[1.3rem] py-[0.7rem] rounded-[100px] text-base font-bold border-[1.5px] border-line inline-flex items-center justify-center gap-2 min-h-[44px] shrink-0 transition-[border-color,background] duration-200 hover:border-head hover:bg-surface-3" data-action="add-card">${icon("plus", 15)} Add card</button>
+              </div>
+              <div class="grid gap-2 mt-5">${
+                SAVED_CARDS.length
+                  ? SAVED_CARDS.map(cardRow).join("")
+                  : `<div class="border-[1.5px] border-dashed border-line rounded-[12px] px-4 py-5 text-center text-sm text-muted leading-[1.55]">No cards saved yet. Add one here, or at checkout the first time you pay for an ad.</div>`
+              }</div>
+            </div>`;
         const sideCard = (ic, title, body, btn) =>
           `<div class="bg-surface border-[1.5px] border-line rounded-[18px] p-5 shadow-[0_4px_20px_rgba(26,46,74,0.05)]">
               <div class="flex items-center gap-[0.6rem] mb-[0.4rem]"><span class="w-[34px] h-[34px] rounded-[10px] bg-mint text-brand flex items-center justify-center shrink-0">${icon(ic, 17)}</span><div class="font-serif text-lg font-black text-head">${title}</div></div>
@@ -7871,6 +7957,7 @@
               <div class="flex gap-3 flex-wrap mt-6 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center"><button class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep" data-action="save-profile">${icon("check", 16)} Save changes</button></div>
             </div>
             ${prefsCard}
+            ${cardsCard}
             </div>
 
             <div class="flex flex-col gap-4">
@@ -8282,11 +8369,38 @@
           <div class="text-center text-sm text-adlabel my-[1.1rem] relative before:content-[''] before:absolute before:top-1/2 before:left-0 before:w-[38%] before:h-px before:bg-line after:content-[''] after:absolute after:top-1/2 after:right-0 after:w-[38%] after:h-px after:bg-line">secured checkout · demo only, no real charge</div>
         </div>`);
       }
+      /* Card entry, built the way Stripe's card element is: one bordered group
+         under a single "Card information" label, split by hairlines rather than
+         three separate boxes with three labels. The number row carries the
+         brand strip on its right and dims what the number cannot be; expiry and
+         CVC share the row beneath it. The whole group takes the focus ring, so
+         it reads as one control however many inputs are inside.
+
+         Ids matter beyond styling: before this the three inputs were anonymous,
+         so every card saved at checkout came out as the same hardcoded Visa. */
+      const CF_DEMO_NUM = "4242 4242 4242 4242";
       function cardFields() {
-        return `<div class="grid grid-cols-[1fr_1fr] gap-[1.1rem] max700:grid-cols-[1fr]" style="gap:0.8rem">
-        <div class="flex flex-col gap-[0.4rem] [&_label]:text-sm [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-base [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-base [&_select]:text-head [&_select]:bg-surface-2 [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-brand [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-base [&_textarea]:text-head [&_textarea]:bg-surface-2 [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-brand [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100 col-span-full"><label>Card number</label><input placeholder="4242 4242 4242 4242" value="4242 4242 4242 4242"></div>
-        <div class="flex flex-col gap-[0.4rem] [&_label]:text-sm [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-base [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-base [&_select]:text-head [&_select]:bg-surface-2 [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-brand [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-base [&_textarea]:text-head [&_textarea]:bg-surface-2 [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-brand [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100"><label>Expiry</label><input placeholder="MM/YY" value="08/28"></div>
-        <div class="flex flex-col gap-[0.4rem] [&_label]:text-sm [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-base [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-base [&_select]:text-head [&_select]:bg-surface-2 [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-brand [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-base [&_textarea]:text-head [&_textarea]:bg-surface-2 [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-brand [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100"><label>CVC</label><input placeholder="123" value="123"></div></div>`;
+        const active = brandFromNumber(CF_DEMO_NUM);
+        const strip = CARD_BRAND_LIST.map(
+          (b) =>
+            `<span data-brand="${b}" class="transition-opacity duration-150" style="opacity:${b === active ? 1 : 0.25}">${cardBrandMark(b, 26)}</span>`
+        ).join("");
+        return `<div class="flex flex-col gap-[0.4rem]">
+          <label class="text-sm font-bold text-head" for="cf-num">Card information</label>
+          <div class="rounded-[10px] border-[1.5px] border-line bg-surface-2 overflow-hidden transition-[border-color,box-shadow] duration-150 focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">
+            <div class="flex items-center gap-2 px-[0.85rem] min-h-[48px]">
+              <input class="cf-input" id="cf-num" inputmode="numeric" autocomplete="cc-number" placeholder="1234 1234 1234 1234" maxlength="23" value="${CF_DEMO_NUM}" aria-label="Card number">
+              <span class="cf-brands flex items-center gap-[3px] shrink-0">${strip}</span>
+            </div>
+            <div class="grid grid-cols-2 border-t-[1.5px] border-t-line">
+              <input class="cf-input px-[0.85rem] min-h-[48px]" id="cf-exp" autocomplete="cc-exp" placeholder="MM / YY" maxlength="7" value="08 / 28" aria-label="Expiry date">
+              <div class="flex items-center gap-2 px-[0.85rem] min-h-[48px] border-l-[1.5px] border-l-line">
+                <input class="cf-input" id="cf-cvc" inputmode="numeric" autocomplete="cc-csc" placeholder="CVC" maxlength="4" value="123" aria-label="Security code">
+                ${icon("lock", 14, "text-muted shrink-0")}
+              </div>
+            </div>
+          </div>
+        </div>`;
       }
 
       function qrModal(name) {
@@ -8769,6 +8883,26 @@
               PAY_PICK = actEl.dataset.id;
               adCheckoutModal();
               break;
+            // ── Saved cards ──────────────────────────────────────
+            case "add-card":
+              addCardModal();
+              break;
+            case "save-card": {
+              const mk = el("cf-primary");
+              const added = addSavedCard(cardFromFields(), mk && mk.checked);
+              toast(maskCard(added) + " added", "check");
+              closeModal();
+              render();
+              break;
+            }
+            case "delete-card":
+              deleteSavedCard(actEl.dataset.id);
+              render();
+              break;
+            case "make-card-primary":
+              setPrimaryCard(actEl.dataset.id);
+              render();
+              break;
             case "cancel-ad":
               state.editAd = null;
               state.adDraft = null;
@@ -9128,6 +9262,16 @@
         } else if (e.target.id === "bl-q") {
           state.billing.q = e.target.value;
           updateBillingResults();
+        } else if (e.target.id === "cf-num") {
+          // Group into fours and light up the brand as it becomes knowable.
+          const digits = e.target.value.replace(/\D/g, "").slice(0, 19);
+          e.target.value = digits.replace(/(.{4})/g, "$1 ").trim();
+          syncCardBrands(digits);
+        } else if (e.target.id === "cf-exp") {
+          const d = e.target.value.replace(/\D/g, "").slice(0, 4);
+          e.target.value = d.length > 2 ? d.slice(0, 2) + " / " + d.slice(2) : d;
+        } else if (e.target.id === "cf-cvc") {
+          e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
         }
       });
       document.addEventListener("change", (e) => {
@@ -9679,6 +9823,132 @@
       let PAY_PICK = null; // card id being paid with, or "new"
       const primaryCard = () => SAVED_CARDS.find((c) => c.primary) || SAVED_CARDS[0] || null;
       const maskCard = (c) => (c ? `${c.brand} •••• ${c.last4}` : "—");
+      /* ── Saved cards ────────────────────────────────────────────
+         Sign-up never asks for a card, so the first one is added either at
+         checkout or from the profile. One card then has to stay on file, since
+         a subscription renewal needs something to auto-debit — which gives two
+         delete rules: the primary card can never be removed, and neither can
+         the last one left. cardLockReason() is the single place that decides,
+         so the disabled state, the tooltip and the guard in deleteSavedCard()
+         can never disagree about why a card is staying. */
+      const CARD_BRANDS = [
+        [/^4/, "Visa"],
+        [/^5[1-5]/, "Mastercard"],
+        [/^3[47]/, "Amex"],
+        [/^6/, "Discover"],
+      ];
+      function brandFromNumber(num) {
+        const hit = CARD_BRANDS.find(([re]) => re.test(String(num || "").replace(/\D/g, "")));
+        return hit ? hit[1] : "Card";
+      }
+      /* Brand marks for the saved-card rows. Drawn inline rather than fetched:
+         the page pulls no third-party assets, and a 42×28 face is enough to
+         recognise at a glance. Mastercard gets its interlocking circles, the
+         short wordmarks are set in type, and anything unrecognised falls back
+         to the generic card glyph on a neutral face. */
+      const CARD_BRAND_LIST = ["Visa", "Mastercard", "Amex", "Discover"];
+      // `w` scales the whole face — 42px in a saved-card row, 26px for the
+      // strip that sits inside the Stripe-style card-number field.
+      function cardBrandMark(brand, w) {
+        const W = w || 42;
+        const H = Math.round((W * 28) / 42);
+        const face = (bg, inner) =>
+          `<span class="rounded-[5px] shrink-0 grid place-items-center overflow-hidden shadow-[0_1px_3px_rgba(15,26,44,0.25)]" style="width:${W}px;height:${H}px;background:${bg}" aria-hidden="true">${inner}</span>`;
+        const word = (t, size, style) =>
+          `<svg viewBox="0 0 42 28" width="${W}" height="${H}"><text x="21" y="18.5" text-anchor="middle" fill="#fff" style="font:${style} 700 ${size}px Inter,system-ui,sans-serif;letter-spacing:0.6px">${t}</text></svg>`;
+        if (brand === "Visa") return face("#1a1f71", word("VISA", 11, "italic"));
+        if (brand === "Mastercard")
+          return face(
+            "#23272f",
+            `<svg viewBox="0 0 42 28" width="${W}" height="${H}"><circle cx="17" cy="14" r="8.5" fill="#eb001b"/><circle cx="25" cy="14" r="8.5" fill="#f79e1b" fill-opacity="0.85"/></svg>`
+          );
+        if (brand === "Amex") return face("#2e77bb", word("AMEX", 10, "normal"));
+        if (brand === "Discover")
+          return face(
+            "#1e2430",
+            `<svg viewBox="0 0 42 28" width="${W}" height="${H}"><text x="16" y="17.5" text-anchor="middle" fill="#fff" style="font:700 8px Inter,system-ui,sans-serif">DISC</text><circle cx="32" cy="14" r="6" fill="#f68121"/></svg>`
+          );
+        return face("var(--surface-5)", icon("card", Math.round(W * 0.38), "text-head"));
+      }
+      /* Dims the brands the typed number cannot be, the way Stripe's field
+         does. Called from the input handler; the first paint sets the same
+         opacities inline from the prefilled demo number, so nothing flickers
+         between render and the first keystroke. */
+      function syncCardBrands(digits) {
+        const active = digits ? brandFromNumber(digits) : "";
+        document.querySelectorAll(".cf-brands [data-brand]").forEach((n) => {
+          const on = !active || active === "Card" || n.dataset.brand === active;
+          n.style.opacity = on ? "1" : "0.25";
+        });
+      }
+      function cardLockReason(c) {
+        if (!c) return "";
+        if (SAVED_CARDS.length <= 1) return "One card has to stay on file for renewals";
+        if (c.primary) return "Make another card primary before deleting this one";
+        return "";
+      }
+      // Reads whichever add-card fields are on screen — the checkout renders
+      // them inline, the profile in a modal, and both use the same ids.
+      function cardFromFields() {
+        const num = ((el("cf-num") || {}).value || "").replace(/\D/g, "");
+        // The field displays "08 / 28"; cards are stored and listed as "08/28".
+        const exp = ((el("cf-exp") || {}).value || "").replace(/\s/g, "");
+        return {
+          id: "pm_" + Date.now(),
+          brand: brandFromNumber(num),
+          last4: num.slice(-4) || "4242",
+          exp: exp || "08/28",
+          primary: false,
+        };
+      }
+      // The only place a card becomes primary implicitly: the first card on
+      // file must be, or renewals would have nothing to charge.
+      function addSavedCard(card, makePrimary) {
+        card.primary = !SAVED_CARDS.length || !!makePrimary;
+        if (card.primary) SAVED_CARDS.forEach((c) => (c.primary = false));
+        SAVED_CARDS.push(card);
+        return card;
+      }
+      function deleteSavedCard(id) {
+        const c = SAVED_CARDS.find((x) => x.id === id);
+        if (!c) return;
+        const why = cardLockReason(c);
+        if (why) {
+          toast(why, "x");
+          return;
+        }
+        SAVED_CARDS = SAVED_CARDS.filter((x) => x.id !== id);
+        if (PAY_PICK === id) PAY_PICK = (primaryCard() || {}).id || "new";
+        toast(maskCard(c) + " removed", "trash");
+      }
+      function setPrimaryCard(id) {
+        const c = SAVED_CARDS.find((x) => x.id === id);
+        if (!c) return;
+        SAVED_CARDS.forEach((x) => (x.primary = x.id === id));
+        toast(maskCard(c) + " is now your primary card", "check");
+      }
+      // The profile's Add card. Checkout does not use this — it adds a card
+      // inline on the pay page, so paying never opens a modal over a modal.
+      function addCardModal() {
+        const first = !SAVED_CARDS.length;
+        openModal(
+          `<div class="p-7 max700:p-5">
+          <h2>Add a card</h2>
+          <div class="text-muted text-base mt-[0.35rem] leading-[1.55]">Saved for ad payments and subscription renewals. Demo only — no real card is stored or charged.</div>
+          <div class="mt-5">${cardFields()}</div>
+          <label class="flex items-start gap-[0.6rem] text-sm text-head leading-[1.5] cursor-pointer mt-3">
+            <input type="checkbox" id="cf-primary" ${first ? "checked disabled" : ""} style="width:20px;height:20px;accent-color:var(--grass-ink);flex-shrink:0;margin-top:1px">
+            <span>Make this my primary card.${first ? ` <span class="text-muted">Your first card is always the primary one — renewals are auto-debited from it.</span>` : ""}</span>
+          </label>
+          <div class="flex gap-3 flex-wrap items-center mt-6 max560:flex-col-reverse [&>*]:max560:w-full [&>*]:max560:justify-center">
+            <button class="bg-surface text-head px-[1.3rem] py-[0.7rem] rounded-[100px] text-base font-bold border-[1.5px] border-line inline-flex items-center justify-center gap-2 min-h-[44px] transition-[border-color,background] duration-200 hover:border-head hover:bg-surface-3" data-action="close-modal">Cancel</button>
+            <span class="flex-1 max560:hidden"></span>
+            <button class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold border-none inline-flex items-center justify-center gap-2 min-h-[48px] transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep" data-action="save-card">${icon("plus", 16)} Add card</button>
+          </div>
+        </div>`,
+          true
+        );
+      }
       function validateAd(d) {
         if (!d.name) return "Please name your advertisement";
         if (!d.sub) return "Please choose a subcategory";
@@ -9704,7 +9974,7 @@
       }
       function savedCardRow(c, picked) {
         return `<button type="button" class="w-full text-left border-[1.5px] rounded-[12px] px-4 py-3 flex items-center gap-3 transition-all duration-150 ${picked ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="pick-card" data-id="${c.id}" aria-pressed="${picked}">
-            <span class="w-[34px] h-[34px] rounded-[9px] bg-surface-5 text-head grid place-items-center shrink-0">${icon("card", 16)}</span>
+            ${cardBrandMark(c.brand)}
             <span class="min-w-0 flex-1">
               <span class="block font-bold text-base text-head">${maskCard(c)}${c.primary ? ` <span class="text-xs font-extrabold uppercase tracking-[0.08em] text-brand bg-mint rounded-[100px] px-[0.5rem] py-[0.1rem] align-middle">Primary</span>` : ""}</span>
               <span class="block text-sm text-muted">Expires ${c.exp}</span>
@@ -9738,7 +10008,7 @@
               ${SAVED_CARDS.map((c) => savedCardRow(c, !newPicked && PAY_PICK === c.id)).join("")}
               <button type="button" class="w-full text-left border-[1.5px] rounded-[12px] px-4 py-3 flex items-center gap-3 transition-all duration-150 ${newPicked ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="pick-card" data-id="new" aria-pressed="${newPicked}">
                 <span class="w-[34px] h-[34px] rounded-[9px] bg-surface-5 text-head grid place-items-center shrink-0">${icon("plus", 16)}</span>
-                <span class="min-w-0 flex-1"><span class="block font-bold text-base text-head">Use a new card</span><span class="block text-sm text-muted">Enter card details below</span></span>
+                <span class="min-w-0 flex-1"><span class="block font-bold text-base text-head">Add a card</span><span class="block text-sm text-muted">${noCards ? "Sign-up does not collect card details, so add one here" : "Enter the details below and pay with it"}</span></span>
                 <span class="w-[20px] h-[20px] rounded-full border-[1.5px] grid place-items-center shrink-0 ${newPicked ? "bg-navy border-navy text-white" : "border-line text-transparent"}">${icon("check", 12)}</span>
               </button>
             </div>
@@ -9778,17 +10048,11 @@
         if (useNew) {
           const save = el("ad-save-card");
           const makePrimary = el("ad-primary-card");
-          card = {
-            id: "pm_" + Date.now(),
-            brand: "Visa",
-            last4: "1881",
-            exp: "08/28",
-            primary: !SAVED_CARDS.length || !!(makePrimary && makePrimary.checked),
-          };
-          if (!SAVED_CARDS.length || (save && save.checked)) {
-            if (card.primary) SAVED_CARDS.forEach((c) => (c.primary = false));
-            SAVED_CARDS.push(card);
-          }
+          // Built from what was actually typed rather than a fixed demo card.
+          card = cardFromFields();
+          if (!SAVED_CARDS.length || (save && save.checked))
+            addSavedCard(card, makePrimary && makePrimary.checked);
+          else card.primary = false;
         } else {
           card = SAVED_CARDS.find((c) => c.id === PAY_PICK) || primaryCard();
         }
@@ -9887,7 +10151,7 @@
           return box(
             "border-line bg-surface-4 text-muted",
             "clock",
-            "Expired",
+            "Ended",
             `This ad finished its run on <b class="text-head">${fmtDate(a.end)}</b>.`
           );
         // Live — renewing, or counting down to an expiry.
