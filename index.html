@@ -343,73 +343,6 @@
         display: none;
       }
 
-      /* ── Page measure ───────────────────────────────────────────
-         Every band paints its background edge to edge, then hands its
-         content to .shell — so the left and right content edges line
-         up from the nav straight through to the footer. The page had
-         three different measures before this: most bands were uncapped
-         and sat on the gutter, plans and the footer were on 1400, the
-         app section on 1180. At 1920px that is content starting at
-         96px, 260px and 370px inside a single scroll.
-
-         1400px is the one the footer already carried, so it is the
-         measure the others move to rather than a fourth number. It
-         binds only above ~1556px, where the content box finally grows
-         past it; narrower than that the gutter is still the binding
-         constraint and nothing about the layout moves.
-
-         The sections keep their own clamp() gutter and .shell centres
-         inside it, which puts every content edge at the same place:
-         gutter, until the box exceeds 1400, then (100% - 1400px) / 2. */
-      .shell {
-        width: 100%;
-        max-width: 1400px;
-        margin-inline: auto;
-      }
-
-      /* The companion, for a band that IS its own content box — where the
-         grid sits on the <section> and there is no inner element to cap.
-         The gutter grows instead of a width being capped, to whichever is
-         wider: the gutter, or the space that puts the content on the shell
-         line. Same edge, no wrapper element, and the background still
-         paints full width. Replaces the section's px- utility rather than
-         fighting it, since two classes would tie on specificity. */
-      .shell-pad {
-        padding-inline: max(clamp(1rem, 5vw, 7rem), calc((100% - 1400px) / 2));
-      }
-
-      /* The one width where clamp()'s 1rem floor and the px-4 the bands
-         used below 380px actually differ, kept so nothing shifts there. */
-      @media (max-width: 380px) {
-        .shell-pad {
-          padding-inline: 1rem;
-        }
-      }
-
-      /* Two elements hold their gutter themselves and can take neither
-         class as-is. box-sizing is border-box here, so a plain 1400px cap
-         on a padded box measures the padding too and would pull its
-         content one gutter further in than everything else.
-
-         The hero grid is capped, but at the measure plus the gutter it is
-         carrying — which lands its content box on exactly 1400. */
-      .hero-grid {
-        max-width: calc(1400px + 2 * clamp(1rem, 5vw, 7rem));
-        margin-inline: auto;
-      }
-
-      /* The nav cannot be capped at all: it is sticky and its blurred bar
-         has to span the viewport, so it takes .shell-pad's arithmetic
-         through its own ID — the one selector that beats the px- utility
-         it already carries. Scoped above 1200px because that is where the
-         nav's own narrower gutters (3%, 4%) take over, and below it the
-         measure never binds anyway. */
-      @media (min-width: 1201px) {
-        #site-nav {
-          padding-inline: max(clamp(1rem, 5vw, 7rem), calc((100% - 1400px) / 2));
-        }
-      }
-
       @keyframes fadeUp {
         from {
           opacity: 0;
@@ -869,11 +802,7 @@
         z-index: 3;
       }
 
-      /* The floating shortcut card is the third of them — its gutter is
-         on .feature-strip, so the card itself takes the plain measure. */
       .feature-strip-inner {
-        max-width: 1400px;
-        margin-inline: auto;
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 0.4rem;
@@ -1118,18 +1047,10 @@
           );
       }
 
-      /* The rail deliberately bleeds past the section gutter so cards can
-         scroll off both edges: the negative margin cancels the section's
-         padding, the padding here puts it back inside. That inner padding
-         is what sets the first card's edge, so it has to grow the way the
-         nav's does to stay on the shell line. The percentage resolves
-         against the section's content box — the same box .shell centres
-         in — so unlike a vw-based version a classic scrollbar cannot
-         throw this off by its own width. */
       .ev-rail {
         position: relative;
         margin: 0 calc(clamp(1rem, 5vw, 7rem) * -1);
-        padding: 0 calc(clamp(1rem, 5vw, 7rem) + max(0px, (100% - 1400px) / 2));
+        padding: 0 clamp(1rem, 5vw, 7rem);
       }
 
       /* No snap and no CSS smooth scroll: the marquee sets scrollLeft every
@@ -3065,7 +2986,7 @@
         </svg>
       </div>
       <div
-        class="shell relative z-[1] grid grid-cols-[2fr_1fr_1fr_1fr] gap-x-10 gap-y-12 pb-14 max900:grid-cols-[1fr_1fr] max900:gap-y-10 max700:grid-cols-[1fr] max700:gap-y-9 max700:pb-10"
+        class="relative z-[1] grid grid-cols-[2fr_1fr_1fr_1fr] gap-x-10 gap-y-12 pb-14 max-w-[1400px] mx-auto max900:grid-cols-[1fr_1fr] max900:gap-y-10 max700:grid-cols-[1fr] max700:gap-y-9 max700:pb-10"
         data-rv-stagger="80"
       >
         <div class="max-w-[34ch]">
@@ -3182,7 +3103,7 @@
         </div>
       </div>
       <div
-        class="shell relative z-[1] flex justify-between items-center gap-x-8 gap-y-3 text-[0.9rem] flex-wrap pt-7 border-t border-t-white/[0.08] text-on-dark-3 max700:justify-center max700:text-center"
+        class="relative z-[1] flex justify-between items-center gap-x-8 gap-y-3 text-[0.9rem] flex-wrap max-w-[1400px] mx-auto pt-7 border-t border-t-white/[0.08] text-on-dark-3 max700:justify-center max700:text-center"
       >
         <span>© 2026 Bergen Kids. All rights reserved.</span>
         <span class="flex items-center gap-7">
@@ -4650,12 +4571,12 @@
 
 
           <section id="inside" class="inside-band px-[clamp(1rem,5vw,7rem)] py-20 max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
-            <div class="shell relative z-[1] text-center" data-rv-stagger="110">
+            <div class="relative z-[1] text-center" data-rv-stagger="110">
               <div class="text-[0.85rem] font-bold tracking-[0.1em] uppercase text-brand mb-3">What's Inside</div>
               <div class="font-serif text-[clamp(1.75rem,1.3rem_+_1.9vw,2.5rem)] font-black text-head tracking-[-0.02em] mb-3 leading-[1.15] text-balance mx-auto max-w-[22ch]">Everything for Bergen County families, in one place.</div>
               <p class="text-muted text-[1.05rem] leading-[1.65] max-w-[60ch] mx-auto mb-12 text-pretty">From newborn care to college prep — Bergen Kids brings together every trusted local service in one place.</p>
             </div>
-            <div class="shell relative z-[1] grid grid-cols-3 gap-5 items-stretch max1024:gap-4 max900:grid-cols-2 max560:grid-cols-1 max560:gap-3" data-rv-stagger="90">${featureTiles.map((t) => `<div class="inside-card" data-nav="${t.nav}" data-authgate data-tilt><svg class="inside-card-wave" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M40 0 C 62 22 40 40 60 58 C 80 76 58 90 78 100 L 100 100 L 100 0 Z" fill="${t.accent}22"/><path d="M60 0 C 80 20 60 38 78 55 C 93 69 75 83 93 100 L 100 100 L 100 0 Z" fill="${t.accent}3a"/></svg><span class="inside-card-badge" style="background:${t.tint};color:${t.accent}">${icon(t.icon, 26)}</span><div class="inside-card-title">${t.t}</div><span class="inside-card-rule" style="background:${t.accent}"></span><div class="inside-card-desc">${t.s}</div><span class="inside-card-arrow" style="background:${t.tint};color:${t.accent}">${icon("arrow-right", 18)}</span></div>`).join("")}</div>
+            <div class="relative z-[1] grid grid-cols-3 gap-5 items-stretch max1024:gap-4 max900:grid-cols-2 max560:grid-cols-1 max560:gap-3" data-rv-stagger="90">${featureTiles.map((t) => `<div class="inside-card" data-nav="${t.nav}" data-authgate data-tilt><svg class="inside-card-wave" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M40 0 C 62 22 40 40 60 58 C 80 76 58 90 78 100 L 100 100 L 100 0 Z" fill="${t.accent}22"/><path d="M60 0 C 80 20 60 38 78 55 C 93 69 75 83 93 100 L 100 100 L 100 0 Z" fill="${t.accent}3a"/></svg><span class="inside-card-badge" style="background:${t.tint};color:${t.accent}">${icon(t.icon, 26)}</span><div class="inside-card-title">${t.t}</div><span class="inside-card-rule" style="background:${t.accent}"></span><div class="inside-card-desc">${t.s}</div><span class="inside-card-arrow" style="background:${t.tint};color:${t.accent}">${icon("arrow-right", 18)}</span></div>`).join("")}</div>
           </section>
 
           <section class="ta-band px-[clamp(1rem,5vw,7rem)] py-24 max700:py-16 max380:px-4">
@@ -4669,7 +4590,7 @@
           </section>
 
           <section id="events" class="ev-band px-[clamp(1rem,5vw,7rem)] py-20 max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
-            <div class="shell relative z-[1] flex justify-between items-end mb-8 flex-wrap gap-x-8 gap-y-4 max700:flex-col max700:items-start" data-rv="up">
+            <div class="relative z-[1] flex justify-between items-end mb-8 flex-wrap gap-x-8 gap-y-4 max700:flex-col max700:items-start" data-rv="up">
               <!-- No width cap on this block: a ch-based cap resolves against its
                    own ~1rem font, which is far narrower than the 2.5rem heading
                    needs, and was breaking the title across two lines. The measure
@@ -4688,10 +4609,7 @@
             </div>
           </section>
 
-          <!-- shell-pad, not px- plus an inner .shell: the two columns are this
-               section's own children, so there is no inner box to cap without
-               adding a wrapper. The white band still paints edge to edge. -->
-          <section class="shell-pad py-20 bg-surface grid grid-cols-[1fr_1fr] gap-20 items-center max1200:gap-12 max900:grid-cols-1 max900:gap-10 max700:py-14">
+          <section class="px-[clamp(1rem,5vw,7rem)] py-20 bg-surface grid grid-cols-[1fr_1fr] gap-20 items-center max1200:gap-12 max900:grid-cols-1 max900:gap-10 max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
             <div class="relative max900:hidden" data-rv="left">
               <div class="relative w-full">
                 <img src="https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=900&q=80" alt="Kids playing ball together on a grass field" loading="lazy" class="w-full h-[380px] object-cover rounded-[24px] shadow-[0_16px_50px_rgba(26,46,74,0.18)] z-[1] relative">
@@ -4718,13 +4636,19 @@
           </section>
 
           <section class="plans-band px-[clamp(1rem,5vw,7rem)] py-20 relative overflow-hidden before:content-[''] before:absolute before:inset-0 before:bg-[radial-gradient(ellipse_at_70%_50%,rgba(45,122,79,0.15)_0%,transparent_60%)] max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4" id="plans">
-            <div class="shell relative z-[1] text-center" data-rv-stagger="110">
+            <div class="relative z-[1] text-center" data-rv-stagger="110">
               <div class="text-[0.85rem] font-bold tracking-[0.1em] uppercase mb-3 text-sun">Listing Plans</div>
               <div class="font-serif text-[clamp(1.75rem,1.3rem_+_1.9vw,2.5rem)] font-black tracking-[-0.02em] mb-3 leading-[1.15] text-balance text-white">Pick what your ad does, then how you pay for it</div>
               <p class="text-[1.05rem] leading-[1.65] max-w-[62ch] mx-auto text-pretty text-on-dark-2 mb-12">Every ad starts as a free Basic Listing. Upgrade the type if you want photos, add the placements you want on top, then choose a billing term — a subscription that renews, or a one-time fee for the same run. Type and placement are charged once per ad.</p>
             </div>
 
-            <div class="shell relative z-[1]">
+            <!-- 1400px is the page's own wide measure — the header and footer
+                 already sit on it — so the three step rows line up with the rest
+                 of the site instead of reading as a narrow column inset in a
+                 full-bleed band. Not uncapped like #inside: step 1 holds only two
+                 cards, and with auto-fit's 1fr tracks a full-bleed row would
+                 stretch that pair into ~850px slabs around one line of text. -->
+            <div class="relative z-[1] mx-auto w-full max-w-[1400px]">
               <!-- Step 1 — what tier the ad runs at -->
               <div class="flex items-center gap-3 mb-5">
                 <span class="w-[30px] h-[30px] rounded-full bg-sun text-navy grid place-items-center text-[0.9rem] font-black shrink-0">1</span>
@@ -4771,7 +4695,7 @@
             <div class="absolute -top-[60px] -left-[40px] text-white opacity-[0.07] pointer-events-none rotate-[-12deg]">${icon("tent", 220)}</div>
             <div class="absolute -bottom-[70px] right-[4%] text-white opacity-[0.07] pointer-events-none rotate-[14deg]">${icon("star", 200, "icon--solid")}</div>
 
-            <div class="shell relative grid grid-cols-[1.05fr_0.95fr] gap-16 items-center max1024:gap-10 max900:grid-cols-1 max900:gap-14">
+            <div class="relative grid grid-cols-[1.05fr_0.95fr] gap-16 items-center mx-auto w-full max-w-[1180px] max1024:gap-10 max900:grid-cols-1 max900:gap-14">
               <div class="max900:text-center max900:mx-auto max900:max-w-[560px]" data-rv="left">
                 <div class="inline-flex items-center gap-[0.45rem] border border-sun/70 bg-sun/10 text-sun text-[0.72rem] font-bold tracking-[0.12em] uppercase px-[0.9rem] py-[0.4rem] rounded-[100px] mb-6 backdrop-blur-sm"><span class="w-[6px] h-[6px] rounded-[50%] bg-sun animate-pulse"></span>Now on iPhone &amp; Android</div>
                 <h2 class="font-serif text-[clamp(2rem,1.4rem_+_2.6vw,3.2rem)] font-black text-white mb-4 tracking-[-0.02em] leading-[1.08] text-balance">Bergen Kids, now in <span class="text-sun">your pocket.</span></h2>
