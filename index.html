@@ -460,6 +460,42 @@
         color: var(--head);
       }
 
+      /* The location pill wears the same border beam as the ad units, sharing
+         their --beamAngle property and beamSpin keyframes. Built like the
+         sponsor bar's, not the corner ad's: painted inside the box with a mask
+         punching out the middle, so the ring follows the pill's own radius
+         instead of needing a second box sized to match a 100px round end. */
+      .hero-pill {
+        position: relative;
+      }
+
+      .hero-pill::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 2px; /* ring thickness */
+        pointer-events: none;
+        background: conic-gradient(
+          from var(--beamAngle),
+          #f5a623,
+          #ffe6bd,
+          #1e8c7a,
+          #2d5a8e,
+          #c3b1e6,
+          #f5a623
+        );
+        -webkit-mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        mask-composite: exclude;
+        animation: beamSpin 3.4s linear infinite;
+      }
+
       .hero-photo {
         border-radius: 20px;
         overflow: hidden;
@@ -1210,10 +1246,11 @@
           box-shadow 0.25s ease;
       }
 
-      /* Anchor targets clear the sticky nav — and the sponsor bar parked under
-         it — instead of hiding beneath them. syncSponsorPad() keeps
-         --sponsor-reserve equal to the band the bar occupies (0 once it is
-         dismissed), so this offset tracks the bar rather than guessing. */
+      /* Anchor targets clear the sticky nav — and the sponsor bar pinned over
+         the page below it — instead of hiding beneath them. syncSponsorPad()
+         keeps --sponsor-reserve equal to how far past the nav the bar reaches
+         (0 once it is dismissed), so this offset tracks the bar rather than
+         guessing. */
       #inside,
       #events,
       #plans {
@@ -1399,9 +1436,7 @@
         width: 320px;
         max-width: calc(100vw - 32px);
         transform-origin: bottom right;
-        transform: scale(0.82) translateY(26px);
-        opacity: 0;
-        animation: cornerAdIn 0.5s cubic-bezier(0.22, 1.25, 0.36, 1) 1.4s forwards;
+        animation: cornerAdIn 0.75s cubic-bezier(0.24, 0.9, 0.3, 1) 1.4s both;
         /* mountToTop() re-measures `bottom` when the stack below changes. */
         transition: bottom 0.3s ease;
       }
@@ -1410,11 +1445,29 @@
         display: none;
       }
 
-      /* Pop in from the corner like a notification popup. */
+      /* Slides in off the right edge and overshoots a touch before settling —
+         the same arrival the sponsor bar drops in with, played sideways, so the
+         two ad units read as one behaviour rather than two. `both` on the
+         animation is what parks it off screen through the delay; the 120% is of
+         the card's own width, so it clears the viewport at any size. */
       @keyframes cornerAdIn {
-        to {
-          transform: scale(1) translateY(0);
+        0% {
+          transform: translateX(120%);
+          opacity: 0;
+        }
+        66% {
+          transform: translateX(-10px);
           opacity: 1;
+        }
+        100% {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #cornerAd {
+          animation: none;
         }
       }
 
@@ -1458,22 +1511,24 @@
         }
       }
 
-      /* ── Sponsor Bar — a floating banner-ad unit, parked at the top ──
-         `top` is the nav's height (104px, 76px on phones) plus the same gutter
-         used left and right, so the banner sits just clear of the sticky
-         header. syncSponsorPad() reserves the band it covers on #view-root so
-         the unit never sits on top of a page heading. */
+      /* ── Sponsor Bar — a banner-ad unit pinned over the top of the hero ──
+         Fixed to the viewport, so it holds its place while the page scrolls
+         under it. `top` is exactly where the card used to sit inside the hero:
+         104px of nav plus the hero's own 48px top padding (76 + 30 on phones).
+         The left/right insets are the hero's gutters, but they only bind on
+         narrow screens — past that the max-width caps the card and the auto
+         margins centre it, so it reads as a banner rather than a full-bleed
+         strip. Widen or drop that cap to have it span the hero again. */
       #sponsor-bar {
         position: fixed;
-        left: 16px;
-        right: 16px;
-        top: 120px;
+        top: 152px;
+        left: clamp(1rem, 5vw, 7rem);
+        right: clamp(1rem, 5vw, 7rem);
+        max-width: 1040px;
         margin-inline: auto;
-        max-width: 1160px;
         z-index: 60;
         border-radius: 18px;
         overflow: hidden;
-        /* nav height + gutter — see the block comment above. */
         /* Base shade. mountSponsorBar() layers the active slide's photo on top
            of this, so the flat gradient is also the fallback if an image fails.
            An opaque color plus border-box origin is what stops the 1px border
@@ -1489,15 +1544,44 @@
            since the clipped beam can only be painted inside the border box. */
         border: none;
         box-shadow: 0 18px 50px rgba(0, 0, 0, 0.42);
-        transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+        transition:
+          transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1),
+          opacity 0.5s ease;
       }
 
       @media (max-width: 560px) {
         #sponsor-bar {
-          left: 10px;
-          right: 10px;
-          top: 86px;
+          top: 106px;
           border-radius: 14px;
+        }
+      }
+
+      /* A view can offer #hero-ad-slot to say "the ad belongs here in the
+         reading order" — placeSponsorBar() moves the mounted unit into it. The
+         slot itself takes no room and does no positioning: the bar is fixed, so
+         where it sits on screen comes from #sponsor-bar alone. */
+      #hero-ad-slot {
+        height: 0;
+      }
+
+      /* Neither column reserves a band for the ad: both start at the top of the
+         hero and the card floats over them, so the copy runs up behind it just
+         as the collage does. The pill and the first line of the headline sit in
+         that overlap — raise this padding past the card (152px offset + 151px
+         bar, 106px on phones) if they need to clear it again. */
+      .hero-grid {
+        padding-top: 40px;
+      }
+
+      @media (max-width: 900px) {
+        .hero-grid {
+          padding-top: 34px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .hero-grid {
+          padding-top: 24px;
         }
       }
 
@@ -1535,10 +1619,54 @@
         animation: beamSpin 3.4s linear infinite;
       }
 
+      /* Entrance — the mirror of the dismissal below: the card drops out from
+         behind the nav, overshoots a little and settles, so the ad arrives
+         rather than simply being there on the first paint. mountSponsorBar()
+         strips the class once it has played, because the node moves that
+         placeSponsorBar() makes between views restart CSS animations and the
+         drop would otherwise replay on every navigation. */
+      @keyframes sponsorDrop {
+        0% {
+          transform: translateY(-190%);
+          opacity: 0;
+        }
+        62% {
+          transform: translateY(9px);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      #sponsor-bar.is-entering {
+        /* `both` matters: the delay holds it up behind the nav instead of
+           flashing it in place while the hero paints. */
+        animation: sponsorDrop 0.8s cubic-bezier(0.24, 0.9, 0.3, 1) 0.35s both;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #sponsor-bar.is-entering {
+          animation: none;
+        }
+      }
+
       /* Dismissal slides the bar up behind the nav (z 100 beats the bar's 60),
          so it reads as tucking back into the header. */
       #sponsor-bar.is-hidden {
         transform: translateY(-190%);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* Then both hosts go, and --sponsor-reserve drops to 0 with them, handing
+         anchor targets and toasts back the strip the ad was holding. The close
+         handler sets this class only once the slide has finished, so the ad is
+         off screen before it disappears. */
+      body.sponsor-dismissed #sponsor-bar-root,
+      body.sponsor-dismissed #hero-ad-slot {
+        display: none;
       }
 
       .sponsor-stage {
@@ -1689,7 +1817,7 @@
       }
 
       /* ── Toasts ─────────────────────────────────────────────────
-         Top centre, clear of the nav and of the sponsor bar parked beneath it
+         Top centre, clear of the nav and of the sponsor bar pinned beneath it
          (--sponsor-reserve collapses to 0 once the bar is dismissed). They used
          to sit bottom-centre, where the corner ad lives — messages landed
          behind it. Above every overlay (z 2000) so modal flows can confirm. */
@@ -4112,9 +4240,9 @@
             };
             // Scroll helpers — native scrolling.
             const NAV_OFFSET = -108; // clear the sticky header (104px tall)
-            // The sponsor bar parks under that header, so a scroll target has to clear
-            // both. syncSponsorPad() publishes the band the bar covers — 0 once it is
-            // dismissed — as --sponsor-reserve.
+            // The sponsor bar is pinned under that header, so a scroll target has to
+            // clear both. syncSponsorPad() publishes the band the bar covers — 0 once
+            // it is dismissed — as --sponsor-reserve.
             function sponsorReserve() {
               const v = getComputedStyle(document.documentElement).getPropertyValue("--sponsor-reserve");
               return parseFloat(v) || 0;
@@ -4147,9 +4275,31 @@
               }
             }
 
+            /* The sponsor bar is mounted once — timers, listeners and carousel state
+               all live on that one node — and then moved between two homes: the body,
+               just under the nav, and #hero-ad-slot on any view that offers one.
+               Moving the node keeps the rotation running; re-rendering the markup per
+               view would restart it and strand the previous interval. Either home
+               paints the bar in the same place: it is fixed to the viewport, so the
+               host only decides where it falls in the reading order. */
+            function parkSponsorBar() {
+              const bar = el("sponsor-bar-root");
+              const view = el("view-root");
+              // Has to happen before #view-root is rewritten: while the bar is on
+              // loan to a view, that innerHTML would take the mounted unit with it.
+              if (bar && view && bar.parentNode !== document.body)
+                document.body.insertBefore(bar, view);
+            }
+            function placeSponsorBar() {
+              const bar = el("sponsor-bar-root");
+              const slot = el("hero-ad-slot");
+              if (bar && slot && bar.parentNode !== slot) slot.appendChild(bar);
+            }
+
             function render() {
               renderNav();
               const root = el("view-root");
+              parkSponsorBar();
               const map = {
                 home: viewHome,
                 directory: viewDirectory,
@@ -4334,12 +4484,20 @@
               };
               return `<div class="w-full"><div class="min-w-0">
           <section class="hero-sun relative overflow-hidden">
+            <!-- Where the sponsor bar is parked on this view: placeSponsorBar()
+                 moves the mounted unit in here after every render, so the ad reads
+                 as the first thing in the hero, above the headline. The slot takes
+                 no space and does no positioning — the bar is fixed to the viewport
+                 and holds its place there while this section scrolls under it. -->
+            <div id="hero-ad-slot"></div>
             <!-- The bottom padding is the room the floating shortcut card sits in:
                  the card plus its clearance is ~150px, so the reserve has to exceed
-                 that by however much air you want between the CTA and the card. -->
-            <div class="grid grid-cols-[1.05fr_1fr] items-center gap-12 px-[clamp(1rem,5vw,7rem)] pt-[70px] pb-[216px] max900:grid-cols-1 max900:gap-10 max900:pt-[52px] max900:pb-10">
-              <div class="relative z-[1] animate-[fadeUp_0.7s_ease_both]">
-                <div class="inline-flex items-center gap-2 rounded-[100px] bg-mint px-4 py-[0.5rem] text-[0.78rem] font-extrabold uppercase tracking-[0.08em] text-brand">${icon("pin", 14)} Bergen County, New Jersey</div>
+                 that by however much air you want between the CTA and the card.
+                 The top padding is the band the pinned ad floats over and belongs
+                 with it, so .hero-grid owns it in the stylesheet rather than here. -->
+            <div class="hero-grid grid grid-cols-[1.05fr_1fr] items-center gap-12 px-[clamp(1rem,5vw,7rem)] pb-[216px] max900:grid-cols-1 max900:gap-10 max900:pb-10">
+              <div class="hero-copy relative z-[1] animate-[fadeUp_0.7s_ease_both]">
+                <div class="hero-pill inline-flex items-center gap-2 rounded-[100px] bg-mint px-4 py-[0.5rem] text-[0.78rem] font-extrabold uppercase tracking-[0.08em] text-brand">${icon("pin", 14)} Bergen County, New Jersey</div>
                 <h1 class="mt-6 font-serif font-black leading-[1.05] tracking-[-0.02em] text-head text-[clamp(2.1rem,1.2rem_+_3.6vw,4rem)]">Find the good stuff for <span class="text-[#e0550f]">your kids,</span> right in your town</h1>
                 <p class="mt-5 max-w-[46ch] text-[1.05rem] leading-[1.65] text-muted text-pretty">Discover pediatricians, tutors, camps, schools and local family events — organized town by town. Make a free account to see what fits your family.</p>
                 ${
@@ -4350,7 +4508,10 @@
                 </div>`
                 }
               </div>
-              <div class="relative z-[1] h-[420px] animate-[fadeUp_0.8s_0.15s_ease_both] max900:h-[320px] max560:h-[260px]">
+              <!-- self-start, not the grid's items-center: the copy column is now
+                   far taller than this one, and centring would drop the collage to
+                   the middle of the hero instead of tucking it under the ad. -->
+              <div class="relative z-[1] h-[420px] self-start animate-[fadeUp_0.8s_0.15s_ease_both] max900:h-[320px] max900:self-auto max560:h-[260px]">
                 <div class="hero-decor" aria-hidden="true">
                   <span class="hero-blob hero-blob--grass"></span>
                   <span class="hero-blob hero-blob--sun"></span>
@@ -4409,7 +4570,7 @@
             </div>
           </section>
 
-          <section class="px-[clamp(1rem,5vw,7rem)] py-20 bg-cream grid grid-cols-[1fr_1fr] gap-20 items-center max1200:gap-12 max900:grid-cols-1 max900:gap-10 max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
+          <section class="px-[clamp(1rem,5vw,7rem)] py-20 bg-surface grid grid-cols-[1fr_1fr] gap-20 items-center max1200:gap-12 max900:grid-cols-1 max900:gap-10 max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
             <div class="relative max900:hidden" data-rv="left">
               <div class="relative w-full">
                 <img src="https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=900&q=80" alt="Kids playing ball together on a grass field" loading="lazy" class="w-full h-[380px] object-cover rounded-[24px] shadow-[0_16px_50px_rgba(26,46,74,0.18)] z-[1] relative">
@@ -9310,9 +9471,8 @@
               mountTilt();
               mountCategoryMarquee();
               mountSideAd();
-              // The band reserved for the sponsor bar lives on the view's first block,
-              // which this render just replaced.
-              syncSponsorPad();
+              // The slot this view offers the sponsor bar was just recreated.
+              placeSponsorBar();
             }
 
             function sideAdMarkup() {
@@ -9606,32 +9766,32 @@
               });
             }
 
-            /* Sticky top sponsor bar — mounted once, persists across view renders */
+            /* Top sponsor bar — mounted once, pinned over the top of the view, and
+               it persists across view renders */
             let sponsorTimer = null;
-            // The bar is fixed just under the nav, so the band it covers is dead space
-            // for the page behind it: whatever sits there is hidden for good, not just
-            // until you scroll. Reserve that band on #view-root (the element survives
-            // every render, so the inline style sticks) and publish it as
-            // --sponsor-reserve for anchor offsets. The bar's real height depends on
-            // its content and the viewport, so it is measured rather than hard-coded.
+            /* The page keeps its own layout — the card floats over the hero rather
+               than pushing it down. But the bar is fixed, so the strip it covers is
+               dead space at every scroll position, and anything scrolled to the top
+               of the viewport lands underneath it. Publish how far past the nav the
+               bar reaches as --sponsor-reserve so anchor targets and toasts can drop
+               below it; it is measured, since the bar's height follows its content
+               and the viewport, and collapses to 0 once the bar is dismissed. */
             function syncSponsorPad() {
               const bar = el("sponsor-bar");
-              const root = el("view-root");
               const gone = document.body.classList.contains("sponsor-dismissed");
-              // Just the gutter above the bar plus the bar itself, so the page starts
-              // level with its bottom edge. Reserving a second gutter below it as well
-              // stacked on top of the section's own top padding and read as a gap.
+              const nav = window.innerWidth <= 560 ? 76 : 104;
               const gutter = window.innerWidth <= 560 ? 10 : 16;
-              const reserve = !bar || gone ? 0 : bar.offsetHeight + gutter;
+              // Its own `top` plus its layout height, not a bounding rect: the rect
+              // follows the entrance and dismissal transforms, and measuring mid-slide
+              // would publish a reserve for a position the bar is only passing through.
+              const reserve =
+                !bar || gone
+                  ? 0
+                  : Math.max(
+                      0,
+                      (parseFloat(getComputedStyle(bar).top) || 0) + bar.offsetHeight - nav + gutter
+                    );
               document.documentElement.style.setProperty("--sponsor-reserve", reserve + "px");
-              if (!root) return;
-              // Reserve it on the view's first painted block rather than on #view-root:
-              // that element carries the section's own background, so the band behind
-              // the bar is the hero's gradient instead of a bare strip of page colour.
-              // Re-applied from afterRender(), since this element dies with each view.
-              const host = root.querySelector("section, .view-full") || root;
-              if (host !== root) root.style.paddingTop = "";
-              host.style.paddingTop = reserve ? reserve + "px" : "";
             }
             window.addEventListener("resize", syncSponsorPad);
             window.addEventListener("load", syncSponsorPad);
@@ -9650,6 +9810,18 @@
               // Slides differ in height, so the bar resizes as it rotates — the band
               // reserved for it has to follow.
               if (window.ResizeObserver && bar) new ResizeObserver(syncSponsorPad).observe(bar);
+              // Play the drop-in once, then take the class off so re-parenting the
+              // node between views cannot restart it. The animationName guard is what
+              // keeps a stray animationend bubbling up from the card's contents from
+              // ending it early.
+              if (bar) {
+                bar.classList.add("is-entering");
+                bar.addEventListener("animationend", function landed(e) {
+                  if (e.animationName !== "sponsorDrop") return;
+                  bar.classList.remove("is-entering");
+                  bar.removeEventListener("animationend", landed);
+                });
+              }
               const DUR = 3000;
               let idx = 0;
               function paint() {
@@ -9695,11 +9867,18 @@
                 closeBtn.addEventListener("click", (e) => {
                   e.stopPropagation();
                   stop();
+                  // Dropping the entrance first: a running animation outranks the
+                  // is-hidden transition, so dismissing mid-drop would stall.
+                  if (bar) bar.classList.remove("is-entering");
                   if (bar) bar.classList.add("is-hidden");
-                  document.body.classList.add("sponsor-dismissed");
-                  // Give back the reserved band only once the bar has slid away —
-                  // collapsing it immediately yanks the page up under the reader.
-                  setTimeout(syncSponsorPad, 500);
+                  // Take the reserved band back only once the bar has slid away —
+                  // collapsing it immediately yanks the page up under the reader. The
+                  // class is on <body> rather than the node so it outlives the view
+                  // renders that move the bar between its two homes.
+                  setTimeout(() => {
+                    document.body.classList.add("sponsor-dismissed");
+                    syncSponsorPad();
+                  }, 500);
                 });
               stage.addEventListener("mouseenter", stop);
               stage.addEventListener("mouseleave", start);
