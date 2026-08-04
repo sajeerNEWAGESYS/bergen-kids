@@ -5580,6 +5580,42 @@
           )}<button type="button" class="${CLEAR_BTN}" data-action="${clearAction}">${icon("x", 14, "text-muted")} Clear All</button>`;
       }
       const dirActiveChipsInner = () => activeChipsInner(state.dir, "rm-filter", "clear-all-dir");
+      /* The same pill strip for the dashboard trays. activeChipsInner above is
+         built around the directory's three multi-select fields and labels each
+         with a count; these bars hold one value per field, so the pill carries
+         the value itself — the category name, the status, the date. `fields` is
+         [key, format] pairs, and only the keys holding something are shown. */
+      function dashChipsInner(f, fields, rmAction, clearAction) {
+        const esc = (v) =>
+          String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const chips = fields.filter(([k]) => f[k]).map(([k, fmt]) => [k, fmt(f[k])]);
+        if (!chips.length) return "";
+        return `<span class="text-sm font-bold tracking-[0.06em] uppercase text-adlabel mr-1">Active Filter</span>${chips
+          .map(
+            ([k, label]) =>
+              `<button class="inline-flex items-center gap-2 bg-navy text-white text-sm font-semibold pl-[0.85rem] pr-[0.55rem] py-[0.4rem] rounded-[100px] transition-colors duration-150 hover:bg-[#12233d]" data-action="${rmAction}" data-key="${k}">${esc(label)} ${icon("x", 13)}</button>`
+          )
+          .join(
+            ""
+          )}<button type="button" class="${CLEAR_BTN}" data-action="${clearAction}">${icon("x", 14, "text-muted")} Clear All</button>`;
+      }
+      const catName = (v) => (catOf(v) || {}).name || v;
+      const BILLING_CHIP_FIELDS = [
+        ["q", (v) => '"' + v + '"'],
+        ["cat", catName],
+        ["from", (v) => "From " + fmtDate(v)],
+        ["to", (v) => "To " + fmtDate(v)],
+      ];
+      const AD_CHIP_FIELDS = [
+        ["cat", catName],
+        ["status", (v) => (AD_STATUSES.find((s) => s.id === v) || {}).name || v],
+        ["from", (v) => "From " + fmtDate(v)],
+        ["to", (v) => "To " + fmtDate(v)],
+      ];
+      const billingChipsInner = () =>
+        dashChipsInner(state.billing, BILLING_CHIP_FIELDS, "rm-billing-filter", "clear-billing");
+      const adChipsInner = () =>
+        dashChipsInner(state.adFilter, AD_CHIP_FIELDS, "rm-ad-filter", "clear-ad-filter");
       function dirShowingText(list) {
         return `Showing <b class="text-head">${list.length}</b> of <b class="text-head">${LISTINGS.length}</b> result${LISTINGS.length !== 1 ? "s" : ""}`;
       }
@@ -5633,6 +5669,42 @@
               <button type="button" class="ft-clear shrink-0 w-[24px] h-[24px] rounded-full grid place-items-center text-muted transition-colors duration-150 hover:bg-surface-5 hover:text-head group-data-[on=false]:hidden" data-action="${clearAction}" data-key="q" aria-label="Clear search">${icon("x", 13)}</button>`
         );
       }
+      /* The dashboard trays — My Ads and Billing history — filter on single
+         values and date ranges, so they cannot use ftMulti's pick-many popup.
+         These two put a plain <select> and a date input inside the same ftCtl
+         shell instead, which is all the directory look actually is: the 48px
+         pill, the navy "on" state, the muted icon that goes navy with it. A
+         dashboard bar then renders through filtersTop() exactly like the
+         directory's, rather than being a second grid of labelled boxes. */
+      function ftSelect(id, value, opts, ic, empty, size) {
+        return ftCtl(
+          !!value,
+          FT_SIZE[size || ""] || FT_SIZE[""],
+          `${icon(ic, 16, FT_ICON)}
+              <select class="${FT_INPUT}" id="${id}"><option value="">${empty}</option>${opts
+                .map(
+                  ([v, label]) =>
+                    `<option value="${v}" ${value === v ? "selected" : ""}>${label}</option>`
+                )
+                .join("")}</select>
+              ${icon("chev-down", 15, FT_ICON + " pointer-events-none")}`
+        );
+      }
+      /* An empty date input reads "mm/dd/yyyy" in every browser, so From and To
+         would be indistinguishable side by side. The word rides inside the pill
+         and picks up the navy with it, which keeps the tray self-describing
+         without putting a label above every control. */
+      function ftDate(id, value, label, size) {
+        return ftCtl(
+          !!value,
+          FT_SIZE[size || "narrow"] || FT_SIZE[""],
+          `${icon("calendar", 16, FT_ICON)}
+              <label class="text-sm text-muted shrink-0 whitespace-nowrap cursor-pointer group-data-[on=true]:text-navy" for="${id}">${label}</label>
+              <input class="${FT_INPUT} cursor-text" type="date" id="${id}" value="${value || ""}">`
+        );
+      }
+      // How many of a dashboard bar's fields are narrowing the results.
+      const dashFilterCount = (f, keys) => keys.filter((k) => f[k]).length;
       /* Controls are sized to the values they hold rather than all alike.
                Category carries the longest ("Schools & Preschools"), subcategory the
                shortest ("Public", "Math"), so the slack goes where the text needs it
@@ -6243,6 +6315,17 @@
         if (t) t.textContent = "$" + filtered.reduce((s, r) => s + r.amount, 0).toFixed(2);
         const b = el("bl-results");
         if (b) b.innerHTML = billingResults(filtered);
+        // The tray and the pill strip are not re-rendered on this path, so the
+        // control's on-state, its inline X, and the chips are flipped by hand.
+        syncFilterStates();
+        const head = document.querySelector(".filters-top .ft-head");
+        if (head)
+          head.innerHTML = ftHead(
+            dashFilterCount(state.billing, ["q", "cat", "from", "to"]),
+            "clear-billing"
+          );
+        const chips = el("bl-chips");
+        if (chips) chips.innerHTML = billingChipsInner();
       }
       function billingHistory() {
         const all = billingTransactions();
@@ -6250,20 +6333,34 @@
         const cats = CATEGORIES.filter((c) => all.some((r) => r.catId === c.id));
         const filtered = filteredBilling();
         const total = filtered.reduce((s, r) => s + r.amount, 0);
-        return `<div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-lg [&_h3]:text-head [&_h3]:mb-[0.3rem] max380:p-[1.1rem]">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.1rem">
-            <div><h3>Billing history</h3><div class="text-sm text-muted mb-5 leading-[1.55]">All charges for your business listings.</div></div>
-            <div style="text-align:right"><div style="font-size:var(--fs-sm);font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--ad-label)">Total spent</div><div id="bl-total" style="font-family:var(--font);font-size:var(--fs-3xl);font-weight:700;color:var(--head)">$${total.toFixed(2)}</div></div>
+        // The tray is its own card above the table's, as on the Directory —
+        // the heading names the section, the tray narrows it, the pills say
+        // what is currently narrowing it, and the results sit below all three.
+        return `<div class="mb-5 [&_h3]:text-lg [&_h3]:text-head [&_h3]:mb-[0.3rem]">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem">
+              <div><h3>Billing history</h3><div class="text-sm text-muted leading-[1.55]">All charges for your business listings.</div></div>
+              <div style="text-align:right"><div style="font-size:var(--fs-sm);font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--ad-label)">Total spent</div><div id="bl-total" style="font-family:var(--font);font-size:var(--fs-3xl);font-weight:700;color:var(--head)">$${total.toFixed(2)}</div></div>
+            </div>
           </div>
-          <div class="filter-bar bg-surface border-[1.5px] border-line rounded-[18px] p-4 grid gap-3 items-center mb-6 grid-cols-[1.6fr_1.2fr_1fr_1fr_auto] max1200:!grid-cols-[1fr_1fr_1fr] max900:!grid-cols-[1fr_1fr] max700:!grid-cols-[1fr]" style="box-shadow:none;margin-bottom:1.25rem">
-            <div class="flex flex-col gap-1"><label class="text-xs font-bold tracking-[0.07em] uppercase text-adlabel pl-2">Search</label><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-surface-2 min-h-[46px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("search", 16, "text-muted shrink-0")}<input class="border-none outline-none bg-transparent font-sans text-base text-head w-full min-w-0 cursor-text placeholder:text-muted placeholder:opacity-100" type="text" id="bl-q" placeholder="Listing name…" value="${(f.q || "").replace(/"/g, "&quot;")}"></div></div>
-            <div class="flex flex-col gap-1"><label class="text-xs font-bold tracking-[0.07em] uppercase text-adlabel pl-2">Category</label><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-surface-2 min-h-[46px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("tag", 16)}<select class="border-none outline-none bg-transparent font-sans text-base text-head w-full min-w-0 cursor-pointer" id="bl-cat"><option value="">All categories</option>${cats.map((c) => `<option value="${c.id}" ${f.cat === c.id ? "selected" : ""}>${c.name}</option>`).join("")}</select></div></div>
-            <div class="flex flex-col gap-1"><label class="text-xs font-bold tracking-[0.07em] uppercase text-adlabel pl-2">From</label><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-surface-2 min-h-[46px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("calendar", 16)}<input class="border-none outline-none bg-transparent font-sans text-base text-head w-full min-w-0 cursor-text placeholder:text-muted placeholder:opacity-100" type="date" id="bl-from" value="${f.from || ""}"></div></div>
-            <div class="flex flex-col gap-1"><label class="text-xs font-bold tracking-[0.07em] uppercase text-adlabel pl-2">To</label><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-surface-2 min-h-[46px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("calendar", 16)}<input class="border-none outline-none bg-transparent font-sans text-base text-head w-full min-w-0 cursor-text placeholder:text-muted placeholder:opacity-100" type="date" id="bl-to" value="${f.to || ""}"></div></div>
-            <button class="bg-transparent border-none text-muted text-sm font-bold flex items-center gap-[0.3rem] whitespace-nowrap self-end px-2 py-[0.7rem] min-h-[44px] hover:text-head hover:underline max700:self-start max700:justify-center max700:border-[1.5px] max700:border-solid max700:border-line max700:rounded-[10px]" data-action="clear-billing">${icon("x", 15)} Clear</button>
-          </div>
-          <div id="bl-results">${billingResults(filtered)}</div>
-        </div>`;
+          ${filtersTop(
+            `${ftSearch("bl-q", f.q, "Listing name…", "Search charges", "rm-billing-filter")}
+            ${ftSelect(
+              "bl-cat",
+              f.cat,
+              cats.map((c) => [c.id, c.name]),
+              "tag",
+              "All categories",
+              "wide"
+            )}
+            ${ftDate("bl-from", f.from, "From")}
+            ${ftDate("bl-to", f.to, "To")}`,
+            dashFilterCount(f, ["q", "cat", "from", "to"]),
+            "clear-billing"
+          )}
+          <div id="bl-chips" class="empty:hidden flex items-center gap-2 flex-wrap mb-5">${billingChipsInner()}</div>
+          <div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 mb-6 max380:p-[1.1rem]">
+            <div id="bl-results">${billingResults(filtered)}</div>
+          </div>`;
       }
       function subOptions(catId, selected) {
         const c = catOf(catId);
@@ -7005,24 +7102,38 @@
               (!f.to || a.start <= f.to)
           );
           const cats = CATEGORIES.filter((c) => ADS.some((a) => a.cat === c.id));
-          const FIELD =
-            "flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-surface-2 min-h-[46px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]";
-          const INPUT =
-            "border-none outline-none bg-transparent font-sans text-base text-head w-full min-w-0 cursor-pointer";
-          const LABEL = "text-xs font-bold tracking-[0.07em] uppercase text-adlabel pl-2";
-          return `<div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-lg [&_h3]:text-head [&_h3]:mb-[0.3rem] max380:p-[1.1rem]"><div style="margin-bottom:1rem"><h3>My Ads</h3><div class="text-sm text-muted mb-5 leading-[1.55]">${shown.length} of ${ADS.length} ad${ADS.length !== 1 ? "s" : ""}</div></div>
+          // Heading, then tray, then the pills saying what is applied — the
+          // table gets its own card underneath, as on the Directory.
+          return `<div class="mb-5 [&_h3]:text-lg [&_h3]:text-head [&_h3]:mb-[0.3rem]"><h3>My Ads</h3><div class="text-sm text-muted leading-[1.55]">${shown.length} of ${ADS.length} ad${ADS.length !== 1 ? "s" : ""}</div></div>
           ${
             ADS.length
-              ? `<div class="grid gap-3 items-end mb-6 grid-cols-[1.4fr_1fr_1fr_1fr_auto] max1200:!grid-cols-[1fr_1fr_1fr] max900:!grid-cols-[1fr_1fr] max700:!grid-cols-[1fr]">
-            <div class="flex flex-col gap-1"><label class="${LABEL}">Category</label><div class="${FIELD}">${icon("tag", 16)}<select class="${INPUT}" id="ma-cat"><option value="">All categories</option>${cats.map((c) => `<option value="${c.id}" ${f.cat === c.id ? "selected" : ""}>${c.name}</option>`).join("")}</select></div></div>
-            <div class="flex flex-col gap-1"><label class="${LABEL}">Status</label><div class="${FIELD}">${icon("check", 16)}<select class="${INPUT}" id="ma-status"><option value="">All statuses</option>${AD_STATUSES.map((s) => `<option value="${s.id}" ${f.status === s.id ? "selected" : ""}>${s.name}</option>`).join("")}</select></div></div>
-            <div class="flex flex-col gap-1"><label class="${LABEL}">Running from</label><div class="${FIELD}">${icon("calendar", 16)}<input class="${INPUT} cursor-text" type="date" id="ma-from" value="${f.from || ""}"></div></div>
-            <div class="flex flex-col gap-1"><label class="${LABEL}">Running to</label><div class="${FIELD}">${icon("calendar", 16)}<input class="${INPUT} cursor-text" type="date" id="ma-to" value="${f.to || ""}"></div></div>
-            <button class="bg-transparent border-none text-muted text-sm font-bold flex items-center gap-[0.3rem] whitespace-nowrap self-end px-2 py-[0.7rem] min-h-[44px] hover:text-head hover:underline max700:self-start max700:justify-center max700:border-[1.5px] max700:border-solid max700:border-line max700:rounded-[10px]" data-action="clear-ad-filter">${icon("x", 15)} Clear</button>
-          </div>`
+              ? filtersTop(
+                  `${ftSelect(
+                    "ma-cat",
+                    f.cat,
+                    cats.map((c) => [c.id, c.name]),
+                    "tag",
+                    "All categories",
+                    "wide"
+                  )}
+            ${ftSelect(
+              "ma-status",
+              f.status,
+              AD_STATUSES.map((s) => [s.id, s.name]),
+              "check",
+              "All statuses"
+            )}
+            ${ftDate("ma-from", f.from, "From")}
+            ${ftDate("ma-to", f.to, "To")}`,
+                  dashFilterCount(f, ["cat", "status", "from", "to"]),
+                  "clear-ad-filter"
+                )
               : ""
           }
-          ${!ADS.length ? adTable(ADS, true) : shown.length ? adTable(shown, true) : emptyPanel("No ads match your filters", "Try widening the category, status, or date range.")}</div>`;
+          <div class="empty:hidden flex items-center gap-2 flex-wrap mb-5">${adChipsInner()}</div>
+          <div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 mb-6 max380:p-[1.1rem]">
+            ${!ADS.length ? adTable(ADS, true) : shown.length ? adTable(shown, true) : emptyPanel("No ads match your filters", "Try widening the category, status, or date range.")}
+          </div>`;
         }
         if (tab === "create") return createAdForm();
         if (tab === "analytics") {
@@ -8871,12 +8982,23 @@
               }
               break;
             }
+            // The X inside the billing search pill clears only that field —
+            // "Clear N filters" beside it is what empties the whole tray.
+            case "rm-billing-filter":
+              state.billing[actEl.dataset.key || "q"] = "";
+              render();
+              break;
             case "clear-billing":
               state.billing = { q: "", cat: "", from: "", to: "" };
               render();
               break;
             case "clear-listing-filter":
               state.listingFilter = { cat: "", plan: "", status: "", from: "", to: "" };
+              render();
+              break;
+            // One pill stands for one field, so removing it empties that field.
+            case "rm-ad-filter":
+              state.adFilter[actEl.dataset.key] = "";
               render();
               break;
             case "clear-ad-filter":
