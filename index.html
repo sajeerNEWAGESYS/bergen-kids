@@ -4403,7 +4403,7 @@
               const p = state.prefDraft || emptyPrefs();
               const dots = ONBOARD_STEPS.map(
                 (s, n) =>
-                  `<span class="h-[5px] rounded-[100px] transition-all duration-300 ${n === i ? "w-8 bg-grass-ink" : n < i ? "w-4 bg-brand/45" : "w-4 bg-line"}"></span>`
+                  `<span class="h-[5px] rounded-[100px] transition-all duration-300 ${n === i ? "w-8 bg-logo-green" : n < i ? "w-4 bg-brand/45" : "w-4 bg-line"}"></span>`
               ).join("");
               return `<div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
             <div class="flex items-center gap-[0.4rem]">${dots}</div>
@@ -4437,7 +4437,7 @@
             }
             <span class="flex-1 max560:hidden"></span>
             <button class="text-base font-bold text-muted underline underline-offset-[3px] bg-transparent border-none cursor-pointer min-h-[44px] px-2 hover:text-head" data-action="onboard-skip">${last ? "Skip and finish" : "Skip for now"}</button>
-            <button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="onboard-next">${last ? `${icon("check", 16)} Done` : `Continue ${icon("arrow-right", 16)}`}</button>
+            <button class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep" data-action="onboard-next">${last ? `${icon("check", 16)} Done` : `Continue ${icon("arrow-right", 16)}`}</button>
           </div>
 
           <div class="text-sm text-muted leading-[1.55] mt-4 text-center">Nothing here is required. Anything you leave empty just means no preference, and you can change all of it later in your profile.</div>`;
@@ -4461,7 +4461,7 @@
                   ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1]
                   : names[0];
               return `<div class="flex items-start gap-3 rounded-[14px] border-[1.5px] border-[#cfe4d6] bg-mint px-4 py-3 mb-4">
-            <span class="w-[30px] h-[30px] rounded-[9px] bg-grass-ink text-white flex items-center justify-center shrink-0">${icon("sliders", 15)}</span>
+            <span class="w-[30px] h-[30px] rounded-[9px] bg-logo-green text-white flex items-center justify-center shrink-0">${icon("sliders", 15)}</span>
             <div class="min-w-0 flex-1">
               <div class="text-sm font-bold text-head leading-[1.35]">Filtered by your preferences of ${list}.</div>
               <div class="text-sm text-muted leading-[1.5] mt-[0.15rem]">Visit Profile to update your preferences.</div>
@@ -4647,7 +4647,7 @@
               if (state.user) {
                 acct = `<button class="flex items-center gap-2 bg-surface border-[1.5px] border-line rounded-[100px] pl-[0.35rem] pr-[0.85rem] py-[0.3rem] font-bold text-base text-head min-h-[44px] whitespace-nowrap shrink-0 hover:border-head max900:px-[0.45rem] max380:px-[0.3rem] max380:py-[0.25rem]" data-action="toggle-account">${avatarHtml(state.user, 30)}<span class="max900:hidden">${state.user.name.split(" ")[0]}</span>${icon("chev-down", 15)}</button>`;
               } else {
-                acct = `<button class="bg-surface border-[1.5px] border-line text-head px-[1.15rem] py-[0.6rem] rounded-[100px] font-bold text-base min-h-[44px] whitespace-nowrap shrink-0 hover:border-head max900:bg-grass-ink max900:border-brand max900:text-white max900:px-[1.05rem] max900:hover:bg-[#1a5233] max900:hover:border-[#1a5233] inline-flex items-center justify-center" data-action="open-auth">Log in</button>`;
+                acct = `<button class="bg-surface border-[1.5px] border-line text-head px-[1.15rem] py-[0.6rem] rounded-[100px] font-bold text-base min-h-[44px] whitespace-nowrap shrink-0 hover:border-head max900:bg-logo-green max900:border-brand max900:text-white max900:px-[1.05rem] max900:hover:bg-logo-green-deep max900:hover:border-[#1a5233] inline-flex items-center justify-center" data-action="open-auth">Log in</button>`;
               }
               const MENU_BTN =
                 "hidden relative w-[40px] h-[40px] rounded-[50%] border-[1.5px] border-line bg-surface items-center justify-center text-head transition-[border-color,background] duration-200 shrink-0 max900:flex max900:bg-navy max900:border-navy max900:text-white max900:hover:bg-[#12233a] max900:hover:border-[#12233a] max380:w-[36px] max380:h-[36px]";
@@ -4819,7 +4819,7 @@
                   state.user
                     ? "" // signed in as any role — there is no account left to create
                     : `<div class="mt-8">
-                  <a class="inline-flex items-center justify-center gap-2 rounded-[100px] bg-logo-green px-9 py-[0.95rem] text-base font-extrabold text-white min-h-[52px] shadow-[0_10px_28px_rgba(0,127,73,0.28)] transition-[transform,background] duration-200 hover:-translate-y-[2px] hover:bg-logo-green-deep cursor-pointer [&_svg]:transition-transform [&_svg]:duration-200 hover:[&_svg]:translate-x-[3px]" data-nav="directory" data-authgate="parent">Create a Parent Account ${icon("arrow-right", 17)}</a>
+                  <a class="inline-flex items-center justify-center gap-2 rounded-[100px] bg-logo-green px-9 py-[0.95rem] text-base font-extrabold text-white min-h-[52px] transition-[transform,background] duration-200 hover:-translate-y-[2px] hover:bg-logo-green-deep cursor-pointer [&_svg]:transition-transform [&_svg]:duration-200 hover:[&_svg]:translate-x-[3px]" data-nav="directory" data-authgate="parent">Create a Parent Account ${icon("arrow-right", 17)}</a>
                 </div>`
                 }
               </div>
@@ -4890,7 +4890,7 @@
               <div class="relative w-full">
                 <img src="https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=900&q=80" alt="Kids playing ball together on a grass field" loading="lazy" class="w-full h-[380px] object-cover rounded-[24px] shadow-[0_16px_50px_rgba(26,46,74,0.18)] z-[1] relative">
                 <div class="absolute -top-[14px] right-[26px] bg-lavender-ink text-white rounded-[12px] px-4 py-[0.6rem] text-sm font-bold shadow-[0_4px_20px_rgba(92,67,130,0.35)] flex items-center gap-[0.4rem] z-[3]">${icon("verified", 15)} Verified Business</div>
-                <div class="absolute top-[26px] -left-[14px] bg-grass-ink text-white rounded-[12px] px-4 py-[0.6rem] text-sm font-bold shadow-[0_4px_20px_rgba(32,100,61,0.35)] flex items-center gap-[0.4rem] z-[3]">${icon("trending", 15)} +38% visibility</div>
+                <div class="absolute top-[26px] -left-[14px] bg-logo-green text-white rounded-[12px] px-4 py-[0.6rem] text-sm font-bold shadow-[0_4px_20px_rgba(0,127,73,0.35)] flex items-center gap-[0.4rem] z-[3]">${icon("trending", 15)} +38% visibility</div>
                 <div class="absolute -bottom-[26px] left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] bg-surface rounded-[18px] px-6 py-4 shadow-[0_10px_36px_rgba(26,46,74,0.14)] flex justify-between gap-4 z-[3]">
                   <div class="text-center flex-1"><div class="stat-num font-serif text-2xl font-black text-head leading-[1]" data-count="340" data-suffix="+">340+</div><div class="text-sm text-muted font-medium mt-[0.2rem]">Local listings</div></div>
                   <span class="w-px bg-line2 shrink-0" aria-hidden="true"></span>
@@ -4907,7 +4907,7 @@
               <div class="flex gap-3 items-center text-base mb-[0.85rem] text-ink font-medium"><span class="pf-ic bg-mint text-brand px-[0.6rem] py-[0.45rem] rounded-[8px] leading-[0] shrink-0">${icon("check", 18)}</span><span>Category-based listing with photos, description &amp; links</span></div>
               <div class="flex gap-3 items-center text-base mb-[0.85rem] text-ink font-medium"><span class="pf-ic bg-mint text-brand px-[0.6rem] py-[0.45rem] rounded-[8px] leading-[0] shrink-0">${icon("chart", 18)}</span><span>Real-time analytics — track clicks &amp; impressions</span></div>
               <div class="flex gap-3 items-center text-base mb-[0.85rem] text-ink font-medium"><span class="pf-ic bg-mint text-brand px-[0.6rem] py-[0.45rem] rounded-[8px] leading-[0] shrink-0">${icon("megaphone", 18)}</span><span>Banner ads across leaderboard, sidebar &amp; category pages</span></div>
-              <a class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-nav="advertiser" data-dashtab="add" style="margin-top:1rem">Add Your Business ${icon("arrow-right", 17)}</a>
+              <a class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep" data-nav="advertiser" data-dashtab="add" style="margin-top:1rem">Add Your Business ${icon("arrow-right", 17)}</a>
             </div>
           </section>
 
@@ -5058,7 +5058,7 @@
                         ]
                           .map(
                             ([t, on]) =>
-                              `<span class="text-xs font-bold px-[0.7rem] py-[0.35rem] rounded-[100px] whitespace-nowrap ${on ? "bg-grass-ink text-white" : "bg-surface text-muted border border-line2"}">${t}</span>`
+                              `<span class="text-xs font-bold px-[0.7rem] py-[0.35rem] rounded-[100px] whitespace-nowrap ${on ? "bg-logo-green text-white" : "bg-surface text-muted border border-line2"}">${t}</span>`
                           )
                           .join("")}
                       </div>
@@ -5600,7 +5600,7 @@
           <div class="flex gap-3 flex-wrap items-center mt-6 max560:flex-col-reverse [&>*]:max560:w-full [&>*]:max560:justify-center">
             <button type="button" class="${CLEAR_BTN}" data-action="clear-filter-opts">${icon("x", 14, "text-muted")} Clear</button>
             <span class="flex-1 max560:hidden"></span>
-            <button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold border-none inline-flex items-center justify-center gap-2 min-h-[48px] transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="apply-filter">${icon("check", 16)} Apply</button>
+            <button class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold border-none inline-flex items-center justify-center gap-2 min-h-[48px] transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep" data-action="apply-filter">${icon("check", 16)} Apply</button>
           </div>`;
             }
             // Flip every control's on/off look from its current value. Called by the
@@ -5759,8 +5759,7 @@
           <div class="absolute inset-x-0 bottom-0 z-[1] p-[1.1rem] max380:p-[0.85rem]">
             <div class="text-xs font-bold uppercase tracking-[0.09em] text-white/75 mb-[0.35rem]">${e.town}</div>
             <div class="font-extrabold text-lg leading-[1.25] text-white decoration-white/60 underline-offset-[3px] group-hover:underline">${e.name}</div>
-            <div class="mt-[0.3rem] text-sm font-medium text-white/85">${c.name.split(" ")[0]} <span class="text-white/45">·</span> Ages ${e.ageMin}–${e.ageMax}</div>
-            <span class="mt-[0.7rem] inline-flex items-center gap-[0.35rem] rounded-[100px] bg-black/35 px-[0.7rem] py-[0.32rem] text-sm font-bold text-white backdrop-blur-[3px]">${icon("clock", 12)} ${evTimes(e)}</span>
+            <div class="mt-[0.3rem] text-sm font-medium text-white/85">${c.name.split(" ")[0]}</div>
           </div>
         </div>`;
             }
@@ -6005,7 +6004,7 @@
                 const INPUT =
                   "border-none outline-none bg-transparent font-sans text-base text-head w-full min-w-0 cursor-pointer";
                 const LABEL = "text-xs font-bold tracking-[0.07em] uppercase text-adlabel pl-2";
-                return `<div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-lg [&_h3]:text-head [&_h3]:mb-[0.3rem] max380:p-[1.1rem]"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><div><h3>My Listings</h3><div class="text-sm text-muted mb-5 leading-[1.55]">${shown.length} of ${mine.length} listing${mine.length !== 1 ? "s" : ""} on Bergen Kids</div></div><button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="dash-tab" data-tab="add">${icon("plus", 16)} New listing</button></div>
+                return `<div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-lg [&_h3]:text-head [&_h3]:mb-[0.3rem] max380:p-[1.1rem]"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><div><h3>My Listings</h3><div class="text-sm text-muted mb-5 leading-[1.55]">${shown.length} of ${mine.length} listing${mine.length !== 1 ? "s" : ""} on Bergen Kids</div></div><button class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep" data-action="dash-tab" data-tab="add">${icon("plus", 16)} New listing</button></div>
           ${
             mine.length
               ? `<div class="grid gap-3 items-end mb-6 grid-cols-[1.4fr_1fr_1fr_1fr_1fr_auto] max1200:!grid-cols-[1fr_1fr_1fr] max900:!grid-cols-[1fr_1fr] max700:!grid-cols-[1fr]">
@@ -6258,7 +6257,7 @@
               openModal(`<div class="p-7 max700:p-5">
           <h2>Working hours</h2><div class="text-muted text-base mt-[0.35rem] leading-[1.55]">Set the hours parents will see on your listing. Uncheck a day to mark it closed.</div>
           <div style="margin-top:1.25rem;border:1.5px solid var(--line);border-radius:12px;padding:0.5rem 1rem;background:var(--surface-2)">${hoursPicker(WH_STATE)}</div>
-          <div class="flex gap-3 flex-wrap mt-5 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center"><button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="save-hours">${icon("check", 16)} Done</button><button class="bg-surface text-head px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-[1.5px] border-line transition-[border-color,background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] hover:border-head hover:bg-surface-3" data-action="close-modal">Cancel</button></div>
+          <div class="flex gap-3 flex-wrap mt-5 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center"><button class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep" data-action="save-hours">${icon("check", 16)} Done</button><button class="bg-surface text-head px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-[1.5px] border-line transition-[border-color,background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] hover:border-head hover:bg-surface-3" data-action="close-modal">Cancel</button></div>
         </div>`);
             }
             function addListingForm() {
@@ -6287,7 +6286,7 @@
               </div></div>
             <div class="flex flex-col gap-[0.4rem] [&_label]:text-sm [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-base [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-base [&_select]:text-head [&_select]:bg-surface-2 [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-brand [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-base [&_textarea]:text-head [&_textarea]:bg-surface-2 [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-brand [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100 col-span-full" id="nl-photo-row" style="display:none"><label>Photos &amp; logo <span style="color:var(--muted);font-weight:400">— Deluxe feature</span></label><div class="border-2 border-dashed border-[#b0bdc9] rounded-[12px] p-6 text-center text-muted cursor-pointer transition-all duration-150 bg-surface-2 text-base hover:border-brand hover:text-head hover:bg-surface-4 [&_svg]:text-brand [&_svg]:mb-[0.4rem]" data-action="mock-upload">${icon("upload", 26)}<div style="font-weight:600">Click to upload images</div><div style="font-size:var(--fs-sm);margin-top:0.2rem">PNG or JPG up to 5MB</div></div><div id="nl-photo-state"></div></div>
           </div>
-          <div class="flex gap-3 flex-wrap mt-5 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center"><button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="submit-listing">${icon("check", 16)} Publish listing</button><button class="bg-surface text-head px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-[1.5px] border-line transition-[border-color,background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] hover:border-head hover:bg-surface-3" data-action="dash-tab" data-tab="listings">Cancel</button></div>
+          <div class="flex gap-3 flex-wrap mt-5 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center"><button class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep" data-action="submit-listing">${icon("check", 16)} Publish listing</button><button class="bg-surface text-head px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-[1.5px] border-line transition-[border-color,background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] hover:border-head hover:bg-surface-3" data-action="dash-tab" data-tab="listings">Cancel</button></div>
         </div>`;
             }
             function adDate(off) {
@@ -6869,7 +6868,7 @@
                 const INPUT =
                   "border-none outline-none bg-transparent font-sans text-base text-head w-full min-w-0 cursor-pointer";
                 const LABEL = "text-xs font-bold tracking-[0.07em] uppercase text-adlabel pl-2";
-                return `<div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-lg [&_h3]:text-head [&_h3]:mb-[0.3rem] max380:p-[1.1rem]"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><div><h3>My Ads</h3><div class="text-sm text-muted mb-5 leading-[1.55]">${shown.length} of ${ADS.length} ad${ADS.length !== 1 ? "s" : ""}</div></div><button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="adv-tab" data-tab="create">${icon("plus", 16)} New advertisement</button></div>
+                return `<div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-lg [&_h3]:text-head [&_h3]:mb-[0.3rem] max380:p-[1.1rem]"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><div><h3>My Ads</h3><div class="text-sm text-muted mb-5 leading-[1.55]">${shown.length} of ${ADS.length} ad${ADS.length !== 1 ? "s" : ""}</div></div><button class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep" data-action="adv-tab" data-tab="create">${icon("plus", 16)} New advertisement</button></div>
           ${
             ADS.length
               ? `<div class="grid gap-3 items-end mb-6 grid-cols-[1.4fr_1fr_1fr_1fr_auto] max1200:!grid-cols-[1fr_1fr_1fr] max900:!grid-cols-[1fr_1fr] max700:!grid-cols-[1fr]">
@@ -7188,7 +7187,7 @@
             `<div class="bg-surface-4 border-[1.5px] border-line2 rounded-[14px] px-5 py-[1.1rem]" id="ad-billing">${billingSplit(b)}</div>`
           )}
           <div class="flex gap-3 flex-wrap mt-6 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center">
-            <button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="ad-pay">${icon("card", 16)} Make payment · ${usd(b.total)}</button>
+            <button class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep" data-action="ad-pay">${icon("card", 16)} Make payment · ${usd(b.total)}</button>
             <button class="bg-surface text-head px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-[1.5px] border-line transition-[border-color,background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] hover:border-head hover:bg-surface-3" data-action="cancel-ad">Cancel</button>
           </div>
           <div class="text-sm text-muted mt-3 leading-[1.55]">${cat.name} · after payment your ad is submitted to Bergen Kids and stays <b class="text-head">Awaiting Review</b> until it is approved.</div>`;
@@ -7293,7 +7292,7 @@
         <div class="w-[44px] h-[44px] rounded-[11px] bg-mint text-brand flex items-center justify-center mb-3" style="width:64px;height:64px;margin:0 auto 1.25rem;background:var(--surface-5);color:var(--head);border-radius:18px">${icon(ic, 30, "text-adlabel mb-3")}</div>
         <div style="font-family:var(--font-display);font-size:var(--fs-3xl);font-weight:400;letter-spacing:-0.02em;color:var(--head);margin-bottom:0.5rem">${title}</div>
         <p style="margin-bottom:1.5rem">${desc}</p>
-        <button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="open-auth" data-role="${role}">Log in / Sign up</button></div></div>`;
+        <button class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep" data-action="open-auth" data-role="${role}">Log in / Sign up</button></div></div>`;
             }
 
             // --- Notification centre -------------------------------------------------
@@ -7506,7 +7505,7 @@
                   ${icon("image", 20)}
                   <span class="text-2xs font-extrabold uppercase tracking-[0.12em] leading-none">${hasPhoto ? "Change" : "Upload"}</span>
                 </span>
-                <span class="absolute bottom-[5px] right-[5px] w-[36px] h-[36px] rounded-full bg-grass-ink text-white border-[3px] border-surface flex items-center justify-center shadow-[0_4px_14px_rgba(15,26,44,0.3)] transition-colors duration-150 group-hover:bg-[#1a5233] max560:w-[32px] max560:h-[32px]">${icon("upload", 14)}</span>
+                <span class="absolute bottom-[5px] right-[5px] w-[36px] h-[36px] rounded-full bg-logo-green text-white border-[3px] border-surface flex items-center justify-center shadow-[0_4px_14px_rgba(15,26,44,0.3)] transition-colors duration-150 group-hover:bg-logo-green-deep max560:w-[32px] max560:h-[32px]">${icon("upload", 14)}</span>
               </button>
               <input type="file" id="pf-photo" accept="image/*" class="hidden">
               <div class="mt-[1.15rem]">
@@ -7581,7 +7580,7 @@
               <div class="font-serif text-xl font-black text-head mb-[0.3rem]">Account details</div>
               <div class="text-sm text-muted mb-5 leading-[1.55]">Keep your information up to date.</div>
               <div class="grid grid-cols-[1fr_1fr] gap-[1.1rem] max700:grid-cols-[1fr]">${fields}</div>
-              <div class="flex gap-3 flex-wrap mt-6 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center"><button class="bg-grass-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233]" data-action="save-profile">${icon("check", 16)} Save changes</button></div>
+              <div class="flex gap-3 flex-wrap mt-6 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center"><button class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep" data-action="save-profile">${icon("check", 16)} Save changes</button></div>
             </div>
             ${prefsCard}
             </div>
@@ -7770,7 +7769,7 @@
               // Compact strip: the split panel is height-constrained, so the banner
               // carries the headline only — the body copy repeated the subtitle above it.
               return `<div class="flex gap-[0.7rem] items-center bg-mint border-l-[4px] border-l-grass-ink rounded-[10px] px-[0.85rem] py-[0.6rem]" style="margin-top:0.9rem">
-            <span class="w-[28px] h-[28px] rounded-[8px] bg-grass-ink text-white flex items-center justify-center shrink-0">${icon(c.icon, 15)}</span>
+            <span class="w-[28px] h-[28px] rounded-[8px] bg-logo-green text-white flex items-center justify-center shrink-0">${icon(c.icon, 15)}</span>
             <div class="font-bold text-sm text-head leading-[1.3]">${c.bannerTitle}</div>
           </div>`;
             }
@@ -7927,7 +7926,7 @@
                 : "";
               return `${picker}
           <div id="auth-fields">${authFields(mode, sel)}</div>
-          <button class="bg-grass-ink text-white px-6 py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233] w-full mt-2" data-action="do-auth" data-mode="${mode}">${mode === "login" ? authCtaLabel() : "Create account"}</button>`;
+          <button class="bg-logo-green text-white px-6 py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep w-full mt-2" data-action="do-auth" data-mode="${mode}">${mode === "login" ? authCtaLabel() : "Create account"}</button>`;
             }
             function auEmail(mode) {
               return `<div class="flex flex-col gap-[0.4rem] [&_label]:text-sm [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-base [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-base [&_select]:text-head [&_select]:bg-surface-2 [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-brand [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-base [&_textarea]:text-head [&_textarea]:bg-surface-2 [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-brand [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100" style="margin-bottom:0.7rem"><label>Email *</label><input id="au-email" placeholder="you@email.com" value="${mode === "login" ? authDemoEmail() : ""}"></div>`;
@@ -7952,14 +7951,10 @@
               }
               if (role === "advertiser") {
                 return `
-          <div class="grid grid-cols-[1fr_1fr] max700:grid-cols-[1fr]" style="gap:0.7rem;margin-bottom:0.7rem">
-            <div class="flex flex-col gap-[0.4rem] [&_label]:text-sm [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-base [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Business / advertiser name *</label><input id="au-org" placeholder="e.g. Ridgewood Learning Center"></div>
-            <div class="flex flex-col gap-[0.4rem] [&_label]:text-sm [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-base [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Contact Person Name *</label><input id="au-name" placeholder="Your name"></div>
-          </div>
-          <div class="grid grid-cols-[1fr_1fr] max700:grid-cols-[1fr]" style="gap:0.7rem;margin-bottom:0.7rem">
-            ${phoneField("au-phone", state.auth.phone)}
-            <div class="flex flex-col gap-[0.4rem] [&_label]:text-sm [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-base [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100"><label>Email *</label><input id="au-email" placeholder="you@email.com"></div>
-          </div>
+          <div class="${FLD}" style="margin-bottom:0.7rem"><label>Business / advertiser name *</label><input id="au-org" placeholder="e.g. Ridgewood Learning Center"></div>
+          <div class="${FLD}" style="margin-bottom:0.7rem"><label>Contact Person Name *</label><input id="au-name" placeholder="Your name"></div>
+          <div style="margin-bottom:0.7rem">${phoneField("au-phone", state.auth.phone)}</div>
+          <div class="${FLD}" style="margin-bottom:0.7rem"><label>Email *</label><input id="au-email" placeholder="you@email.com"></div>
           <div class="${FLD}" style="margin-bottom:0.7rem"><label>Address Line *</label><input id="au-addr" placeholder="e.g. 120 Ridgewood Ave, Suite 3"></div>
           <div class="${FLD}" style="margin-bottom:0.7rem"><label>Town *</label><select id="au-town">${TOWNS.map((t) => `<option value="${esc(t)}">${t}</option>`).join("")}</select></div>
           <div class="${FLD}" style="margin-bottom:0.7rem"><label>Website</label><input id="au-web" placeholder="https://yourbusiness.com"></div>`;
@@ -7995,7 +7990,7 @@
       ut]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-base [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-base [&_select]:text-head [&_select]:bg-surface-2 [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-brand [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-base [&_textarea]:text-head [&_textarea]:bg-surface-2 [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-brand [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100" style="margin-bottom:0.9rem"><label>Payment method</label>
             <div class="grid grid-cols-[repeat(3,1fr)] gap-2 mb-[1.1rem] max700:grid-cols-[1fr]"><div class="pay-m border-[1.5px] rounded-[11px] px-2 py-[0.8rem] text-center text-sm font-bold cursor-pointer min-h-[48px] flex items-center justify-center sel border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)] text-head" data-pay="card">${icon("card", 15)} Card</div><div class="pay-m border-[1.5px] rounded-[11px] px-2 py-[0.8rem] text-center text-sm font-bold cursor-pointer min-h-[48px] flex items-center justify-center border-line text-muted" data-pay="paypal">PayPal</div><div class="pay-m border-[1.5px] rounded-[11px] px-2 py-[0.8rem] text-center text-sm font-bold cursor-pointer min-h-[48px] flex items-center justify-center border-line text-muted" data-pay="authnet">Authorize.net</div></div></div>
           <div id="pay-fields">${cardFields()}</div>
-          <button class="bg-grass-ink text-white px-6 py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233] w-full mt-2" data-action="pay" data-amount="${info.p}">${icon("lock", 15)} Pay $${info.p.toFixed(2)}</button>
+          <button class="bg-logo-green text-white px-6 py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep w-full mt-2" data-action="pay" data-amount="${info.p}">${icon("lock", 15)} Pay $${info.p.toFixed(2)}</button>
           <div class="text-center text-sm text-adlabel my-[1.1rem] relative before:content-[''] before:absolute before:top-1/2 before:left-0 before:w-[38%] before:h-px before:bg-line after:content-[''] after:absolute after:top-1/2 after:right-0 after:w-[38%] after:h-px after:bg-line">secured checkout · demo only, no real charge</div>
         </div>`);
             }
@@ -9298,7 +9293,7 @@
                   modal.innerHTML = `<button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-[#1a2e4a] flex items-center justify-center z-[5] shadow-[0_2px_10px_rgba(15,26,44,0.18)] hover:bg-surface" data-action="close-modal">${icon("x", 18)}</button>
             <div class="p-7 max700:p-5"><div class="text-center py-6"><div class="w-[72px] h-[72px] rounded-[50%] bg-mint text-brand flex items-center justify-center mx-auto mb-4">${icon("check", 34)}</div>
               <h2>Payment successful</h2><div class="text-muted text-base mt-[0.35rem] leading-[1.55]" style="margin-top:0.4rem">Your plan is now active. A receipt has been emailed to you.</div>
-              <button class="bg-grass-ink text-white px-6 py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233] mt-6" data-action="after-pay">Go to dashboard</button></div></div>`;
+              <button class="bg-logo-green text-white px-6 py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep mt-6" data-action="after-pay">Go to dashboard</button></div></div>`;
                 pushNotif("card", "Payment received", "Your Deluxe plan is now active");
               }, 1400);
             }
@@ -9462,7 +9457,7 @@
           }`
               : `<div class="text-sm text-muted leading-[1.55] mb-3">${b.subscription ? `Renewals will be auto-debited from your primary card, ${maskCard(primaryCard())}.` : "This is a one-time charge — nothing will renew."}</div>`
           }
-          <button class="bg-grass-ink text-white px-6 py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233] w-full mt-2" data-action="pay-ad" data-amount="${b.total}">${icon("lock", 15)} Pay ${usd(b.total)}</button>
+          <button class="bg-logo-green text-white px-6 py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep w-full mt-2" data-action="pay-ad" data-amount="${b.total}">${icon("lock", 15)} Pay ${usd(b.total)}</button>
           <div class="text-center text-sm text-adlabel my-[1.1rem] relative before:content-[''] before:absolute before:top-1/2 before:left-0 before:w-[38%] before:h-px before:bg-line after:content-[''] after:absolute after:top-1/2 after:right-0 after:w-[38%] after:h-px after:bg-line">secured checkout · demo only, no real charge</div>
         </div>`,
                 true
@@ -9509,7 +9504,7 @@
             <div class="p-7 max700:p-5"><div class="text-center py-6"><div class="w-[72px] h-[72px] rounded-[50%] bg-mint text-brand flex items-center justify-center mx-auto mb-4">${icon("check", 34)}</div>
               <h2>Payment received</h2>
               <div class="text-muted text-base mt-[0.35rem] leading-[1.55]" style="margin-top:0.4rem">${b ? usd(b.total) + " charged to " + maskCard(card) + "." : ""} Your ad is now <b class="text-head">Awaiting Review</b> — we'll let you know as soon as Bergen Kids approves it.</div>
-              <button class="bg-grass-ink text-white px-6 py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(32,100,61,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(32,100,61,0.4)] hover:bg-[#1a5233] mt-6" data-action="finalize-ad">View my ads</button></div></div>`;
+              <button class="bg-logo-green text-white px-6 py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep mt-6" data-action="finalize-ad">View my ads</button></div></div>`;
               }, 1400);
             }
             function finalizeAd() {
@@ -9681,7 +9676,7 @@
             <div class="text-xs font-extrabold tracking-[0.09em] uppercase text-adlabel mb-[0.4rem]">Demo · Super Admin</div>
             <div class="text-sm text-muted leading-[1.55] mb-3">There is no admin console in this prototype, so approve or reject the ad here to see the state it lands in.</div>
             <div class="flex gap-2 flex-wrap">
-              <button class="bg-grass-ink text-white px-4 py-[0.6rem] rounded-[100px] text-sm font-bold border-none inline-flex items-center gap-2 min-h-[42px] hover:bg-[#1a5233]" data-action="admin-approve" data-id="${a.id}">${icon("check", 15)} Approve</button>
+              <button class="bg-logo-green text-white px-4 py-[0.6rem] rounded-[100px] text-sm font-bold border-none inline-flex items-center gap-2 min-h-[42px] hover:bg-logo-green-deep" data-action="admin-approve" data-id="${a.id}">${icon("check", 15)} Approve</button>
               <button class="bg-surface text-head px-4 py-[0.6rem] rounded-[100px] text-sm font-bold border-[1.5px] border-line inline-flex items-center gap-2 min-h-[42px] hover:border-head" data-action="admin-reject" data-id="${a.id}">${icon("x", 15)} Reject</button>
             </div>
           </div>`
