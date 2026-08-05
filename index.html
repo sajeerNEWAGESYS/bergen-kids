@@ -381,6 +381,50 @@
         text-rendering: optimizeLegibility;
       }
 
+      /* ── Home backdrop ──────────────────────────────────────────
+         A photograph of kids behind the home page, fixed rather than scrolling
+         — which is what makes it parallax, and also what stops it reading as a
+         separate patch of wallpaper in each gap between bands.
+
+         Home only, keyed off the data-view render() writes on <body>. The home
+         page is built for it: three of its bands are deliberately unfilled so
+         it shows through, and their copy is white with .band-copy holding it
+         against the picture. The inner pages are working screens — directory
+         results, dashboards, forms — whose cards and tables assume flat cream
+         behind them, and a photograph under those is noise, not atmosphere.
+
+         Children painting together at a table under trees: kids at every crop,
+         wide, and soft enough in the greens not to fight the interface sitting
+         on it. The ball-field photo that was here is also the picture in the
+         "verified business" band further down the page — as a full-page
+         backdrop it put the same image on screen twice.
+
+         42%, not `center` and not `bottom`. The faces sit just above the middle
+         of the frame and the lower third is a sheet of white paper on a white
+         table. Biasing the crop up holds the children in the visible band on a
+         wide viewport and keeps that bright expanse mostly out of it, which
+         matters because the white .band-copy text is what sits over this.
+
+         No wash over it — full strength, as asked for. Worth knowing what that
+         costs: the copy that sits straight on the page rather than on a card,
+         which is the "What's Inside" and events headings, is reading against a
+         photograph. That is what .band-copy answers.
+
+         z-index -1 keeps it above the page's own background and beneath every
+         bit of content, so nothing existing had to be lifted onto a layer to
+         clear it. The dark bands paint over it on their own. */
+      body[data-view="home"]::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background-image: url("https://plus.unsplash.com/premium_photo-1686920245809-f045740b6086?auto=format&fit=crop&w=1920&q=80");
+        background-size: cover;
+        background-position: center 42%;
+        background-repeat: no-repeat;
+      }
+
       /* Display type, matched to octaneai.com. Their `.font-display` is
          `Georgia, "Times New Roman", serif; font-weight: 400;
          letter-spacing: -.02em` — regular weight, never bold. Our markup asks
@@ -573,8 +617,14 @@
           box-shadow 0.25s ease;
       }
 
-      /* ── Sunshine-style hero ────────────────────────────────── */
-      .hero-sun {
+      /* ── Sunshine wash ──────────────────────────────────────────
+         The hero's background, and the "Get discovered" band's — two selectors
+         on one rule rather than the gradient written out twice, so the dark
+         override below only has to exist once and the two can never drift.
+         .hero-sun keeps its name because the hero is where it was designed;
+         .warm-band is what any other section asks for it by. */
+      .hero-sun,
+      .warm-band {
         background:
           radial-gradient(115% 85% at 92% 4%, rgba(45, 122, 79, 0.22) 0%, rgba(45, 122, 79, 0) 58%),
           radial-gradient(
@@ -707,33 +757,49 @@
           rgba(245, 166, 35, 0) 70%
         );
       }
-      /* Two toys, where there used to be a dot grid, a dashed spinning ring,
-         a floating purple disc and a flower — four generic shapes competing
-         with the photos behind them. Cutting to two and making both
-         recognisable says what the site is for far better than the quantity
-         did, and leaves the hero composed rather than busy. The two soft
-         blobs above stay: they are an ambient colour wash, not decoration you
-         read as an object. */
-      .hero-toy {
-        color: var(--brand);
-        opacity: 0.5;
-        filter: drop-shadow(0 4px 10px rgba(26, 46, 74, 0.14));
+      /* Four decorative shapes around the photo pair: a dot grid, a slowly
+         spinning dashed ring, a floating disc and a flower. Each is placed
+         against the hero-decor box, so they read as sitting behind and around
+         the two tilted photos rather than on them. The two soft blobs above
+         stay as the ambient colour wash underneath the lot. */
+      .hero-dots {
+        width: 118px;
+        height: 86px;
+        top: 2%;
+        left: 0;
+        background-image: radial-gradient(rgba(26, 46, 74, 0.16) 2.1px, transparent 2.2px);
+        background-size: 15px 15px;
       }
-      .hero-toy--art {
-        width: 46px;
-        height: 46px;
-        left: 26%;
-        top: -6px;
-        animation: heroFloat 6.5s ease-in-out infinite 0.6s;
-      }
-      .hero-toy--ball {
-        width: 38px;
-        height: 38px;
-        right: 4%;
+      .hero-ring {
+        width: 128px;
+        height: 128px;
+        border-radius: 50%;
+        border: 2px dashed rgba(30, 140, 122, 0.45);
+        right: 2%;
         bottom: 6%;
-        color: var(--orange-ink);
-        animation: heroFloat 5.4s ease-in-out infinite;
+        animation: heroSpin 26s linear infinite;
       }
+      .hero-pop {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: rgba(124, 92, 168, 0.5);
+        right: 24%;
+        bottom: 0;
+        animation: heroFloat 5s ease-in-out infinite;
+      }
+      .hero-star {
+        width: 42px;
+        height: 42px;
+        color: #f2a9b4;
+        left: 28%;
+        top: -4px;
+        animation: heroFloat 6.5s ease-in-out infinite 0.6s;
+        filter: drop-shadow(0 3px 9px rgba(242, 169, 180, 0.45));
+      }
+      /* Offset start times, so the two floaters are never at the top of their
+         arc together — in step they read as one thing moving, which is what
+         makes a decor layer look mechanical. */
       @keyframes heroFloat {
         0%,
         100% {
@@ -743,57 +809,138 @@
           transform: translateY(-12px);
         }
       }
+      @keyframes heroSpin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
       @media (prefers-reduced-motion: reduce) {
-        .hero-toy {
+        .hero-pop,
+        .hero-star,
+        .hero-ring {
           animation: none;
         }
       }
 
       /* ── "What's Inside" band ───────────────────────────────── */
+      /* The copy in the two bands that let the backdrop photo through. White,
+         because it is reading against a photograph rather than against cream.
+
+         The shadow is what makes white on an unwashed photo actually work:
+         this picture has bright patches, and pure white over one of those is
+         invisible no matter how heavy the weight. Two shadows rather than one
+         — a tight dark halo that holds the letterforms, and a wide soft one
+         that separates the whole block from whatever is behind it. Both are
+         black at low alpha, so they read as depth rather than as a glow.
+
+         It goes on the text elements themselves rather than on their wrapper:
+         the events eyebrow sits in a mint pill that brings its own background,
+         and a dark halo behind dark-green text on mint reads as smudge. */
+      .band-copy {
+        text-shadow:
+          0 1px 3px rgba(10, 20, 36, 0.55),
+          0 6px 24px rgba(10, 20, 36, 0.4);
+      }
+
+      /* text-shadow does not reach an SVG, so the arrow beside "See all
+         events" needs the equivalent as a filter to sit at the same depth as
+         the words next to it. */
+      .band-copy svg {
+        filter: drop-shadow(0 1px 3px rgba(10, 20, 36, 0.55));
+      }
+
       .inside-band {
         position: relative;
         overflow: hidden;
-        background: var(--cream);
+        /* Transparent, not var(--cream): the washed backdrop behind the page
+           is already reading as cream here, so this paints the same while
+           letting the photograph through. Painting cream over it would hide
+           it on the home page and leave this the one flat patch between two
+           bands that show it. */
+        background: transparent;
       }
 
+      /* Frosted glass, not a solid slab. These sit on the backdrop photograph
+         now, and an opaque white panel over a picture reads as something
+         pasted on top of it — the photo stops behind the card and starts again
+         beside it. Letting the picture through, blurred, is what makes the
+         card look like it belongs to the page it is on.
+
+         Two numbers do the work, and both were wrong on the first pass.
+         Opacity is 0.82, not 0.6: the photograph behind is a busy one, and at
+         0.6 the children's clothing came through as red and blue blotches
+         wandering under the type. At 0.82 it is a whisper of texture — you can
+         tell the card is on something, you cannot read what.
+
+         And saturate is 0.9, not 1.4. Turning saturation UP was the actual
+         cause of the muddiness: it took exactly those colour blotches and made
+         them louder. Under 1 they settle toward the grey-green of the grass,
+         which is what a blurred backdrop should look like.
+
+         The inset white line along the top is what sells it as glass rather
+         than as translucent plastic — a lit edge where the panel catches the
+         light. On cream a card separates by its border; on a photograph it
+         separates by that edge and by lift. */
       .inside-card {
         position: relative;
-        z-index: 1;
+        isolation: isolate;
         display: flex;
         flex-direction: column;
-        min-height: 370px;
+        min-height: 288px;
         border-radius: 24px;
-        padding: 1.9rem;
-        background: var(--surface);
-        border: 1px solid var(--line2);
-        box-shadow: 0 10px 30px rgba(15, 26, 44, 0.06);
+        padding: 1.75rem;
+        background: rgba(255, 255, 255, 0.82);
+        -webkit-backdrop-filter: blur(30px) saturate(0.9);
+        backdrop-filter: blur(30px) saturate(0.9);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.9),
+          0 18px 44px rgba(15, 26, 44, 0.18);
         overflow: hidden;
         cursor: pointer;
         transition:
           transform 0.25s ease,
-          box-shadow 0.25s ease;
+          box-shadow 0.25s ease,
+          background-color 0.25s ease;
       }
 
       .inside-card:hover {
         transform: translateY(-6px);
-        box-shadow: 0 22px 48px rgba(15, 26, 44, 0.14);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.95),
+          0 28px 60px rgba(15, 26, 44, 0.24);
       }
 
-      /* Keep every element above the decorative corner wave. */
-      .inside-card > *:not(.inside-card-wave) {
-        position: relative;
-        z-index: 1;
-      }
+      /* The category's colour as a soft bloom in the corner, where the two-tone
+         wave used to be. A hard-edged pastel shape reads as a sticker stuck to
+         the card; a blurred wash reads as light coming through the glass, which
+         is the only kind of decoration that survives being translucent.
 
-      .inside-card-wave {
+         z-index -1 against the card's own `isolation: isolate` keeps it above
+         the glass and below the copy, so no child needs lifting to clear it —
+         which is what the old `> *:not(.inside-card-wave)` rule was for. */
+      .inside-card::before {
+        content: "";
         position: absolute;
-        top: 0;
-        right: 0;
-        width: 62%;
-        height: 66%;
+        z-index: -1;
+        top: -30%;
+        right: -20%;
+        width: 78%;
+        height: 78%;
+        border-radius: 50%;
+        background: var(--accent, var(--brand));
+        opacity: 0.16;
+        filter: blur(38px);
         pointer-events: none;
       }
 
+      /* The chip fills come from the card's --tint/--accent rather than from
+         inline styles on these spans, which is what they used to be. Inline
+         beats every selector, so the pale pastel tint could not be answered
+         for the dark theme at all — it stayed a bright dot on a dark card no
+         matter what was declared. Read as custom properties, the same markup
+         serves both themes and the dark rules below can simply restate them. */
       .inside-card-badge {
         width: 54px;
         height: 54px;
@@ -802,6 +949,8 @@
         align-items: center;
         justify-content: center;
         margin-bottom: 1.15rem;
+        background: var(--tint);
+        color: var(--accent);
       }
 
       .inside-card-title {
@@ -818,6 +967,7 @@
         height: 3px;
         border-radius: 3px;
         margin-bottom: 0.9rem;
+        background: var(--accent);
       }
 
       .inside-card-desc {
@@ -837,6 +987,8 @@
         margin-top: auto;
         align-self: flex-end;
         transition: transform 0.25s ease;
+        background: var(--tint);
+        color: var(--accent);
       }
 
       .inside-card:hover .inside-card-arrow {
@@ -848,8 +1000,14 @@
          section is dense with prices and small print, and a photo underneath
          fought it for attention (and cost a 1600px download). The band's own
          radial highlight still sits on top of this. */
+      /* Unfilled, like .inside-band and .ev-band — the page's backdrop
+         photograph is what shows here now, not a navy gradient. The copy in
+         this band was already white-on-dark, so it needs no recolouring; what
+         it needs is .band-copy on the parts that sit straight on the section
+         rather than on a card, since white on a photograph is only legible
+         with something holding it down. */
       .plans-band {
-        background: linear-gradient(150deg, #16324f 0%, #1a2e4a 42%, #14453a 100%);
+        background: transparent;
       }
 
       .plan-card {
@@ -1123,21 +1281,28 @@
       }
 
       /* ── "Trusted businesses" band ──────────────────────────── */
+      /* No photograph — a flat brand gradient, from the same three stops
+         .plans-band is built from: #16324f, the brand navy #1a2e4a, and the
+         deep forest #14453a. Opaque, so there is no background-color under it
+         doing anything.
+
+         Run the other way round from .plans-band, forest into navy rather than
+         navy into forest. The two dark bands are close enough together on the
+         page that identical gradients would read as the same band repeated;
+         mirrored, they read as a pair. */
+      /* The band takes .warm-band alongside this class, so its fill is the
+         same wash the hero and the "For local businesses" section carry. This
+         rule is only what is left over: positioning. */
       .ta-band {
         position: relative;
-        background:
-          linear-gradient(160deg, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0.68) 100%),
-          url("https://images.unsplash.com/photo-1517554558809-9b4971b38f39?auto=format&fit=crop&w=1600&q=72")
-            center / cover no-repeat;
-        background-color: #0a1628;
       }
 
-      /* Outlined, not filled. The band already carries a 0.62–0.68 black
-         wash over the photo, so white text clears on its own — a white
-         fill was only ever paying for legibility the overlay had already
-         bought, and it cost the photograph. What is left is the hairline
-         and the type. The blur stays, low, to settle whatever high-
-         frequency detail in the image passes behind the text.
+      /* Outlined, not filled — the outline is what keeps three of these in a
+         row from reading as three buttons. What changed with the band is only
+         which end of the scale they are drawn at: a navy hairline and ink type
+         on the warm wash, where it used to be a white hairline and white type
+         on a dark one. The blur goes, having nothing left to settle now that
+         there is no photograph behind them.
 
          Radius 12, not 100: at this weight a full pill reads as a chunky
          tag, while a near-square corner reads as a spec line. */
@@ -1148,13 +1313,11 @@
         padding: 0.5rem 0.95rem;
         border-radius: 12px;
         background: transparent;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        color: rgba(255, 255, 255, 0.94);
+        border: 1px solid var(--line);
+        color: var(--head);
         font-size: var(--fs-sm);
         font-weight: 600;
         letter-spacing: -0.01em;
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
         transition:
           border-color 0.25s ease,
           background-color 0.25s ease,
@@ -1164,20 +1327,20 @@
       /* No lift and no shadow on hover — both would put back the weight
          the outline just removed. The edge and the type simply come up. */
       .ta-pill:hover {
-        border-color: rgba(111, 224, 200, 0.45);
-        background-color: rgba(255, 255, 255, 0.05);
-        color: #fff;
+        border-color: var(--brand);
+        background-color: var(--mint);
+        color: var(--brand);
       }
 
-      /* Bare tick, no disc. Aqua rather than the mint/brand tokens: those
-         invert under [data-theme="dark"] and this band is a dark photo in
-         both themes, so they would have gone dark-on-dark. This is the
-         hero headline's highlight colour, which ties the two together. */
+      /* Bare tick, no disc. On the brand token now rather than the hero's aqua
+         highlight: aqua was picked to survive a dark photo in both themes, and
+         this band is the light wash in light mode. The token inverts with the
+         theme, which is exactly what is wanted here. */
       .ta-check {
         display: grid;
         place-items: center;
         flex-shrink: 0;
-        color: #6fe0c8;
+        color: var(--brand);
       }
 
       /* Slightly heavier than the 1.9 in ICON_BASE — with no disc behind
@@ -1204,7 +1367,8 @@
       .ev-band {
         position: relative;
         overflow: hidden;
-        background: var(--cream);
+        /* Transparent for the same reason as .inside-band. */
+        background: transparent;
       }
 
       .ev-band::before {
@@ -1239,7 +1403,11 @@
          it is right on any background and in either theme. */
       .ev-track {
         display: flex;
-        gap: 3px;
+        /* Wider than the events grid's 3px gutter. The grid can butt its tiles
+           together because one rounded, bordered container holds the whole
+           thing; here each tile is loose in a scrolling rail with nothing
+           framing it, so it needs a little air to read as its own card. */
+        gap: 10px;
         overflow-x: auto;
         scrollbar-width: none;
         -ms-overflow-style: none;
@@ -1265,11 +1433,10 @@
         display: none;
       }
 
-      /* The rail is the events grid laid out sideways: same tile, same 3px
-         gutter, same square corners. Nothing is added per slide — no radius,
-         no border, no lift — because any of those would turn a continuous
-         filmstrip back into a row of separate cards, which is the look this
-         replaced. */
+      /* The rail is the events grid laid out sideways: same tile, same square
+         corners, just a slightly wider gutter (see .ev-track). Nothing is added
+         per slide — no radius, no border, no lift — since the tile is already
+         the finished object the events page uses. */
       .ev-slide {
         flex: 0 0 288px;
       }
@@ -1476,10 +1643,13 @@
         scroll-margin-top: calc(108px + var(--sponsor-reserve, 0px));
       }
 
-      /* White rather than the page's cream, so the nav reads as a distinct
-         surface floating over the content instead of blending into it. */
+      /* The lift on scroll is the border and the shadow only. The nav used to
+         also go from 0.72 to 0.94 alpha, which stopped working the day a
+         photograph went behind the whole page: a translucent bar tints itself
+         with whatever it is passing over, and the header was coming out
+         grey-green over the trees. It is opaque at both ends now, so the
+         backdrop scrolls under it without touching it. */
       #site-nav.is-scrolled {
-        background-color: rgba(255, 255, 255, 0.94);
         border-bottom-color: rgba(26, 46, 74, 0.08);
         box-shadow: 0 8px 28px rgba(26, 46, 74, 0.09);
       }
@@ -2268,7 +2438,9 @@
          Everything the token swap cannot reach on its own: gradients,
          translucent chrome, and the few places where a light-tinted
          shadow was doing the work of a border. */
-      [data-theme="dark"] .hero-sun {
+
+      [data-theme="dark"] .hero-sun,
+      [data-theme="dark"] .warm-band {
         background:
           radial-gradient(115% 85% at 92% 4%, rgba(45, 122, 79, 0.3) 0%, rgba(45, 122, 79, 0) 58%),
           radial-gradient(
@@ -2279,12 +2451,11 @@
           linear-gradient(150deg, #141b24 0%, #10151c 48%, #111e18 100%);
       }
 
-      /* The toys are line art in a theme token, so they invert on their own —
-         only the drop shadow needs help, since a soft navy one is invisible
-         against a near-black page. */
-      [data-theme="dark"] .hero-toy {
-        opacity: 0.42;
-        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+      /* The ring, disc and flower are authored in colours that hold on a dark
+         page already. Only the dot grid needs inverting — navy dots at 0.16 on
+         near-black are simply not there. */
+      [data-theme="dark"] .hero-dots {
+        background-image: radial-gradient(rgba(255, 255, 255, 0.18) 2.1px, transparent 2.2px);
       }
 
       [data-theme="dark"] .hero-photo {
@@ -2301,14 +2472,14 @@
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
       }
 
-      /* The nav is translucent over whatever it floats above, so its tint
-         has to be authored per theme rather than inherited. */
+      /* The nav's fill is a literal colour, not a token, so the dark page needs
+         it restated — bg-white on the element itself would otherwise hold. Flat
+         and opaque here for the same reason as the light one. */
       [data-theme="dark"] #site-nav {
-        background-color: rgba(16, 21, 28, 0.72);
+        background-color: #10151c;
       }
 
       [data-theme="dark"] #site-nav.is-scrolled {
-        background-color: rgba(16, 21, 28, 0.94);
         border-bottom-color: rgba(255, 255, 255, 0.1);
         box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
       }
@@ -2319,14 +2490,40 @@
         }
       }
 
-      /* Navy-tinted shadows vanish on a dark page; these carry the card
-         edges, so they get darkened rather than dropped. */
+      /* The glass, its highlight edge and its shadow are all literal colours —
+         a translucent white pane and a navy-tinted shadow are both wrong on a
+         dark page, the first as a bright slab and the second as nothing at
+         all. Same construction, drawn from the dark end: the pane is the dark
+         surface at the same 0.6, the edge a white hairline at low alpha
+         instead of high, the shadow black. The accent bloom needs no override
+         — it is the category's own colour either way. */
       [data-theme="dark"] .inside-card {
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        background: rgba(24, 31, 41, 0.82);
+        border-color: rgba(255, 255, 255, 0.14);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 18px 44px rgba(0, 0, 0, 0.5);
       }
 
       [data-theme="dark"] .inside-card:hover {
-        box-shadow: 0 22px 48px rgba(0, 0, 0, 0.55);
+        background: rgba(24, 31, 41, 0.9);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.12),
+          0 28px 60px rgba(0, 0, 0, 0.62);
+      }
+
+      /* --tint is a pale pastel authored for a white card, and it stays a
+         bright dot on a dark one. Derived from --accent instead: the disc is
+         that colour at 28%, and the glyph is the same colour lifted halfway to
+         white, since the mid-tone greens and blues the accents are do not
+         carry against a dark disc on their own. The plain values on the first
+         line of each pair are the fallback for engines without color-mix. */
+      [data-theme="dark"] .inside-card-badge,
+      [data-theme="dark"] .inside-card-arrow {
+        background: rgba(255, 255, 255, 0.1);
+        background: color-mix(in srgb, var(--accent) 28%, transparent);
+        color: #ffffff;
+        color: color-mix(in srgb, var(--accent) 42%, #ffffff);
       }
 
       [data-theme="dark"] .plan-card--pop {
@@ -2653,7 +2850,10 @@
     </style>
   </head>
 
-  <body>
+  <!-- data-view is the current route, republished by render(). It is authored
+       as "home" here so the very first paint already matches what renders,
+       rather than the backdrop popping in a frame later. -->
+  <body data-view="home">
     <!-- ICON SPRITE -->
     <svg width="0" height="0" style="position: absolute" aria-hidden="true">
       <defs>
@@ -2984,7 +3184,7 @@
     <!-- NAV -->
     <nav
       id="site-nav"
-      class="sticky top-0 w-full z-[100] bg-[rgba(255,255,255,0.72)] backdrop-blur-[14px] border-b-[1.5px] border-b-transparent px-[clamp(1rem,5vw,7rem)] flex items-center justify-between h-[104px] gap-4 max1200:px-[3%] max1200:gap-3 max900:bg-[#ffffff] max900:border-b-0 max900:shadow-[0_2px_14px_rgba(26,46,74,0.07)] max900:after:content-[''] max900:after:absolute max900:after:left-0 max900:after:right-0 max900:after:bottom-0 max900:after:h-[3px] max900:after:bg-[linear-gradient(90deg,#2d7a4f_0_25%,#f5a623_25%_50%,#1e8c7a_50%_75%,#7b5ea7_75%_100%)] max560:px-[4%] max560:h-[76px] max380:px-3 max380:gap-2"
+      class="sticky top-0 w-full z-[100] bg-white border-b-[1.5px] border-b-transparent px-[clamp(1rem,5vw,7rem)] flex items-center justify-between h-[104px] gap-4 max1200:px-[3%] max1200:gap-3 max900:bg-[#ffffff] max900:border-b-0 max900:shadow-[0_2px_14px_rgba(26,46,74,0.07)] max900:after:content-[''] max900:after:absolute max900:after:left-0 max900:after:right-0 max900:after:bottom-0 max900:after:h-[3px] max900:after:bg-[linear-gradient(90deg,#2d7a4f_0_25%,#f5a623_25%_50%,#1e8c7a_50%_75%,#7b5ea7_75%_100%)] max560:px-[4%] max560:h-[76px] max380:px-3 max380:gap-2"
     >
       <!-- The wordmark is the fallback, not decoration: if the logo image fails
            the brand still reads, so the <img> hides its sibling on load rather
@@ -4746,7 +4946,12 @@
           profile: viewProfile,
           notifications: viewNotifications,
         };
-        root.innerHTML = (map[state.view] || viewHome)();
+        // Publish the route on <body> so CSS can key off it — the backdrop
+        // photograph is home-only. Normalised through the same fallback the
+        // map uses, so an unknown view says "home" exactly when it renders it.
+        const view = map[state.view] ? state.view : "home";
+        document.body.dataset.view = view;
+        root.innerHTML = map[view]();
         if (el("topAd-meta")) el("topAd-meta").innerHTML = adMeta("Bergen Aquatic Center");
         const NAV_ON = ["text-brand", "bg-mint"];
         document.querySelectorAll("[data-navkey]").forEach((a) => {
@@ -4955,8 +5160,10 @@
                 <div class="hero-decor" aria-hidden="true">
                   <span class="hero-blob hero-blob--grass"></span>
                   <span class="hero-blob hero-blob--sun"></span>
-                  ${icon("palette", 46, "hero-toy hero-toy--art")}
-                  ${icon("soccer", 38, "hero-toy hero-toy--ball")}
+                  <span class="hero-dots"></span>
+                  <span class="hero-ring"></span>
+                  <span class="hero-pop"></span>
+                  <svg class="hero-star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="6.4" r="4.3"/><circle cx="12" cy="17.6" r="4.3"/><circle cx="6.4" cy="12" r="4.3"/><circle cx="17.6" cy="12" r="4.3"/><circle cx="12" cy="12" r="3" fill="#fffaf3"/></svg>
                 </div>
                 <div class="hero-photo absolute right-[6%] top-0 w-[56%] h-[80%] rotate-[4deg]"><img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=700&q=75" alt="Happy students learning" fetchpriority="high" decoding="async"></div>
                 <div class="hero-photo absolute left-0 bottom-[4%] w-[52%] h-[70%] -rotate-[5deg]"><img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=700&q=75" alt="A smiling child" fetchpriority="high" decoding="async"></div>
@@ -4965,23 +5172,31 @@
             <div class="feature-strip">
               <div class="feature-strip-inner">${heroCards.map(featureShortcut).join("")}</div>
             </div>
-            ${tornEdge()}
+            <!-- No torn edge here. The cut works by painting the NEXT section's
+                 colour up into this one, and the band below is transparent now
+                 so the backdrop photo shows through it — a cream wave against a
+                 photograph is a seam, not a blend. The events band keeps its
+                 cut because what follows that one is still a solid surface. -->
           </section>
 
 
           <section id="inside" class="inside-band px-[clamp(1rem,5vw,7rem)] py-20 max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
+            <!-- band-copy is on the heading and the paragraph, not on this
+                 wrapper: the eyebrow is a mint pill now and brings its own
+                 background, so a dark halo behind brand-green text on mint
+                 would read as smudge. Same split as the events band. -->
             <div class="relative z-[1] text-center" data-rv-stagger="110">
-              <div class="text-sm font-bold tracking-[0.1em] uppercase text-brand mb-3">What's Inside</div>
-              <div class="font-serif text-display-2 font-black text-head tracking-[-0.02em] mb-3 leading-[1.15] text-balance mx-auto max-w-[22ch]">Everything for Bergen County families, in one place.</div>
-              <p class="text-muted text-lg leading-[1.65] max-w-[60ch] mx-auto mb-12 text-pretty">From newborn care to college prep — Bergen Kids brings together every trusted local service in one place.</p>
+              <div class="inline-flex items-center gap-2 rounded-[100px] bg-mint px-[0.85rem] py-[0.35rem] text-xs font-extrabold tracking-[0.1em] uppercase text-brand mb-3">${icon("sliders", 13)} What's Inside</div>
+              <div class="band-copy font-serif text-display-2 font-black text-white tracking-[-0.02em] mb-3 leading-[1.15] text-balance mx-auto max-w-[22ch]">Everything for Bergen County families, in one place.</div>
+              <p class="band-copy text-white/90 text-lg leading-[1.65] max-w-[60ch] mx-auto mb-12 text-pretty">From newborn care to college prep — Bergen Kids brings together every trusted local service in one place.</p>
             </div>
-            <div class="relative z-[1] grid grid-cols-3 gap-5 items-stretch max1024:gap-4 max900:grid-cols-2 max560:grid-cols-1 max560:gap-3" data-rv-stagger="90">${featureTiles.map((t) => `<div class="inside-card" data-nav="${t.nav}" data-authgate data-tilt><svg class="inside-card-wave" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M40 0 C 62 22 40 40 60 58 C 80 76 58 90 78 100 L 100 100 L 100 0 Z" fill="${t.accent}22"/><path d="M60 0 C 80 20 60 38 78 55 C 93 69 75 83 93 100 L 100 100 L 100 0 Z" fill="${t.accent}3a"/></svg><span class="inside-card-badge" style="background:${t.tint};color:${t.accent}">${icon(t.icon, 26)}</span><div class="inside-card-title">${t.t}</div><span class="inside-card-rule" style="background:${t.accent}"></span><div class="inside-card-desc">${t.s}</div><span class="inside-card-arrow" style="background:${t.tint};color:${t.accent}">${icon("arrow-right", 18)}</span></div>`).join("")}</div>
+            <div class="relative z-[1] grid grid-cols-3 gap-5 items-stretch max1024:gap-4 max900:grid-cols-2 max560:grid-cols-1 max560:gap-3" data-rv-stagger="90">${featureTiles.map((t) => `<div class="inside-card" style="--accent:${t.accent};--tint:${t.tint}" data-nav="${t.nav}" data-authgate data-tilt><span class="inside-card-badge">${icon(t.icon, 26)}</span><div class="inside-card-title">${t.t}</div><span class="inside-card-rule"></span><div class="inside-card-desc">${t.s}</div><span class="inside-card-arrow">${icon("arrow-right", 18)}</span></div>`).join("")}</div>
           </section>
 
-          <section class="ta-band px-[clamp(1rem,5vw,7rem)] py-24 max700:py-16 max380:px-4">
+          <section class="ta-band warm-band px-[clamp(1rem,5vw,7rem)] py-24 max700:py-16 max380:px-4">
             <div class="relative z-[1] mx-auto w-full max-w-[760px] text-center" data-rv-stagger="120">
-              <h3 class="font-serif text-display-2 font-black text-white mb-[0.9rem] leading-[1.15] tracking-[-0.02em] text-balance">Trusted businesses, gathered for Bergen families.</h3>
-              <p class="text-white/90 text-lg leading-[1.7] mb-9 text-pretty">Bergen Kids brings the county's classes, camps, events, and kids' services into one place — every listing from a real local business, organized town by town and kept current by our team. No more digging through ten Facebook groups to find a swim class or a Saturday story time. Just what's near you, free for every family.</p>
+              <h3 class="font-serif text-display-2 font-black text-head mb-[0.9rem] leading-[1.15] tracking-[-0.02em] text-balance">Trusted businesses, gathered for Bergen families.</h3>
+              <p class="text-muted text-lg leading-[1.7] mb-9 text-pretty">Bergen Kids brings the county's classes, camps, events, and kids' services into one place — every listing from a real local business, organized town by town and kept current by our team. No more digging through ten Facebook groups to find a swim class or a Saturday story time. Just what's near you, free for every family.</p>
               <ul class="list-none flex flex-wrap justify-center gap-3">
                 ${["Verified local business listings", "Events alongside listings", "Organized, structured and searchable"].map((t) => `<li class="ta-pill"><span class="ta-check">${icon("check", 14)}</span>${t}</li>`).join("")}
               </ul>
@@ -4996,23 +5211,24 @@
                    belongs on the paragraph, the only part that needs one. -->
               <div class="min-w-0">
                 <div class="inline-flex items-center gap-2 rounded-[100px] bg-mint px-[0.85rem] py-[0.35rem] text-xs font-extrabold tracking-[0.1em] uppercase text-brand mb-3">${icon("calendar", 13)} What's Happening</div>
-                <div class="font-serif text-display-2 font-black text-head tracking-[-0.02em] mb-[0.5rem] leading-[1.15] text-balance">Upcoming in Bergen County</div>
-                <p class="text-muted text-base leading-[1.6] max-w-[68ch] text-pretty">Story times, clinics, camps and festivals — the next few weeks, town by town.</p>
+                <div class="band-copy font-serif text-display-2 font-black text-white tracking-[-0.02em] mb-[0.5rem] leading-[1.15] text-balance">Upcoming in Bergen County</div>
+                <p class="band-copy text-white/90 text-base leading-[1.6] max-w-[68ch] text-pretty">Story times, clinics, camps and festivals — the next few weeks, town by town.</p>
               </div>
-              <a class="text-brand font-bold text-base no-underline inline-flex items-center gap-[0.35rem] cursor-pointer transition-[gap] duration-200 min-h-[44px] shrink-0 hover:gap-[0.6rem] hover:underline" data-nav="calendar" data-authgate>See all events ${icon("arrow-right", 15)}</a>
+              <a class="band-copy text-white font-bold text-base no-underline inline-flex items-center gap-[0.35rem] cursor-pointer transition-[gap] duration-200 min-h-[44px] shrink-0 hover:gap-[0.6rem] hover:underline" data-nav="calendar" data-authgate>See all events ${icon("arrow-right", 15)}</a>
             </div>
             <div class="ev-rail relative z-[1]" data-rv="up" style="--rv-delay: 120ms">
               <button class="ev-nav ev-arrow ev-arrow--prev" data-action="ev-prev" aria-label="Previous events">${icon("chev-left", 18)}</button>
               <div class="ev-track" id="ev-track">${evPrev.map((e, i) => `<div class="ev-slide">${evTile(e, i)}</div>`).join("")}${evPrev.map((e, i) => `<div class="ev-slide" aria-hidden="true">${evTile(e, i)}</div>`).join("")}</div>
               <button class="ev-nav ev-arrow ev-arrow--next" data-action="ev-next" aria-label="Next events">${icon("chev-right", 18)}</button>
             </div>
-            <!-- Same cut the hero ends on, tearing this band's cream away to
-                 the white section below. The --surface variant, not a Tailwind
-                 text- class: see the note by .section-torn--surface. -->
-            ${tornEdge("section-torn--surface")}
+            <!-- No torn edge. The cut works by painting the next section's flat
+                 colour up into this one, and this band is unfilled now — the
+                 backdrop photograph shows through it, so the teeth had nothing
+                 to blend and just sat on the picture as a zigzag. Same reason
+                 the hero lost its. -->
           </section>
 
-          <section class="px-[clamp(1rem,5vw,7rem)] py-20 bg-surface grid grid-cols-[1fr_1fr] gap-20 items-center max1200:gap-12 max900:grid-cols-1 max900:gap-10 max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
+          <section class="warm-band px-[clamp(1rem,5vw,7rem)] py-20 grid grid-cols-[1fr_1fr] gap-20 items-center max1200:gap-12 max900:grid-cols-1 max900:gap-10 max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
             <div class="relative max900:hidden" data-rv="left">
               <div class="relative w-full">
                 <img src="https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=900&q=80" alt="Kids playing ball together on a grass field" loading="lazy" class="w-full h-[380px] object-cover rounded-[24px] shadow-[0_16px_50px_rgba(26,46,74,0.18)] z-[1] relative">
@@ -5038,11 +5254,11 @@
             </div>
           </section>
 
-          <section class="plans-band px-[clamp(1rem,5vw,7rem)] py-20 relative overflow-hidden before:content-[''] before:absolute before:inset-0 before:bg-[radial-gradient(ellipse_at_70%_50%,rgba(45,122,79,0.15)_0%,transparent_60%)] max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4" id="plans">
-            <div class="relative z-[1] text-center" data-rv-stagger="110">
+          <section class="plans-band px-[clamp(1rem,5vw,7rem)] py-20 relative overflow-hidden max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4" id="plans">
+            <div class="band-copy relative z-[1] text-center" data-rv-stagger="110">
               <div class="text-sm font-bold tracking-[0.1em] uppercase mb-3 text-sun">Listing Plans</div>
               <div class="font-serif text-display-2 font-black tracking-[-0.02em] mb-3 leading-[1.15] text-balance text-white">Pick what your ad does, then how you pay for it</div>
-              <p class="text-lg leading-[1.65] max-w-[62ch] mx-auto text-pretty text-on-dark-2 mb-12">Every ad starts as a free Basic Listing. Upgrade the type if you want photos, add the placements you want on top, then choose a billing term — a subscription that renews, or a one-time fee for the same run. Type and placement are charged once per ad.</p>
+              <p class="text-lg leading-[1.65] max-w-[62ch] mx-auto text-pretty text-white/90 mb-12">Every ad starts as a free Basic Listing. Upgrade the type if you want photos, add the placements you want on top, then choose a billing term — a subscription that renews, or a one-time fee for the same run. Type and placement are charged once per ad.</p>
             </div>
 
             <!-- 1400px is the page's own wide measure — the header and footer
@@ -5055,36 +5271,36 @@
               <!-- Step 1 — what tier the ad runs at -->
               <div class="flex items-center gap-3 mb-5">
                 <span class="w-[30px] h-[30px] rounded-full bg-sun text-navy grid place-items-center text-sm font-black shrink-0">1</span>
-                <div class="font-serif text-xl font-black text-white leading-[1.2]">Choose the ad type</div>
+                <div class="band-copy font-serif text-xl font-black text-white leading-[1.2]">Choose the ad type</div>
               </div>
               <div class="grid grid-cols-[repeat(auto-fit,minmax(215px,1fr))] gap-4 mb-4" data-rv-stagger="90" data-rv-child="zoom">
                 ${AD_TYPES.map(adTypeCard).join("")}
               </div>
-              <p class="text-sm text-on-dark-3 mb-12 leading-[1.6]">Every ad is one or the other. Basic costs nothing beyond the billing term.</p>
+              <p class="band-copy text-sm text-white/85 mb-12 leading-[1.6]">Every ad is one or the other. Basic costs nothing beyond the billing term.</p>
 
               <!-- Step 2 — where it is placed -->
               <div class="flex items-center gap-3 mb-5">
                 <span class="w-[30px] h-[30px] rounded-full bg-sun text-navy grid place-items-center text-sm font-black shrink-0">2</span>
-                <div class="font-serif text-xl font-black text-white leading-[1.2]">Choose the placement as add-ons</div>
+                <div class="band-copy font-serif text-xl font-black text-white leading-[1.2]">Choose the placement as add-ons</div>
               </div>
               <div class="grid grid-cols-[repeat(auto-fit,minmax(215px,1fr))] gap-4 mb-4" data-rv-stagger="90" data-rv-child="zoom">
                 ${OPEN_PLACEMENTS.map(adTypeCard).join("")}
               </div>
-              <p class="text-sm text-on-dark-3 mb-12 leading-[1.6]">Add-ons are optional and stack — take one, all three, or none at all.</p>
+              <p class="band-copy text-sm text-white/85 mb-12 leading-[1.6]">Add-ons are optional and stack — take one, all three, or none at all.</p>
 
               <!-- Step 3 — how it is paid for -->
               <div class="flex items-center gap-3 mb-5">
                 <span class="w-[30px] h-[30px] rounded-full bg-sun text-navy grid place-items-center text-sm font-black shrink-0">3</span>
-                <div class="font-serif text-xl font-black text-white leading-[1.2]">Choose a billing term</div>
+                <div class="band-copy font-serif text-xl font-black text-white leading-[1.2]">Choose a billing term</div>
               </div>
               <div class="grid grid-cols-[repeat(auto-fit,minmax(235px,1fr))] gap-4" data-rv-stagger="90" data-rv-child="zoom">
                 ${BILLING_PLANS.map((p) => billingPlanCard(p, p.id === "annual")).join("")}
               </div>
 
-              <div class="mt-8 rounded-[16px] border-[1.5px] border-white/15 bg-white/[0.05] px-5 py-4 flex items-start gap-3">
-                <span class="w-[30px] h-[30px] rounded-[9px] bg-white/10 text-mint-2 grid place-items-center shrink-0">${icon("card", 16)}</span>
-                <div class="text-sm leading-[1.6] text-on-dark-2">
-                  <b class="text-white">What you pay</b> = the billing term you chose + your ad type + each placement you take, both charged once per ad. A Basic Listing with no placements is just the billing term.
+              <div class="mt-8 rounded-[16px] border-[1.5px] border-line bg-surface px-5 py-4 flex items-start gap-3 shadow-[0_2px_14px_rgba(26,46,74,0.08)]">
+                <span class="w-[30px] h-[30px] rounded-[9px] bg-mint text-brand grid place-items-center shrink-0">${icon("card", 16)}</span>
+                <div class="text-sm leading-[1.6] text-muted">
+                  <b class="text-head">What you pay</b> = the billing term you chose + your ad type + each placement you take, both charged once per ad. A Basic Listing with no placements is just the billing term.
                 </div>
               </div>
             </div>
@@ -5379,31 +5595,66 @@
           total: typeCost + addonCost + planCost,
         };
       }
+      /* Both plan cards used to be translucent white over a navy band —
+         bg-white/[0.05] with white type, which is only a card because there is
+         something dark behind it. The band is unfilled now and the page's
+         backdrop photograph shows through, so that treatment vanished into the
+         grass. They are solid surface cards with normal type instead, the same
+         object as every other card on the site.
+
+         Everything below is a theme token rather than a literal, so the dark
+         page gets a dark card and light type from the same markup — which the
+         hand-written white/navy pair could never do. */
       function adTypeCard(a) {
         const free = !a.rate;
-        return `<div class="rounded-[18px] border-[1.5px] p-5 h-full flex flex-col ${free ? "border-sun/60 bg-sun/[0.08]" : "border-white/15 bg-white/[0.05]"}">
+        return `<div class="rounded-[18px] border-[1.5px] bg-surface p-5 h-full flex flex-col transition-[transform,box-shadow] duration-200 hover:-translate-y-1 ${free ? "border-sun shadow-[0_4px_18px_rgba(245,166,35,0.18)]" : "border-line shadow-[0_2px_14px_rgba(26,46,74,0.08)]"}">
             <div class="flex items-start justify-between gap-3 mb-2">
-              <span class="w-[34px] h-[34px] rounded-[10px] grid place-items-center shrink-0 ${free ? "bg-sun text-navy" : "bg-white/10 text-mint-2"}">${icon(a.icon, 17)}</span>
-              <span class="text-sm font-extrabold whitespace-nowrap ${free ? "text-sun" : "text-white"}">${free ? "Included" : "+" + money(a.rate) + `<span class='font-semibold text-on-dark-3'>/ad</span>`}</span>
+              <span class="w-[34px] h-[34px] rounded-[10px] grid place-items-center shrink-0 ${free ? "bg-sun text-navy" : "bg-mint text-brand"}">${icon(a.icon, 17)}</span>
+              <span class="text-sm font-extrabold whitespace-nowrap ${free ? "text-orange-ink" : "text-head"}">${free ? "Included" : "+" + money(a.rate) + `<span class='font-semibold text-muted'>/ad</span>`}</span>
             </div>
-            <div class="font-bold text-base text-white leading-[1.3]">${a.name}</div>
-            <div class="text-sm leading-[1.55] text-on-dark-3 mt-[0.35rem]">${a.desc}</div>
+            <div class="font-bold text-base text-head leading-[1.3]">${a.name}</div>
+            <div class="text-sm leading-[1.55] text-muted mt-[0.35rem]">${a.desc}</div>
           </div>`;
       }
-      /* Only the Best value plan turns white — a solid card on the dark pricing
-               band is what singles it out. The rest stay translucent. */
+      /* Best value is singled out by a brand-green edge and a deeper shadow.
+               It used to be the only white card in a row of translucent ones —
+               with every card solid now, being white is no distinction. */
       function billingPlanCard(p, best) {
-        return `<div class="relative rounded-[20px] border-[1.5px] p-6 h-full flex flex-col ${best ? "border-sun bg-surface shadow-[0_10px_36px_rgba(9,15,26,0.28)]" : "border-white/15 bg-white/[0.04]"} max560:p-5">
-            ${best ? `<div class="absolute -top-[11px] left-6 rounded-[100px] bg-sun px-[0.7rem] py-[0.2rem] text-2xs font-extrabold uppercase tracking-[0.08em] text-navy">Best value</div>` : ""}
-            <div class="text-sm font-bold tracking-[0.08em] uppercase ${best ? "text-orange-ink" : "text-sun"}">${p.name}</div>
-            <div class="text-sm ${best ? "text-muted" : "text-on-dark-3"} mb-4">${p.days} days</div>
+        /* Best value is the one FILLED card in a row of white ones. A border a
+           couple of shades different from its neighbours' is not a distinction
+           you notice while scanning four cards; inverting it to the brand green
+           with white type is. It is the plan the page is recommending, so it
+           should not need finding.
+
+           The type inside is written against green rather than against surface,
+           which is why this is a separate return and not a fan of ternaries —
+           every line differed, and the one-card-in-two-skins version was
+           unreadable. Both branches keep the same box model, padding and hover
+           so the row still lines up. */
+        if (best)
+          return `<div class="relative rounded-[20px] border-[1.5px] border-[#0f3d29] p-6 h-full flex flex-col bg-[linear-gradient(155deg,#20643d_0%,#175236_52%,#14685a_100%)] shadow-[0_18px_46px_rgba(20,69,58,0.34)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_26px_60px_rgba(20,69,58,0.42)] max560:p-5">
+            <div class="absolute -top-[11px] left-6 rounded-[100px] bg-sun px-[0.7rem] py-[0.2rem] text-2xs font-extrabold uppercase tracking-[0.08em] text-navy shadow-[0_4px_14px_rgba(245,166,35,0.45)]">Best value</div>
+            <div class="text-sm font-bold tracking-[0.08em] uppercase text-sun">${p.name}</div>
+            <div class="text-sm text-white/70 mb-4">${p.days} days</div>
             <div class="flex items-baseline gap-2 flex-wrap">
-              <span class="font-serif text-4xl font-black leading-[1] ${best ? "text-head" : "text-white"}">${money(p.price)}</span>
-              <span class="text-sm ${best ? "text-muted" : "text-on-dark-2"}">subscription, renews every ${p.days} days</span>
+              <span class="font-serif text-4xl font-black leading-[1] text-white">${money(p.price)}</span>
+              <span class="text-sm text-white/80">subscription, renews every ${p.days} days</span>
             </div>
-            <div class="mt-4 pt-4 border-t ${best ? "border-line" : "border-white/15"} flex items-baseline gap-2 flex-wrap">
-              <span class="font-serif text-2xl font-black leading-[1] ${best ? "text-brand" : "text-mint-2"}">${money(p.oneTime)}</span>
-              <span class="text-sm ${best ? "text-muted" : "text-on-dark-2"}">one-time, no renewal</span>
+            <div class="mt-4 pt-4 border-t border-white/20 flex items-baseline gap-2 flex-wrap">
+              <span class="font-serif text-2xl font-black leading-[1] text-mint-2">${money(p.oneTime)}</span>
+              <span class="text-sm text-white/80">one-time, no renewal</span>
+            </div>
+          </div>`;
+        return `<div class="relative rounded-[20px] border-[1.5px] border-line bg-surface p-6 h-full flex flex-col shadow-[0_2px_14px_rgba(26,46,74,0.08)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 max560:p-5">
+            <div class="text-sm font-bold tracking-[0.08em] uppercase text-orange-ink">${p.name}</div>
+            <div class="text-sm text-muted mb-4">${p.days} days</div>
+            <div class="flex items-baseline gap-2 flex-wrap">
+              <span class="font-serif text-4xl font-black leading-[1] text-head">${money(p.price)}</span>
+              <span class="text-sm text-muted">subscription, renews every ${p.days} days</span>
+            </div>
+            <div class="mt-4 pt-4 border-t border-line flex items-baseline gap-2 flex-wrap">
+              <span class="font-serif text-2xl font-black leading-[1] text-brand">${money(p.oneTime)}</span>
+              <span class="text-sm text-muted">one-time, no renewal</span>
             </div>
           </div>`;
       }
@@ -7191,7 +7442,7 @@
               ${perf.length ? perf.map(advPerfRow).join("") : `<div class="text-muted text-sm py-4">No performance data yet.</div>`}
             </div>
           </div>
-          <div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 max380:p-[1.1rem]"><div class="font-serif text-lg font-black text-head leading-[1.15] mb-3">Ad performance</div>${shown.length ? adTable(shown) : emptyPanel("No ads match your filters", "Try widening the category, placement, or date range.")}</div>`;
+          <div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 max380:p-[1.1rem]"><div class="font-serif text-lg font-black text-head leading-[1.15] mb-3">Ad performance</div>${shown.length ? adTable(shown, false, true) : emptyPanel("No ads match your filters", "Try widening the category, placement, or date range.")}</div>`;
         }
       }
       /* ── Create an ad ───────────────────────────────────────────
@@ -7537,10 +7788,16 @@
           AD_STATUSES.find((x) => x.id === s) || AD_STATUSES.find((x) => x.id === "expired");
         return `<span class="text-sm font-bold px-[11px] py-[4px] rounded-[100px] whitespace-nowrap ${v.cls}">${v.name}</span>`;
       }
-      function adTable(list, actions) {
+      /* `metrics` opts the impression/click/CTR columns IN, rather than every
+         caller getting them. My Ads and Recent ads are lists you manage an ad
+         from — what it is, where it runs, what state it is in — and three
+         number columns there pushed the controls off the edge on anything
+         narrow. The one table that is actually about performance asks for
+         them. */
+      function adTable(list, actions, metrics) {
         if (!list.length)
           return emptyPanel("No ads yet", "Create your first ad to reach Bergen County parents.");
-        return `<div class="table-scroll overflow-x-auto [-webkit-overflow-scrolling:touch] -mx-1 px-1"><table class="w-full border-collapse min-w-[560px] [&_th]:text-left [&_th]:text-sm [&_th]:font-bold [&_th]:tracking-[0.05em] [&_th]:uppercase [&_th]:text-adlabel [&_th]:px-3 [&_th]:py-[0.7rem] [&_th]:border-b-[1.5px] [&_th]:border-b-line [&_th]:whitespace-nowrap [&_td]:px-3 [&_td]:py-[0.9rem] [&_td]:border-b [&_td]:border-b-line2 [&_td]:text-base [&_td]:text-head [&_td]:align-middle [&_tr:last-child_td]:border-b-0"><thead><tr><th>Advertisement</th><th>Placement</th><th>Plan</th><th>Runs</th><th>Status</th><th>Impressions</th><th>Clicks</th><th>CTR</th>${actions ? "<th></th>" : ""}</tr></thead><tbody>${list
+        return `<div class="table-scroll overflow-x-auto [-webkit-overflow-scrolling:touch] -mx-1 px-1"><table class="w-full border-collapse min-w-[560px] [&_th]:text-left [&_th]:text-sm [&_th]:font-bold [&_th]:tracking-[0.05em] [&_th]:uppercase [&_th]:text-adlabel [&_th]:px-3 [&_th]:py-[0.7rem] [&_th]:border-b-[1.5px] [&_th]:border-b-line [&_th]:whitespace-nowrap [&_td]:px-3 [&_td]:py-[0.9rem] [&_td]:border-b [&_td]:border-b-line2 [&_td]:text-base [&_td]:text-head [&_td]:align-middle [&_tr:last-child_td]:border-b-0"><thead><tr><th>Advertisement</th><th>Placement</th><th>Plan</th><th>Runs</th><th>Status</th>${metrics ? "<th>Impressions</th><th>Clicks</th><th>CTR</th>" : ""}${actions ? "<th></th>" : ""}</tr></thead><tbody>${list
           .map((a) => {
             const flight = `${fmtShort(a.start)} – ${fmtShort(a.end)}`;
             let ctrls = "";
@@ -7555,7 +7812,7 @@
             }
             const ac = catOf(a.cat);
             const b = a.billing || adBilling(a);
-            return `<tr><td class="whitespace-nowrap"><div class="font-semibold">${a.name}</div><div class="text-sm text-muted font-medium">${ac ? ac.name : "—"}${a.type === "deluxe" ? " · Deluxe" : ""}</div></td><td style="font-size:var(--fs-sm)">${addonLabel(a)}</td><td style="white-space:nowrap;font-size:var(--fs-sm)"><div>${b.plan.name}</div><div class="text-sm text-muted">${b.subscription ? "Subscription" : "One time"}</div></td><td style="white-space:nowrap;font-size:var(--fs-sm);color:var(--muted)">${flight}</td><td>${adStatusPill(a.status)}</td><td>${a.impressions.toLocaleString()}</td><td>${a.clicks.toLocaleString()}</td><td class="whitespace-nowrap">${a.impressions ? ((a.clicks / a.impressions) * 100).toFixed(1) + "%" : "—"}</td>${actions ? `<td style="white-space:nowrap">${ctrls}</td>` : ""}</tr>`;
+            return `<tr><td class="whitespace-nowrap"><div class="font-semibold">${a.name}</div><div class="text-sm text-muted font-medium">${ac ? ac.name : "—"}${a.type === "deluxe" ? " · Deluxe" : ""}</div></td><td style="font-size:var(--fs-sm)">${addonLabel(a)}</td><td style="white-space:nowrap;font-size:var(--fs-sm)"><div>${b.plan.name}</div><div class="text-sm text-muted">${b.subscription ? "Subscription" : "One time"}</div></td><td style="white-space:nowrap;font-size:var(--fs-sm);color:var(--muted)">${flight}</td><td>${adStatusPill(a.status)}</td>${metrics ? `<td>${a.impressions.toLocaleString()}</td><td>${a.clicks.toLocaleString()}</td><td class="whitespace-nowrap">${a.impressions ? ((a.clicks / a.impressions) * 100).toFixed(1) + "%" : "—"}</td>` : ""}${actions ? `<td style="white-space:nowrap">${ctrls}</td>` : ""}</tr>`;
           })
           .join("")}</tbody></table></div>`;
       }
