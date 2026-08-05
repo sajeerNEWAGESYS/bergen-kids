@@ -2869,6 +2869,43 @@
           --knob-x: 24px;
         }
       }
+
+      /* ── Events page: square cards ──────────────────────────────
+         Every card-shaped surface on the events view loses its radius.
+
+         Scoped to body[data-view="calendar"] — the key render() writes for
+         viewCalendar — rather than edited at the source, because the two
+         panels above the grid are shared components: filtersTop() also builds
+         the Directory's filter bar, and prefsNoticeHtml() renders on both.
+         Squaring them where they are defined would flatten Directory too,
+         which is not what was asked for.
+
+         The event grid itself is not listed below, and does not need to be.
+         Its rounding lived on the wrapper, which clipped the four outer tiles
+         with `overflow: hidden`; both went when the grid stopped painting a
+         background behind its gaps — see calGridHtml. The tiles were always
+         square. What is left here is the two panels above the grid.
+
+         .prefs-notice is a class added for this rule alone — the notice had no
+         stable hook, only utilities, and matching it on `bg-mint` would have
+         been a selector that breaks the first time someone recolours it.
+
+         The second rule reaches inside the tiles for the date badge, which is
+         a full 100px pill. A pill left at full round on a hard-square card is
+         the most conspicuous thing on the grid, so it goes too.
+
+         Buttons, inputs and the filter chips are deliberately untouched. They
+         are controls rather than cards, they are the same controls the rest of
+         the app uses, and a square search field would read as a different
+         design system instead of as this one with its cards squared. */
+      body[data-view="calendar"] .filters-top,
+      body[data-view="calendar"] .prefs-notice {
+        border-radius: 0;
+      }
+
+      body[data-view="calendar"] .ev-tile [class*="rounded-"] {
+        border-radius: 0;
+      }
     </style>
   </head>
 
@@ -4825,7 +4862,7 @@
           names.length > 1
             ? names.slice(0, -1).join(", ") + " and " + names[names.length - 1]
             : names[0];
-        return `<div class="flex items-start gap-3 rounded-[14px] border-[1.5px] border-[#cfe4d6] bg-mint px-4 py-3 mb-4">
+        return `<div class="prefs-notice flex items-start gap-3 rounded-[14px] border-[1.5px] border-[#cfe4d6] bg-mint px-4 py-3 mb-4">
             <span class="w-[30px] h-[30px] rounded-[9px] bg-logo-green text-white flex items-center justify-center shrink-0">${icon("sliders", 15)}</span>
             <div class="min-w-0 flex-1">
               <div class="text-sm font-bold text-head leading-[1.35]">Filtered by your preferences of ${list}.</div>
@@ -6124,7 +6161,7 @@
 
               ${
                 list.length
-                  ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-5 items-stretch">${list.map(listingCard).join("")}</div>`
+                  ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-3 items-stretch">${list.map(listingCard).join("")}</div>`
                   : `<div class="empty text-center px-4 py-16 text-muted text-base leading-[1.6]">${icon("search", 40, "text-adlabel mb-3")}<div style="font-weight:700;color:var(--head);margin-bottom:0.3rem">No results found</div><div>Try adjusting your filters or clearing them to see everything.</div></div>`
               }
             </div>
@@ -6219,8 +6256,19 @@
         return `Showing <b class="text-head">${list.length}</b> of <b class="text-head">${EVENTS.length}</b> event${EVENTS.length !== 1 ? "s" : ""}`;
       }
       const CAL_EMPTY = `<div class="empty text-center px-4 py-16 text-muted text-base leading-[1.6]">${icon("calendar", 40, "text-adlabel mb-3")}<div style="font-weight:700;color:var(--head);margin-bottom:0.3rem">No events found</div><div>Try adjusting your filters or clearing them to see everything.</div></div>`;
+      // The 3px separation between tiles used to be the container's own
+      // background showing through the gaps — bg-line behind a 3px grid gap,
+      // with a border and a radius framing the whole block. That works only
+      // while the last row is full. The moment it is not, every unfilled cell
+      // paints that same grey, and the grid ends in a slab of it.
+      //
+      // So the gaps show the page instead. No background to leak, and an
+      // incomplete last row simply stops after its final tile. The frame and
+      // the shadow went with it: a border around a ragged bottom row draws a
+      // box around the hole rather than hiding it. The tiles are photographs
+      // under dark scrims and hold their own edges without help.
       const calGridHtml = (list) =>
-        `<div class="ev-grid grid grid-cols-[repeat(auto-fill,minmax(min(205px,100%),1fr))] gap-[3px] rounded-[18px] overflow-hidden border-[1.5px] border-line bg-line shadow-[0_4px_20px_rgba(26,46,74,0.05)]">${list.map(evTile).join("")}</div>`;
+        `<div class="ev-grid grid grid-cols-[repeat(auto-fill,minmax(min(205px,100%),1fr))] gap-[3px]">${list.map(evTile).join("")}</div>`;
       function viewCalendar() {
         const f = state.calFilter;
         const list = calEvents();
@@ -9665,7 +9713,7 @@
         if (!container) return;
         const target = grid || empty;
         const newHtml = list.length
-          ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-5">${list.map(listingCard).join("")}</div>`
+          ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-3">${list.map(listingCard).join("")}</div>`
           : `<div class="empty text-center px-4 py-16 text-muted text-base leading-[1.6]">${icon("search", 40, "text-adlabel mb-3")}<div style="font-weight:700;color:var(--head);margin-bottom:0.3rem">No results found</div><div>Try adjusting your filters or clearing them to see everything.</div></div>`;
         if (target) target.outerHTML = newHtml;
       }
