@@ -1863,9 +1863,27 @@
       }
 
       /* A band of light on the diagonal, parked off the left edge until it is
-         wanted. The pill clips it, so it reads as light crossing the button
-         rather than a rectangle sliding past. */
-      .nav-cta::before {
+         wanted, then travelling left to right across the face. The pill clips
+         it, so it reads as light crossing the button rather than a rectangle
+         sliding past.
+
+         .btn-sweep carries the same gesture to the other filled green calls to
+         action — "Create a Parent Account" in the hero and "Add Your Business"
+         in the advertiser band — so the page has one hover for a primary
+         button rather than a different one per section.
+         .nav-cta already gets position/isolation/overflow from the rule it
+         shares with .nav-ghost; .btn-sweep has to state them itself, and all
+         three matter: overflow clips the band to the pill, and isolation is
+         what keeps the z-index -1 above the button's own fill instead of
+         dropping it behind and out of sight. */
+      .btn-sweep {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+      }
+
+      .nav-cta::before,
+      .btn-sweep::before {
         content: "";
         position: absolute;
         inset: 0;
@@ -1884,7 +1902,8 @@
         background: var(--logo-green-deep);
       }
 
-      .nav-cta:hover::before {
+      .nav-cta:hover::before,
+      .btn-sweep:hover::before {
         transform: translateX(130%);
       }
 
@@ -5661,7 +5680,7 @@
                   state.user
                     ? "" // signed in as any role — there is no account left to create
                     : `<div class="mt-8">
-                  <a class="btn-type inline-flex items-center justify-center gap-2 rounded-[100px] bg-logo-green px-9 py-[0.95rem] text-[1.0625rem] font-normal text-white min-h-[52px] transition-[transform,background] duration-200 hover:-translate-y-[2px] hover:bg-logo-green-deep cursor-pointer [&_svg]:transition-transform [&_svg]:duration-200 hover:[&_svg]:translate-x-[3px]" data-nav="directory" data-authgate="parent">Create a Parent Account ${icon("arrow-right", 17)}</a>
+                  <a class="btn-type inline-flex items-center justify-center gap-2 rounded-[100px] bg-logo-green px-9 py-[0.95rem] text-[1.0625rem] font-normal text-white min-h-[52px] btn-sweep transition-[background] duration-200 hover:bg-logo-green-deep cursor-pointer [&_svg]:transition-transform [&_svg]:duration-200 hover:[&_svg]:translate-x-[3px]" data-nav="directory" data-authgate="parent">Create a Parent Account ${icon("arrow-right", 17)}</a>
                 </div>`
                 }
               </div>
@@ -5808,7 +5827,7 @@
               <div class="flex gap-3 items-center text-base mb-[0.85rem] text-ink font-medium"><span class="pf-ic bg-mint text-brand px-[0.6rem] py-[0.45rem] rounded-[8px] leading-[0] shrink-0">${icon("check", 18)}</span><span>Category-based listing with photos, description &amp; links</span></div>
               <div class="flex gap-3 items-center text-base mb-[0.85rem] text-ink font-medium"><span class="pf-ic bg-mint text-brand px-[0.6rem] py-[0.45rem] rounded-[8px] leading-[0] shrink-0">${icon("chart", 18)}</span><span>Real-time analytics — track clicks &amp; impressions</span></div>
               <div class="flex gap-3 items-center text-base mb-[0.85rem] text-ink font-medium"><span class="pf-ic bg-mint text-brand px-[0.6rem] py-[0.45rem] rounded-[8px] leading-[0] shrink-0">${icon("megaphone", 18)}</span><span>Banner ads across leaderboard, sidebar &amp; category pages</span></div>
-              <a class="btn-type bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:bg-logo-green-deep" data-nav="advertiser" data-dashtab="add" style="margin-top:1rem">Add Your Business ${icon("arrow-right", 17)}</a>
+              <a class="btn-type bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none btn-sweep transition-[background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] hover:bg-logo-green-deep" data-nav="advertiser" data-dashtab="add" style="margin-top:1rem">Add Your Business ${icon("arrow-right", 17)}</a>
             </div>
           </section>
 
