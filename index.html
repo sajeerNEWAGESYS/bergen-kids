@@ -1670,10 +1670,73 @@
          photograph went behind the whole page: a translucent bar tints itself
          with whatever it is passing over, and the header was coming out
          grey-green over the trees. It is opaque at both ends now, so the
-         backdrop scrolls under it without touching it. */
+         backdrop scrolls under it without touching it.
+
+         Both values read light-on-dark now that the bar carries the footer's
+         fill — see below. The navy pair they replaced was mixed against white:
+         on a near-black bar the hairline vanished outright and the shadow had
+         nothing left to darken. */
       #site-nav.is-scrolled {
-        border-bottom-color: rgba(26, 46, 74, 0.08);
-        box-shadow: 0 8px 28px rgba(26, 46, 74, 0.09);
+        border-bottom-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+      }
+
+      /* ── Dark header ────────────────────────────────────────────
+         The bar takes the footer's fill, #161024, so the page opens and closes
+         on the same colour instead of running white at the top and near-black
+         at the bottom.
+
+         An id selector because the fill is `bg-white` on the element itself,
+         and a utility class cannot be beaten by anything weaker. That also
+         settles the 900px variant, which restates the same white — one rule
+         covers both widths.
+
+         Dark mode is untouched. `[data-theme="dark"] #site-nav` further down
+         is (1,1,0) to this rule's (1,0,0), so the dark page keeps its own
+         #10151c and does not inherit the purple. */
+      #site-nav {
+        background-color: #161024;
+      }
+
+      /* The 900px bar sets its own navy shadow inline, for the width where the
+         nav is a solid strip rather than a hairline. Same problem, same fix. */
+      @media (max-width: 900px) {
+        #site-nav {
+          box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+        }
+      }
+
+      /* The bare text on the bar — the section anchors and the nav links — was
+         `text-muted`, a grey mixed for white behind it. On-dark tokens instead,
+         the same pair the footer sets its links in, so the two ends of the page
+         match in weight and not just in hue.
+
+         Their hover is left alone deliberately: `hover:bg-mint` with
+         `hover:text-brand` is a light mint pill with dark green text, which
+         needs no dark-mode variant to stay legible, and it is the same shape
+         NAV_ON paints on the active link. */
+      #site-nav #nav-sections a,
+      #site-nav #nav-links a {
+        color: var(--on-dark-3);
+      }
+
+      /* .text-brand is what setNav() paints on the link for the current page,
+         via NAV_ON. It is a single class, so the rule above would have beaten
+         it and left the active link grey on its mint pill — the one link on
+         the bar that has to be legible. Restated here at a weight that wins,
+         alongside the hover it shares a colour with. */
+      #site-nav #nav-sections a:hover,
+      #site-nav #nav-links a:hover,
+      #site-nav #nav-sections a.text-brand,
+      #site-nav #nav-links a.text-brand {
+        color: var(--brand);
+      }
+
+      /* The wordmark only renders when the logo image 404s, but that is exactly
+         when it has to be readable. Its "Kids" and "." spans set their own
+         colours and keep them — green and yellow both hold on this fill. */
+      #site-nav .brand-text {
+        color: var(--on-dark);
       }
 
       /* ── Brand ──────────────────────────────────────────────────
@@ -4955,6 +5018,48 @@
           behavior: immediate ? ("instant" in window ? "instant" : "auto") : "smooth",
         });
       }
+      // The mint pill that marks the current page in the nav. Shared, because
+      // the section anchors below now light up the same way the page links do
+      // — two different rules for "you are here" in one bar reads as a bug.
+      const NAV_ON = ["text-brand", "bg-mint"];
+      /* ── Which home section you are in ──────────────────────────
+         What's Inside / Upcoming / Listing Plans scroll to #inside, #events
+         and #plans rather than routing anywhere, so render() never marked
+         them: it keys off data-navkey against state.view, and these three
+         carry data-scroll and share the one view. Clicking Upcoming moved the
+         page and left the bar looking untouched.
+
+         Resolved by position rather than by the click, so it stays true after
+         the scroll it started: the active section is the last one whose top
+         has passed under the header. Scroll back up by hand and the mark
+         follows you back, which marking-on-click alone would not do.
+
+         The line is the same one scrollToEl() aims at — the header plus
+         whatever the sponsor bar is still covering — so a section counts as
+         current exactly when it comes to rest under the bar, not a screen
+         early. Above the first section nothing is marked; the hero is not one
+         of the three and pretending otherwise would light Upcoming on load.
+
+         One listener for the life of the page, registered at startup. Calling
+         this from afterRender() instead would stack a fresh listener on every
+         repaint, and there is a repaint on every navigation. */
+      function syncSectionNav() {
+        const links = document.querySelectorAll("#nav-sections a[data-scroll]");
+        if (!links.length) return;
+        let active = null;
+        if (state.view === "home") {
+          const line = -NAV_OFFSET + sponsorReserve() + 8;
+          links.forEach((a) => {
+            const sec = el(a.dataset.scroll);
+            if (sec && sec.getBoundingClientRect().top <= line) active = a;
+          });
+        }
+        links.forEach((a) => {
+          const on = a === active;
+          a.classList[on ? "add" : "remove"](...NAV_ON);
+          a.classList[on ? "remove" : "add"]("text-muted");
+        });
+      }
       function navigate(view, opts = {}) {
         // The business dashboard folded into the advertiser one; anything still
         // asking for it lands on the merged dashboard rather than nowhere.
@@ -5012,7 +5117,6 @@
         document.body.dataset.view = view;
         root.innerHTML = map[view]();
         if (el("topAd-meta")) el("topAd-meta").innerHTML = adMeta("Bergen Aquatic Center");
-        const NAV_ON = ["text-brand", "bg-mint"];
         document.querySelectorAll("[data-navkey]").forEach((a) => {
           const on =
             a.dataset.navkey === state.view ||
@@ -10728,6 +10832,10 @@
         mountSideAd();
         // The slot this view offers the sponsor bar was just recreated.
         placeSponsorBar();
+        // The sections this reads are in the markup that was just written, and
+        // leaving the previous page's mark up until the first scroll would show
+        // the wrong one on arrival.
+        syncSectionNav();
       }
 
       function sideAdMarkup() {
@@ -11318,6 +11426,9 @@
       mountCornerAd();
       mountToTop();
       startEventAutoplay();
+      // Registered once, not per render — see syncSectionNav(). afterRender()
+      // makes the first call, so the bar is right before any scrolling starts.
+      window.addEventListener("scroll", syncSectionNav, { passive: true });
     </script>
   </body>
 </html>
