@@ -1374,66 +1374,77 @@
         position: relative;
       }
 
-      /* Outlined, not filled — the outline is what keeps three of these in a
-         row from reading as three buttons. What changed with the band is only
-         which end of the scale they are drawn at: a navy hairline and ink type
-         on the warm wash, where it used to be a white hairline and white type
-         on a dark one. The blur goes, having nothing left to settle now that
-         there is no photograph behind them.
+      /* ── "Trusted businesses" feature cards ─────────────────────
+         The three claims used to be .ta-pill chips on one wrapping row. With
+         three of them at these lengths the row broke two-and-one on every
+         width the page is actually read at, which reads as a mistake rather
+         than a layout. A three-column grid cannot break that way, and the
+         space it buys is what let the paragraph above shed three lines: the
+         detail that was buried in it now sits on the card it belongs to.
 
-         Radius 12, not 100: at this weight a full pill reads as a chunky
-         tag, while a near-square corner reads as a spec line. */
-      .ta-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.55rem;
-        padding: 0.5rem 0.95rem;
-        border-radius: 12px;
-        background: transparent;
+         Glass rather than a solid fill, because the band's whole character is
+         the warm wash behind it — an opaque card would punch three holes in
+         the gradient. Translucent white lets it through and still separates
+         the text from it.
+
+         Stated per theme rather than through --surface: what is needed is the
+         surface at partial alpha, and the token is opaque. On the dark page
+         the same 0.6 white would be three bright slabs, so it inverts to a
+         faint lift instead. */
+      .ta-feature {
+        text-align: left;
+        padding: 1.5rem 1.4rem;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.6);
         border: 1px solid var(--line);
-        color: var(--head);
-        font-size: var(--fs-sm);
-        font-weight: 600;
-        letter-spacing: -0.01em;
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
         transition:
-          border-color 0.25s ease,
-          background-color 0.25s ease,
-          color 0.25s ease;
+          transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+          background-color 0.3s ease,
+          border-color 0.3s ease,
+          box-shadow 0.3s ease;
       }
 
-      /* No lift and no shadow on hover — both would put back the weight
-         the outline just removed. The edge and the type simply come up. */
-      .ta-pill:hover {
+      [data-theme="dark"] .ta-feature {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .ta-feature:hover {
+        transform: translateY(-4px);
+        background: rgba(255, 255, 255, 0.85);
         border-color: var(--brand);
-        background-color: var(--mint);
-        color: var(--brand);
+        box-shadow: 0 18px 40px -22px rgba(26, 46, 74, 0.45);
       }
 
-      /* Bare tick, no disc. On the brand token now rather than the hero's aqua
-         highlight: aqua was picked to survive a dark photo in both themes, and
-         this band is the light wash in light mode. The token inverts with the
-         theme, which is exactly what is wanted here. */
-      .ta-check {
+      [data-theme="dark"] .ta-feature:hover {
+        background: rgba(255, 255, 255, 0.09);
+        box-shadow: 0 18px 40px -22px rgba(0, 0, 0, 0.7);
+      }
+
+      .ta-feature-ic {
         display: grid;
         place-items: center;
-        flex-shrink: 0;
+        width: 42px;
+        height: 42px;
+        border-radius: 13px;
+        background: var(--mint);
         color: var(--brand);
+        margin-bottom: 1rem;
       }
 
-      /* Slightly heavier than the 1.9 in ICON_BASE — with no disc behind
-         it the tick has to hold its own against the photo. Set here
-         rather than as a utility on the svg because an arbitrary
-         stroke-width class would tie with the base one on specificity;
-         two classes deep reliably wins. */
-      .ta-check .icon {
-        stroke-width: 2.4;
+      .ta-feature-t {
+        font-weight: 700;
+        font-size: var(--fs-base);
+        color: var(--head);
+        letter-spacing: -0.01em;
+        margin-bottom: 0.35rem;
       }
 
-      @media (max-width: 480px) {
-        .ta-pill {
-          font-size: var(--fs-sm);
-          padding: 0.45rem 0.8rem;
-        }
+      .ta-feature-d {
+        font-size: var(--fs-sm);
+        line-height: 1.6;
+        color: var(--muted);
       }
 
       /* ── Events slider ──────────────────────────────────────── */
@@ -1729,6 +1740,44 @@
       #site-nav.is-scrolled {
         border-bottom-color: rgba(26, 46, 74, 0.08);
         box-shadow: 0 8px 28px rgba(26, 46, 74, 0.09);
+      }
+
+      /* ── Current page ───────────────────────────────────────────
+         A rule under the word, in the amber accent. It replaces a filled mint
+         pill, which gave the current link a background none of its neighbours
+         had and made it the heaviest thing in a bar whose own job is to be
+         quiet. An underline marks the same thing using only the space the word
+         already occupies.
+
+         Amber rather than the brand green, because green is a state in this
+         bar rather than a decoration. The accent is used for nothing else up
+         here, which is what makes the mark unambiguous.
+
+         Hovering no longer paints anything behind a link — the mint pill went
+         with the selected one, since a hover that draws the shape the current
+         page used to wear is the same ambiguity from the other direction. All
+         hover does now is bring the word from muted up to ink, which is where
+         the current link already sits. That is why there is no rule for
+         .nav-on:hover: it would only restate the colour it already has.
+
+         Inset by the link's own 0.85rem padding so the rule measures the word
+         rather than the tap target — the anchors keep a generous hit area from
+         when they were pills, and a full-width rule would overhang the text at
+         both ends. */
+      #site-nav .nav-on {
+        position: relative;
+        color: var(--head);
+      }
+
+      #site-nav .nav-on::after {
+        content: "";
+        position: absolute;
+        left: 0.85rem;
+        right: 0.85rem;
+        bottom: 0.1rem;
+        height: 3px;
+        border-radius: 100px;
+        background: var(--sun);
       }
 
       /* ── Brand ──────────────────────────────────────────────────
@@ -3150,6 +3199,13 @@
           />
           <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
         </symbol>
+        <!-- Added for the app mockup's tab bar, which opens on Home. The set
+             had no house — the marketing site never needed one, since its own
+             nav says "Bergen Kids" and goes home by the wordmark. -->
+        <symbol id="ic-home" viewBox="0 0 24 24">
+          <path d="M3 9.2 12 2.4l9 6.8V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <path d="M9.2 22v-8.2h5.6V22" />
+        </symbol>
         <symbol id="ic-facebook" viewBox="0 0 24 24">
           <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
         </symbol>
@@ -3373,7 +3429,7 @@
       >
         <li>
           <a
-            class="no-underline text-muted text-base font-semibold transition-[color,background] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] rounded-[100px] inline-block whitespace-nowrap hover:text-brand hover:bg-mint"
+            class="no-underline text-muted text-base font-semibold transition-[color] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] inline-block whitespace-nowrap hover:text-head"
             data-nav="home"
             data-scroll="inside"
             >What's Inside</a
@@ -3381,7 +3437,7 @@
         </li>
         <li>
           <a
-            class="no-underline text-muted text-base font-semibold transition-[color,background] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] rounded-[100px] inline-block whitespace-nowrap hover:text-brand hover:bg-mint"
+            class="no-underline text-muted text-base font-semibold transition-[color] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] inline-block whitespace-nowrap hover:text-head"
             data-nav="home"
             data-scroll="events"
             >Upcoming</a
@@ -3389,7 +3445,7 @@
         </li>
         <li>
           <a
-            class="no-underline text-muted text-base font-semibold transition-[color,background] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] rounded-[100px] inline-block whitespace-nowrap hover:text-brand hover:bg-mint"
+            class="no-underline text-muted text-base font-semibold transition-[color] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] inline-block whitespace-nowrap hover:text-head"
             data-nav="home"
             data-scroll="plans"
             >Listing Plans</a
@@ -3402,7 +3458,7 @@
       >
         <li>
           <a
-            class="no-underline text-muted text-base font-semibold transition-[color,background] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] rounded-[100px] inline-block hover:text-brand hover:bg-mint"
+            class="no-underline text-muted text-base font-semibold transition-[color] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] inline-block hover:text-head"
             data-nav="directory"
             data-navkey="directory"
             >Directory</a
@@ -3410,7 +3466,7 @@
         </li>
         <li>
           <a
-            class="no-underline text-muted text-base font-semibold transition-[color,background] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] rounded-[100px] inline-block hover:text-brand hover:bg-mint"
+            class="no-underline text-muted text-base font-semibold transition-[color] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] inline-block hover:text-head"
             data-nav="calendar"
             data-navkey="calendar"
             >Events</a
@@ -3418,7 +3474,7 @@
         </li>
         <li>
           <a
-            class="no-underline text-muted text-base font-semibold transition-[color,background] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] rounded-[100px] inline-block hover:text-brand hover:bg-mint"
+            class="no-underline text-muted text-base font-semibold transition-[color] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] inline-block hover:text-head"
             data-nav="articles"
             data-navkey="articles"
             >Articles</a
@@ -5160,7 +5216,11 @@
       // The mint pill that marks the current page in the nav. Shared, because
       // the section anchors below now light up the same way the page links do
       // — two different rules for "you are here" in one bar reads as a bug.
-      const NAV_ON = ["text-brand", "bg-mint"];
+      // One class now, styled in the stylesheet, rather than two utilities that
+      // painted a filled mint pill. Both the page links and the home-section
+      // anchors mark themselves with this, so the rule is the only place the
+      // "you are here" treatment is described.
+      const NAV_ON = ["nav-on"];
       /* ── Which home section you are in ──────────────────────────
          What's Inside / Upcoming / Listing Plans scroll to #inside, #events
          and #plans rather than routing anywhere, so render() never marked
@@ -5496,13 +5556,49 @@
           </section>
 
           <section class="ta-band warm-band px-[clamp(1rem,5vw,7rem)] py-24 max700:py-16 max380:px-4">
+            <!-- An eyebrow, as every other band on this page has. It was the
+                 one section that opened cold on a headline, which is part of
+                 why it read flatter than the rest. -->
             <div class="relative z-[1] mx-auto w-full max-w-[760px] text-center" data-rv-stagger="120">
+              <div class="inline-flex items-center gap-2 rounded-[100px] bg-mint px-[0.85rem] py-[0.35rem] text-xs font-extrabold tracking-[0.1em] uppercase text-brand mb-4">${icon("verified", 13)} Why Bergen Kids</div>
               <h3 class="font-serif text-display-2 font-black text-head mb-[0.9rem] leading-[1.15] tracking-[-0.02em] text-balance">Trusted businesses, gathered for Bergen families.</h3>
-              <p class="text-muted text-lg leading-[1.7] mb-9 text-pretty">Bergen Kids brings the county's classes, camps, events, and kids' services into one place — every listing from a real local business, organized town by town and kept current by our team. No more digging through ten Facebook groups to find a swim class or a Saturday story time. Just what's near you, free for every family.</p>
-              <ul class="list-none flex flex-wrap justify-center gap-3">
-                ${["Verified local business listings", "Events alongside listings", "Organized, structured and searchable"].map((t) => `<li class="ta-pill"><span class="ta-check">${icon("check", 14)}</span>${t}</li>`).join("")}
-              </ul>
+              <!-- Cut from five lines to two. Nothing was dropped — the swim
+                   class, the Saturday story time and the ten Facebook groups
+                   all moved down onto the card that makes each of those
+                   points, where they are read rather than skimmed past. -->
+              <p class="text-muted text-lg leading-[1.7] text-pretty max-w-[58ch] mx-auto">Every listing comes from a real local business, organized town by town and kept current by our team.</p>
             </div>
+
+            <!-- Three columns, never two-and-one: with three items a grid holds
+                 its shape where a wrapping flex row does not. -->
+            <div class="relative z-[1] mx-auto w-full max-w-[1000px] mt-12 grid grid-cols-3 gap-4 max900:grid-cols-1 max900:max-w-[520px] max700:mt-9" data-rv-stagger="90">
+              ${[
+                [
+                  "verified",
+                  "Verified listings",
+                  "Every business is a real Bergen County business, checked by our team before it goes live.",
+                ],
+                [
+                  "calendar",
+                  "Events alongside",
+                  "Story times, clinics, camps and festivals sit next to the businesses running them.",
+                ],
+                [
+                  "search",
+                  "Built to be searched",
+                  "Filter by town, age and category — instead of digging through ten Facebook groups.",
+                ],
+              ]
+                .map(
+                  ([ic, t, d]) => `<div class="ta-feature">
+                <span class="ta-feature-ic">${icon(ic, 19)}</span>
+                <div class="ta-feature-t">${t}</div>
+                <div class="ta-feature-d">${d}</div>
+              </div>`
+                )
+                .join("")}
+            </div>
+
           </section>
 
           <section id="events" class="ev-band px-[clamp(1rem,5vw,7rem)] py-20 max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
@@ -5670,90 +5766,101 @@
                   <div class="relative rounded-[42px] overflow-hidden bg-cream h-[600px] max560:h-[560px]">
                     <div class="absolute top-[10px] left-1/2 -translate-x-1/2 w-[92px] h-[27px] rounded-[100px] bg-black z-[6] flex items-center justify-end pr-[9px]"><span class="w-[8px] h-[8px] rounded-full bg-[#1d2b3d]"></span></div>
 
-                    <div class="bg-[linear-gradient(150deg,#20643d_0%,#14685a_100%)] px-4 pt-[14px] pb-4 text-white">
+                    <!-- The screen inside the handset is the real app's Home
+                         tab, rebuilt from bergen-kids-app.vercel.app rather
+                         than invented for the marketing page. What was here
+                         before promised a product that does not exist: a dark
+                         green header, a "Hi, let's explore" greeting, filter
+                         chips reading Camps/Classes/Sports, a "Near you" list
+                         with walking distances, and a Discover/Events/Saved/Me
+                         tab bar. The app has none of those.
+
+                         The header is the biggest correction. The app's Home
+                         has no coloured bar at all — it opens on cream with a
+                         faint mint wash falling out of the top, which is why
+                         the status bar is dark type here instead of white.
+
+                         Categories and events come from CATEGORIES and EVENTS,
+                         the arrays the rest of this page already renders from,
+                         so the mockup cannot drift from the product the way a
+                         hardcoded "Little Kickers Soccer" did. -->
+                    <div class="bg-[linear-gradient(180deg,#e8f4ec_0%,var(--cream)_100%)] px-4 pt-[14px] pb-4 text-head">
                       <div class="flex justify-between items-center text-xs font-bold h-[27px] mb-[6px]">
                         <span class="pl-[6px]">9:41</span>
                         <span class="flex items-center gap-[4px] pr-[6px]">
                           <svg width="15" height="10" viewBox="0 0 16 11" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="2.6" height="3.6" rx="0.7"/><rect x="4" y="5" width="2.6" height="5.6" rx="0.7"/><rect x="8" y="2.6" width="2.6" height="8" rx="0.7"/><rect x="12" y="0" width="2.6" height="10.6" rx="0.7"/></svg>
                           <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor" aria-hidden="true"><path d="M7 9.6 5.1 7.5a2.8 2.8 0 0 1 3.8 0zM2.6 5a6.4 6.4 0 0 1 8.8 0l-1.3 1.4a4.5 4.5 0 0 0-6.2 0zM0 2.4a10 10 0 0 1 14 0l-1.3 1.4a8.1 8.1 0 0 0-11.4 0z"/></svg>
-                          <span class="inline-flex items-center gap-[2px]"><span class="w-[17px] h-[9px] rounded-[3px] border border-white/60 p-[1.5px]"><span class="block w-[70%] h-full rounded-[1px] bg-surface"></span></span><span class="w-[1px] h-[3px] rounded-r bg-white/60"></span></span>
+                          <span class="inline-flex items-center gap-[2px]"><span class="w-[17px] h-[9px] rounded-[3px] border border-head/40 p-[1.5px]"><span class="block w-[70%] h-full rounded-[1px] bg-head"></span></span><span class="w-[1px] h-[3px] rounded-r bg-head/40"></span></span>
                         </span>
                       </div>
                       <div class="flex items-center justify-between mb-[10px]">
-                        <div>
-                          <div class="text-2xs font-bold uppercase tracking-[0.1em] text-mint-2">Bergen County, NJ</div>
-                          <div class="font-serif text-lg font-black leading-[1.2]">Hi, let's explore</div>
+                        <div class="min-w-0">
+                          <div class="text-2xs font-bold text-muted leading-tight">Hi Sarah 👋</div>
+                          <div class="font-serif text-base font-bold text-head leading-tight tracking-[-0.01em] mt-[1px]">Find the best for your kids</div>
                         </div>
-                        <span class="relative w-[32px] h-[32px] rounded-full bg-white/15 grid place-items-center">${icon("bell", 15)}<span class="absolute top-[6px] right-[7px] w-[6px] h-[6px] rounded-full bg-sun"></span></span>
+                        <span class="relative w-[32px] h-[32px] rounded-full bg-surface shadow-[0_2px_8px_rgba(26,46,74,0.1)] grid place-items-center shrink-0 text-head">${icon("bell", 15)}<span class="absolute top-[6px] right-[7px] w-[6px] h-[6px] rounded-full bg-sun"></span></span>
                       </div>
-                      <div class="flex items-center gap-2 bg-surface rounded-[100px] px-[0.85rem] py-[0.55rem] text-muted text-sm">
-                        <span class="text-brand leading-[0]">${icon("search", 14)}</span>Search camps, classes, care…
+                      <div class="flex items-center gap-2 bg-surface rounded-[16px] px-[0.85rem] py-[0.7rem] text-muted text-sm shadow-[0_2px_10px_rgba(26,46,74,0.07)]">
+                        <span class="text-brand leading-[0]">${icon("search", 14)}</span>Search pediatricians, classes…
                       </div>
                     </div>
 
-                    <div class="px-4 pt-4">
-                      <div class="flex gap-[0.4rem] mb-4 overflow-hidden">
-                        ${[
-                          ["Camps", true],
-                          ["Classes", false],
-                          ["Sports", false],
-                          ["Care", false],
-                        ]
+                    <div class="px-4 pt-[0.9rem]">
+                      <div class="text-sm font-bold text-head mb-[0.6rem]">Browse categories</div>
+                      <!-- Four across, square tinted tiles, and only the first
+                           word of each category name — "Medical", not "Medical
+                           & Health". That is the app's own rule; at this tile
+                           width the full name wraps to three lines. -->
+                      <div class="grid grid-cols-4 gap-x-[0.6rem] gap-y-[0.7rem] mb-[1.1rem]">
+                        ${CATEGORIES.slice(0, 8)
                           .map(
-                            ([t, on]) =>
-                              `<span class="text-xs font-bold px-[0.7rem] py-[0.35rem] rounded-[100px] whitespace-nowrap ${on ? "bg-logo-green text-white" : "bg-surface text-muted border border-line2"}">${t}</span>`
+                            (c) => `<div class="flex flex-col items-center gap-[0.35rem]">
+                          <span class="w-full aspect-square rounded-[16px] grid place-items-center text-head shadow-[0_2px_8px_rgba(26,46,74,0.07)]" style="background:${c.tint}">${icon(c.icon, 18)}</span>
+                          <span class="text-[9px] font-bold text-head text-center leading-tight">${c.name.split(" ")[0]}</span>
+                        </div>`
                           )
                           .join("")}
                       </div>
+
                       <div class="flex items-baseline justify-between mb-[0.6rem]">
-                        <span class="font-serif text-base font-black text-head">Near you</span>
+                        <span class="text-sm font-bold text-head">Upcoming events</span>
                         <span class="text-2xs font-bold text-brand">See all</span>
                       </div>
-                      ${[
-                        [
-                          "1526232761682-d26e03ac148e",
-                          "Little Kickers Soccer",
-                          "Ridgewood · 1.2 mi",
-                          "Ages 3–10",
-                        ],
-                        [
-                          "1499892477393-f675706cbe6e",
-                          "Bergen Art Studio",
-                          "Tenafly · 2.4 mi",
-                          "Ages 5–14",
-                        ],
-                        [
-                          "1600965962361-9035dbfd1c50",
-                          "Splash Swim School",
-                          "Paramus · 3.1 mi",
-                          "Ages 2–12",
-                        ],
-                      ]
-                        .map(
-                          ([
-                            im,
-                            n,
-                            loc,
-                            r,
-                          ]) => `<div class="flex gap-[0.7rem] items-center bg-surface rounded-[14px] p-[0.5rem] mb-[0.55rem] shadow-[0_2px_10px_rgba(26,46,74,0.07)] border border-line2">
-                        <img src="https://images.unsplash.com/photo-${im}?auto=format&fit=crop&w=160&q=70" alt="" loading="lazy" class="w-[52px] h-[52px] rounded-[10px] object-cover shrink-0">
+                      <!-- A row, not a poster — the app moved off full-bleed
+                           cards because two of them filled the phone. The date
+                           rides on the thumbnail so the line beside it is free
+                           for the things that decide whether an event is for
+                           your family: town and age band. -->
+                      ${EVENTS.slice(0, 3)
+                        .map((e) => {
+                          const d = new Date(e.date + "T00:00");
+                          return `<div class="flex gap-[0.7rem] items-center bg-surface rounded-[14px] p-[0.5rem] mb-[0.55rem] shadow-[0_2px_10px_rgba(26,46,74,0.07)] border border-line2">
+                        <div class="relative w-[52px] h-[52px] rounded-[10px] overflow-hidden shrink-0" style="background:${catOf(e.cat).grad}">
+                          <img src="${evImg(e.id, 160)}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">
+                          <div class="absolute inset-x-0 bottom-0 text-center text-white text-[8px] font-extrabold leading-[1.5] bg-[rgba(26,46,74,0.74)]">${MONTHS[d.getMonth()].toUpperCase()} ${d.getDate()}</div>
+                        </div>
                         <div class="min-w-0 flex-1">
-                          <div class="text-sm font-bold text-head truncate">${n}</div>
-                          <div class="text-2xs text-muted truncate">${loc}</div>
-                          <div class="flex items-center gap-[0.25rem] text-2xs font-bold text-brand mt-[2px]">${icon("users", 10)}${r}</div>
+                          <div class="text-sm font-bold text-head truncate">${e.name}</div>
+                          <div class="text-2xs text-muted truncate">${e.town}</div>
+                          <div class="flex items-center gap-[0.25rem] text-2xs font-bold text-brand mt-[2px]">${icon("users", 10)}Ages ${e.ageMin}–${e.ageMax}</div>
                         </div>
                         <span class="text-mint-2 leading-[0] shrink-0">${icon("chev-right", 15)}</span>
-                      </div>`
-                        )
+                      </div>`;
+                        })
                         .join("")}
                     </div>
 
                     <div class="absolute bottom-0 inset-x-0 bg-surface backdrop-blur-md border-t border-line2 px-3 pt-[0.55rem] pb-[0.8rem] flex justify-around items-center">
+                      <!-- The app's parent tabs, in its order: Home, Articles,
+                           Events, Profile. The old set — Discover, Events,
+                           Saved, Me — matched nothing in the product. There is
+                           no Saved tab, and Articles, which is a whole section
+                           of the app, was missing from the picture entirely. -->
                       ${[
-                        ["search", "Discover", true],
+                        ["home", "Home", true],
+                        ["book", "Articles", false],
                         ["calendar", "Events", false],
-                        ["heart", "Saved", false],
-                        ["user", "Me", false],
+                        ["user", "Profile", false],
                       ]
                         .map(
                           ([ic, t, on]) =>
