@@ -1670,73 +1670,10 @@
          photograph went behind the whole page: a translucent bar tints itself
          with whatever it is passing over, and the header was coming out
          grey-green over the trees. It is opaque at both ends now, so the
-         backdrop scrolls under it without touching it.
-
-         Both values read light-on-dark now that the bar carries the footer's
-         fill — see below. The navy pair they replaced was mixed against white:
-         on a near-black bar the hairline vanished outright and the shadow had
-         nothing left to darken. */
+         backdrop scrolls under it without touching it. */
       #site-nav.is-scrolled {
-        border-bottom-color: rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
-      }
-
-      /* ── Dark header ────────────────────────────────────────────
-         The bar takes the footer's fill, #161024, so the page opens and closes
-         on the same colour instead of running white at the top and near-black
-         at the bottom.
-
-         An id selector because the fill is `bg-white` on the element itself,
-         and a utility class cannot be beaten by anything weaker. That also
-         settles the 900px variant, which restates the same white — one rule
-         covers both widths.
-
-         Dark mode is untouched. `[data-theme="dark"] #site-nav` further down
-         is (1,1,0) to this rule's (1,0,0), so the dark page keeps its own
-         #10151c and does not inherit the purple. */
-      #site-nav {
-        background-color: #161024;
-      }
-
-      /* The 900px bar sets its own navy shadow inline, for the width where the
-         nav is a solid strip rather than a hairline. Same problem, same fix. */
-      @media (max-width: 900px) {
-        #site-nav {
-          box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
-        }
-      }
-
-      /* The bare text on the bar — the section anchors and the nav links — was
-         `text-muted`, a grey mixed for white behind it. On-dark tokens instead,
-         the same pair the footer sets its links in, so the two ends of the page
-         match in weight and not just in hue.
-
-         Their hover is left alone deliberately: `hover:bg-mint` with
-         `hover:text-brand` is a light mint pill with dark green text, which
-         needs no dark-mode variant to stay legible, and it is the same shape
-         NAV_ON paints on the active link. */
-      #site-nav #nav-sections a,
-      #site-nav #nav-links a {
-        color: var(--on-dark-3);
-      }
-
-      /* .text-brand is what setNav() paints on the link for the current page,
-         via NAV_ON. It is a single class, so the rule above would have beaten
-         it and left the active link grey on its mint pill — the one link on
-         the bar that has to be legible. Restated here at a weight that wins,
-         alongside the hover it shares a colour with. */
-      #site-nav #nav-sections a:hover,
-      #site-nav #nav-links a:hover,
-      #site-nav #nav-sections a.text-brand,
-      #site-nav #nav-links a.text-brand {
-        color: var(--brand);
-      }
-
-      /* The wordmark only renders when the logo image 404s, but that is exactly
-         when it has to be readable. Its "Kids" and "." spans set their own
-         colours and keep them — green and yellow both hold on this fill. */
-      #site-nav .brand-text {
-        color: var(--on-dark);
+        border-bottom-color: rgba(26, 46, 74, 0.08);
+        box-shadow: 0 8px 28px rgba(26, 46, 74, 0.09);
       }
 
       /* ── Brand ──────────────────────────────────────────────────
@@ -1998,7 +1935,7 @@
         top: 152px;
         left: clamp(1rem, 5vw, 7rem);
         right: clamp(1rem, 5vw, 7rem);
-        max-width: 1040px;
+        max-width: 1240px;
         margin-inline: auto;
         z-index: 60;
         border-radius: 18px;
@@ -2442,11 +2379,17 @@
       /* Bubbles and stars rising from below the fold to above it. Each element
          sets its own left / size / duration / delay inline so they never march
          in step. */
+      /* The two neutral shapes are drawn in --line rather than a fixed white at
+         low alpha. White was safe while the footer was permanently near-black;
+         on the light footer it is invisible, and the token is already the pair
+         of values this needs — navy at 0.14 on the light page, white at 0.14 on
+         the dark one. The amber pair below carries its own colour and reads on
+         either, lifted slightly because 0.4 over white was going to vanish. */
       .footer-bit {
         position: absolute;
         bottom: -40px;
         border-radius: 50%;
-        border: 1.5px solid rgba(255, 255, 255, 0.16);
+        border: 1.5px solid var(--line);
         animation-name: fxRise;
         animation-timing-function: linear;
         animation-iteration-count: infinite;
@@ -2455,17 +2398,32 @@
 
       .footer-bit--dot {
         border: none;
-        background: rgba(255, 255, 255, 0.16);
+        background: var(--line);
       }
 
       .footer-bit--sun {
-        border-color: rgba(245, 166, 35, 0.4);
+        border-color: rgba(245, 166, 35, 0.55);
       }
 
       .footer-bit--star {
         border: none;
         border-radius: 0;
-        color: rgba(245, 166, 35, 0.42);
+        color: rgba(245, 166, 35, 0.6);
+      }
+
+      /* A second tint for the icon drift, so a set this size does not read as
+         one amber colour repeated. Stated per theme rather than through --grass
+         because what is needed is the colour at low alpha, and the token is
+         opaque: the light page wants the deep green faint, the dark page wants
+         the mint one. */
+      .footer-bit--sprout {
+        border: none;
+        border-radius: 0;
+        color: rgba(45, 122, 79, 0.45);
+      }
+
+      [data-theme="dark"] .footer-bit--sprout {
+        color: rgba(108, 196, 143, 0.4);
       }
 
       @keyframes fxRise {
@@ -2979,6 +2937,29 @@
     <!-- ICON SPRITE -->
     <svg width="0" height="0" style="position: absolute" aria-hidden="true">
       <defs>
+        <!-- Instagram's mark is a gradient, not a flat colour, so the footer's
+             instagram icon strokes itself with this rather than a `color:`.
+             Defined here beside the symbols because a paint server resolves
+             document-wide: the icon that references it is a different <svg>
+             element entirely, and url(#ig-brand) still finds it.
+
+             userSpaceOnUse with an explicit 24-unit box, matching the symbols'
+             viewBox. The default, objectBoundingBox, would resolve against each
+             stroked path's own bounds — the camera dot alone is a couple of
+             units across — and every part of the icon would restart the ramp
+             instead of sharing one across the whole mark. -->
+        <linearGradient
+          id="ig-brand"
+          gradientUnits="userSpaceOnUse"
+          x1="2"
+          y1="22"
+          x2="22"
+          y2="2"
+        >
+          <stop offset="0" stop-color="#f9ce34" />
+          <stop offset="0.5" stop-color="#ee2a7b" />
+          <stop offset="1" stop-color="#6228d7" />
+        </linearGradient>
         <symbol id="ic-stethoscope" viewBox="0 0 24 24">
           <path
             d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6 6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.3.3 0 1 0 .2.3"
@@ -3520,14 +3501,19 @@
     </div>
 
     <!-- FOOTER -->
-    <footer class="bg-[#161024] px-[clamp(1rem,5vw,7rem)] pt-20 pb-8 text-on-dark-3 max700:pt-14">
+    <!-- bg-surface, not a literal white: it is #ffffff on the light page and
+         #181f29 on the dark one, so the footer follows the theme. The fill it
+         replaced was a hardcoded #161024, which stayed near-black in both and
+         forced every colour below it to be written for dark. Those are all
+         tokens now for the same reason. -->
+    <footer class="bg-surface px-[clamp(1rem,5vw,7rem)] pt-20 pb-8 text-muted max700:pt-14">
       <!-- Decorative motion layer. Sits behind the columns, which are lifted
            onto z-[1] so they paint over it. -->
-      <!-- Five drifting shapes, down from ten. The old set was seven plain
-           circles plus three stars: at that density it read as static noise
-           behind the columns rather than anything intentional. Fewer, spread
-           wider, and three of them now say what the site is about — a
-           football, a music note, a star — instead of being more circles. -->
+      <!-- Eleven drifting shapes: two neutral bubbles and nine icons. An older
+           set of ten was cut to five because it read as static noise, but the
+           problem was seven of them being plain circles, not the count. Nearly
+           all of these name something the site lists, which is what lets the
+           layer carry this many without going back to noise. -->
       <div class="footer-fx" aria-hidden="true">
         <span
           class="footer-bit footer-bit--sun"
@@ -3567,6 +3553,64 @@
         >
           <use href="#ic-star" />
         </svg>
+        <!-- Six more, all icons rather than more circles. The set was cut to
+             five once before because ten plain bubbles read as static noise;
+             what fixed that was not the count but what they were, so the
+             additions each name something the site actually lists — a camp, a
+             swim class, an art class, tutoring, school, a birthday party.
+
+             No two share a left, a size, a duration or a delay, which is what
+             keeps them from rising in step and re-reading as a pattern. They
+             are threaded between the existing five rather than appended after
+             them, so the drift stays spread across the full width. -->
+        <svg
+          class="icon footer-bit footer-bit--sprout [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:1.6] fill-none stroke-current"
+          style="left: 5%; animation-duration: 31s; animation-delay: -17s"
+          width="17"
+          height="17"
+        >
+          <use href="#ic-tent" />
+        </svg>
+        <svg
+          class="icon footer-bit footer-bit--star [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:1.6] fill-none stroke-current"
+          style="left: 20%; animation-duration: 24s; animation-delay: -9s"
+          width="15"
+          height="15"
+        >
+          <use href="#ic-cake" />
+        </svg>
+        <svg
+          class="icon footer-bit footer-bit--sprout [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:1.6] fill-none stroke-current"
+          style="left: 36%; animation-duration: 28s; animation-delay: -2s"
+          width="19"
+          height="19"
+        >
+          <use href="#ic-waves" />
+        </svg>
+        <svg
+          class="icon footer-bit footer-bit--star [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:1.6] fill-none stroke-current"
+          style="left: 54%; animation-duration: 35s; animation-delay: -24s"
+          width="16"
+          height="16"
+        >
+          <use href="#ic-palette" />
+        </svg>
+        <svg
+          class="icon footer-bit footer-bit--sprout [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:1.6] fill-none stroke-current"
+          style="left: 74%; animation-duration: 20s; animation-delay: -15s"
+          width="18"
+          height="18"
+        >
+          <use href="#ic-book" />
+        </svg>
+        <svg
+          class="icon footer-bit footer-bit--star [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:1.6] fill-none stroke-current"
+          style="left: 94%; animation-duration: 26s; animation-delay: -7s"
+          width="17"
+          height="17"
+        >
+          <use href="#ic-cap" />
+        </svg>
       </div>
       <div
         class="relative z-[1] grid grid-cols-[2fr_1fr_1fr_1fr] gap-x-10 gap-y-12 pb-14 max-w-[1400px] mx-auto max900:grid-cols-[1fr_1fr] max900:gap-y-10 max700:grid-cols-[1fr] max700:gap-y-9 max700:pb-10"
@@ -3586,8 +3630,8 @@
               "
             />
             <span
-              class="brand-text font-serif font-black text-2xl text-white tracking-[-0.02em] whitespace-nowrap max560:text-xl"
-              >Bergen<span class="text-[#6cc48f]">Kids</span
+              class="brand-text font-serif font-black text-2xl text-head tracking-[-0.02em] whitespace-nowrap max560:text-xl"
+              >Bergen<span class="text-grass">Kids</span
               ><em class="not-italic text-sun">.</em></span
             >
           </div>
@@ -3595,16 +3639,16 @@
             The hyper-local platform connecting Bergen County families with trusted kids' services,
             activities, and events.
           </p>
-          <p class="text-base font-bold text-white leading-[1.6]">
+          <p class="text-base font-bold text-head leading-[1.6]">
             Serving all 70 towns in Bergen County, NJ
           </p>
         </div>
         <div class="footer-col">
-          <h4 class="text-base font-bold text-white mb-5">Parent</h4>
+          <h4 class="text-base font-bold text-head mb-5">Parent</h4>
           <ul class="list-none">
             <li>
               <a
-                class="text-on-dark-3 text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
+                class="text-muted text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-brand"
                 data-nav="directory"
                 data-authgate
                 >Directory</a
@@ -3612,7 +3656,7 @@
             </li>
             <li>
               <a
-                class="text-on-dark-3 text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
+                class="text-muted text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-brand"
                 data-nav="calendar"
                 data-authgate
                 >Events</a
@@ -3620,7 +3664,7 @@
             </li>
             <li>
               <a
-                class="text-on-dark-3 text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
+                class="text-muted text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-brand"
                 data-nav="articles"
                 data-authgate
                 >Articles &amp; Guides</a
@@ -3629,11 +3673,11 @@
           </ul>
         </div>
         <div class="footer-col">
-          <h4 class="text-base font-bold text-white mb-5">Business/Advertiser</h4>
+          <h4 class="text-base font-bold text-head mb-5">Business/Advertiser</h4>
           <ul class="list-none">
             <li>
               <a
-                class="text-on-dark-3 text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
+                class="text-muted text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-brand"
                 data-nav="advertiser"
                 data-dashtab="add"
                 >Add a Listing</a
@@ -3641,7 +3685,7 @@
             </li>
             <li>
               <a
-                class="text-on-dark-3 text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
+                class="text-muted text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-brand"
                 data-nav="home"
                 data-scroll="plans"
                 >Listing Plans</a
@@ -3649,7 +3693,7 @@
             </li>
             <li>
               <a
-                class="text-on-dark-3 text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
+                class="text-muted text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-brand"
                 data-nav="advertiser"
                 data-authcommon
                 data-advtab="create"
@@ -3659,26 +3703,61 @@
           </ul>
         </div>
         <div class="footer-col">
-          <h4 class="text-base font-bold text-white mb-5">Stay In Touch</h4>
+          <h4 class="text-base font-bold text-head mb-5">Stay In Touch</h4>
           <ul class="list-none">
+            <!-- The three social links carry their platform's own colour.
+                 inline-flex rather than inline-block, so the icon and the word
+                 sit on one baseline-centred row instead of the icon dropping to
+                 the text baseline.
+
+                 Each icon sets `color` inline and is stroked with
+                 `stroke-current`, which also means the anchor's hover:text-brand
+                 moves the label alone and leaves the mark its own colour — a
+                 brand icon that turns green on hover stops being the brand
+                 icon. shrink-0 keeps them circular if a column ever narrows
+                 enough to wrap the label. -->
             <li>
               <a
-                class="text-on-dark-3 text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
+                class="text-muted text-base no-underline cursor-pointer transition-[color] duration-200 inline-flex items-center gap-[0.55rem] py-[0.32rem] min-h-[32px] hover:text-brand"
                 data-adclick="Facebook"
+                ><svg
+                  class="icon shrink-0 [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:1.9] fill-none stroke-current"
+                  style="color: #1877f2"
+                  width="17"
+                  height="17"
+                  aria-hidden="true"
+                >
+                  <use href="#ic-facebook" /></svg
                 >Facebook</a
               >
             </li>
             <li>
               <a
-                class="text-on-dark-3 text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
+                class="text-muted text-base no-underline cursor-pointer transition-[color] duration-200 inline-flex items-center gap-[0.55rem] py-[0.32rem] min-h-[32px] hover:text-brand"
                 data-adclick="Instagram"
+                ><svg
+                  class="icon shrink-0 [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:1.9] fill-none"
+                  stroke="url(#ig-brand)"
+                  width="17"
+                  height="17"
+                  aria-hidden="true"
+                >
+                  <use href="#ic-instagram" /></svg
                 >Instagram</a
               >
             </li>
             <li>
               <a
-                class="text-on-dark-3 text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-white"
+                class="text-muted text-base no-underline cursor-pointer transition-[color] duration-200 inline-flex items-center gap-[0.55rem] py-[0.32rem] min-h-[32px] hover:text-brand"
                 data-adclick="Twitter"
+                ><svg
+                  class="icon shrink-0 [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:1.9] fill-none stroke-current"
+                  style="color: #1da1f2"
+                  width="17"
+                  height="17"
+                  aria-hidden="true"
+                >
+                  <use href="#ic-twitter" /></svg
                 >Twitter</a
               >
             </li>
@@ -3686,22 +3765,22 @@
         </div>
       </div>
       <div
-        class="relative z-[1] flex justify-between items-center gap-x-8 gap-y-3 text-sm flex-wrap max-w-[1400px] mx-auto pt-7 border-t border-t-white/[0.08] text-on-dark-3 max700:justify-center max700:text-center"
+        class="relative z-[1] flex justify-between items-center gap-x-8 gap-y-3 text-sm flex-wrap max-w-[1400px] mx-auto pt-7 border-t border-t-line text-muted max700:justify-center max700:text-center"
       >
         <span>© 2026 Bergen Kids. All rights reserved.</span>
         <span class="flex items-center gap-7">
           <a
-            class="text-on-dark-3 no-underline cursor-pointer transition-[color] duration-200 hover:text-white"
+            class="text-muted no-underline cursor-pointer transition-[color] duration-200 hover:text-brand"
             data-adclick="About"
             >About</a
           >
           <a
-            class="text-on-dark-3 no-underline cursor-pointer transition-[color] duration-200 hover:text-white"
+            class="text-muted no-underline cursor-pointer transition-[color] duration-200 hover:text-brand"
             data-adclick="Privacy"
             >Privacy</a
           >
           <a
-            class="text-on-dark-3 no-underline cursor-pointer transition-[color] duration-200 hover:text-white"
+            class="text-muted no-underline cursor-pointer transition-[color] duration-200 hover:text-brand"
             data-adclick="Terms"
             >Terms</a
           >
