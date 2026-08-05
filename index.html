@@ -393,22 +393,44 @@
          results, dashboards, forms — whose cards and tables assume flat cream
          behind them, and a photograph under those is noise, not atmosphere.
 
-         Children painting together at a table under trees: kids at every crop,
-         wide, and soft enough in the greens not to fight the interface sitting
-         on it. The ball-field photo that was here is also the picture in the
-         "verified business" band further down the page — as a full-page
-         backdrop it put the same image on screen twice.
+         Ten children holding a parachute open over a meadow: kids at every
+         crop, spread across the full width of the frame rather than clustered
+         in the middle, which is what a backdrop needs — any viewport, any
+         crop, there is a child in it. The ball-field photo that was here
+         originally is also the picture in the "verified business" band further
+         down the page — as a full-page backdrop it put the same image on
+         screen twice.
 
-         42%, not `center` and not `bottom`. The faces sit just above the middle
-         of the frame and the lower third is a sheet of white paper on a white
-         table. Biasing the crop up holds the children in the visible band on a
-         wide viewport and keeps that bright expanse mostly out of it, which
-         matters because the white .band-copy text is what sits over this.
+         Cropped to 16:9 before it was saved, off a 6428x4286 original, taking
+         the cut out of the sky at the top: `rect=0,670,6428,3616`. Two reasons.
+         The top third of the frame as shot is open sky, and sky is the one
+         thing white .band-copy text cannot sit on. And 16:9 is the aspect most
+         desktop viewports already are, so `cover` has almost nothing left to
+         crop and the composition survives to the screen intact. The cut stops
+         just above the parachute — going further would clip it, and the
+         parachute is the picture.
+
+         40% rather than `center` for what little vertical crop is left. On a
+         16:9 viewport there is none at all. Where the viewport is wider than
+         16:9 — and on a portrait phone, where `cover` crops horizontally and
+         this number does nothing — biasing up takes the trim out of the
+         foreground grass instead of off the parachute.
 
          No wash over it — full strength, as asked for. Worth knowing what that
-         costs: the copy that sits straight on the page rather than on a card,
-         which is the "What's Inside" and events headings, is reading against a
-         photograph. That is what .band-copy answers.
+         costs, because it costs more here than under any photo that came
+         before: this one is bright and saturated nearly everywhere. Blue sky
+         top left and right, primary red and yellow across the middle, sunlit
+         grass below. The copy that sits straight on the page rather than on a
+         card — the "What's Inside" and events headings — is white against
+         that, and .band-copy's dark halo is the only thing carrying it. If any
+         of it reads thin, a scrim over this rule is the fix, not a smaller
+         photo.
+
+         The file is served from assets/ rather than hotlinked off a CDN: this
+         is the one image the whole home page is built on, and a backdrop that
+         fails to load leaves white text on cream. 2560 wide at q=76 — sized
+         for the clarity a full-bleed backdrop needs without paying for pixels
+         no display will resolve.
 
          z-index -1 keeps it above the page's own background and beneath every
          bit of content, so nothing existing had to be lifted onto a layer to
@@ -419,9 +441,9 @@
         inset: 0;
         z-index: -1;
         pointer-events: none;
-        background-image: url("https://plus.unsplash.com/premium_photo-1686920245809-f045740b6086?auto=format&fit=crop&w=1920&q=80");
+        background-image: url("assets/home-backdrop.jpg");
         background-size: cover;
-        background-position: center 42%;
+        background-position: center 40%;
         background-repeat: no-repeat;
       }
 
