@@ -946,6 +946,17 @@
         color: var(--cream);
       }
 
+      /* Colour variants live here rather than as a Tailwind `text-*` class on
+         the call site. A utility ties with .section-torn on specificity, so
+         the winner would come down to whether the CDN injects its sheet
+         before or after this block — and it injects from the script tag at
+         the top of <head>, which is before. The component rule would win and
+         the edge would silently keep the default. Declaring the variant below
+         the base rule in the same stylesheet makes it order-independent. */
+      .section-torn--surface {
+        color: var(--surface);
+      }
+
       /* ── Hero feature strip ─────────────────────────────────────
          Four category shortcuts on one card that floats over the foot of
          the hero. It used to be a full-bleed white band with a torn-paper
@@ -4627,7 +4638,7 @@
                 : ""
             }
             <span class="flex-1 max560:hidden"></span>
-            <button class="text-base font-bold text-muted underline underline-offset-[3px] bg-transparent border-none cursor-pointer min-h-[44px] px-2 hover:text-head" data-action="onboard-skip">${last ? "Skip and finish" : "Skip for now"}</button>
+            <button class="text-base font-bold text-muted underline underline-offset-[3px] bg-transparent border-none cursor-pointer min-h-[44px] px-2 hover:text-head" data-action="onboard-skip">${last ? "Skip" : "Skip for now"}</button>
             <button class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep" data-action="onboard-next">${last ? `${icon("check", 16)} Done` : `Continue ${icon("arrow-right", 16)}`}</button>
           </div>`;
       }
@@ -5074,6 +5085,10 @@
               <div class="ev-track" id="ev-track">${evPrev.map((e, i) => `<div class="ev-slide">${eventCard(e, i)}</div>`).join("")}${evPrev.map((e, i) => `<div class="ev-slide" aria-hidden="true">${eventCard(e, i)}</div>`).join("")}</div>
               <button class="ev-nav ev-arrow ev-arrow--next" data-action="ev-next" aria-label="Next events">${icon("chev-right", 18)}</button>
             </div>
+            <!-- Same cut the hero ends on, tearing this band's cream away to
+                 the white section below. The --surface variant, not a Tailwind
+                 text- class: see the note by .section-torn--surface. -->
+            ${tornEdge("section-torn--surface")}
           </section>
 
           <section class="px-[clamp(1rem,5vw,7rem)] py-20 bg-surface grid grid-cols-[1fr_1fr] gap-20 items-center max1200:gap-12 max900:grid-cols-1 max900:gap-10 max700:px-[clamp(1rem,5vw,7rem)] max700:py-14 max380:px-4">
@@ -8330,6 +8345,17 @@
       // picker: either way the next step is a code, and saying so up front is
       // what stops the button reading as an instant log-in.
       const authCtaLabel = () => "Send verification code";
+      /* Where the two legal documents live. Kept as one object rather than
+         inline hrefs so pointing them at the real pages is a single edit, and
+         so the sign-up sentence and any future copy cannot drift apart. */
+      const LEGAL_URLS = { terms: "/terms", privacy: "/privacy" };
+      /* Sign-up only — logging back in agrees to nothing new. Sits under the
+         button, not above it: the sentence is about what pressing the button
+         does, and putting it there keeps the button adjacent to the last
+         field it submits. New tab on both links, so a half-filled form is
+         never thrown away to go and read the terms. */
+      const authAgreement = () =>
+        `<p class="mt-3 text-center text-xs leading-[1.6] text-muted">By creating an account I agree to the <a class="text-brand font-bold underline cursor-pointer" href="${LEGAL_URLS.terms}" target="_blank" rel="noopener noreferrer">Terms of Use</a> and <a class="text-brand font-bold underline cursor-pointer" href="${LEGAL_URLS.privacy}" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</p>`;
       function authBody(mode, sel, roles) {
         if (state.auth.step !== "entry") return authVerifyBody(mode);
         const picker = state.auth.pick
@@ -8339,7 +8365,7 @@
           : "";
         return `${picker}
           <div id="auth-fields">${authFields(mode, sel)}</div>
-          <button class="bg-logo-green text-white px-6 py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep w-full mt-2" data-action="do-auth" data-mode="${mode}">${mode === "login" ? authCtaLabel() : "Create account"}</button>`;
+          <button class="bg-logo-green text-white px-6 py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 shadow-[0_4px_20px_rgba(0,127,73,0.3)] inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,127,73,0.4)] hover:bg-logo-green-deep w-full mt-2" data-action="do-auth" data-mode="${mode}">${mode === "login" ? authCtaLabel() : "Create account"}</button>${mode === "login" ? "" : authAgreement()}`;
       }
       function auEmail(mode) {
         return `<div class="flex flex-col gap-[0.4rem] [&_label]:text-sm [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-base [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100 [&_select]:border-[1.5px] [&_select]:border-line [&_select]:rounded-[10px] [&_select]:px-[0.85rem] [&_select]:py-3 [&_select]:font-sans [&_select]:text-base [&_select]:text-head [&_select]:bg-surface-2 [&_select]:outline-none [&_select]:w-full [&_select]:min-h-[46px] [&_select:focus]:border-brand [&_select:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea]:border-[1.5px] [&_textarea]:border-line [&_textarea]:rounded-[10px] [&_textarea]:px-[0.85rem] [&_textarea]:py-3 [&_textarea]:font-sans [&_textarea]:text-base [&_textarea]:text-head [&_textarea]:bg-surface-2 [&_textarea]:outline-none [&_textarea]:w-full [&_textarea]:resize-y [&_textarea]:min-h-[100px] [&_textarea]:leading-[1.6] [&_textarea:focus]:border-brand [&_textarea:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_textarea::placeholder]:text-muted [&_textarea::placeholder]:opacity-100" style="margin-bottom:0.7rem"><label>Email *</label><input id="au-email" placeholder="you@email.com" value="${mode === "login" ? authDemoEmail() : ""}"></div>`;
