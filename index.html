@@ -1815,6 +1815,39 @@
         background: var(--sun);
       }
 
+      /* ── Device screen ──────────────────────────────────────────
+         The phone in the advertiser band is a picture of the app, not a part
+         of this page's chrome, so it does not follow the site's theme — a
+         screenshot of a phone does not invert because the page around it did.
+
+         It was following it, and breaking. The screen is built from the same
+         tokens as everything else (bg-surface, text-head, text-brand), but the
+         category tiles behind the icons are painted from CATEGORIES[].tint,
+         which is a fixed pastel hex with no dark variant. On the dark page the
+         tiles stayed pale while text-head flipped to near-white, and the icons
+         disappeared into them. The event thumbnails and the search field had
+         the same problem in milder form.
+
+         Redeclaring the tokens on the wrapper fixes all of it at once. Every
+         utility inside resolves var(--head), var(--surface) and the rest
+         against this element rather than :root, so the whole screen renders in
+         light values wherever it sits. Only the tokens the screen actually
+         uses are listed — the rest still inherit, which is what keeps this from
+         becoming a second copy of the palette to maintain. */
+      .device-screen {
+        --cream: #fdf8f0;
+        --surface: #ffffff;
+        --head: #1a2e4a;
+        --muted: #465569;
+        --brand: #20643d;
+        --line: rgba(26, 46, 74, 0.14);
+        --line2: rgba(26, 46, 74, 0.1);
+        --mint: #e3f2e9;
+        --mint-2: #d3ebde;
+        --ad-label: #4e5f72;
+        --sun: #f5a623;
+      }
+
       /* ── Header call-to-action pair ─────────────────────────────
          Georgia, like every other button on the page, at regular weight — the
          same 400 the headings are set at, so a bolded pill does not put back
@@ -5942,7 +5975,7 @@
                   <div class="absolute left-[-3px] top-[194px] w-[3px] h-[58px] rounded-l-[3px] bg-white/25"></div>
                   <div class="absolute right-[-3px] top-[150px] w-[3px] h-[86px] rounded-r-[3px] bg-white/25"></div>
 
-                  <div class="relative rounded-[42px] overflow-hidden bg-cream h-[600px] max560:h-[560px]">
+                  <div class="device-screen relative rounded-[42px] overflow-hidden bg-cream h-[600px] max560:h-[560px]">
                     <div class="absolute top-[10px] left-1/2 -translate-x-1/2 w-[92px] h-[27px] rounded-[100px] bg-black z-[6] flex items-center justify-end pr-[9px]"><span class="w-[8px] h-[8px] rounded-full bg-[#1d2b3d]"></span></div>
 
                     <!-- The screen inside the handset is the real app's Home
