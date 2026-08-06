@@ -64,6 +64,15 @@
       />
     </noscript>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- GSAP drives the events carousel: the seamless loop, the drag with
+         inertia, the arrow-fill wipe and the trailing DRAG cursor. Deferred so
+         none of it is in the critical path — deferred scripts run in order and
+         finish before DOMContentLoaded, and the page's own inline script runs
+         during parse, so mountEventSlider() waits on `whenGsap` rather than
+         assuming gsap is already there on the very first render. -->
+    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Draggable.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/InertiaPlugin.min.js"></script>
     <script>
       if (window.tailwind)
         tailwind.config = {
@@ -1809,282 +1818,235 @@
           );
       }
 
-      .ev-rail {
+      /* The rail is the T.RICKS slider (tricks-menu-slider.webflow.io) rebuilt
+         on GSAP: three tall portrait cards across the content width, the row
+         bleeding out past the page gutter on both sides, and a pair of ringed
+         discs centred on the bottom edge with a fill that wipes in diagonally.
+
+         The reference sets `body { font-size: 1vw }` and then sizes everything
+         in em, so every number there is really a vw. They are carried over as
+         vw here — clamped top and bottom, because a page that also has to work
+         at 380px and on a 27" monitor cannot let a card grow without limit. At
+         ~1440px (1vw = 14.4px) the clamps are inert and the geometry is the
+         reference's exactly: 41.88vw tall cards, 3.33vw discs, 1.5vw arrows. */
+      .bk-slider {
+        --bk-per: 3;
+        --bk-h: clamp(360px, 41.88vw, 660px); /* .splide__slide min-height: 41.88em */
+        --bk-gap: clamp(4px, 0.52vw, 10px); /* .splide__slide padding: 0 0.52em */
+        --bk-disc: clamp(42px, 3.33vw, 60px); /* .control width/height: 3.33em */
+        --bk-disc-gap: clamp(6px, 0.5vw, 10px); /* .control margin: 0 0.5em */
+        --bk-arrow-w: clamp(18px, 1.5vw, 26px); /* .control__arrow: 1.5em */
+        /* The arc, and it is not a rotation — the reference's cards are plain
+           unturned rectangles. What bends them is .slider__wave: one 804×50.167
+           shape laid across the top of the row and the same one flipped across
+           the bottom, both filled in the page colour, so the row is eaten into
+           by a curve that is deepest at the middle and shallow at the ends.
+           That is why the outer cards read tall and the middle one short.
+
+           Painting it will not work here — the reference hides its waves in a
+           flat pink page and this band is a photograph — so the same curve is
+           cut rather than painted: arcMask() writes the identical path as a
+           mask, and the backdrop shows through where the wave would have been.
+           Same silhouette on any background, in either theme.
+
+           --bk-cut is the curve's depth at its deepest, written from the same
+           numbers by measure(). The tile's date and title inset by it so the
+           middle card's copy stays inside the curve instead of under it. */
+        --bk-cut: 0px;
+        --bk-gutter: clamp(1rem, 5vw, 7rem); /* matches the section's own padding */
+        /* The reference is near-black on pink. This band is a photograph under
+           white copy, so the pair inverts: the disc is drawn in white and the
+           fill that wipes over it carries the page's ink back. */
+        --bk-ink: #ffffff;
+        --bk-ink-contrast: #12233a;
         position: relative;
-        margin: 0 calc(clamp(1rem, 5vw, 7rem) * -1);
-        padding: 0 clamp(1rem, 5vw, 7rem);
+        /* Room for the half of each disc that hangs below the cards. */
+        padding-bottom: calc(var(--bk-disc) / 2 + 0.75rem);
       }
 
-      /* No snap and no CSS smooth scroll: the marquee sets scrollLeft every
-         frame, and both would fight it. Arrow clicks pass behavior:"smooth"
-         themselves, so they still glide.
+      /* The masked layer, and the reason it exists rather than the mask sitting
+         on the viewport: the reference's waves run the full width of the page,
+         not the width of the content column. Negative margins pull this back
+         out to the section's edges and the matching padding puts the column
+         back where it was, so the row still starts at the gutter while the
+         curve spans everything. The controls stay outside it — in the reference
+         they are painted on top of the wave, not cut by it. */
+      .bk-stage {
+        margin-inline: calc(var(--bk-gutter) * -1);
+        padding-inline: var(--bk-gutter);
+        -webkit-mask-image: var(--bk-mask, none);
+        mask-image: var(--bk-mask, none);
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+      }
 
-         The edge fade is a mask on the cards rather than a cream gradient
-         painted over them: the band behind is no longer a flat colour, and a
-         colour fade would have to know what it is sitting on — in dark mode
-         it was tinting the edges milky. A mask fades the content itself, so
-         it is right on any background and in either theme. */
-      .ev-track {
+      /* Nothing clips here — the bleed is the design. The row runs wider than
+         the content column and the section's own overflow:hidden (.ev-band) is
+         what cuts it off, at the page edge rather than at the gutter. */
+      .bk-viewport {
+        position: relative;
+        overflow: visible;
+      }
+
+      /* Two layouts in one element. Before the script runs — and if GSAP never
+         arrives at all — the lane is an ordinary flex scroller and the cards
+         are readable and swipeable with no JS involved. mountEventSlider()
+         adds .is-live, which lifts the cards out of flow so GSAP can place
+         each one by transform and wrap it around the ends. */
+      .bk-lane {
+        position: relative;
         display: flex;
-        /* Wider than the events grid's 3px gutter. The grid can butt its tiles
-           together because one rounded, bordered container holds the whole
-           thing; here each tile is loose in a scrolling rail with nothing
-           framing it, so it needs a little air to read as its own card. */
-        gap: 10px;
         overflow-x: auto;
         scrollbar-width: none;
         -ms-overflow-style: none;
-        padding: 0 0 1.25rem;
-        --ev-fade: clamp(1.5rem, 4vw, 4rem);
-        -webkit-mask-image: linear-gradient(
-          90deg,
-          transparent 0,
-          #000 var(--ev-fade),
-          #000 calc(100% - var(--ev-fade)),
-          transparent 100%
-        );
-        mask-image: linear-gradient(
-          90deg,
-          transparent 0,
-          #000 var(--ev-fade),
-          #000 calc(100% - var(--ev-fade)),
-          transparent 100%
-        );
+        touch-action: pan-y;
       }
 
-      .ev-track::-webkit-scrollbar {
+      .bk-lane::-webkit-scrollbar {
         display: none;
       }
 
-      /* The rail is the events grid laid out sideways: same tile, same square
-         corners, just a slightly wider gutter (see .ev-track). Nothing is added
-         per slide — no radius, no border, no lift — since the tile is already
-         the finished object the events page uses. */
-      .ev-slide {
-        flex: 0 0 288px;
-        transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      .bk-lane.is-live {
+        display: block;
+        overflow: visible;
+        height: var(--bk-h);
+        cursor: grab; /* .splide__track--draggable */
       }
 
-      /* Point at an arrow and the whole rail leans that way before you press —
-         a few pixels of anticipation that wire the button to the cards instead
-         of leaving it parked beside them. It has to be a transform: the marquee
-         writes scrollLeft every frame (startEventAutoplay), so a nudge written
-         there would be erased by the next one. Translating the slides rather
-         than the track keeps the track's own edge mask still, which is what
-         makes the lean read as the cards shifting under a fixed window. */
-      .ev-rail:has(.ev-arrow--next:is(:hover, :focus-visible)) .ev-slide {
-        transform: translateX(-8px);
+      .bk-lane.is-live.is-dragging {
+        cursor: grabbing;
       }
 
-      .ev-rail:has(.ev-arrow--prev:is(:hover, :focus-visible)) .ev-slide {
-        transform: translateX(8px);
+      .bk-slide {
+        flex: 0 0 calc(100% / var(--bk-per));
+        width: calc(100% / var(--bk-per));
+        height: var(--bk-h);
+        padding: 0 var(--bk-gap);
       }
 
-      /* The global reduce rule only collapses the duration, which would leave
-         the lean landing as an 8px jump — the one motion worth dropping whole. */
-      @media (prefers-reduced-motion: reduce) {
-        .ev-rail:has(.ev-arrow:is(:hover, :focus-visible)) .ev-slide {
-          transform: none;
-        }
-      }
-
-      /* The disc is glass, not a white chip. It spends as much time standing on
-         an event photo as on the band's wash, and an opaque fill punched a hole
-         in whatever was behind it. The plain --surface on the first line is the
-         fallback for engines without color-mix, which in practice are the same
-         engines that lack backdrop-filter — so they get the solid disc and
-         never the thin translucent one on its own. */
-      .ev-nav {
-        position: relative;
-        isolation: isolate;
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-        border: 1.5px solid var(--line);
-        background: var(--surface);
-        background: color-mix(in srgb, var(--surface) 76%, transparent);
-        -webkit-backdrop-filter: blur(10px) saturate(150%);
-        backdrop-filter: blur(10px) saturate(150%);
-        color: var(--head);
-        display: grid;
-        place-items: center;
-        cursor: pointer;
-        padding: 0;
-        box-shadow:
-          0 6px 20px rgba(15, 26, 44, 0.16),
-          inset 0 1px 0 rgba(255, 255, 255, 0.55);
-        transition:
-          border-color 0.25s ease,
-          background 0.25s ease,
-          color 0.25s ease,
-          transform 0.2s ease,
-          box-shadow 0.3s ease;
-      }
-
-      /* Hover adds two rings of green light outside the disc — a tight one that
-         reads as a halo and a wide soft one that reads as spill. Both are
-         box-shadows rather than a pseudo-element because an outer shadow paints
-         outside the border box, so it can never wash over the glass face the
-         way a negative-z-index child would under backdrop-filter. */
-      .ev-nav:hover,
-      .ev-nav:focus-visible {
-        border-color: transparent;
-        color: var(--brand);
-        box-shadow:
-          0 14px 30px rgba(15, 26, 44, 0.22),
-          0 0 0 5px rgba(45, 122, 79, 0.12),
-          0 0 24px 4px rgba(45, 122, 79, 0.3),
-          inset 0 1px 0 rgba(255, 255, 255, 0.7);
-      }
-
-      /* Press: the halo snaps outward and drops to nothing. A ripple with no
-         extra element and no JS — just the same shadow at a bigger spread and
-         zero alpha, reached fast so it reads as an impact rather than a fade. */
-      .ev-nav:active {
-        box-shadow:
-          0 4px 12px rgba(15, 26, 44, 0.18),
-          0 0 0 14px rgba(45, 122, 79, 0),
-          0 0 24px 4px rgba(45, 122, 79, 0),
-          inset 0 1px 0 rgba(255, 255, 255, 0.7);
-        transition-duration: 0.12s;
-      }
-
-      /* The lit edge is a conic gradient masked down to the same 1.5px the
-         border occupies, sitting exactly on top of it: at rest it is invisible
-         and the plain border carries the edge, on hover the border goes
-         transparent underneath and the gradient takes over without anything
-         shifting. Registering --ev-spin is what lets it be animated at all —
-         engines without @property hold the gradient still, so the ring still
-         lights up, it just doesn't turn. */
-      @property --ev-spin {
-        syntax: "<angle>";
-        inherits: false;
-        initial-value: 0deg;
-      }
-
-      @keyframes ev-ring-spin {
-        to {
-          --ev-spin: 360deg;
-        }
-      }
-
-      .ev-nav::before {
-        content: "";
+      .bk-lane.is-live .bk-slide {
         position: absolute;
-        inset: -1.5px;
-        border-radius: 50%;
-        padding: 1.5px;
+        top: 0;
+        left: 0;
+        flex: none;
+        will-change: transform;
+      }
+
+      /* The events tile is reused as-is — it is already a full-bleed photo under
+         a scrim with square corners, which is what the reference slide is. Only
+         its 4/5 aspect box is dropped, so the slide's height governs instead and
+         the card takes the reference's taller ~0.71 portrait. */
+      .bk-slide .ev-tile {
+        aspect-ratio: auto;
+        min-height: 0;
+        height: 100%;
+      }
+
+      /* Both are inset by the curve's deepest point, not by the depth over
+         their own card. A per-card inset would be tighter, but the cards travel
+         — the copy would crawl up and down as each one crossed the middle,
+         which reads as a bug. One number for the row holds still. */
+      .bk-slide .ev-tile-date {
+        top: calc(0.75rem + var(--bk-cut));
+      }
+
+      .bk-slide .ev-tile-body {
+        padding-bottom: calc(1.1rem + var(--bk-cut));
+      }
+
+      /* .controls — 13em wide, centred, pinned to the bottom of the slider. The
+         reference sits them inside the bottom of a bare image; these cards carry
+         a title down there, so the pair straddles the edge instead of covering
+         it. Half on the photograph, half on the band. */
+      .bk-controls {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: calc(var(--bk-disc) / 2 + 0.75rem);
+        z-index: 4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transform: translateY(50%);
         pointer-events: none;
-        background: conic-gradient(
-          from var(--ev-spin),
-          var(--logo-green),
-          var(--sun),
-          var(--teal),
-          var(--logo-green)
-        );
-        -webkit-mask:
-          linear-gradient(#000 0 0) content-box,
-          linear-gradient(#000 0 0);
-        -webkit-mask-composite: xor;
-        mask:
-          linear-gradient(#000 0 0) content-box,
-          linear-gradient(#000 0 0);
-        mask-composite: exclude;
-        opacity: 0;
-        transition: opacity 0.25s ease;
       }
 
-      .ev-nav:hover::before,
-      .ev-nav:focus-visible::before {
-        opacity: 1;
-        animation: ev-ring-spin 2.4s linear infinite;
+      .bk-control {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--bk-disc);
+        height: var(--bk-disc);
+        margin: 0 var(--bk-disc-gap);
+        padding: 0;
+        border: 2px solid var(--bk-ink);
+        border-radius: 50%;
+        background: transparent;
+        color: var(--bk-ink);
+        cursor: pointer;
+        pointer-events: auto;
+        -webkit-tap-highlight-color: transparent;
+        transition:
+          transform 0.2s ease,
+          color 0.28s ease;
       }
 
-      /* Real glass catches the light where you are looking at it. The disc's
-         specular blob sits under the pointer and slides across the face as it
-         moves — position comes from the same pointermove that drives the magnet
-         (startEvArrowMagnet), so it costs two extra custom properties and no
-         second listener. Hover only: an untouched disc has no highlight to
-         place, and keyboard focus falls back to the centred 50% 50%, which is
-         simply a disc lit from straight on. */
-      .ev-nav::after {
-        content: "";
+      .bk-control:active {
+        transform: scale(0.9); /* .control:active */
+      }
+
+      /* .control__fill — a disc the full size of the button, parked one full
+         width up and to the right of it. GSAP walks it down the diagonal into
+         place on hover and straight on out the other corner on the way back
+         out, so the wipe always travels the same direction. The class, not the
+         tween, carries the colour flip, so with GSAP missing the arrow stays
+         white on a transparent disc rather than white on white. */
+      .bk-fill {
         position: absolute;
         inset: 0;
-        z-index: 0;
-        border-radius: 50%;
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        background: radial-gradient(
-          56% 56% at var(--ev-mx, 50%) var(--ev-my, 50%),
-          rgba(255, 255, 255, 0.85) 0%,
-          rgba(255, 255, 255, 0.28) 44%,
-          rgba(255, 255, 255, 0) 74%
-        );
-      }
-
-      .ev-nav:hover::after,
-      .ev-nav:focus-visible::after {
-        opacity: 1;
-      }
-
-      /* The chevron itself holds still — one glyph, no window and nothing
-         sliding through it. Hover is carried by colour alone: the disc inherits
-         --head at rest and --brand on hover (see .ev-nav), and currentColor
-         takes the SVG's stroke with it, so the whole change is the one
-         `color` transition already on the disc. */
-      .ev-glyph {
-        position: relative;
         z-index: 1;
+        border-radius: 50%;
+        background: var(--bk-ink);
+        transform: translate(100%, -100%);
+      }
+
+      .bk-control.is-filled {
+        color: var(--bk-ink-contrast);
+      }
+
+      .bk-arrow {
+        position: relative;
+        z-index: 2;
         display: block;
-        width: 18px;
-        height: 18px;
+        width: var(--bk-arrow-w);
       }
 
-      .ev-glyph svg {
+      .bk-arrow svg {
         display: block;
+        width: 100%;
+        height: auto;
       }
 
-      /* One arrow per side, straddling the content edge so it reads as
-         attached to the rail. max() keeps it on screen once the page gutter
-         drops below the disc's own radius on narrow viewports. Everything that
-         moves the disc composes in this one transform: --ev-px/--ev-py are the
-         magnetic pull startEvArrowMagnet() writes, --ev-scale is the hover and
-         press, and the -50% is the vertical centring the other two ride on. */
-      .ev-arrow {
-        position: absolute;
-        z-index: 3;
-        top: calc(50% - 0.45rem);
-        transform: translate(var(--ev-px, 0px), calc(-50% + var(--ev-py, 0px)))
-          scale(var(--ev-scale, 1));
+      .bk-arrow--flip {
+        transform: rotate(180deg); /* .control__arrow.is--flipped */
       }
 
-      .ev-arrow--prev {
-        left: max(6px, calc(clamp(1rem, 5vw, 7rem) - 23px));
+      .bk-control:focus-visible {
+        outline: 2px solid var(--bk-ink);
+        outline-offset: 3px;
       }
 
-      .ev-arrow--next {
-        right: max(6px, calc(clamp(1rem, 5vw, 7rem) - 23px));
-      }
-
-      .ev-arrow:hover,
-      .ev-arrow:focus-visible {
-        --ev-scale: 1.08;
-      }
-
-      .ev-arrow:active {
-        --ev-scale: 0.94;
-      }
-
-      @media (max-width: 560px) {
-        .ev-slide {
-          flex-basis: 84%;
-        }
-
-        .ev-nav {
-          width: 38px;
-          height: 38px;
+      /* The reference's 767px breakpoint: one card per view, and taller again
+         relative to the viewport (min-height: 89em → 89vw). */
+      @media (max-width: 767px) {
+        .bk-slider {
+          --bk-per: 1;
+          --bk-h: clamp(340px, 89vw, 480px);
+          --bk-gap: clamp(4px, 0.92vw, 10px);
         }
       }
 
@@ -3392,47 +3354,6 @@
 
       [data-theme="dark"] .plan-card--pop {
         box-shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
-      }
-
-      /* The disc floats over cards on a dark page, so its shadow has to be
-         black rather than the navy tint that carries it on cream, and the
-         inset gloss drops to a hairline — on a dark glass a 55% white top edge
-         reads as a chip out of the disc. */
-      [data-theme="dark"] .ev-nav {
-        box-shadow:
-          0 6px 20px rgba(0, 0, 0, 0.5),
-          inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      }
-
-      /* Mid-green spill disappears into a dark page, so the halo is mixed
-         halfway to white — the same lift the dark accent discs get. */
-      [data-theme="dark"] .ev-nav:hover,
-      [data-theme="dark"] .ev-nav:focus-visible {
-        box-shadow:
-          0 14px 30px rgba(0, 0, 0, 0.6),
-          0 0 0 5px rgba(126, 214, 165, 0.14),
-          0 0 26px 4px rgba(126, 214, 165, 0.3),
-          inset 0 1px 0 rgba(255, 255, 255, 0.14);
-      }
-
-      [data-theme="dark"] .ev-nav:active {
-        box-shadow:
-          0 4px 12px rgba(0, 0, 0, 0.5),
-          0 0 0 14px rgba(126, 214, 165, 0),
-          0 0 26px 4px rgba(126, 214, 165, 0),
-          inset 0 1px 0 rgba(255, 255, 255, 0.14);
-      }
-
-      /* The specular blob is white light on a bright face; on dark glass that
-         same white bleaches the disc into a bulb, so it drops to a fifth of its
-         strength and picks up the mint the dark halo already uses. */
-      [data-theme="dark"] .ev-nav::after {
-        background: radial-gradient(
-          56% 56% at var(--ev-mx, 50%) var(--ev-my, 50%),
-          rgba(126, 214, 165, 0.24) 0%,
-          rgba(255, 255, 255, 0.08) 46%,
-          rgba(255, 255, 255, 0) 74%
-        );
       }
 
       /* Green reads on cream but muddies on a dark page; the warm corner
@@ -6188,6 +6109,14 @@
       const tornEdge = (cls = "") =>
         `<svg class="section-torn${cls ?" " + cls : ""}" viewBox="0 0 1200 44" preserveAspectRatio="none" aria-hidden="true"><path d="${TORN_D}" fill="currentColor"/></svg>`;
 
+      /* The slider control's arrow, taken verbatim from the reference — a long
+         shaft with a barbed, slightly swept head that overshoots the tail. The
+         site's own `chev-left` is a plain stroked chevron and would have read
+         as an ordinary carousel button; this shape is most of why the disc
+         looks like the reference's. currentColor so the one `color` transition
+         on .bk-control carries it through the fill wipe. */
+      const BK_ARROW = `<svg viewBox="0 0 24 18" aria-hidden="true"><path fill="currentColor" d="M23.999,8H5.481c5.009-2.91,6.349-7.311,6.416-7.548L9.976-0.102C9.9,0.156,8.03,6.213-0.073,8.024L0.146,9l-0.218,0.976C8.03,11.787,9.9,17.844,9.976,18.101l1.922-0.554C11.83,17.31,10.49,12.91,5.481,10h18.518V8z"/></svg>`;
+
       function viewHome() {
         // Just the ids — the name, icon and colour all come from CATEGORIES, so
         // the strip cannot drift out of sync with the directory it links into.
@@ -6392,10 +6321,20 @@
               </div>
               <a class="band-copy text-white font-bold text-base no-underline inline-flex items-center gap-[0.35rem] cursor-pointer transition-[gap] duration-200 min-h-[44px] shrink-0 hover:gap-[0.6rem] hover:underline" data-nav="calendar" data-authgate>See all events ${icon("arrow-right", 15)}</a>
             </div>
-            <div class="ev-rail relative z-[1]" data-rv="up" style="--rv-delay: 120ms">
-              <button class="ev-nav ev-arrow ev-arrow--prev" data-action="ev-prev" aria-label="Previous events"><span class="ev-glyph" aria-hidden="true">${icon("chev-left", 18)}</span></button>
-              <div class="ev-track" id="ev-track">${evPrev.map((e, i) => `<div class="ev-slide">${evTile(e, i)}</div>`).join("")}${evPrev.map((e, i) => `<div class="ev-slide" aria-hidden="true">${evTile(e, i)}</div>`).join("")}</div>
-              <button class="ev-nav ev-arrow ev-arrow--next" data-action="ev-next" aria-label="Next events"><span class="ev-glyph" aria-hidden="true">${icon("chev-right", 18)}</span></button>
+            <div class="bk-slider relative z-[1]" id="ev-slider" data-rv="up" style="--rv-delay: 120ms">
+              <div class="bk-stage" id="ev-stage">
+                <div class="bk-viewport">
+                  <!-- One set of cards, not two. The old rail duplicated the list
+                       so a scrollLeft marquee had somewhere to wrap; GSAP wraps
+                       each card's own transform instead, so the seam is free and
+                       the DOM holds exactly the events that exist. -->
+                  <div class="bk-lane" id="ev-track">${evPrev.map((e, i) => `<div class="bk-slide">${evTile(e, i)}</div>`).join("")}</div>
+                </div>
+              </div>
+              <div class="bk-controls">
+                <button type="button" class="bk-control" data-action="ev-prev" aria-label="Previous events"><span class="bk-fill" aria-hidden="true"></span><span class="bk-arrow" aria-hidden="true">${BK_ARROW}</span></button>
+                <button type="button" class="bk-control" data-action="ev-next" aria-label="Next events"><span class="bk-fill" aria-hidden="true"></span><span class="bk-arrow bk-arrow--flip" aria-hidden="true">${BK_ARROW}</span></button>
+              </div>
             </div>
             <!-- No torn edge. The cut works by painting the next section's flat
                  colour up into this one, and this band is unfilled now — the
@@ -7370,8 +7309,8 @@
           ${photo}
           <div class="absolute inset-0 mix-blend-multiply opacity-[0.3] transition-opacity duration-200 group-hover:opacity-[0.2]" style="background:${c.grad}"></div>
           <div class="absolute inset-0 bg-[linear-gradient(to_top,rgba(10,20,36,0.66)_0%,rgba(10,20,36,0.16)_46%,transparent_74%)]"></div>
-          <span class="absolute top-3 left-3 z-[1] inline-flex items-center gap-[0.3rem] rounded-[100px] border border-white/30 bg-white/15 px-[0.6rem] py-[0.3rem] text-xs font-extrabold uppercase tracking-[0.05em] text-white backdrop-blur-[3px]">${MONTHS[d.getMonth()]} ${d.getDate()}</span>
-          <div class="absolute inset-x-0 bottom-0 z-[1] p-[1.1rem] max380:p-[0.85rem]">
+          <span class="ev-tile-date absolute top-3 left-3 z-[1] inline-flex items-center gap-[0.3rem] rounded-[100px] border border-white/30 bg-white/15 px-[0.6rem] py-[0.3rem] text-xs font-extrabold uppercase tracking-[0.05em] text-white backdrop-blur-[3px]">${MONTHS[d.getMonth()]} ${d.getDate()}</span>
+          <div class="ev-tile-body absolute inset-x-0 bottom-0 z-[1] p-[1.1rem] max380:p-[0.85rem]">
             <div class="text-xs font-bold uppercase tracking-[0.09em] text-white/75 mb-[0.35rem]">${e.town}</div>
             <div class="font-extrabold text-lg leading-[1.25] text-white decoration-white/60 underline-offset-[3px] group-hover:underline">${e.name}</div>
             <div class="mt-[0.3rem] text-sm font-medium text-white/85">${c.name.split(" ")[0]}</div>
@@ -10026,18 +9965,10 @@
               break;
             case "ev-prev":
             case "ev-next": {
-              const track = el("ev-track");
+              // The loop owns its own position now, so there is no seam to
+              // straddle and nothing to wrap by hand — one card either way.
               evLastTouch = Date.now();
-              if (track) {
-                // Keep arrows inside the loop: wrap across either seam first.
-                const set = track.scrollWidth / 2;
-                if (a === "ev-next" && track.scrollLeft >= set - 2) track.scrollLeft -= set;
-                if (a === "ev-prev" && track.scrollLeft <= 2) track.scrollLeft += set;
-                track.scrollBy({
-                  left: (a === "ev-next" ? 1 : -1) * Math.max(288, track.clientWidth * 0.8),
-                  behavior: "smooth",
-                });
-              }
+              if (evSlider) evSlider.step(a === "ev-next" ? 1 : -1);
               break;
             }
             case "open-article":
@@ -11855,6 +11786,10 @@
         mountCategoryMarquee();
         mountHeroPill();
         mountSideAd();
+        // The events lane is part of the markup that was just written, so the
+        // live slider is rebuilt against the new one (and the old one torn
+        // down) here rather than once at startup.
+        mountEventSlider();
         // The slot this view offers the sponsor bar was just recreated.
         placeSponsorBar();
         // The sections this reads are in the markup that was just written, and
@@ -12368,94 +12303,285 @@
         renderAd(0);
         start();
       }
-      // Events slider — a continuous marquee rather than a stepped carousel.
-      // The track holds the slide set twice, so at the halfway mark we rewind by
-      // exactly one set onto an identical card and the seam is invisible.
-      // The track is rebuilt on every render(), so look it up each frame.
+      /* ── Events slider ────────────────────────────────────────────────────
+         The T.RICKS slider (tricks-menu-slider.webflow.io) rebuilt on GSAP.
+         The reference runs Splide in `type: 'loop'` with `focus: 'center'` and
+         an overflowing track; the same three parts are here without the extra
+         library, because the page only needs one behaviour out of it:
+
+           position  every card is placed by transform from a single `offset`,
+                     and each one's x is put through gsap.utils.wrap, so a card
+                     leaving the left edge reappears at the right. There is no
+                     seam to hide and no duplicated DOM to keep in step — the
+                     old rail carried the whole event list twice for exactly
+                     that reason.
+           drag      Draggable with inertia adds its delta straight onto
+                     `offset`, so a throw and the drift are the same number
+                     moving and can never disagree about where the row is.
+           drift     the marquee the page already had, kept: EV_SPEED px per
+                     millisecond off `offset` on gsap's ticker.
+
+         Everything degrades: with GSAP blocked the lane stays the plain flex
+         scroller its CSS starts as, and the arrows below do nothing. */
       const EV_SPEED = 0.045; // px per ms — a slow drift, ~45px/s
       let evLastTouch = 0;
-      function startEventAutoplay() {
-        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-        let last = 0;
-        let pos = null; // float position; scrollLeft alone is too coarse to drift
-        // Only scroll while the rail is actually on screen. render() swaps the
-        // track out, so re-observe whenever the element identity changes.
-        let onScreen = false;
-        let watched = null;
-        const io = new IntersectionObserver(([e]) => (onScreen = e.isIntersecting));
-        const frame = (ts) => {
-          requestAnimationFrame(frame);
-          const track = el("ev-track");
-          const dt = last ? Math.min(ts - last, 50) : 16; // clamp: tab-switch gaps
-          last = ts;
-          if (track !== watched) {
-            if (watched) io.unobserve(watched);
-            if (track) io.observe(track);
-            watched = track;
-            onScreen = false;
-            pos = null;
-          }
-          if (!track || !onScreen || reduce.matches || document.hidden) return;
-          if (track.matches(":hover") || Date.now() - evLastTouch < 8000) {
-            pos = null; // resync on resume — the user may have scrolled
-            return;
-          }
-          const set = track.scrollWidth / 2;
-          if (set <= 0 || track.scrollWidth <= track.clientWidth) return;
-          if (pos === null || Math.abs(track.scrollLeft - pos) > 2) pos = track.scrollLeft;
-          pos += dt * EV_SPEED;
-          if (pos >= set) pos -= set;
-          track.scrollLeft = pos;
-        };
-        requestAnimationFrame(frame);
+      let evSlider = null;
+
+      // The GSAP tags are deferred, so they have not run when the inline script
+      // calls render() during parse — the first mount has to wait. Deferred
+      // scripts do finish before DOMContentLoaded, so one listener covers it;
+      // every later mount finds gsap already there and runs synchronously. If
+      // the CDN fails, nothing here fires and the CSS fallback stands.
+      function whenGsap(fn) {
+        if (window.gsap && window.Draggable) return fn();
+        document.addEventListener(
+          "DOMContentLoaded",
+          () => {
+            if (window.gsap && window.Draggable) fn();
+          },
+          { once: true }
+        );
       }
 
-      // The arrows lean toward the pointer — a few pixels of pull, strongest at
-      // the disc's edge, that make it feel picked up rather than clicked at.
-      // The same pointer reading also places the glass highlight (.ev-nav::after),
-      // so the lean and the light stay on the same frame for free.
-      // The offset is written as CSS vars so the hover scale and the vertical
-      // centring stay in the stylesheet with the rest of the arrow's motion
-      // (see .ev-arrow), and the disc's own transform transition gives the
-      // follow its slight lag for free.
-      //
-      // Delegated on the document because render() rebuilds the buttons: the
-      // handler costs one closest() per move and bails on anything that is not
-      // an arrow. Mouse only — a finger has no hover, and on touch the pull
-      // would land as a jump after the tap.
-      function startEvArrowMagnet() {
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-        const PULL = 5; // px at the edge of the disc
-        let held = null;
-        const release = () => {
-          if (!held) return;
-          held.style.removeProperty("--ev-px");
-          held.style.removeProperty("--ev-py");
-          held.style.removeProperty("--ev-mx");
-          held.style.removeProperty("--ev-my");
-          held = null;
-        };
-        document.addEventListener(
-          "pointermove",
-          (e) => {
-            if (e.pointerType && e.pointerType !== "mouse") return;
-            const btn = e.target.closest && e.target.closest(".ev-arrow");
-            if (!btn) return release();
-            if (btn !== held) release();
-            held = btn;
-            const r = btn.getBoundingClientRect();
-            const nx = (e.clientX - r.left) / r.width; // 0 → 1 across the disc
-            const ny = (e.clientY - r.top) / r.height;
-            btn.style.setProperty("--ev-px", (nx - 0.5) * 2 * PULL + "px");
-            btn.style.setProperty("--ev-py", (ny - 0.5) * 2 * PULL + "px");
-            // Same two numbers as percentages, which is where the glass puts its
-            // highlight (see .ev-nav::after) — the light lands under the pointer
-            // while the disc leans toward it.
-            btn.style.setProperty("--ev-mx", (nx * 100).toFixed(1) + "%");
-            btn.style.setProperty("--ev-my", (ny * 100).toFixed(1) + "%");
+      // render() rebuilds the lane, so the live slider has to be torn down with
+      // the element it was measuring — otherwise every navigation leaves another
+      // ticker callback driving cards that are no longer in the document.
+      function mountEventSlider() {
+        const lane = el("ev-track");
+        if (evSlider && evSlider.lane === lane) return;
+        if (evSlider) evSlider.destroy();
+        evSlider = null;
+        if (!lane || lane.dataset.bkPending) return;
+        lane.dataset.bkPending = "1";
+        whenGsap(() => {
+          delete lane.dataset.bkPending;
+          if (el("ev-track") === lane) evSlider = buildEventSlider(lane);
+        });
+      }
+
+      function buildEventSlider(lane) {
+        const slider = lane.closest(".bk-slider");
+        const slides = gsap.utils.toArray(".bk-slide", lane);
+        if (!slides.length) return null;
+        gsap.registerPlugin(Draggable);
+        if (window.InertiaPlugin) gsap.registerPlugin(InertiaPlugin);
+
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+        // Two cards parked off the left edge and one off the right. That gap on
+        // either side is what makes the row read as passing behind the page
+        // rather than starting and stopping at the gutter — Splide gets it from
+        // `focus: 'center'` plus `overflow: visible` on the track.
+        const LEAD = 2;
+        const base = slides.length;
+        const stage = el("ev-stage");
+        let setX = [];
+        let W = 0;
+        let offset = 0;
+        let wrap = (v) => v;
+        let onScreen = false;
+        let stepTween = null;
+
+        // A loop needs more cards than fit across, or it opens a hole as it
+        // travels. Short event lists get the set repeated until it outruns the
+        // viewport; the copies are aria-hidden so nothing is read out twice.
+        function fill() {
+          const per = Math.max(1, Math.round(lane.clientWidth / Math.max(1, slides[0].offsetWidth)));
+          const need = per + LEAD + 2;
+          for (let i = 0; slides.length < need; i++) {
+            const copy = slides[i % base].cloneNode(true);
+            copy.setAttribute("aria-hidden", "true");
+            lane.appendChild(copy);
+            slides.push(copy);
+          }
+        }
+
+        /* The reference's curve, to the coefficient. .slider__wave is a
+           804 × 50.167 SVG set to width:100% of the page, so its height — and
+           with it the whole depth of the bend — is 50.167/804 of the viewport
+           width, and it is pulled up by its own margin-top: -0.6vw. Its one
+           path runs flat at y=16.671 at the ends and bows to y=50.167 in the
+           middle; the copy at the foot of the row is the same path turned 180°.
+
+           Here that shape is cut instead of painted, so the two waves become
+           one mask: the band between the top curve and the bottom curve, white,
+           over transparent. The viewBox is written in the stage's own pixels so
+           preserveAspectRatio="none" has nothing left to stretch, and the curve
+           lands at exactly the proportion the reference draws it at.
+
+           Re-run from measure(), which is also what the ResizeObserver calls —
+           the depth is a fraction of the width, so it has to be redrawn
+           whenever the width changes. */
+        function arcMask() {
+          if (!stage) return;
+          const w = Math.round(stage.getBoundingClientRect().width);
+          const h = Math.round(lane.getBoundingClientRect().height);
+          if (!w || !h) return;
+          const sx = w / 804;
+          const lift = w * 0.006; // .slider__wave margin-top: -0.6vw
+          const e = +(16.671 * sx - lift).toFixed(2); // the curve at the ends
+          const c = +(50.167 * sx - lift).toFixed(2); // …and at its deepest
+          const a = +(204.974 * sx).toFixed(2);
+          const b = +(402.005 * sx).toFixed(2);
+          const d = +(599.026 * sx).toFixed(2);
+          const path =
+            `M0,${e}C0,${e} ${a},${c} ${b},${c}C${d},${c} ${w},${e} ${w},${e}` +
+            `L${w},${h - e}C${w},${h - e} ${d},${h - c} ${b},${h - c}` +
+            `C${a},${h - c} 0,${h - e} 0,${h - e}Z`;
+          const svg =
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" ` +
+            `preserveAspectRatio="none"><path d="${path}" fill="#fff"/></svg>`;
+          stage.style.setProperty("--bk-mask", `url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
+          // What the tile copy has to clear (see .bk-slide .ev-tile-body).
+          if (slider) slider.style.setProperty("--bk-cut", c + "px");
+        }
+
+        function measure() {
+          fill();
+          W = slides[0].getBoundingClientRect().width;
+          if (!W) return;
+          setX = slides.map((s) => gsap.quickSetter(s, "x", "px"));
+          wrap = gsap.utils.wrap(-LEAD * W, slides.length * W - LEAD * W);
+          arcMask();
+          draw();
+        }
+
+        function draw() {
+          for (let i = 0; i < setX.length; i++) setX[i](wrap(i * W + offset));
+        }
+
+        lane.classList.add("is-live");
+        measure();
+
+        // One card per press, eased rather than stepped — the arrows move the
+        // same `offset` the drag and the drift do, so a click mid-throw simply
+        // takes the row over from wherever it is.
+        function step(dir) {
+          if (stepTween) stepTween.kill();
+          const from = { v: offset };
+          stepTween = gsap.to(from, {
+            v: offset - dir * W,
+            duration: 0.72,
+            ease: "power3.out",
+            onUpdate() {
+              offset = from.v;
+              draw();
+            },
+          });
+        }
+
+        // Drag reads as a delta rather than a position: Draggable owns the
+        // proxy's x, this only ever asks how far it moved since the last frame
+        // and hands that to `offset`. Nothing has to be handed back when the
+        // drift or an arrow moves the row underneath it.
+        const proxy = document.createElement("div");
+        let lastX = 0;
+        const draggable = Draggable.create(proxy, {
+          type: "x",
+          trigger: lane,
+          inertia: !!window.InertiaPlugin,
+          allowNativeTouchScrolling: true, // a vertical swipe still scrolls the page
+          onPress() {
+            if (stepTween) stepTween.kill();
+            lastX = this.x;
+            lane.classList.add("is-dragging");
+            evLastTouch = Date.now();
           },
-          { passive: true },
-        );
+          onDrag() {
+            offset += this.x - lastX;
+            lastX = this.x;
+            evLastTouch = Date.now();
+            draw();
+          },
+          onThrowUpdate() {
+            offset += this.x - lastX;
+            lastX = this.x;
+            evLastTouch = Date.now();
+            draw();
+          },
+          onRelease() {
+            lane.classList.remove("is-dragging");
+          },
+          onThrowComplete() {
+            lane.classList.remove("is-dragging");
+          },
+        })[0];
+
+        // The drift. Off screen, in a hidden tab, under a pointer, for eight
+        // seconds after a drag or a press, or with reduced motion asked for —
+        // it holds still. dt is milliseconds, which is what EV_SPEED is in.
+        const tick = (time, dt) => {
+          if (!onScreen || document.hidden || reduce.matches || !W) return;
+          // The whole slider, not just the lane: the discs sit outside it, and
+          // a row that keeps sliding while you are aiming at an arrow is a row
+          // that moves the card out from under the press.
+          if ((slider || lane).matches(":hover") || Date.now() - evLastTouch < 8000) return;
+          if (stepTween && stepTween.isActive()) return;
+          offset -= dt * EV_SPEED;
+          draw();
+        };
+        gsap.ticker.add(tick);
+
+        const io = new IntersectionObserver(([e]) => (onScreen = e.isIntersecting));
+        io.observe(lane);
+        const ro = new ResizeObserver(() => measure());
+        ro.observe(lane);
+
+        // .control__fill — parked one width up and to the right, walked down the
+        // diagonal on hover and out of the opposite corner on the way back, so
+        // the wipe always travels the same way. The colour flip rides a class
+        // rather than the tween: with GSAP gone the arrow must not turn dark on
+        // a disc whose fill never arrived.
+        const controls = [];
+        if (slider) {
+          slider.querySelectorAll(".bk-control").forEach((btn) => {
+            const cfill = btn.querySelector(".bk-fill");
+            if (!cfill) return;
+            // x/y zeroed as well as the percentages: the CSS parks the fill
+            // with translate(100%,-100%) for the no-GSAP case, and GSAP reads
+            // that back as ±44px of x/y — leaving it in place would put the
+            // disc two widths out and the wipe would never reach the button.
+            gsap.set(cfill, { x: 0, y: 0, xPercent: 100, yPercent: -100 });
+            const enter = (e) => {
+              if (e && e.pointerType === "touch") return; // no hover to leave
+              btn.classList.add("is-filled");
+              gsap.to(cfill, { xPercent: 0, yPercent: 0, duration: 0.45, ease: "power3.out" });
+            };
+            const leave = (e) => {
+              if (e && e.pointerType === "touch") return;
+              btn.classList.remove("is-filled");
+              gsap.to(cfill, {
+                xPercent: -100,
+                yPercent: 100,
+                duration: 0.45,
+                ease: "power3.in",
+                onComplete: () => gsap.set(cfill, { xPercent: 100, yPercent: -100 }),
+              });
+            };
+            btn.addEventListener("pointerenter", enter);
+            btn.addEventListener("pointerleave", leave);
+            btn.addEventListener("focus", enter);
+            btn.addEventListener("blur", leave);
+            controls.push([btn, enter, leave]);
+          });
+        }
+
+        return {
+          lane,
+          step,
+          destroy() {
+            gsap.ticker.remove(tick);
+            io.disconnect();
+            ro.disconnect();
+            if (stepTween) stepTween.kill();
+            if (draggable) draggable.kill();
+            controls.forEach(([btn, enter, leave]) => {
+              btn.removeEventListener("pointerenter", enter);
+              btn.removeEventListener("pointerleave", leave);
+              btn.removeEventListener("focus", enter);
+              btn.removeEventListener("blur", leave);
+            });
+          },
+        };
       }
 
       // Direction-aware header: reading down tucks the bar away, any scroll back
@@ -12549,8 +12675,6 @@
       mountSponsorBar();
       mountCornerAd();
       mountToTop();
-      startEventAutoplay();
-      startEvArrowMagnet();
       startNavAutoHide();
       // Registered once, not per render — see syncSectionNav(). afterRender()
       // makes the first call, so the bar is right before any scrolling starts.
