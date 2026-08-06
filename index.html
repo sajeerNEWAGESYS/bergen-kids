@@ -550,45 +550,41 @@
         color: inherit;
       }
 
-      /* Button labels are set in the display face, not the UI one — headings
-         and the things you press share Georgia; body copy and form fields stay
-         in Inter.
+      /* Controls are set in the UI face, not the display one. Georgia earns the
+         headings, where it is read once and at size; a button label is read at
+         a glance at 14–17px, and every interface convention a parent already
+         knows — the browser's own chrome, the fields directly below, the apps
+         this sits beside — puts that label in a grotesque. In Georgia the
+         buttons read as typeset rather than pressable, and next to the Inter
+         copy around them they read as a different site.
 
-         Georgia ships two weights, 400 and 700, and nothing between. Most
-         buttons here ask for font-bold or for nothing, which are both real;
-         the handful asking for font-medium or font-semibold are not, and a
-         browser answers those by smearing the 400 — the same synthetic-weight
-         problem the fontWeight override in the Tailwind config already solves
-         for extrabold and black. The second rule snaps them to 400 rather than
-         700: they are secondary actions, which is why they were not asking for
-         bold in the first place.
+         Weight is the practical half of it. Georgia ships 400 and 700 and
+         nothing in between, so a button asking for font-medium or font-semibold
+         got a browser-smeared 400 — the same synthetic-weight problem the
+         fontWeight override in the Tailwind config solves for extrabold and
+         black — and a second rule had to snap those back to 400 to avoid it.
+         Inter ships 400/500/600/700, so all four asks are real weights now and
+         that rule is gone with the reason for it.
 
          .btn-type carries the same treatment to the calls to action that are
          not <button> elements — "Create a Parent Account", "Add Your Business"
          and the sponsor bar's "Visit Link" are an <a> or a <span>, because they
          navigate or carry a click handler rather than submitting anything. A
-         tag selector alone left exactly those three behind in Inter.
+         tag selector alone would leave exactly those three behind.
 
          It stays an opt-in class rather than a broader selector: the obvious
          catch-all — anything pill-shaped with padding and a fill — also matches
          the eyebrows and badges ("What's Inside", "Verified", the date chips,
          "Primary", "Paid"), which are labels rather than things you press.
 
-         Form controls are unaffected either way. input, select and textarea set
-         var(--font) explicitly further down, so what you type into stays in the
-         UI face while what you press does not. */
+         input, select and textarea already set var(--font) explicitly further
+         down, so the whole interface — what you type into and what you press —
+         is one face now, and Georgia is left doing the one job it is best at. */
       button,
       .btn-type {
-        font-family: var(--font-display);
+        font-family: var(--font);
         letter-spacing: -0.01em;
         cursor: pointer;
-      }
-
-      button.font-medium,
-      button.font-semibold,
-      .btn-type.font-medium,
-      .btn-type.font-semibold {
-        font-weight: 400;
       }
 
       ::selection {
@@ -1407,6 +1403,78 @@
          rule is only what is left over: positioning. */
       .ta-band {
         position: relative;
+        /* The decor below is placed past the edges on purpose — a blob is only
+           soft if its hard rim is outside the box. This is what keeps it from
+           bleeding into the bands above and below. */
+        overflow: hidden;
+      }
+
+      /* The hero's decor layer, brought to this band. Same shapes and the same
+         classes, not copies of them: the blobs, the dot grid, the dashed ring
+         and the floating disc are already authored for this wash, they already
+         hold on the dark page, and they already stop moving under
+         prefers-reduced-motion. They keep their hero- names for the same reason
+         .hero-sun does — the hero is where they were designed, and a second name
+         for one appearance would only hide that they are the same thing.
+
+         What is local is where they sit. The hero packs six shapes around a
+         photo cluster; this band is centred text, so it takes four and keeps
+         them out at the margins: the two blobs in the corners the wash already
+         warms, and the small pieces beside the heading, which is the only row
+         narrow enough to leave room. The card grid below runs the full width of
+         the section, so nothing decorative can live at its height. */
+      .ta-decor {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .ta-decor > * {
+        position: absolute;
+      }
+
+      .ta-decor .hero-blob--grass {
+        width: 330px;
+        height: 330px;
+        top: -96px;
+        right: -76px;
+      }
+
+      .ta-decor .hero-blob--sun {
+        width: 360px;
+        height: 360px;
+        bottom: -120px;
+        left: -96px;
+      }
+
+      .ta-decor .hero-dots {
+        top: 13%;
+        left: 3%;
+      }
+
+      .ta-decor .hero-ring {
+        top: 9%;
+        right: 4%;
+        bottom: auto;
+      }
+
+      .ta-decor .hero-pop {
+        top: 30%;
+        left: 9%;
+        right: auto;
+        bottom: auto;
+      }
+
+      /* Under 900 the cards stack and the heading loses its margins, so the
+         three small shapes would have nowhere to sit but under the words. The
+         blobs stay: they are the wash, and they are already off the edges. */
+      @media (max-width: 900px) {
+        .ta-decor .hero-dots,
+        .ta-decor .hero-ring,
+        .ta-decor .hero-pop {
+          display: none;
+        }
       }
 
       /* ── "Trusted businesses" feature cards ─────────────────────
@@ -1417,67 +1485,98 @@
          space it buys is what let the paragraph above shed three lines: the
          detail that was buried in it now sits on the card it belongs to.
 
-         Glass rather than a solid fill, because the band's whole character is
-         the warm wash behind it — an opaque card would punch three holes in
-         the gradient. Translucent white lets it through and still separates
-         the text from it.
+         It is .inside-card's construction, to the number: same 24px radius,
+         same 1.75rem, same 0.82 pane over blur(30px) saturate(0.9), same white
+         hairline, same lit inset edge, same shadow and the same 6px lift. The
+         two rows are the same three-column figure one section apart, so anything
+         that differs between them reads as an inconsistency rather than as a
+         distinction — and every one of those numbers was arrived at on the card
+         above. See .inside-card for why each is what it is.
 
-         Stated per theme rather than through --surface: what is needed is the
-         surface at partial alpha, and the token is opaque. On the dark page
-         the same 0.6 white would be three bright slabs, so it inverts to a
-         faint lift instead. */
+         What it does not copy is the height: a claim in two lines does not need
+         the 288px a category card holds a photo, a rule and an arrow in.
+
+         The old card was a lighter glass — 0.6 over blur(8px), a navy hairline,
+         no shadow — on the theory that the band's wash should read through it.
+         Against the corner ripples that turned into three differently tinted
+         cards: amber through the one at the bottom-left, green through the one
+         on the right. A card is a surface the copy sits on. It should be the
+         same surface in all three columns, and the wash should show around it
+         rather than under the words. */
       .ta-feature {
         text-align: left;
-        padding: 1.5rem 1.4rem;
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.6);
-        border: 1px solid var(--line);
-        -webkit-backdrop-filter: blur(8px);
-        backdrop-filter: blur(8px);
+        padding: 1.75rem;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        -webkit-backdrop-filter: blur(30px) saturate(0.9);
+        backdrop-filter: blur(30px) saturate(0.9);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.9),
+          0 18px 44px rgba(15, 26, 44, 0.18);
         transition:
-          transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-          background-color 0.3s ease,
-          border-color 0.3s ease,
-          box-shadow 0.3s ease;
-      }
-
-      [data-theme="dark"] .ta-feature {
-        background: rgba(255, 255, 255, 0.05);
+          transform 0.25s ease,
+          background-color 0.25s ease,
+          box-shadow 0.25s ease;
       }
 
       .ta-feature:hover {
-        transform: translateY(-4px);
-        background: rgba(255, 255, 255, 0.85);
-        border-color: var(--brand);
-        box-shadow: 0 18px 40px -22px rgba(26, 46, 74, 0.45);
+        transform: translateY(-6px);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.95),
+          0 28px 60px rgba(15, 26, 44, 0.24);
+      }
+
+      /* The dark end of the same construction, and the same values again: a
+         translucent white pane and a navy-tinted shadow are both wrong on a dark
+         page — the first as a bright slab, the second as nothing at all. */
+      [data-theme="dark"] .ta-feature {
+        background: rgba(24, 31, 41, 0.82);
+        border-color: rgba(255, 255, 255, 0.14);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 18px 44px rgba(0, 0, 0, 0.5);
       }
 
       [data-theme="dark"] .ta-feature:hover {
-        background: rgba(255, 255, 255, 0.09);
-        box-shadow: 0 18px 40px -22px rgba(0, 0, 0, 0.7);
+        background: rgba(24, 31, 41, 0.9);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.12),
+          0 28px 60px rgba(0, 0, 0, 0.62);
       }
 
+      /* A disc at the card above's size, not a rounded square at its own: the
+         badge is the first thing read in both rows, and two different shapes one
+         section apart is the mismatch you notice before any of the numbers. Mint
+         and brand rather than a per-card --accent — the category cards colour
+         their badge by category, and these three claims have no category to
+         colour by. Both tokens are already themed. */
       .ta-feature-ic {
         display: grid;
         place-items: center;
-        width: 42px;
-        height: 42px;
-        border-radius: 13px;
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
         background: var(--mint);
         color: var(--brand);
-        margin-bottom: 1rem;
+        margin-bottom: 1.15rem;
       }
 
       .ta-feature-t {
         font-weight: 700;
-        font-size: var(--fs-base);
+        font-size: var(--fs-lg);
         color: var(--head);
         letter-spacing: -0.01em;
-        margin-bottom: 0.35rem;
+        line-height: 1.25;
+        margin-bottom: 0.55rem;
       }
 
+      /* .inside-card-desc exactly, weight included — 500 is what holds a small
+         muted line on a translucent pane. */
       .ta-feature-d {
         font-size: var(--fs-sm);
+        font-weight: 500;
         line-height: 1.6;
         color: var(--muted);
       }
@@ -1562,45 +1661,202 @@
          the finished object the events page uses. */
       .ev-slide {
         flex: 0 0 288px;
+        transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
       }
 
+      /* Point at an arrow and the whole rail leans that way before you press —
+         a few pixels of anticipation that wire the button to the cards instead
+         of leaving it parked beside them. It has to be a transform: the marquee
+         writes scrollLeft every frame (startEventAutoplay), so a nudge written
+         there would be erased by the next one. Translating the slides rather
+         than the track keeps the track's own edge mask still, which is what
+         makes the lean read as the cards shifting under a fixed window. */
+      .ev-rail:has(.ev-arrow--next:is(:hover, :focus-visible)) .ev-slide {
+        transform: translateX(-8px);
+      }
+
+      .ev-rail:has(.ev-arrow--prev:is(:hover, :focus-visible)) .ev-slide {
+        transform: translateX(8px);
+      }
+
+      /* The global reduce rule only collapses the duration, which would leave
+         the lean landing as an 8px jump — the one motion worth dropping whole. */
+      @media (prefers-reduced-motion: reduce) {
+        .ev-rail:has(.ev-arrow:is(:hover, :focus-visible)) .ev-slide {
+          transform: none;
+        }
+      }
+
+      /* The disc is glass, not a white chip. It spends as much time standing on
+         an event photo as on the band's wash, and an opaque fill punched a hole
+         in whatever was behind it. The plain --surface on the first line is the
+         fallback for engines without color-mix, which in practice are the same
+         engines that lack backdrop-filter — so they get the solid disc and
+         never the thin translucent one on its own. */
       .ev-nav {
+        position: relative;
+        isolation: isolate;
         width: 46px;
         height: 46px;
         border-radius: 50%;
         border: 1.5px solid var(--line);
         background: var(--surface);
+        background: color-mix(in srgb, var(--surface) 76%, transparent);
+        -webkit-backdrop-filter: blur(10px) saturate(150%);
+        backdrop-filter: blur(10px) saturate(150%);
         color: var(--head);
         display: grid;
         place-items: center;
         cursor: pointer;
         padding: 0;
-        box-shadow: 0 6px 20px rgba(15, 26, 44, 0.16);
+        box-shadow:
+          0 6px 20px rgba(15, 26, 44, 0.16),
+          inset 0 1px 0 rgba(255, 255, 255, 0.55);
         transition:
-          border-color 0.2s ease,
-          background 0.2s ease,
-          color 0.2s ease,
+          border-color 0.25s ease,
+          background 0.25s ease,
+          color 0.25s ease,
           transform 0.2s ease,
-          box-shadow 0.2s ease;
+          box-shadow 0.3s ease;
       }
 
-      .ev-nav:hover {
-        border-color: var(--brand);
-        background: var(--surface-4);
+      /* Hover adds two rings of green light outside the disc — a tight one that
+         reads as a halo and a wide soft one that reads as spill. Both are
+         box-shadows rather than a pseudo-element because an outer shadow paints
+         outside the border box, so it can never wash over the glass face the
+         way a negative-z-index child would under backdrop-filter. */
+      .ev-nav:hover,
+      .ev-nav:focus-visible {
+        border-color: transparent;
         color: var(--brand);
-        box-shadow: 0 12px 28px rgba(15, 26, 44, 0.22);
+        box-shadow:
+          0 14px 30px rgba(15, 26, 44, 0.22),
+          0 0 0 5px rgba(45, 122, 79, 0.12),
+          0 0 24px 4px rgba(45, 122, 79, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      }
+
+      /* Press: the halo snaps outward and drops to nothing. A ripple with no
+         extra element and no JS — just the same shadow at a bigger spread and
+         zero alpha, reached fast so it reads as an impact rather than a fade. */
+      .ev-nav:active {
+        box-shadow:
+          0 4px 12px rgba(15, 26, 44, 0.18),
+          0 0 0 14px rgba(45, 122, 79, 0),
+          0 0 24px 4px rgba(45, 122, 79, 0),
+          inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        transition-duration: 0.12s;
+      }
+
+      /* The lit edge is a conic gradient masked down to the same 1.5px the
+         border occupies, sitting exactly on top of it: at rest it is invisible
+         and the plain border carries the edge, on hover the border goes
+         transparent underneath and the gradient takes over without anything
+         shifting. Registering --ev-spin is what lets it be animated at all —
+         engines without @property hold the gradient still, so the ring still
+         lights up, it just doesn't turn. */
+      @property --ev-spin {
+        syntax: "<angle>";
+        inherits: false;
+        initial-value: 0deg;
+      }
+
+      @keyframes ev-ring-spin {
+        to {
+          --ev-spin: 360deg;
+        }
+      }
+
+      .ev-nav::before {
+        content: "";
+        position: absolute;
+        inset: -1.5px;
+        border-radius: 50%;
+        padding: 1.5px;
+        pointer-events: none;
+        background: conic-gradient(
+          from var(--ev-spin),
+          var(--logo-green),
+          var(--sun),
+          var(--teal),
+          var(--logo-green)
+        );
+        -webkit-mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
+
+      .ev-nav:hover::before,
+      .ev-nav:focus-visible::before {
+        opacity: 1;
+        animation: ev-ring-spin 2.4s linear infinite;
+      }
+
+      /* Real glass catches the light where you are looking at it. The disc's
+         specular blob sits under the pointer and slides across the face as it
+         moves — position comes from the same pointermove that drives the magnet
+         (startEvArrowMagnet), so it costs two extra custom properties and no
+         second listener. Hover only: an untouched disc has no highlight to
+         place, and keyboard focus falls back to the centred 50% 50%, which is
+         simply a disc lit from straight on. */
+      .ev-nav::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        border-radius: 50%;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        background: radial-gradient(
+          56% 56% at var(--ev-mx, 50%) var(--ev-my, 50%),
+          rgba(255, 255, 255, 0.85) 0%,
+          rgba(255, 255, 255, 0.28) 44%,
+          rgba(255, 255, 255, 0) 74%
+        );
+      }
+
+      .ev-nav:hover::after,
+      .ev-nav:focus-visible::after {
+        opacity: 1;
+      }
+
+      /* The chevron itself holds still — one glyph, no window and nothing
+         sliding through it. Hover is carried by colour alone: the disc inherits
+         --head at rest and --brand on hover (see .ev-nav), and currentColor
+         takes the SVG's stroke with it, so the whole change is the one
+         `color` transition already on the disc. */
+      .ev-glyph {
+        position: relative;
+        z-index: 1;
+        display: block;
+        width: 18px;
+        height: 18px;
+      }
+
+      .ev-glyph svg {
+        display: block;
       }
 
       /* One arrow per side, straddling the content edge so it reads as
          attached to the rail. max() keeps it on screen once the page gutter
-         drops below the disc's own radius on narrow viewports. The transform
-         carries the vertical centring, so the hover/press scales have to
-         restate it. */
+         drops below the disc's own radius on narrow viewports. Everything that
+         moves the disc composes in this one transform: --ev-px/--ev-py are the
+         magnetic pull startEvArrowMagnet() writes, --ev-scale is the hover and
+         press, and the -50% is the vertical centring the other two ride on. */
       .ev-arrow {
         position: absolute;
         z-index: 3;
         top: calc(50% - 0.45rem);
-        transform: translateY(-50%);
+        transform: translate(var(--ev-px, 0px), calc(-50% + var(--ev-py, 0px)))
+          scale(var(--ev-scale, 1));
       }
 
       .ev-arrow--prev {
@@ -1611,12 +1867,13 @@
         right: max(6px, calc(clamp(1rem, 5vw, 7rem) - 23px));
       }
 
-      .ev-arrow:hover {
-        transform: translateY(-50%) scale(1.07);
+      .ev-arrow:hover,
+      .ev-arrow:focus-visible {
+        --ev-scale: 1.08;
       }
 
       .ev-arrow:active {
-        transform: translateY(-50%) scale(0.95);
+        --ev-scale: 0.94;
       }
 
       @media (max-width: 560px) {
@@ -1752,7 +2009,29 @@
         transition:
           background-color 0.25s ease,
           border-color 0.25s ease,
-          box-shadow 0.25s ease;
+          box-shadow 0.25s ease,
+          transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+      }
+
+      /* Reading down hands the viewport back: past the hero, a downward scroll
+         tucks the bar out of the top and any upward one brings it straight back,
+         so the header is there whenever you reach for it and gone while you are
+         reading. The sponsor bar pinned below does not leave with it — it rises
+         into the space instead (see body.nav-tucked). startNavAutoHide() decides;
+         this is only how it moves.
+
+         Transform, never height — the note above still holds. The bar is sticky
+         and therefore in flow, so its box has to keep its 104px whatever it is
+         doing on screen, or every section below shifts as it goes.
+
+         The shadow goes with it. A -100% translate puts the bar's bottom edge
+         exactly on the viewport's top edge, and a 28px-blurred shadow offset 8px
+         down still spills a grey band across the first 36px of the page — the
+         one part of the bar you would still see, on the way out. */
+      #site-nav.is-tucked {
+        transform: translateY(-100%);
+        border-bottom-color: transparent;
+        box-shadow: none;
       }
 
       /* Anchor targets clear the sticky nav — and the sponsor bar pinned over
@@ -1849,13 +2128,16 @@
       }
 
       /* ── Header call-to-action pair ─────────────────────────────
-         Georgia, like every other button on the page, at regular weight — the
-         same 400 the headings are set at, so a bolded pill does not put back
-         the weight the rest of this bar just shed.
+         Inter, like every other button on the page, at medium — the step that
+         reads as a control without putting back the weight the rest of this bar
+         shed. Georgia's 400 was the light end of a two-weight face; 500 is a
+         real weight in Inter and lands in the same place optically.
 
-         A point larger than the links beside them. Georgia has a smaller
-         apparent size than Inter at the same px, so matching the number would
-         have left the two loudest things in the bar looking like the quietest.
+         Sized with the links beside them rather than a point above. That bump
+         was compensation for Georgia, which has a smaller apparent size than
+         Inter at the same px — matched numbers would have left the two loudest
+         things in the bar looking like the quietest. In one face the numbers
+         can simply agree.
 
          Their hover is a moving fill rather than a lift, because buttons on
          this page carry no shadow any more and a translate with nothing under
@@ -1876,10 +2158,10 @@
         min-height: 44px;
         padding: 0.55rem 1.4rem;
         border-radius: 100px;
-        font-family: var(--font-display);
-        font-size: 1.0625rem;
-        font-weight: 400;
-        letter-spacing: -0.015em;
+        font-family: var(--font);
+        font-size: var(--fs-base);
+        font-weight: 500;
+        letter-spacing: -0.01em;
         white-space: nowrap;
         flex-shrink: 0;
         cursor: pointer;
@@ -1889,10 +2171,15 @@
           background-color 0.3s ease;
       }
 
+      /* The one button in the bar, so it is the one thing carrying weight: 600
+         against the 500 the links and Log in share. That step is the whole
+         hierarchy now that the outline is gone — links, then the same links in
+         a filled pill, and nothing in between asking to be read first. */
       .nav-cta {
         border: 0;
         background: var(--logo-green);
         color: #fff;
+        font-weight: 600;
       }
 
       /* A band of light on the diagonal, parked off the left edge until it is
@@ -1940,51 +2227,56 @@
         transform: translateX(130%);
       }
 
-      .nav-ghost {
-        border: 1.5px solid var(--line);
-        background: transparent;
-        color: var(--head);
-      }
+      /* Log in is a text link, not a second pill. An outlined pill beside a
+         filled one reads as two calls to action of nearly equal weight, and the
+         bar should offer one — the outline was competing with the green for the
+         eye every time the page loaded logged out.
 
-      .nav-ghost::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        background: var(--mint);
-        transform: scaleY(0);
-        transform-origin: bottom;
-        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+         So it takes the nav links' own treatment: same face, same 500, same
+         --muted resolving to --head on hover, and the same 0.85rem of side
+         padding, which lands it on their rhythm rather than beside it. What it
+         keeps from the pill rule is the 44px minimum height — the tap target
+         does not shrink just because the border went. */
+      .nav-ghost {
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        padding-inline: 0.85rem;
       }
 
       .nav-ghost:hover {
-        border-color: var(--brand);
-        color: var(--brand);
-      }
-
-      .nav-ghost:hover::before {
-        transform: scaleY(1);
+        color: var(--head);
       }
 
       /* Under 900 the green button is hidden and this is the only one left, so
          it takes the filled treatment — the bar still needs one thing that
-         looks like the primary action. Same swap the utilities used to do
-         inline, kept here so both states live in one place. */
+         looks like the primary action. The fill-up hover lives here too: it is
+         the pill's gesture, and there is no pill to run it on above 900. */
       @media (max-width: 900px) {
         .nav-ghost {
           background: var(--logo-green);
-          border-color: var(--logo-green);
           color: #fff;
           padding-inline: 1.2rem;
+          font-weight: 600; /* it is the primary here, so it takes .nav-cta's weight */
         }
 
         .nav-ghost::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          z-index: -1;
           background: var(--logo-green-deep);
+          transform: scaleY(0);
+          transform-origin: bottom;
+          transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .nav-ghost:hover {
-          border-color: var(--logo-green-deep);
           color: #fff;
+        }
+
+        .nav-ghost:hover::before {
+          transform: scaleY(1);
         }
       }
 
@@ -2265,15 +2557,36 @@
            since the clipped beam can only be painted inside the border box. */
         border: none;
         box-shadow: 0 18px 50px rgba(0, 0, 0, 0.42);
+        transform: translateY(var(--ad-rise, 0px));
         transition:
           transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1),
           opacity 0.5s ease;
+      }
+
+      /* The ad does not leave with the header — it moves into the space the
+         header just gave up, riding to the top edge as the nav tucks
+         (startNavAutoHide). It is the one thing up there an advertiser is paying
+         for, so a downward scroll should cost it nothing; all it does is stop
+         hanging where a bar used to be. Same 0.5s and same curve as the tuck, so
+         the two read as one movement rather than two things happening at once.
+
+         Written as a variable the bar folds into its own transform, not as a
+         rule of its own, so the two states that outrank it still do: the
+         dismissal below sets transform outright, and the entrance is an
+         animation, which beats both. A dismissed ad stays dismissed however the
+         page is scrolled. */
+      body.nav-tucked {
+        --ad-rise: -136px; /* from top:152px to 16px off the viewport edge */
       }
 
       @media (max-width: 560px) {
         #sponsor-bar {
           top: 106px;
           border-radius: 14px;
+        }
+
+        body.nav-tucked {
+          --ad-rise: -94px; /* from top:106px to 12px, the phone gutter */
         }
       }
 
@@ -2881,14 +3194,44 @@
       }
 
       /* The disc floats over cards on a dark page, so its shadow has to be
-         black rather than the navy tint that carries it on cream. */
+         black rather than the navy tint that carries it on cream, and the
+         inset gloss drops to a hairline — on a dark glass a 55% white top edge
+         reads as a chip out of the disc. */
       [data-theme="dark"] .ev-nav {
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+        box-shadow:
+          0 6px 20px rgba(0, 0, 0, 0.5),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
       }
 
-      [data-theme="dark"] .ev-nav:hover {
-        border-color: var(--brand);
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
+      /* Mid-green spill disappears into a dark page, so the halo is mixed
+         halfway to white — the same lift the dark accent discs get. */
+      [data-theme="dark"] .ev-nav:hover,
+      [data-theme="dark"] .ev-nav:focus-visible {
+        box-shadow:
+          0 14px 30px rgba(0, 0, 0, 0.6),
+          0 0 0 5px rgba(126, 214, 165, 0.14),
+          0 0 26px 4px rgba(126, 214, 165, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.14);
+      }
+
+      [data-theme="dark"] .ev-nav:active {
+        box-shadow:
+          0 4px 12px rgba(0, 0, 0, 0.5),
+          0 0 0 14px rgba(126, 214, 165, 0),
+          0 0 26px 4px rgba(126, 214, 165, 0),
+          inset 0 1px 0 rgba(255, 255, 255, 0.14);
+      }
+
+      /* The specular blob is white light on a bright face; on dark glass that
+         same white bleaches the disc into a bulb, so it drops to a fifth of its
+         strength and picks up the mint the dark halo already uses. */
+      [data-theme="dark"] .ev-nav::after {
+        background: radial-gradient(
+          56% 56% at var(--ev-mx, 50%) var(--ev-my, 50%),
+          rgba(126, 214, 165, 0.24) 0%,
+          rgba(255, 255, 255, 0.08) 46%,
+          rgba(255, 255, 255, 0) 74%
+        );
       }
 
       /* Green reads on cream but muddies on a dark page; the warm corner
@@ -5404,7 +5747,14 @@
         const v = getComputedStyle(document.documentElement).getPropertyValue("--sponsor-reserve");
         return parseFloat(v) || 0;
       }
+      // A scroll the page performs on your behalf must not read as reading-down.
+      // "What's Inside" scrolls downward, which is exactly the gesture that tucks
+      // the header (startNavAutoHide), and the section would then land 108px low
+      // — sitting in the gap the bar left, since scroll-margin-top reserves that
+      // strip for a bar that is still there. Held for a smooth scroll's length.
+      let navHoldUntil = 0;
       function scrollToEl(t) {
+        navHoldUntil = Date.now() + 1200;
         const top =
           t.getBoundingClientRect().top + window.pageYOffset + NAV_OFFSET - sponsorReserve();
         window.scrollTo({ top, behavior: "smooth" });
@@ -5553,11 +5903,17 @@
               <span class="theme-switch-ic theme-switch-ic--moon">${icon("moon", 14)}</span>
             </span>
           </button>`;
+        // Log in sits ahead of the green button, so the pair reads "log in, or
+        // list your business" and the one thing in the bar shaped like a button
+        // is the last thing before the menu. The account chip is the exception
+        // and keeps the end of the row: its dropdown hangs off the right edge,
+        // and the end is where an avatar is looked for.
         r.innerHTML = `
           ${themeBtn}
           ${state.user ? `<button class="relative w-[40px] h-[40px] rounded-full bg-surface-5 border border-transparent flex items-center justify-center text-head transition-[background,color,box-shadow] duration-200 shrink-0 hover:bg-mint hover:text-brand max900:bg-mint max900:text-brand max380:w-[36px] max380:h-[36px]" data-action="toggle-notif" aria-label="Notifications${notifUnread().length ? ` (${notifUnread().length} unread)` : ""}">${icon("bell", 18)}${notifBadge()}</button>` : ""}
+          ${state.user ? "" : acct}
           <button class="nav-cta max900:hidden" data-nav="advertiser" data-dashtab="add">List Your Business</button>
-          ${acct}
+          ${state.user ? acct : ""}
           <button class="${MENU_BTN}" data-action="mobile-menu" aria-label="Menu">${icon("menu", 18)}</button>`;
       }
       const SPONSOR_ADS = [
@@ -5713,7 +6069,7 @@
                   state.user
                     ? "" // signed in as any role — there is no account left to create
                     : `<div class="mt-8">
-                  <a class="btn-type inline-flex items-center justify-center gap-2 rounded-[100px] bg-logo-green px-9 py-[0.95rem] text-[1.0625rem] font-normal text-white min-h-[52px] btn-sweep transition-[background] duration-200 hover:bg-logo-green-deep cursor-pointer [&_svg]:transition-transform [&_svg]:duration-200 hover:[&_svg]:translate-x-[3px]" data-nav="directory" data-authgate="parent">Create a Parent Account ${icon("arrow-right", 17)}</a>
+                  <a class="btn-type inline-flex items-center justify-center gap-2 rounded-[100px] bg-logo-green px-9 py-[0.95rem] text-[1.0625rem] font-semibold text-white min-h-[52px] btn-sweep transition-[background] duration-200 hover:bg-logo-green-deep cursor-pointer [&_svg]:transition-transform [&_svg]:duration-200 hover:[&_svg]:translate-x-[3px]" data-nav="directory" data-authgate="parent">Create a Parent Account ${icon("arrow-right", 17)}</a>
                 </div>`
                 }
               </div>
@@ -5758,6 +6114,15 @@
           </section>
 
           <section class="ta-band warm-band px-[clamp(1rem,5vw,7rem)] py-24 max700:py-16 max380:px-4">
+            <!-- The hero's shapes, placed for this band — see .ta-decor. Behind
+                 everything: both blocks below carry z-[1]. -->
+            <div class="ta-decor" aria-hidden="true">
+              <span class="hero-blob hero-blob--grass"></span>
+              <span class="hero-blob hero-blob--sun"></span>
+              <span class="hero-dots"></span>
+              <span class="hero-ring"></span>
+              <span class="hero-pop"></span>
+            </div>
             <!-- An eyebrow, as every other band on this page has. It was the
                  one section that opened cold on a headline, which is part of
                  why it read flatter than the rest. -->
@@ -5827,9 +6192,9 @@
               <a class="band-copy text-white font-bold text-base no-underline inline-flex items-center gap-[0.35rem] cursor-pointer transition-[gap] duration-200 min-h-[44px] shrink-0 hover:gap-[0.6rem] hover:underline" data-nav="calendar" data-authgate>See all events ${icon("arrow-right", 15)}</a>
             </div>
             <div class="ev-rail relative z-[1]" data-rv="up" style="--rv-delay: 120ms">
-              <button class="ev-nav ev-arrow ev-arrow--prev" data-action="ev-prev" aria-label="Previous events">${icon("chev-left", 18)}</button>
+              <button class="ev-nav ev-arrow ev-arrow--prev" data-action="ev-prev" aria-label="Previous events"><span class="ev-glyph" aria-hidden="true">${icon("chev-left", 18)}</span></button>
               <div class="ev-track" id="ev-track">${evPrev.map((e, i) => `<div class="ev-slide">${evTile(e, i)}</div>`).join("")}${evPrev.map((e, i) => `<div class="ev-slide" aria-hidden="true">${evTile(e, i)}</div>`).join("")}</div>
-              <button class="ev-nav ev-arrow ev-arrow--next" data-action="ev-next" aria-label="Next events">${icon("chev-right", 18)}</button>
+              <button class="ev-nav ev-arrow ev-arrow--next" data-action="ev-next" aria-label="Next events"><span class="ev-glyph" aria-hidden="true">${icon("chev-right", 18)}</span></button>
             </div>
             <!-- No torn edge. The cut works by painting the next section's flat
                  colour up into this one, and this band is unfilled now — the
@@ -11844,6 +12209,105 @@
         requestAnimationFrame(frame);
       }
 
+      // The arrows lean toward the pointer — a few pixels of pull, strongest at
+      // the disc's edge, that make it feel picked up rather than clicked at.
+      // The same pointer reading also places the glass highlight (.ev-nav::after),
+      // so the lean and the light stay on the same frame for free.
+      // The offset is written as CSS vars so the hover scale and the vertical
+      // centring stay in the stylesheet with the rest of the arrow's motion
+      // (see .ev-arrow), and the disc's own transform transition gives the
+      // follow its slight lag for free.
+      //
+      // Delegated on the document because render() rebuilds the buttons: the
+      // handler costs one closest() per move and bails on anything that is not
+      // an arrow. Mouse only — a finger has no hover, and on touch the pull
+      // would land as a jump after the tap.
+      function startEvArrowMagnet() {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const PULL = 5; // px at the edge of the disc
+        let held = null;
+        const release = () => {
+          if (!held) return;
+          held.style.removeProperty("--ev-px");
+          held.style.removeProperty("--ev-py");
+          held.style.removeProperty("--ev-mx");
+          held.style.removeProperty("--ev-my");
+          held = null;
+        };
+        document.addEventListener(
+          "pointermove",
+          (e) => {
+            if (e.pointerType && e.pointerType !== "mouse") return;
+            const btn = e.target.closest && e.target.closest(".ev-arrow");
+            if (!btn) return release();
+            if (btn !== held) release();
+            held = btn;
+            const r = btn.getBoundingClientRect();
+            const nx = (e.clientX - r.left) / r.width; // 0 → 1 across the disc
+            const ny = (e.clientY - r.top) / r.height;
+            btn.style.setProperty("--ev-px", (nx - 0.5) * 2 * PULL + "px");
+            btn.style.setProperty("--ev-py", (ny - 0.5) * 2 * PULL + "px");
+            // Same two numbers as percentages, which is where the glass puts its
+            // highlight (see .ev-nav::after) — the light lands under the pointer
+            // while the disc leans toward it.
+            btn.style.setProperty("--ev-mx", (nx * 100).toFixed(1) + "%");
+            btn.style.setProperty("--ev-my", (ny * 100).toFixed(1) + "%");
+          },
+          { passive: true },
+        );
+      }
+
+      // Direction-aware header: reading down tucks the bar away, any scroll back
+      // up returns it. The pattern every phone browser uses, for the same reason
+      // it earns its place here — 104px of nav is a lot of viewport to hold open
+      // while someone is reading a listing. The pinned ad rides up into the room
+      // that frees rather than going with it.
+      //
+      // Throttled to a frame: scroll fires far more often than the screen
+      // repaints, and a class toggle can only land once per paint anyway.
+      function startNavAutoHide() {
+        const nav = el("site-nav");
+        if (!nav) return;
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const FLOOR = 280; // never tuck while the top of the page is still in view
+        const STEP = 6; // below this it is jitter, or iOS rubber-banding at an end
+        let lastY = window.scrollY;
+        let frame = 0;
+        const measure = () => {
+          frame = 0;
+          const y = Math.max(0, window.scrollY);
+          const dy = y - lastY;
+          if (Math.abs(dy) < STEP) return;
+          lastY = y;
+          if (Date.now() < navHoldUntil) return; // see scrollToEl()
+          // Everything the bar opens hangs off it — notifications, the account
+          // menu and the mobile menu all render into #dropdown-root — so an open
+          // panel pins the bar in place rather than riding up with its anchor.
+          const root = el("dropdown-root");
+          const anchored = !!(root && root.innerHTML);
+          const tuck =
+            dy > 0 &&
+            y > FLOOR &&
+            !anchored &&
+            !reduce.matches &&
+            // A tab-through must not send the focused control off screen.
+            !nav.contains(document.activeElement);
+          nav.classList.toggle("is-tucked", tuck);
+          // The sponsor ad rides up into the space the bar leaves — see
+          // body.nav-tucked. On <body> rather than the ad itself because the ad
+          // moves between two hosts as views render, and a class on the node
+          // would have to be reapplied every time.
+          document.body.classList.toggle("nav-tucked", tuck);
+        };
+        window.addEventListener(
+          "scroll",
+          () => {
+            if (!frame) frame = requestAnimationFrame(measure);
+          },
+          { passive: true },
+        );
+      }
+
       // Back to top — the bottom-right corner is a stack: the corner ad, then
       // this button. Both are fixed and the ad can be dismissed or change
       // height, so the offset is measured rather than hard-coded — a constant
@@ -11885,6 +12349,8 @@
       mountCornerAd();
       mountToTop();
       startEventAutoplay();
+      startEvArrowMagnet();
+      startNavAutoHide();
       // Registered once, not per render — see syncSectionNav(). afterRender()
       // makes the first call, so the bar is right before any scrolling starts.
       window.addEventListener("scroll", syncSectionNav, { passive: true });
