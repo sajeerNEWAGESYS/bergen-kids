@@ -1109,14 +1109,181 @@
          section is dense with prices and small print, and a photo underneath
          fought it for attention (and cost a 1600px download). The band's own
          radial highlight still sits on top of this. */
-      /* Unfilled, like .inside-band and .ev-band — the page's backdrop
-         photograph is what shows here now, not a navy gradient. The copy in
-         this band was already white-on-dark, so it needs no recolouring; what
-         it needs is .band-copy on the parts that sit straight on the section
-         rather than on a card, since white on a photograph is only legible
-         with something holding it down. */
+      /* The one band that cannot be unfilled. .inside-band and .ev-band show the
+         page's backdrop photograph through them and get away with it: a headline,
+         a line of copy, and cards that carry their own surface. This section is
+         prices, billing terms, add-on rows and small print — the densest reading
+         on the page — and a photograph behind all of that leaves half the type
+         sitting on grass and the other half on sky. .band-copy's halo can hold a
+         heading over a picture; it cannot hold a table of amounts.
+
+         So the picture stays, softened under a scrim of the band's own gradient
+         at two-thirds alpha — the same navy-into-forest it used to be painted
+         in. The photo still reads as depth behind the section, the copy gets one
+         even surface to sit on, and the band still belongs to the page rather
+         than being a flat slab dropped into it.
+
+         8px of blur, not 16: the scrim is what makes the type legible, and the
+         blur only has to stop the picture competing for the eye. At 16 it was
+         doing the scrim's job twice and the photograph stopped being a
+         photograph — this leaves enough of the shapes to read as one.
+
+         The scrim goes on the section itself rather than in a ::before. A
+         positioned pseudo-element paints above every non-positioned child, so a
+         scrim there would have to be answered with a z-index on each row inside;
+         an element's own background is always behind all of them. */
       .plans-band {
-        background: transparent;
+        background: linear-gradient(
+          150deg,
+          rgba(22, 50, 79, 0.68) 0%,
+          rgba(26, 46, 74, 0.72) 48%,
+          rgba(20, 69, 58, 0.68) 100%
+        );
+        -webkit-backdrop-filter: blur(8px) saturate(1.08);
+        backdrop-filter: blur(8px) saturate(1.08);
+      }
+
+      /* The cards on this band are not white, and in the end they are not opaque
+         either. A solid pane against a navy-into-forest scrim reads as a hole
+         punched in the band rather than a card laid on it, and warming the pane
+         only moved the problem: cream at #fdf8f0 is two percent off white and
+         still read as white, and carrying it far enough to be a colour made it a
+         third colour standing beside the band's two rather than one of them.
+
+         Glass. A white veil under a tenth of an alpha, graded on the same 150°
+         diagonal the rest of the page is lit from and cooling toward the band's
+         mint by the far corner, over a blur that keeps the photograph reading as
+         depth behind it. The band shows through every card, which is what makes
+         a row of them read as part of the section rather than as paper laid on
+         it — and it leaves the Best value card the only opaque thing in the
+         section, which is the whole point of a card being singled out.
+
+         The veil is 0.09 down to 0.035, and the blur went up to 12 as it thinned:
+         those two do the same job from opposite ends. Less veil is what makes the
+         card read as glass rather than as a pale panel; more blur is what keeps
+         the type legible once the veil is too thin to hold it on its own. Push
+         the alphas lower than this and the hairline edges are all that is left of
+         the card — at which point the row stops reading as cards at all.
+
+         The second half of this rule is what makes it possible. These cards were
+         written for a white pane — text-head, text-muted, text-brand, the mint
+         chips, the hairline rules between rows — and every one of those
+         utilities resolves a token rather than a literal. Restating the tokens
+         here re-points all of them at once: the copy goes white, the hairlines
+         go white at low alpha, the green accent becomes the pale mint the site
+         uses on dark cards, and the mint chips become a white veil like the pane
+         itself. Not one class in the markup has to know it is on glass now.
+
+         --sun and --orange-ink swap for the same reason: an orange authored to
+         carry white text at 5.2:1 is a dark orange, and dark anything is
+         invisible here. The token block serves both themes — this band is
+         scrimmed navy-into-forest on the light page and on the dark one, so the
+         copy is white either way; only the pane itself is restated below. */
+      .plan-surface {
+        background: linear-gradient(
+          150deg,
+          rgba(255, 255, 255, 0.09) 0%,
+          rgba(255, 255, 255, 0.05) 52%,
+          rgba(211, 235, 222, 0.035) 100%
+        );
+        -webkit-backdrop-filter: blur(12px) saturate(1.1);
+        backdrop-filter: blur(12px) saturate(1.1);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+        transition: background 0.25s ease;
+        --head: #ffffff;
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.76);
+        --brand: #d3ebde;
+        --orange-ink: var(--sun);
+        --mint: rgba(255, 255, 255, 0.12);
+        --line: rgba(255, 255, 255, 0.2);
+        --line2: rgba(255, 255, 255, 0.14);
+      }
+
+      /* The site's border beam, on the one card the section is recommending. It
+         is the same ring the sponsor bar and the corner ad wear, sharing their
+         --beamAngle property and beamSpin keyframes, so the page has one moving
+         edge rather than a new one per section — and it lands where it means
+         something: every other card here is glass, this one is filled, and now
+         it is the only thing in the band that moves.
+
+         ::before, not ::after. The "Best value" tag is an absolutely positioned
+         child that straddles the top edge, and a ring painted after it would
+         draw a 1.5px line straight across the words. As the first child the beam
+         paints above the card's own gradient and below everything in the markup.
+
+         1.5px to match the border it covers, and the border stays declared
+         underneath: it is what the card falls back to on an engine without
+         mask-composite. */
+      .plan-best::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1.5px; /* ring thickness */
+        pointer-events: none;
+        background: conic-gradient(
+          from var(--beamAngle),
+          #f5a623,
+          #ffe6bd,
+          #1e8c7a,
+          #2d5a8e,
+          #c3b1e6,
+          #f5a623
+        );
+        -webkit-mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        mask-composite: exclude;
+        animation: beamSpin 3.4s linear infinite;
+      }
+
+      .plan-surface:hover {
+        background: linear-gradient(
+          150deg,
+          rgba(255, 255, 255, 0.16) 0%,
+          rgba(255, 255, 255, 0.1) 52%,
+          rgba(211, 235, 222, 0.075) 100%
+        );
+      }
+
+      /* The dark page needs a different glass, not a dimmer one. The scrim over
+         this band is the same either way, but everything behind it is darker —
+         the backdrop photograph included — and a veil of white light enough to
+         sit on a daylit picture has nothing to be light against here; the row
+         flattens into the band and the cards stop having edges.
+
+         So the veil stops being white. These are a deep forest-slate at about
+         half alpha: the far end of the band's own gradient, tinted rather than
+         merely dimmed, which is the same shade --surface-4 takes on the dark page
+         (#17251d, the green-tinted panel). It reads as a card cut from the band
+         instead of a pale film laid over it, the copy keeps the contrast it has
+         in daylight, and the Best value card stays the one opaque thing in the
+         section.
+
+         The lit top edge drops with it: a 0.14 white hairline that reads as a
+         highlight on glass is a bright line on a dark panel. */
+      [data-theme="dark"] .plan-surface {
+        background: linear-gradient(
+          150deg,
+          rgba(42, 60, 51, 0.55) 0%,
+          rgba(29, 43, 37, 0.5) 52%,
+          rgba(23, 37, 29, 0.46) 100%
+        );
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09);
+      }
+
+      [data-theme="dark"] .plan-surface:hover {
+        background: linear-gradient(
+          150deg,
+          rgba(52, 73, 62, 0.62) 0%,
+          rgba(36, 53, 45, 0.57) 52%,
+          rgba(28, 45, 36, 0.53) 100%
+        );
       }
 
       .plan-card {
@@ -1453,10 +1620,44 @@
         left: 3%;
       }
 
-      .ta-decor .hero-ring {
-        top: 9%;
-        right: 4%;
-        bottom: auto;
+      /* A pair of open frames where the dashed circle was. Square, because
+         everything else in this band is a curve — two blobs, a disc, a grid of
+         dots — and one more circle was reading as more of the same. Rounded at
+         roughly the radius the cards below use, so the mark echoes the geometry
+         of the row it sits above rather than introducing a shape the band does
+         not own anywhere else.
+
+         Two frames rather than one, tipped against each other, so it reads as
+         depth instead of as an empty box. Solid hairlines rather than dashes,
+         and no spin: a dash pattern turning slowly is the detail that dates a
+         decorative mark fastest. */
+      .ta-frame {
+        width: 132px;
+        height: 132px;
+        top: 8%;
+        right: 4.5%;
+        border-radius: 30px;
+        border: 1.5px solid rgba(30, 140, 122, 0.4);
+        transform: rotate(14deg);
+      }
+
+      .ta-frame::before {
+        content: "";
+        position: absolute;
+        inset: 15px;
+        border-radius: 20px;
+        border: 1.5px solid rgba(45, 122, 79, 0.22);
+        transform: rotate(-9deg);
+      }
+
+      /* Mid-tone strokes on near-black are not there; both go mint, the inner
+         one still a step behind the outer so the pair keeps its depth. */
+      [data-theme="dark"] .ta-frame {
+        border-color: rgba(126, 214, 165, 0.34);
+      }
+
+      [data-theme="dark"] .ta-frame::before {
+        border-color: rgba(126, 214, 165, 0.18);
       }
 
       .ta-decor .hero-pop {
@@ -1471,7 +1672,7 @@
          blobs stay: they are the wash, and they are already off the edges. */
       @media (max-width: 900px) {
         .ta-decor .hero-dots,
-        .ta-decor .hero-ring,
+        .ta-frame,
         .ta-decor .hero-pop {
           display: none;
         }
@@ -6120,7 +6321,7 @@
               <span class="hero-blob hero-blob--grass"></span>
               <span class="hero-blob hero-blob--sun"></span>
               <span class="hero-dots"></span>
-              <span class="hero-ring"></span>
+              <span class="ta-frame"></span>
               <span class="hero-pop"></span>
             </div>
             <!-- An eyebrow, as every other band on this page has. It was the
@@ -6272,7 +6473,7 @@
                 ${BILLING_PLANS.map((p) => billingPlanCard(p, p.id === "annual")).join("")}
               </div>
 
-              <div class="mt-8 rounded-[16px] border-[1.5px] border-line bg-surface px-5 py-4 flex items-start gap-3 shadow-[0_2px_14px_rgba(26,46,74,0.08)]">
+              <div class="plan-surface mt-8 rounded-[16px] border-[1.5px] border-line px-5 py-4 flex items-start gap-3 shadow-[0_2px_14px_rgba(26,46,74,0.08)]">
                 <span class="w-[30px] h-[30px] rounded-[9px] bg-mint text-brand grid place-items-center shrink-0">${icon("card", 16)}</span>
                 <div class="text-sm leading-[1.6] text-muted">
                   <b class="text-head">What you pay</b> = the billing term you chose + your ad type + each placement you take, both charged once per ad. A Basic Listing with no placements is just the billing term.
@@ -6593,7 +6794,7 @@
          hand-written white/navy pair could never do. */
       function adTypeCard(a) {
         const free = !a.rate;
-        return `<div class="rounded-[18px] border-[1.5px] bg-surface p-5 h-full flex flex-col transition-[transform,box-shadow] duration-200 hover:-translate-y-1 ${free ?"border-sun shadow-[0_4px_18px_rgba(245,166,35,0.18)]" : "border-line shadow-[0_2px_14px_rgba(26,46,74,0.08)]"}">
+        return `<div class="plan-surface rounded-[18px] border-[1.5px] p-5 h-full flex flex-col transition-[transform,box-shadow] duration-200 hover:-translate-y-1 ${free ?"border-sun shadow-[0_4px_18px_rgba(245,166,35,0.18)]" : "border-line shadow-[0_2px_14px_rgba(26,46,74,0.08)]"}">
             <div class="flex items-start justify-between gap-3 mb-2">
               <span class="w-[34px] h-[34px] rounded-[10px] grid place-items-center shrink-0 ${free ?"bg-sun text-navy" : "bg-mint text-brand"}">${icon(a.icon, 17)}</span>
               <span class="text-sm font-extrabold whitespace-nowrap ${free ?"text-orange-ink" : "text-head"}">${free ? "Included" : "+" + money(a.rate) + `<span class='font-semibold text-muted'>/ad</span>`}</span>
@@ -6618,7 +6819,7 @@
            unreadable. Both branches keep the same box model, padding and hover
            so the row still lines up. */
         if (best)
-          return `<div class="relative rounded-[20px] border-[1.5px] border-[#0f3d29] p-6 h-full flex flex-col bg-[linear-gradient(155deg,#20643d_0%,#175236_52%,#14685a_100%)] shadow-[0_18px_46px_rgba(20,69,58,0.34)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_26px_60px_rgba(20,69,58,0.42)] max560:p-5">
+          return `<div class="plan-best relative rounded-[20px] border-[1.5px] border-[#0f3d29] p-6 h-full min-h-[258px] flex flex-col bg-[linear-gradient(155deg,#20643d_0%,#175236_52%,#14685a_100%)] shadow-[0_18px_46px_rgba(20,69,58,0.34)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_26px_60px_rgba(20,69,58,0.42)] max560:p-5">
             <div class="absolute -top-[11px] left-6 rounded-[100px] bg-sun px-[0.7rem] py-[0.2rem] text-2xs font-extrabold uppercase tracking-[0.08em] text-navy shadow-[0_4px_14px_rgba(245,166,35,0.45)]">Best value</div>
             <div class="text-sm font-bold tracking-[0.08em] uppercase text-sun">${p.name}</div>
             <div class="text-sm text-white/70 mb-4">${p.days} days</div>
@@ -6631,7 +6832,7 @@
               <span class="text-sm text-white/80">one-time, no renewal</span>
             </div>
           </div>`;
-        return `<div class="relative rounded-[20px] border-[1.5px] border-line bg-surface p-6 h-full flex flex-col shadow-[0_2px_14px_rgba(26,46,74,0.08)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 max560:p-5">
+        return `<div class="plan-surface relative rounded-[20px] border-[1.5px] border-line p-6 h-full min-h-[258px] flex flex-col shadow-[0_2px_14px_rgba(26,46,74,0.08)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 max560:p-5">
             <div class="text-sm font-bold tracking-[0.08em] uppercase text-orange-ink">${p.name}</div>
             <div class="text-sm text-muted mb-4">${p.days} days</div>
             <div class="flex items-baseline gap-2 flex-wrap">
