@@ -4332,7 +4332,7 @@
              gutters from about 1010px down. It is the newest and the least
              load-bearing of the four, and the section it points at is one
              scroll from the bottom of the page anyway, so this is the one that
-             gives way. The menu under 900 carries it, so only 901–1024 is
+             gives way. The menu under 900 carries it, so only 901-1024 is
              without it. -->
         <li class="max1024:hidden">
           <a
@@ -4375,6 +4375,12 @@
           class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.2rem] py-[0.6rem] inline-block hover:text-brand"
           data-nav="advertiser" data-navkey="advertiser">For Advertisers</a></li> -->
       </ul>
+      <!-- Hairline between the links and the account cluster. Four controls
+           butted straight against the last link is what made the right half
+           read as crowded — they are a different kind of thing, and one 1px
+           rule says so more cheaply than any amount of extra gap. Hidden on the
+           phone layout, where the links are behind the menu button and there is
+           nothing left to divide. -->
       <div class="flex items-center gap-3 shrink-0 max380:gap-[0.35rem]" id="nav-right"></div>
       <div id="dropdown-root" class="absolute left-0 top-full w-full h-0"></div>
     </nav>
@@ -5600,6 +5606,38 @@
           "Older students pair up with early readers for a shared book and a comprehension game."
         ),
       ];
+      /* Each event's subcategory, filed under its own category. Kept beside the
+         list rather than added as a fifteenth positional argument to ev() —
+         that call already runs to fourteen, and one more unlabelled string in
+         the middle of it is a bug waiting to be written.
+
+         Every value here is one of its category's own `sub` entries, which is
+         what lets the Events filter offer the same subcategory list the
+         directory does. Anything unmapped falls back to the category's first,
+         so an event added later is filterable before anyone remembers this. */
+      const EVENT_SUB = {
+        e1: "Adventure", // camps
+        e2: "Pottery", // arts
+        e3: "Swimming", // sports
+        e4: "Venues", // parties
+        e5: "Voice", // music
+        e6: "Math", // tutoring
+        e7: "Crafts", // arts
+        e8: "Soccer", // sports
+        e9: "Piano", // music
+        e10: "Math", // tutoring — a coding jam is the closest thing tutoring lists
+        e11: "Voice", // music
+        e12: "Math", // tutoring
+        e13: "Math", // tutoring — robotics, same reasoning as the coding jam
+        e14: "Dentists", // medical
+        e15: "Ballet", // music
+        e16: "Public", // schools — a reading club run at a school
+      };
+      EVENTS.forEach((e) => {
+        const subs = (catOf(e.cat) || {}).sub || [];
+        const want = EVENT_SUB[e.id];
+        e.sub = subs.includes(want) ? want : subs[0] || "";
+      });
       function ev(
         id,
         name,
@@ -5770,7 +5808,7 @@
         dir: { q: "", cats: [], ages: [], towns: [] },
         // from/to bound the events list to a date range; empty means unbounded
         // at that end, so either can be set on its own.
-        calFilter: { q: "", cats: [], ages: [], towns: [], from: "", to: "" },
+        calFilter: { q: "", cats: [], subs: [], ages: [], towns: [], from: "", to: "" },
         advTab: "ads", // the advertiser dashboard's tab — My Ads, plus the create screen
         billing: { q: "", cat: "", from: "", to: "" },
         listingFilter: { cat: "", plan: "", status: "", from: "", to: "" },
@@ -6996,60 +7034,111 @@
                not any are taken, the ad still needs a billing term — either a
                renewing subscription or a one-off payment for the same duration —
                and the add-on costs are added to whichever is chosen. */
-      // The tier the ad itself runs at. Deluxe is the only one that costs
-      // anything: a flat per-ad upgrade that unlocks the photo gallery.
+      /* What the ad IS, and there is exactly one answer per ad. Placement used
+         to be a separate multi-select on top of a Basic/Deluxe tier, which let
+         an advertiser build combinations that do not exist as products — a
+         Deluxe directory listing that is also a home-page banner, priced as
+         though it were both. An ad appears in one place. Saying so once, as a
+         single choice, is the whole of the model.
+
+         `group` is the heading the picker files it under, and the three groups
+         are the three surfaces: the directory, the home page, and inside a
+         category.
+
+         `needsTown` is false for the home-page pair. Town is how the directory
+         and the category pages narrow what a family sees, and a home-page
+         popup is shown to every visitor regardless — so asking an advertiser to
+         name towns there would be collecting an answer nothing reads.
+
+         `banner` marks the two leaderboard types, the only ones that render a
+         wide banner the advertiser can design themselves. Sidebar cards are
+         built from the ad's own fields and have no such choice.
+
+         Every rate is meant to be editable from the admin panel, so they live
+         here rather than in the markup — one place to change when they move. */
       const AD_TYPES = [
         {
           id: "basic",
+          group: "In the directory",
           name: "Basic",
           icon: "check",
           rate: 0,
-          desc: "Name, address, phone, click-through link and a standard place in the directory.",
+          needsTown: true,
+          desc: "Listed in the directory on its own — name, address, phone and a click-through link. No photographs.",
         },
         {
           id: "deluxe",
+          group: "In the directory",
           name: "Deluxe",
           icon: "star",
           rate: 10,
-          desc: "Everything in Basic, plus a photo gallery on your ad.",
+          needsTown: true,
+          desc: "The same directory listing carrying a photo gallery and one video.",
+        },
+        {
+          id: "home-leaderboard",
+          group: "On the home page",
+          name: "Home — Leaderboard",
+          icon: "megaphone",
+          rate: 60,
+          needsTown: false,
+          banner: true,
+          desc: "A wide banner across the top of the home page, shown as a popup a family can close.",
+        },
+        {
+          id: "home-sidebar",
+          group: "On the home page",
+          name: "Home — Sidebar",
+          icon: "sliders",
+          rate: 40,
+          needsTown: false,
+          desc: "A card in the home page's corner rail, shown as a popup a family can close.",
+        },
+        {
+          id: "cat-leaderboard",
+          group: "Inside a category",
+          name: "Category — Leaderboard",
+          icon: "megaphone",
+          rate: 45,
+          needsTown: true,
+          banner: true,
+          desc: "A wide banner shown only to families browsing the category and subcategory this ad is filed under.",
+        },
+        {
+          id: "cat-sidebar",
+          group: "Inside a category",
+          name: "Category — Sidebar",
+          icon: "sliders",
+          rate: 30,
+          needsTown: true,
+          desc: "A side-rail card shown only inside the category and subcategory this ad is filed under.",
         },
       ];
       const adTypeOf = (id) => AD_TYPES.find((t) => t.id === id) || AD_TYPES[0];
-      // Where the ad is placed. Charged once per ad, whatever the billing
-      // term. Any combination may be taken, or none at all.
+      const AD_TYPE_GROUPS = [...new Set(AD_TYPES.map((t) => t.group))];
+      // A directory listing is the only type a gallery belongs to, and the only
+      // one Deluxe upgrades.
+      const adHasGallery = (d) => d.type === "deluxe";
+      const adNeedsTown = (d) => adTypeOf(d.type).needsTown !== false;
+      const adHasBanner = (d) => !!adTypeOf(d.type).banner;
+      /* One add-on is left. Everything else that lived here is a type now, and
+         Top 10 is not a type: it does not decide where the ad appears, it moves
+         an ad that is already in the directory to the front of it. Which is
+         also why it is only offered on the two directory types — there is
+         nothing to pin about a home-page popup. */
       const AD_PLACEMENTS = [
-        {
-          id: "leaderboard",
-          name: "Leaderboard",
-          icon: "megaphone",
-          desc: "Your banner in the wide slot that rides the top of every page.",
-          rate: 60,
-        },
-        {
-          id: "sidebar",
-          name: "Sidebar",
-          icon: "sliders",
-          desc: "The featured card in the side rail, alongside listings and events.",
-          rate: 40,
-        },
-        {
-          id: "category",
-          name: "Category",
-          icon: "tag",
-          desc: "Shown only to families browsing the category the ad belongs to.",
-          rate: 35,
-        },
         {
           id: "top10",
           name: "Top 10 in directory",
           icon: "trending",
           desc: "Pinned inside the first ten directory results, on All or your own category.",
           rate: 50,
-          // Inventory-limited, so it is offered inside the create form only
-          // when a slot is free — never on the public pricing page.
+          // Inventory-limited: offered only while a slot is free.
           limited: true,
         },
       ];
+      const DIRECTORY_TYPES = ["basic", "deluxe"];
+      const adCanTop10 = (d) => DIRECTORY_TYPES.includes(d.type);
       const placementOf = (id) => AD_PLACEMENTS.find((p) => p.id === id);
       /* There are only ten pinned slots in the directory to sell, so Top 10 is
                the one add-on that can sell out. An ad holds its slot while it is in
@@ -7063,9 +7152,13 @@
         ADS.filter((a) => (a.addons || []).includes("top10") && TOP10_HOLDING.includes(a.status))
           .length;
       const top10Left = () => Math.max(0, TOP10_SLOTS - top10Used());
-      // What the public pricing page quotes — everything an advertiser can
-      // buy off the shelf, which is every placement except the capped one.
-      const OPEN_PLACEMENTS = AD_PLACEMENTS.filter((p) => !p.limited);
+      /* The public pricing band used to quote every placement except the capped
+         one, on the reasoning that a sold-out product should not be advertised.
+         With placement folded into the type there is nothing else left in this
+         step, and a step that renders an empty grid is worse than one that
+         quotes a capped add-on honestly — so Top 10 is on the page now, with
+         its cap stated on the card. */
+      const OPEN_PLACEMENTS = AD_PLACEMENTS;
       // `price` renews every `days`; `oneTime` buys the same run once and stops.
       const BILLING_PLANS = [
         { id: "monthly", name: "1 Month", days: 30, months: 1, price: 29, oneTime: 39 },
@@ -7427,7 +7520,7 @@
       function activeChipsInner(f, rmAction, clearAction) {
         const esc = (v) =>
           String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        const chips = ["cats", "ages", "towns"]
+        const chips = ["cats", "subs", "ages", "towns"]
           .filter((k) => (f[k] || []).length)
           .map((k) => [k, `${FILTER_FIELDS[k].label} (${f[k].length})`]);
         if (f.q) chips.push(["q", '"' + f.q + '"']);
@@ -7522,13 +7615,18 @@
         "inline-flex items-center gap-[0.4rem] rounded-[100px] border-[1.5px] border-line bg-surface px-[0.9rem] py-[0.4rem] text-sm font-bold text-head min-h-[38px] shrink-0 transition-[border-color,background] duration-150 hover:border-head hover:bg-surface-3";
       const ftCtl = (on, grow, body) =>
         `<div class="${FT_CTL} ${grow}" data-on="${!!on}">${body}</div>`;
-      // The search box leads the tray and takes twice the slack of a select.
-      // clearAction differs per page, so the inline reset is passed in.
-      function ftSearch(id, value, placeholder, label, clearAction) {
+      /* The search box leads the tray and takes twice the slack of a select.
+         clearAction differs per page, so the inline reset is passed in.
+
+         `full` gives it a row of its own, which the events tray needs: five
+         filters and a search do not fit on one line at any width a laptop has,
+         and search is the one that suffers most from being narrow — it holds a
+         sentence, where the others hold a word. */
+      function ftSearch(id, value, placeholder, label, clearAction, full) {
         const on = !!value;
         return ftCtl(
           on,
-          "flex-[1.6_1_264px]",
+          full ? "flex-[1_0_100%]" : "flex-[1.6_0_252px]",
           `${icon("search", 16, FT_ICON)}
               <label class="sr-only" for="${id}">${label}</label>
               <input class="${FT_INPUT} cursor-text placeholder:text-muted placeholder:opacity-100 placeholder:font-normal" type="text" id="${id}" placeholder="${placeholder}" value="${String(value || "").replace(/"/g, "&quot;")}">
@@ -7560,6 +7658,20 @@
          would be indistinguishable side by side. The word rides inside the pill
          and picks up the navy with it, which keeps the tray self-describing
          without putting a label above every control. */
+      /* From and To wrap as one unit. Left as two loose controls they wrap
+         independently, and on the events tray that put From at the end of one
+         row and To alone across the whole of the next — two halves of one
+         answer, in two places, one of them four times the width of the other. */
+      function ftDateRange(fromId, fromVal, toId, toVal) {
+        // shrink 1 on the group, unlike every other control: 420px is wider
+        // than a phone's whole tray, and a group that cannot shrink pushes the
+        // bar into a horizontal scroll. Under 560 the pair stacks instead, so
+        // neither date is squeezed to fit beside the other.
+        return `<div class="flex items-center gap-2 flex-[1.4_1_420px] min-w-0 max560:flex-col max560:items-stretch">
+            ${ftDate(fromId, fromVal, "From", "pair")}
+            ${ftDate(toId, toVal, "To", "pair")}
+          </div>`;
+      }
       function ftDate(id, value, label, size) {
         return ftCtl(
           !!value,
@@ -7582,10 +7694,25 @@
                so a full row fits without squeezing, and below that the row wraps
                rather than shaving the values. Only the handful of very long town
                names ("Washington Township") still ellipsise, and `title` covers it. */
+      /* flex-shrink is 0 on every one of these, and that is the whole point.
+         With it at 1 the tray never wrapped — it squeezed, and six controls on
+         the events page squeezed the search box down to "Event name, organizer
+         or t…" and the date fields to "dd-mn". A control narrower than its own
+         label is not a control.
+
+         At 0 each keeps its basis and the row wraps once it runs out, which is
+         what flex-wrap on the container was there for. grow still varies, so a
+         row with slack shares it out the same way it always did. */
       const FT_SIZE = {
-        wide: "flex-[1.2_1_252px]",
-        narrow: "flex-[0.7_1_162px]",
-        "": "flex-[1_1_192px]",
+        wide: "flex-[1.2_0_236px]",
+        // narrow is the date pair, and 200 is not a taste call: the browser's
+        // own dd-mm-yyyy field wants ~120, the From/To label ~40, and the icon
+        // and gaps the rest. Below that the date clips to "dd-m".
+        narrow: "flex-[0.7_0_200px]",
+        // Inside ftDateRange, where the group's own basis has already reserved
+        // the room and the two halves just split it.
+        pair: "flex-[1_1_0%] min-w-0",
+        "": "flex-[1_0_186px]",
       };
       /* ── Multi-select filters ───────────────────────────────────
                Category, age and town each hold a list, and a <select> cannot express
@@ -7595,6 +7722,7 @@
                any number can be ticked and applied in one go. */
       const FILTER_FIELDS = {
         cats: { label: "Category", ic: "tag", empty: "All categories" },
+        subs: { label: "Subcategory", ic: "sliders", empty: "All subcategories" },
         ages: { label: "Age Group", ic: "users", empty: "All ages" },
         towns: { label: "Town", ic: "pin", empty: "All towns" },
       };
@@ -7604,6 +7732,22 @@
       function filterOptions(key, page) {
         if (key === "ages") return AGE_GROUPS.map((a) => [a.id, a.label]);
         if (key === "towns") return TOWNS.map((t) => [t, t]);
+        /* Subcategory narrows to whatever categories are already picked, and
+           offers the lot when none are. Showing all thirty at once would be a
+           list nobody can read — and most of it would be subcategories of
+           categories the visitor has already filtered away.
+
+           Values are the subcategory's own name rather than an id, because that
+           is what the records carry: a listing's `sub` and an event's `sub` are
+           both the label. Which does mean two categories sharing a subcategory
+           name would match each other — none do today, and the category filter
+           beside this one is what would settle it if they ever did. */
+        if (key === "subs") {
+          const f = filterState(page);
+          const picked = f.cats || [];
+          const cats = picked.length ? CATEGORIES.filter((c) => picked.includes(c.id)) : CATEGORIES;
+          return [...new Set(cats.flatMap((c) => c.sub))].sort().map((s) => [s, s]);
+        }
         return (page === "cal" ? CATEGORIES : CATEGORIES.filter((c) => c.id !== "medical")).map(
           (c) => [c.id, c.name]
         );
@@ -7614,7 +7758,7 @@
       // neither, so they simply never contribute there.
       const activeFilterCount = (f) =>
         (f.q ? 1 : 0) +
-        ["cats", "ages", "towns"].filter((k) => (f[k] || []).length).length +
+        ["cats", "subs", "ages", "towns"].filter((k) => (f[k] || []).length).length +
         (f.from ? 1 : 0) +
         (f.to ? 1 : 0);
       function ftMulti(page, key, size) {
@@ -7764,6 +7908,7 @@
         const f = state.calFilter;
         return EVENTS.filter((e) => {
           if (!inList(f.cats, e.cat)) return false;
+          if (!inList(f.subs || [], e.sub)) return false;
           if (!townPass(f.towns, e.town)) return false;
           if (!ageListPass(f.ages, e)) return false;
           // Overlap, not containment: a week-long camp that starts before the
@@ -7848,12 +7993,12 @@
           </div>
 
           ${filtersTop(
-            `${ftSearch("c-q", f.q, "Event name, organizer or town…", "Search events", "rm-cal-filter")}
+            `${ftSearch("c-q", f.q, "Event name, organizer or town…", "Search events", "rm-cal-filter", true)}
             ${ftMulti("cal", "cats", "wide")}
+            ${ftMulti("cal", "subs", "wide")}
             ${ftMulti("cal", "ages")}
             ${ftMulti("cal", "towns")}
-            ${ftDate("c-from", f.from, "From")}
-            ${ftDate("c-to", f.to, "To")}`,
+            ${ftDateRange("c-from", f.from, "c-to", f.to)}`,
             activeCount,
             "clear-cal"
           )}
@@ -8509,6 +8654,11 @@
           status: "review",
           rejectReason: "",
           photos: 0,
+          banner: "default",
+          bannerImg: "",
+          bannerIcon: "",
+          bannerTitle: "",
+          bannerText: "",
           impressions: 0,
           clicks: 0,
           ...o,
@@ -8527,10 +8677,14 @@
         };
         return d;
       }
-      // Add-ons, as one line of text — used wherever a table has a single cell.
+      /* Where the ad runs, as one line of text — used wherever a table has a
+         single cell for it. The type is the answer now, so it leads; the add-on
+         only qualifies it. This used to read "No placements" for the great
+         majority of ads, which described the old model's default rather than
+         telling anyone anything. */
       function addonLabel(a) {
-        const names = (a.addons || []).map((id) => (placementOf(id) || {}).name).filter(Boolean);
-        return names.length ? names.join(", ") : "No placements";
+        const extra = (a.addons || []).map((id) => (placementOf(id) || {}).name).filter(Boolean);
+        return [adTypeOf(a.type).name, ...extra].join(" + ");
       }
       // Seeded so every state in AD_STATUSES is visible from the dashboard
       // without having to run the create flow first.
@@ -8547,9 +8701,9 @@
           phone: "(201) 555-0188",
           hours: "Mon–Fri 9:00 AM–6:00 PM · Sat 9:00 AM–1:00 PM",
           desc: "Group lessons, private coaching and family memberships. Certified instructors, heated indoor pools, and small class sizes for ages 6 months and up.",
-          type: "deluxe",
+          type: "home-leaderboard",
           photos: 3,
-          addons: ["leaderboard", "top10"],
+          addons: [],
           payMode: "subscription",
           plan: "quarterly",
           start: adDate(-10),
@@ -8576,7 +8730,7 @@
           hours: "Mon–Fri 8:00 AM–4:00 PM",
           desc: "Award-winning K–8 private school. Small classes, big outcomes. Accepting applications for Fall 2026.",
           type: "basic",
-          addons: ["sidebar"],
+          addons: ["top10"],
           payMode: "subscription",
           plan: "annual",
           start: adDate(-5),
@@ -8602,9 +8756,9 @@
           phone: "(201) 555-0132",
           hours: "Mon–Sun 10:00 AM–8:00 PM",
           desc: "All-inclusive birthday packages from $299 — laser tag, arcade, private party room and a dedicated host.",
-          type: "deluxe",
+          type: "cat-sidebar",
           photos: 3,
-          addons: ["category", "sidebar"],
+          addons: [],
           payMode: "onetime",
           plan: "monthly",
           start: adDate(3),
@@ -8623,8 +8777,8 @@
           ages: ["early", "tween", "teen"],
           phone: "(201) 555-0166",
           desc: "Private piano lessons and an end-of-term recital on a real concert stage. All levels, ages 5 and up.",
-          type: "basic",
-          addons: ["sidebar"],
+          type: "home-sidebar",
+          addons: [],
           payMode: "onetime",
           plan: "monthly",
           start: adDate(-40),
@@ -8650,8 +8804,8 @@
           phone: "(201) 555-0119",
           hours: "Mon–Thu 3:00 PM–8:00 PM · Sat 10:00 AM–2:00 PM",
           desc: "One-to-one math tutoring with certified teachers. Diagnostic assessment included with the first session.",
-          type: "basic",
-          addons: ["leaderboard", "top10"],
+          type: "cat-leaderboard",
+          addons: [],
           payMode: "subscription",
           plan: "semiannual",
           start: adDate(-20),
@@ -8676,8 +8830,8 @@
           towns: ["Ridgewood"],
           ages: ["preschool", "early"],
           desc: "One-week pottery intensive — wheel throwing, glazing and a kiln firing to take home.",
-          type: "basic",
-          addons: ["category"],
+          type: "deluxe",
+          addons: ["top10"],
           payMode: "onetime",
           plan: "monthly",
           start: adDate(-2),
@@ -9201,7 +9355,22 @@
         addons: [],
         payMode: "onetime",
         plan: "monthly",
+        // Banner design, for the two leaderboard types. "default" builds the
+        // banner from the ad's own fields; "custom" is everything below.
+        banner: "default",
+        bannerImg: "", // data URL of the uploaded artwork
+        bannerIcon: "", // data URL of a logo shown instead of the category glyph
+        bannerTitle: "",
+        bannerText: "",
       });
+      /* What the leaderboard slot is actually painted at, and therefore what an
+         advertiser has to supply. #sponsor-bar caps at 1240px and .sponsor-stage
+         is 124px tall, so the artwork is that box at 2x — stated as one number
+         rather than a range because "recommended 1240–2480 wide" is a decision
+         handed back to someone who came here to upload a picture. */
+      const BANNER_W = 2480;
+      const BANNER_H = 248;
+      const BANNER_SPEC = `${BANNER_W} × ${BANNER_H} px`;
       // A numbered step in the create form.
       function adStep(n, title, sub, body) {
         return `<div class="border-t-[1.5px] border-line pt-6 mt-6 first:border-t-0 first:pt-0 first:mt-0">
@@ -9239,18 +9408,18 @@
             ${isCustomTown(t) ? icon("pin", 12, "text-[#8a5200] shrink-0") : ""}${t}
             <button type="button" class="w-[22px] h-[22px] rounded-full grid place-items-center text-muted transition-[background,color] duration-150 hover:bg-surface-3 hover:text-head" data-action="ad-town-remove" data-val="${esc(t)}" aria-label="Remove ${esc(t)}">${icon("x", 12)}</button>
           </span>`;
-      function adTownField(sel) {
+      function adTownField(sel, required) {
         const custom = sel.filter(isCustomTown);
         return `<div class="${FLD_WIDE}">
               <div class="flex items-baseline justify-between gap-3">
-                <label>Town *</label>
+                <label>Town${required ? " *" : ` <span style="color:var(--muted);font-weight:400">— optional for this type</span>`}</label>
                 <span class="text-sm font-semibold text-adlabel">${sel.length ? sel.length + " selected" : "None"}</span>
               </div>
               <div class="mt-[0.3rem] rounded-[12px] border-[1.5px] border-line bg-surface-2 p-3">
                 ${
                   sel.length
                     ? `<div class="flex gap-2 flex-wrap mb-3">${sel.map(townPill).join("")}</div>`
-                    : `<div class="text-sm text-muted leading-[1.5] mb-3">No towns yet — choose where this ad should run.</div>`
+                    : `<div class="text-sm text-muted leading-[1.5] mb-3">${required ? "No towns yet — choose where this ad should run." : "A home-page ad is shown to every visitor, so towns are not needed. Add some only if you want them recorded."}</div>`
                 }
                 <button type="button" class="inline-flex items-center justify-center gap-2 min-h-[42px] px-4 rounded-[10px] border-[1.5px] border-dashed border-line bg-surface text-head text-sm font-bold cursor-pointer transition-[border-color,background] duration-200 hover:border-brand hover:bg-surface-4" data-action="ad-town-open">${icon("plus", 15)} ${sel.length ? "Add more towns" : "Choose towns"}</button>
               </div>
@@ -9274,6 +9443,101 @@
                 )
                 .join("")}</div>
             </div>`;
+      }
+      /* ── Leaderboard banner design ──────────────────────────────
+         A leaderboard ad is a picture with words on it, and until now the words
+         were always the ad's name over the category's glyph. That is the right
+         default — it is filled in already and it cannot be got wrong — but it
+         is not what an advertiser with their own artwork wants, so it is a
+         default rather than the only option.
+
+         The preview is the real thing at a quarter size: the same dark bar, the
+         same layout, the same Visit Link button. Both designs run through it,
+         so choosing between them is looking at the two rather than reading
+         about them. */
+      function bannerPreview(d) {
+        const c = catOf(d.cat) || CATEGORIES[0];
+        const custom = d.banner === "custom";
+        const title = (custom && d.bannerTitle.trim()) || d.name.trim() || "Your advertisement";
+        const sub =
+          (custom && d.bannerText.trim()) ||
+          [c.name, d.sub].filter(Boolean).join(" · ") ||
+          c.name;
+        const art = custom ? d.bannerImg : "";
+        const mark = custom && d.bannerIcon;
+        return `<div class="relative rounded-[14px] overflow-hidden bg-[linear-gradient(180deg,rgba(14,14,16,0.94),rgba(0,0,0,0.96))] px-4 py-3 flex items-center gap-3 min-h-[86px] shadow-[0_10px_30px_rgba(0,0,0,0.3)]"${art ? ` style="background-image:url('${art}');background-size:cover;background-position:center"` : ""}>
+            ${art ? `<span class="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,10,14,0.82),rgba(8,10,14,0.35))]"></span>` : ""}
+            <span class="relative z-[1] flex items-center gap-[0.4rem] text-2xs font-bold tracking-[0.12em] uppercase text-white/80 shrink-0 max560:hidden"><span class="sponsor-live"></span>Ad</span>
+            <span class="relative z-[1] w-[38px] h-[38px] rounded-[10px] grid place-items-center shrink-0 overflow-hidden ${mark ? "bg-white" : "text-white"}" ${mark ? "" : `style="background:${c.grad}"`}>${
+              mark
+                ? `<img src="${mark}" alt="" class="w-full h-full object-contain">`
+                : icon(c.icon, 18)
+            }</span>
+            <span class="relative z-[1] min-w-0 flex-1">
+              <span class="block font-serif text-base font-bold text-white leading-[1.2] truncate">${escText(title)}</span>
+              <span class="block text-2xs text-white/75 truncate mt-[1px]">${escText(sub)}</span>
+            </span>
+            <span class="relative z-[1] bg-orange-ink text-white rounded-[100px] px-4 py-[0.45rem] text-sm font-bold inline-flex items-center gap-[0.35rem] shrink-0 max560:hidden">${icon("globe", 13)} Visit Link</span>
+            <span class="relative z-[1] w-[26px] h-[26px] rounded-full bg-white/15 text-white grid place-items-center shrink-0">${icon("x", 13)}</span>
+          </div>`;
+      }
+      // Text the advertiser typed, printed back onto the preview. Escaped for
+      // content, not for an attribute — it goes between tags.
+      const escText = (v) =>
+        String(v == null ? "" : v)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      function adBannerBlock(d) {
+        const custom = d.banner === "custom";
+        const pick = (id, ic, name, desc, on) =>
+          `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-banner-mode" data-val="${id}" aria-pressed="${on}">
+              <div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon(ic, 15)} ${name}</div>
+              <div class="text-sm text-muted mt-[0.3rem] leading-[1.45]">${desc}</div>
+            </button>`;
+        const drop = (action, label, note, filled) =>
+          `<div class="border-2 border-dashed ${filled ? "border-brand bg-surface-4" : "border-[#b0bdc9] bg-surface-2"} rounded-[12px] px-4 py-5 text-center cursor-pointer transition-all duration-150 hover:border-brand hover:bg-surface-4" data-action="${action}">
+              <span class="text-brand leading-[0] block mb-[0.35rem]">${icon(filled ? "check" : "upload", 22)}</span>
+              <div class="text-base font-semibold text-head">${label}</div>
+              <div class="text-sm text-muted mt-[0.15rem]">${note}</div>
+            </div>`;
+        return `<div class="mt-5 rounded-[14px] border-[1.5px] border-line2 bg-surface-4 p-5 max380:p-4">
+            <div class="font-bold text-base text-head flex items-center gap-[0.4rem] mb-[0.3rem]">${icon("image", 15)} Banner design</div>
+            <div class="text-sm text-muted leading-[1.55] mb-4">This type runs a wide banner. Take the standard design, or supply your own artwork and wording.</div>
+            <div class="grid grid-cols-2 gap-3 max700:grid-cols-1">
+              ${pick("default", "check", "Standard banner", "Built from what you filled in above — your ad name, the category glyph and its name.", !custom)}
+              ${pick("custom", "palette", "Your own banner", "Your artwork, your logo and your wording in place of all three.", custom)}
+            </div>
+            ${
+              custom
+                ? `<div class="grid grid-cols-2 gap-[1.1rem] mt-4 max700:grid-cols-1">
+              <div class="${FLD_WIDE}"><label>Banner artwork</label>
+                ${drop("ad-banner-img", d.bannerImg ? "Artwork added — click to replace" : "Click to upload your banner", `${BANNER_SPEC} · JPG or PNG up to 4 MB`, !!d.bannerImg)}
+                <div class="flex items-start gap-2 text-sm text-muted leading-[1.55] mt-[0.5rem]">${icon("image", 14, "shrink-0 mt-[0.15rem]")}<span>The slot is painted at ${BANNER_W / 2} × ${BANNER_H / 2}, so ${BANNER_SPEC} is that at 2× and stays sharp on a retina screen. Anything wider is scaled to fit and cropped from the centre.</span></div>
+              </div>
+              <div class="${FLD}"><label>Your logo <span style="color:var(--muted);font-weight:400">— replaces the category icon</span></label>
+                ${drop("ad-banner-icon", d.bannerIcon ? "Logo added — click to replace" : "Click to upload a logo", "Square PNG works best · up to 2 MB", !!d.bannerIcon)}
+              </div>
+              <div class="${FLD}"><label>Headline</label><input id="ad-banner-title" maxlength="46" placeholder="${esc(d.name || "Your advertisement")}" value="${esc(d.bannerTitle)}"></div>
+              <div class="${FLD_WIDE}"><label>Supporting line</label><input id="ad-banner-text" maxlength="72" placeholder="${esc([(catOf(d.cat) || CATEGORIES[0]).name, d.sub].filter(Boolean).join(" · "))}" value="${esc(d.bannerText)}"></div>
+              ${
+                d.bannerImg || d.bannerIcon
+                  ? `<div class="col-span-full flex gap-2 flex-wrap">
+                ${d.bannerImg ? `<button type="button" class="inline-flex items-center gap-2 min-h-[38px] px-3 rounded-[10px] border-[1.5px] border-line bg-surface text-sm font-bold text-head hover:border-head" data-action="ad-banner-clear" data-val="bannerImg">${icon("trash", 14)} Remove artwork</button>` : ""}
+                ${d.bannerIcon ? `<button type="button" class="inline-flex items-center gap-2 min-h-[38px] px-3 rounded-[10px] border-[1.5px] border-line bg-surface text-sm font-bold text-head hover:border-head" data-action="ad-banner-clear" data-val="bannerIcon">${icon("trash", 14)} Remove logo</button>` : ""}
+              </div>`
+                  : ""
+              }
+            </div>`
+                : ""
+            }
+            <div class="mt-4">
+              <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel mb-[0.5rem]">Preview</div>
+              ${bannerPreview(d)}
+              <div class="text-sm text-muted leading-[1.55] mt-[0.5rem]">Shown at about a quarter of the width families see.</div>
+            </div>
+            <input type="file" id="ad-banner-file" accept="image/*" class="hidden">
+          </div>`;
       }
       function adTypePick(t, on) {
         return `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ?"border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-type" data-val="${t.id}" aria-pressed="${on}">
@@ -9346,7 +9610,7 @@
         const left = top10Left();
         const cat = catOf(d.cat) || CATEGORIES[0];
         const renewal = addDays(adDate(0), b.plan.days);
-        const deluxe = d.type === "deluxe";
+        const deluxe = adHasGallery(d);
         // Editing only ever touches what the ad says. Everything the payment was
         // worked out from — the type, the placements and the billing plan — is
         // read back as a locked summary.
@@ -9366,7 +9630,7 @@
             <div class="${FLD}"><label>Category *</label><select id="ad-cat">${CATEGORIES.map((c) => `<option value="${c.id}" ${d.cat === c.id ? "selected" : ""}>${c.name}</option>`).join("")}</select></div>
             <div class="${FLD}"><label>Subcategory *</label><select id="ad-sub">${subOptions(d.cat, d.sub)}</select></div>
             <div class="${FLD_WIDE}"><label>Click-through link *</label><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-surface-2 min-h-[46px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("globe", 16)}<input class="border-none outline-none bg-transparent font-sans text-base text-head w-full min-w-0 cursor-text placeholder:text-muted placeholder:opacity-100" id="ad-dest" placeholder="https://yourbusiness.com/enroll" value="${esc(d.dest)}" style="border:none;background:transparent;padding:0;width:100%"></div></div>
-            ${adTownField(d.towns)}
+            ${adTownField(d.towns, adNeedsTown(d))}
             ${adChips(
               "ages",
               "Age group",
@@ -9389,10 +9653,23 @@
             "Ad type",
             locked
               ? "The type this ad was paid for."
-              : "Basic covers the essentials. Deluxe adds a photo gallery for " +
-                  money(adTypeOf("deluxe").rate) +
-                  "/ad.",
-            `${locked ? lockedBox([b.type.name], "The ad type cannot be changed after payment. Withdraw this ad and create a new one to switch.") : `<div class="grid grid-cols-2 gap-3 max700:grid-cols-1">${AD_TYPES.map((t) => adTypePick(t, d.type === t.id)).join("")}</div>`}
+              : "One choice, and it decides where the ad runs — in the directory, on the home page, or inside its own category.",
+            `${
+              locked
+                ? lockedBox(
+                    [b.type.name],
+                    "The ad type cannot be changed after payment. Withdraw this ad and create a new one to switch."
+                  )
+                : AD_TYPE_GROUPS.map(
+                    (g) => `<div class="mb-4 last:mb-0">
+              <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel mb-[0.6rem]">${g}</div>
+              <div class="grid grid-cols-2 gap-3 max700:grid-cols-1">${AD_TYPES.filter((t) => t.group === g)
+                .map((t) => adTypePick(t, d.type === t.id))
+                .join("")}</div>
+            </div>`
+                  ).join("")
+            }
+          ${!locked && adHasBanner(d) ? adBannerBlock(d) : ""}
           ${
             deluxe
               ? `<div class="${FLD} mt-4"><label>Upload photos <span style="color:var(--muted);font-weight:400">— Deluxe feature</span></label>
@@ -9416,28 +9693,32 @@
           )}
           ${adStep(
             3,
-            "Add-ons for placement",
+            "Add-on",
             locked
-              ? "Where this ad was paid to appear. With no placement it runs in the directory only."
-              : "Where the ad appears. Take any combination, or none — each is charged once per ad. With none, the ad runs in the directory only.",
+              ? "What was bought on top of the type."
+              : adCanTop10(d)
+                ? "Optional, and charged once per ad."
+                : "Nothing to add on this type.",
             locked
               ? lockedBox(
-                  b.addons.length
-                    ? b.addons.map((x) => x.name)
-                    : ["Directory only — no placements taken"],
-                  "Placements cannot be changed after payment. Withdraw this ad and create a new one to change where it appears."
+                  b.addons.length ? b.addons.map((x) => x.name) : ["No add-on taken"],
+                  "Add-ons cannot be changed after payment. Withdraw this ad and create a new one to change them."
                 )
-              : `<div class="grid grid-cols-2 gap-3 max700:grid-cols-1">${AD_PLACEMENTS.filter(
-                  (p) => p.id !== "top10" || left > 0 || d.addons.includes("top10")
-                )
-                  .map((p) =>
-                    adAddonPick(
-                      p,
-                      d.addons.includes(p.id),
-                      p.id === "top10" ? `${left} of ${TOP10_SLOTS} slots left` : ""
-                    )
+              : // Pinning applies to a directory result, so there is nothing to
+                // offer a home-page popup or a category banner.
+                !adCanTop10(d)
+                ? `<div class="flex items-start gap-2 text-sm text-muted leading-[1.55] bg-surface-4 border-[1.5px] border-line2 rounded-[12px] px-4 py-3">${icon("trending", 15, "shrink-0 mt-[0.15rem]")}<span><b class="text-head">Top 10 in directory applies to directory listings.</b> ${adTypeOf(d.type).name} does not run in the directory, so there is nothing to pin. Choose Basic or Deluxe above if you want this.</span></div>`
+                : `<div class="grid grid-cols-2 gap-3 max700:grid-cols-1">${AD_PLACEMENTS.filter(
+                    (p) => p.id !== "top10" || left > 0 || d.addons.includes("top10")
                   )
-                  .join("")}</div>
+                    .map((p) =>
+                      adAddonPick(
+                        p,
+                        d.addons.includes(p.id),
+                        p.id === "top10" ? `${left} of ${TOP10_SLOTS} slots left` : ""
+                      )
+                    )
+                    .join("")}</div>
           ${
             left <= 0 && !d.addons.includes("top10")
               ? `<div class="mt-3 flex items-start gap-2 text-sm text-muted leading-[1.55] bg-surface-4 border-[1.5px] border-line2 rounded-[12px] px-4 py-3">${icon("trending", 15, "shrink-0 mt-[0.15rem]")}<span><b class="text-head">Top 10 in directory is sold out.</b> All ${TOP10_SLOTS} pinned slots are taken by other advertisers right now, so it is not available on this ad. Unpinned directory results are shown newest first.</span></div>`
@@ -9507,6 +9788,8 @@
         pull("address", "ad-addr");
         pull("phone", "ad-phone");
         pull("desc", "ad-desc");
+        pull("bannerTitle", "ad-banner-title");
+        pull("bannerText", "ad-banner-text");
       }
       function repaintAdForm() {
         syncAdDraft();
@@ -10746,6 +11029,45 @@
         if (hero) hero.outerHTML = profileHero(state.user);
         renderNav();
       }
+      /* Which of the two drops asked for the file. One <input type="file">
+         serves both, because two would need two change handlers and two ids to
+         keep straight for a difference of one word. */
+      let BANNER_SLOT = "bannerImg";
+      function readBannerFile(file) {
+        if (!file || !state.adDraft) return;
+        if (!/^image\//.test(file.type)) {
+          toast("Choose an image file", "x");
+          return;
+        }
+        const cap = BANNER_SLOT === "bannerImg" ? 4 : 2;
+        if (file.size > cap * 1024 * 1024) {
+          toast(`Image must be under ${cap} MB`, "x");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          state.adDraft[BANNER_SLOT] = reader.result;
+          repaintAdForm();
+          // Measured off the file rather than assumed: an advertiser who
+          // uploads a 600px-wide banner should hear it now, not after the ad
+          // is live and painted soft across a 1240px slot.
+          if (BANNER_SLOT === "bannerImg") {
+            const probe = new Image();
+            probe.onload = () => {
+              if (probe.naturalWidth < BANNER_W / 2)
+                toast(
+                  `That artwork is ${probe.naturalWidth}px wide — ${BANNER_SPEC} keeps it sharp`,
+                  "x"
+                );
+              else toast("Banner artwork added", "check");
+            };
+            probe.onerror = () => toast("Banner artwork added", "check");
+            probe.src = reader.result;
+          } else toast("Logo added", "check");
+        };
+        reader.onerror = () => toast("Could not read that image", "x");
+        reader.readAsDataURL(file);
+      }
       function readProfilePhoto(file) {
         if (!file) return;
         if (!/^image\//.test(file.type)) {
@@ -11010,6 +11332,7 @@
               state.calFilter = {
                 q: "",
                 cats: [],
+                subs: [],
                 ages: [],
                 towns: [],
                 from: "",
@@ -11047,7 +11370,17 @@
             case "apply-filter": {
               const d = state.filterDraft;
               if (!d) break;
-              filterState(d.page)[d.key] = [...d.vals];
+              const f = filterState(d.page);
+              f[d.key] = [...d.vals];
+              /* Narrowing the categories can strand a subcategory that no
+                 longer belongs to any of them — pick Sports, choose Swimming,
+                 then switch the category to Music, and every result vanishes
+                 against a subcategory the visitor can no longer see in the
+                 list. Anything orphaned is dropped with its parent. */
+              if (d.key === "cats" && (f.subs || []).length) {
+                const live = new Set(filterOptions("subs", d.page).map(([v]) => v));
+                f.subs = f.subs.filter((s) => live.has(s));
+              }
               state.filterDraft = null;
               closeModal();
               render();
@@ -11174,9 +11507,33 @@
               repaintAdForm();
               break;
             }
-            case "ad-type":
-              state.adDraft.type = actEl.dataset.val;
-              if (state.adDraft.type !== "deluxe") state.adDraft.photos = 0;
+            case "ad-type": {
+              const d = state.adDraft;
+              syncAdDraft(); // the banner text fields are about to be repainted away
+              d.type = actEl.dataset.val;
+              // Anything the new type cannot carry is dropped rather than left
+              // in the draft to be charged for or submitted invisibly.
+              if (!adHasGallery(d)) d.photos = 0;
+              if (!adCanTop10(d)) d.addons = d.addons.filter((a) => a !== "top10");
+              repaintAdForm();
+              break;
+            }
+            case "ad-banner-mode":
+              syncAdDraft();
+              state.adDraft.banner = actEl.dataset.val;
+              repaintAdForm();
+              break;
+            case "ad-banner-img":
+            case "ad-banner-icon":
+              syncAdDraft();
+              // One hidden input serves both drops; which one it is filling is
+              // parked on the node so the change handler knows where to put it.
+              BANNER_SLOT = a === "ad-banner-img" ? "bannerImg" : "bannerIcon";
+              el("ad-banner-file")?.click();
+              break;
+            case "ad-banner-clear":
+              syncAdDraft();
+              state.adDraft[actEl.dataset.val] = "";
               repaintAdForm();
               break;
             case "ad-addon": {
@@ -11615,6 +11972,9 @@
       document.addEventListener("change", (e) => {
         if (e.target.id === "pf-photo") {
           readProfilePhoto(e.target.files && e.target.files[0]);
+        } else if (e.target.id === "ad-banner-file") {
+          readBannerFile(e.target.files && e.target.files[0]);
+          e.target.value = ""; // so picking the same file twice still fires
         } else if (e.target.id === "c-from") {
           state.calFilter.from = e.target.value;
           updateCalResults();
@@ -12293,8 +12653,15 @@
         if (!d.name) return "Please name your advertisement";
         if (!d.sub) return "Please choose a subcategory";
         if (!d.dest) return "Please add a click-through link";
-        if (!d.towns.length) return "Please pick at least one town";
+        // Home-page types skip this: the popup is shown to every visitor, so a
+        // town list would be an answer nothing reads. See AD_TYPES.
+        if (adNeedsTown(d) && !d.towns.length) return "Please pick at least one town";
         if (!d.desc) return "Please add a description";
+        // A custom banner with no artwork is the one half-finished state that
+        // would ship silently — it falls back to the standard design, which is
+        // not what was asked for.
+        if (adHasBanner(d) && d.banner === "custom" && !d.bannerImg)
+          return "Please upload your banner artwork, or switch back to the standard design";
         return null;
       }
       /* "Update ad" on the edit form. The same freeze-and-validate as the
