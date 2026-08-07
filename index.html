@@ -1791,6 +1791,76 @@
         color: var(--muted);
       }
 
+      /* ── Contact band ───────────────────────────────────────── */
+      /* Last section before the footer, and it takes .warm-band alongside this
+         class for the same reason .ta-band does: the wash is the page's own
+         light fill, already authored for both themes, so the band cannot drift
+         from the hero it is answering. This rule is only what is left over,
+         positioning, exactly as there.
+
+         Why the wash and not another dark slab: the "in your pocket" band above
+         it is a full-bleed green and the footer below is flat surface. A third
+         dark fill between them would make the bottom of the page read as one
+         long block. The wash puts a breath between the two. */
+      .ct-band {
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Three shapes, and their own placement rather than .ta-decor's — that
+         layer is positioned for centred text with a card row beneath it, and
+         its top-right frame would land squarely behind the form card here.
+         These sit where this layout leaves room: both blobs off the outer
+         corners, the dot grid low on the copy side, below the last audience
+         line. */
+      .ct-decor {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .ct-decor > * {
+        position: absolute;
+      }
+
+      /* Both blobs cross to the other side of the box from where the base rules
+         put them — the hero's grass sits top-right and its sun bottom-left, and
+         here they are mirrored so the pair frames this layout's corners
+         instead. Which is why each clears the offset it inherits: with a width
+         set and both left and right given, the browser drops one of them and
+         the shape does not move at all. */
+      .ct-decor .hero-blob--grass {
+        width: 300px;
+        height: 300px;
+        top: -110px;
+        left: -80px;
+        right: auto;
+      }
+
+      .ct-decor .hero-blob--sun {
+        width: 340px;
+        height: 340px;
+        bottom: -130px;
+        right: -90px;
+        left: auto;
+      }
+
+      .ct-decor .hero-dots {
+        top: auto;
+        bottom: 12%;
+        left: 2.5%;
+      }
+
+      /* Single column under 900: the copy loses its side margin and the dots
+         would sit under the words. The blobs stay — they are already outside
+         the box at every width. */
+      @media (max-width: 900px) {
+        .ct-decor .hero-dots {
+          display: none;
+        }
+      }
+
       /* ── Events slider ──────────────────────────────────────── */
       /* The band carries a soft two-corner wash so the rail reads as its own
          chapter rather than more cream. Purely decorative and behind
@@ -2863,6 +2933,25 @@
          off screen before it disappears. */
       body.sponsor-dismissed #sponsor-bar-root,
       body.sponsor-dismissed #hero-ad-slot {
+        display: none;
+      }
+
+      /* Both floating ad units are home-only. They are marketing furniture for
+         the landing page: the sponsor bar is sold as the banner over the hero,
+         and the corner popup as the unit beside it. Once a visitor is inside the
+         product — reading the directory, filling in the create-ad form, on their
+         own profile — two fixed panels covering the top and a corner of the
+         screen are in the way of the thing they came to do.
+
+         Keyed off body[data-view], which render() already publishes for the
+         backdrop photograph, so no view has to remember to hide anything. Both
+         are position:fixed and mounted once at body level, so display:none is
+         the whole of it — nothing reflows when they go.
+
+         The reserve the bar publishes has to come off with it; syncSponsorPad()
+         reads the same route for that reason. */
+      body:not([data-view="home"]) #sponsor-bar-root,
+      body:not([data-view="home"]) #cornerAd {
         display: none;
       }
 
@@ -4096,7 +4185,7 @@
       >
         <li>
           <a
-            class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] inline-block whitespace-nowrap hover:text-head"
+            class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.85rem] max1024:px-[0.45rem] py-[0.5rem] inline-block whitespace-nowrap hover:text-head"
             data-nav="home"
             data-scroll="inside"
             >What's Inside</a
@@ -4104,7 +4193,7 @@
         </li>
         <li>
           <a
-            class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] inline-block whitespace-nowrap hover:text-head"
+            class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.85rem] max1024:px-[0.45rem] py-[0.5rem] inline-block whitespace-nowrap hover:text-head"
             data-nav="home"
             data-scroll="events"
             >Upcoming</a
@@ -4112,10 +4201,25 @@
         </li>
         <li>
           <a
-            class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] inline-block whitespace-nowrap hover:text-head"
+            class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.85rem] max1024:px-[0.45rem] py-[0.5rem] inline-block whitespace-nowrap hover:text-head"
             data-nav="home"
             data-scroll="plans"
             >Listing Plans</a
+          >
+        </li>
+        <!-- The fourth section anchor is one too many for the band between the
+             mobile breakpoint and 1024: with it the row overflows its own
+             gutters from about 1010px down. It is the newest and the least
+             load-bearing of the four, and the section it points at is one
+             scroll from the bottom of the page anyway, so this is the one that
+             gives way. The menu under 900 carries it, so only 901–1024 is
+             without it. -->
+        <li class="max1024:hidden">
+          <a
+            class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.85rem] max1024:px-[0.45rem] py-[0.5rem] inline-block whitespace-nowrap hover:text-head"
+            data-nav="home"
+            data-scroll="contact"
+            >Contact</a
           >
         </li>
       </ul>
@@ -4125,7 +4229,7 @@
       >
         <li>
           <a
-            class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] inline-block hover:text-head"
+            class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.85rem] max1024:px-[0.45rem] py-[0.5rem] inline-block hover:text-head"
             data-nav="directory"
             data-navkey="directory"
             >Directory</a
@@ -4133,7 +4237,7 @@
         </li>
         <li>
           <a
-            class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] inline-block hover:text-head"
+            class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.85rem] max1024:px-[0.45rem] py-[0.5rem] inline-block hover:text-head"
             data-nav="calendar"
             data-navkey="calendar"
             >Events</a
@@ -4141,7 +4245,7 @@
         </li>
         <li>
           <a
-            class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.85rem] py-[0.5rem] inline-block hover:text-head"
+            class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.85rem] max1024:px-[0.45rem] py-[0.5rem] inline-block hover:text-head"
             data-nav="articles"
             data-navkey="articles"
             >Articles</a
@@ -5556,6 +5660,7 @@
         advPieRange: "30d", // date window for the overview "impressions by category" pie
         bizPieRange: "30d", // same, for the business overview pie
         articleFilter: "all",
+        articleId: null, // which article the "article" view is showing
         filterDraft: null, // the multi-select popup's working selection
         prefDraft: null, // preferences being edited in the onboarding popup
         onboardStep: 0, // which ONBOARD_STEPS page a new parent is on
@@ -5564,6 +5669,10 @@
         // out of a plain input — the multi-selects, the type, the add-ons and
         // the billing choices — lives here so a repaint never loses it.
         adDraft: null,
+        // Set to the sender's first name once the contact form is submitted, so
+        // the band repaints as a thank-you rather than the message vanishing
+        // into a toast that is gone three seconds later. null = form showing.
+        contactSent: null,
         scrollTo: null,
       };
 
@@ -5580,6 +5689,79 @@
         cats: [...((p && p.cats) || [])],
       });
       const prefCount = (p) => (p ? p.ages.length + p.towns.length + p.cats.length : 0);
+
+      /* ── Session ────────────────────────────────────────────────
+         Who is signed in, kept in localStorage so a reload does not drop the
+         visitor back at the login popup. Same store and the same private-mode
+         guard the theme uses; what is different is when it clears — an explicit
+         act, Log out or Delete account, and nothing else. Not on reload, not on
+         closing the tab.
+
+         What goes in is state.user and only state.user: the account, its
+         preferences and its photo. The rest of `state` is where you are and
+         what you are looking at, and that should start fresh every visit.
+
+         This is a front end with no server behind it, so the stored object *is*
+         the account rather than a token that stands for one. Nothing in it is a
+         secret and there is nothing to expire; a real build would keep a
+         session token here and re-fetch the user from it. */
+      const SESSION_KEY = "bk-user";
+      function saveSession() {
+        try {
+          if (state.user) localStorage.setItem(SESSION_KEY, JSON.stringify(state.user));
+          else localStorage.removeItem(SESSION_KEY);
+        } catch (e) {
+          // Two ways this throws, and only one is fatal. Private mode: nothing
+          // to be done. Quota: a profile photo is a data URL, and a large one
+          // can fill the whole 5MB store by itself — so drop the photo and keep
+          // the account rather than losing the session over a picture.
+          if (!state.user) return;
+          try {
+            const { avatar, ...rest } = state.user;
+            localStorage.setItem(SESSION_KEY, JSON.stringify(rest));
+          } catch (e2) {
+            /* nothing left to try — the session just will not survive a reload */
+          }
+        }
+      }
+      // Reads the stored account back, or null. Anything unparseable is treated
+      // as no session and cleared on the spot: a single bad write must not be
+      // able to throw on every load from then on.
+      function loadSession() {
+        let raw = null;
+        try {
+          raw = localStorage.getItem(SESSION_KEY);
+        } catch (e) {
+          return null; // private mode
+        }
+        if (!raw) return null;
+        try {
+          const u = JSON.parse(raw);
+          if (!u || typeof u !== "object" || !u.role) throw new Error("not an account");
+          // Through clonePrefs, so a stored object missing a list — written by
+          // an older build, or hand-edited — still comes back with all three.
+          u.prefs = clonePrefs(u.prefs);
+          return u;
+        } catch (e) {
+          try {
+            localStorage.removeItem(SESSION_KEY);
+          } catch (e2) {}
+          return null;
+        }
+      }
+      // The boot half of the pair. Putting the account back in state is not on
+      // its own enough: signing in also seeds an advertiser's listings and
+      // pours a parent's saved preferences into the page filters, and a restored
+      // session has to arrive in the same state a fresh sign-in leaves. Called
+      // once, before the first render.
+      function restoreSession() {
+        const u = loadSession();
+        if (!u) return;
+        state.user = u;
+        if (u.role === "advertiser") seedBusinessListings();
+        else applyPrefsToFilters();
+      }
+
       // Signing out drops the half-edited draft and re-arms the filters, so the
       // next account in this browser starts clean — including a run of the
       // onboarding pages abandoned part way through.
@@ -5694,6 +5876,7 @@
       function commitOnboarding() {
         if (state.user && state.user.role === "parent") {
           state.user.prefs = clonePrefs(state.prefDraft || emptyPrefs());
+          saveSession();
           applyPrefsToFilters();
         }
         state.prefDraft = null;
@@ -5979,6 +6162,9 @@
           directory: viewDirectory,
           calendar: viewCalendar,
           articles: viewArticles,
+          // A route of its own, so an article is a page with a back button and
+          // a scrollbar rather than a drawer over the index.
+          article: viewArticle,
           advertiser: viewAdvertiser,
           profile: viewProfile,
           notifications: viewNotifications,
@@ -6174,6 +6360,13 @@
               <span class="feature-go">${icon("arrow-right", 16)}</span>
             </button>`;
         };
+        // The one piece of visitor-typed text this view prints back. Escaped
+        // for content, not for an attribute, so a name carrying an angle
+        // bracket lands as characters rather than as markup.
+        const sentName = String(state.contactSent || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
         return `<div class="w-full"><div class="min-w-0">
           <section class="hero-sun relative overflow-hidden">
             <!-- Where the sponsor bar is parked on this view: placeSponsorBar()
@@ -6588,6 +6781,81 @@
                     </div>
                   </div>
                 </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- CONTACT — the last thing on the page before the footer, which is
+               where a visitor who has read the whole thing and still has a
+               question ends up. Two columns, copy left and the form right: the
+               left side is what tells someone the box is for them, and without
+               it a bare form at the bottom of a marketing page reads as a
+               newsletter signup.
+
+               The band is .warm-band, the page's own light wash — see .ct-band
+               for why it is not a third dark fill in a row. -->
+          <section id="contact" class="ct-band warm-band px-[clamp(1rem,5vw,7rem)] py-24 max700:py-16 max380:px-4">
+            <div class="ct-decor" aria-hidden="true">
+              <span class="hero-blob hero-blob--grass"></span>
+              <span class="hero-blob hero-blob--sun"></span>
+              <span class="hero-dots"></span>
+            </div>
+
+            <div class="relative z-[1] mx-auto w-full max-w-[1180px] grid grid-cols-[0.88fr_1.12fr] gap-16 items-center max1200:gap-12 max900:grid-cols-1 max900:gap-10 max900:max-w-[600px]">
+              <div data-rv="left">
+                <div class="inline-flex items-center gap-2 rounded-[100px] bg-mint px-[0.85rem] py-[0.35rem] text-xs font-extrabold tracking-[0.1em] uppercase text-brand mb-4">${icon("mail", 13)} Get In Touch</div>
+                <h2 class="font-serif text-display-2 font-black text-head mb-[0.9rem] leading-[1.15] tracking-[-0.02em] text-balance">Something to tell the Bergen Kids team?</h2>
+                <p class="text-muted text-lg leading-[1.7] max-w-[50ch] text-pretty mb-9">Ask about a listing, point us at an event we have missed, or tell us what would make this better for your family. Every message is read by our team.</p>
+                <!-- Who the box is for, in the site's own three audiences —
+                     the same split the nav, the footer and the sign-up flow
+                     already make. Not a response-time promise: this is a form
+                     on a page, and it should not commit the team to a clock. -->
+                ${[
+                  ["users", "Parents", "Questions about a listing, an event, or the app itself."],
+                  ["briefcase", "Businesses", "How listings, plans and advertising work."],
+                  ["megaphone", "Feedback", "Something missing, something wrong, or an idea worth building."],
+                ]
+                  .map(
+                    ([ic, t, d]) => `<div class="flex gap-[0.85rem] items-start mb-5 last:mb-0">
+                  <span class="w-[38px] h-[38px] rounded-[11px] bg-mint text-brand grid place-items-center shrink-0">${icon(ic, 17)}</span>
+                  <div class="min-w-0">
+                    <div class="text-base font-bold text-head leading-[1.3]">${t}</div>
+                    <div class="text-sm text-muted leading-[1.6] mt-[0.15rem] max-w-[44ch] text-pretty">${d}</div>
+                  </div>
+                </div>`
+                  )
+                  .join("")}
+              </div>
+
+              <div data-rv="right" style="--rv-delay: 120ms">
+                <div class="bg-surface rounded-[24px] border border-line2 p-8 shadow-[0_18px_54px_rgba(26,46,74,0.13)] max560:p-6 max380:p-[1.15rem]">
+                  ${
+                    /* Sent state replaces the form in place rather than only
+                       raising a toast — the toast is gone in under three
+                       seconds, and a form that simply empties itself looks like
+                       it failed. state.contactSent survives a repaint, so the
+                       confirmation is still there if anything else re-renders
+                       the page underneath it. */
+                    state.contactSent
+                      ? `<div class="text-center py-6 max560:py-2">
+                    <span class="w-[64px] h-[64px] rounded-full bg-mint text-brand grid place-items-center mx-auto mb-5">${icon("check", 30)}</span>
+                    <div class="font-serif text-2xl font-black text-head leading-[1.2] tracking-[-0.01em] mb-2">Thanks, ${sentName} — your message is in.</div>
+                    <p class="text-muted text-base leading-[1.65] max-w-[40ch] mx-auto mb-7 text-pretty">The Bergen Kids team has it, and any reply will come to the email address you gave us.</p>
+                    <button type="button" class="bg-surface text-head px-[1.6rem] py-[0.8rem] rounded-[100px] text-base font-bold border-[1.5px] border-line inline-flex items-center justify-center gap-2 min-h-[48px] transition-[border-color,background] duration-200 hover:border-head hover:bg-surface-3" data-action="contact-again">Send another message</button>
+                  </div>`
+                      : `<div class="font-serif text-2xl font-black text-head leading-[1.2] tracking-[-0.01em] mb-[0.35rem]">Send us a message</div>
+                  <p class="text-sm text-muted leading-[1.6] mb-6">Phone is optional — the rest we need to be able to write back.</p>
+                  <div class="grid grid-cols-2 gap-x-4 gap-y-[1.05rem] max560:grid-cols-1">
+                    <div class="${FLD}"><label for="ct-name">Full Name *</label><input id="ct-name" type="text" autocomplete="name" placeholder="Your name"></div>
+                    <div class="${FLD}"><label for="ct-email">Email *</label><input id="ct-email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></div>
+                    <div class="col-span-full">${phoneField("ct-phone", "", "Phone")}</div>
+                    <div class="${FLD_WIDE}"><label for="ct-msg">What would you like to convey to Bergen Kids team? *</label><textarea id="ct-msg" rows="5" placeholder="Tell us as much or as little as you like…"></textarea></div>
+                    <div class="col-span-full">
+                      <button type="button" class="btn-type btn-sweep bg-logo-green text-white w-full px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold border-none transition-[background] duration-200 inline-flex items-center justify-center gap-2 min-h-[52px] hover:bg-logo-green-deep" data-action="contact-send">Submit Message ${icon("arrow-right", 17)}</button>
+                    </div>
+                  </div>`
+                  }
                 </div>
               </div>
             </div>
@@ -7248,8 +7516,13 @@
           <div class="relative h-[168px] overflow-hidden shrink-0" style="background:${c.grad}">
             <div class="absolute inset-0 flex items-center justify-center text-white">${icon(l.icon, 54, "opacity-95")}</div>
             ${photo ? `<img src="${photo}" alt="${l.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">` : ""}
-            <span class="absolute top-3 left-3 z-[1] text-2xs font-extrabold tracking-[0.05em] uppercase px-[10px] py-[5px] rounded-[100px] ${dlx ?"bg-sun text-navy" : "bg-white/95 text-[#465569]"}">${dlx ? "Featured" : "Basic"}</span>
-            ${l.verified ? `<span class="absolute top-3 right-3 z-[1] inline-flex items-center gap-[0.25rem] pl-[6px] pr-[9px] py-[4px] rounded-[100px] bg-white/95 text-[#20643d] text-2xs font-extrabold" title="Verified by Bergen Kids">${icon("verified", 14)} Verified</span>` : ""}
+            <!-- Only the paid upgrade gets a badge. "Basic" said nothing about
+                 the business and everything about what it had not bought, on
+                 the majority of cards; and "Verified" was on so many of them
+                 that it stopped marking anything out. Both were corners of the
+                 photograph spent on labels a parent scanning the grid has no
+                 use for. Featured stays: it is the one that means something. -->
+            ${dlx ? `<span class="absolute top-3 left-3 z-[1] text-2xs font-extrabold tracking-[0.05em] uppercase px-[10px] py-[5px] rounded-[100px] bg-sun text-navy">Featured</span>` : ""}
           </div>
           <div class="px-[1.1rem] pt-[0.9rem] pb-[1.05rem] flex flex-col flex-1 min-w-0">
             <div class="text-xs font-bold tracking-[0.04em] uppercase text-adlabel truncate">${l.sub} · ${c.name.split(" ")[0]}</div>
@@ -7379,27 +7652,36 @@
           state.articleFilter === "all"
             ? ARTICLES
             : ARTICLES.filter((a) => a.cat === state.articleFilter);
-        const card = (a, big) => {
+        /* One card, one size. This used to take a `big` flag and render at two
+           scales — a 1.55fr column of large cards beside a 1fr column of small
+           ones — which is a magazine layout, and it only works when the big
+           slot is a chosen lead story. Here it was falling out of the index:
+           every even-numbered article was large and every odd-numbered one
+           small, so the same piece changed size when a filter moved it by one.
+           An index of six equal articles should look like six equal articles.
+
+           The image box is a fixed height rather than an aspect ratio because
+           the titles below it run to different lengths — matching the pictures
+           is what lines the type up across a row. */
+        const card = (a) => {
           const c = catOf(a.cat);
           return `<article class="group cursor-pointer" data-action="open-article" data-id="${a.id}">
-              <div class="w-full overflow-hidden relative ${big ?"h-[clamp(230px,25vw,330px)]" : "h-[clamp(165px,17vw,205px)]"}">
-                <div class="w-full h-full flex items-center justify-center text-white transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]" style="background:${c.grad}">${icon(c.icon, big ? 54 : 38, "opacity-90")}</div>
+              <div class="w-full overflow-hidden relative h-[clamp(180px,19vw,235px)]">
+                <div class="w-full h-full flex items-center justify-center text-white transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]" style="background:${c.grad}">${icon(c.icon, 44, "opacity-90")}</div>
                 ${
                   ART_IMG[a.id]
-                    ? `<img src="${artImg(a.id, big ? 900 : 600)}" srcset="${artImg(a.id, 600)} 600w, ${artImg(a.id, 900)} 900w, ${artImg(a.id, 1200)} 1200w" sizes="${big ? "(max-width: 900px) 92vw, 55vw" : "(max-width: 900px) 92vw, 34vw"}" alt="${c.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]">`
+                    ? `<img src="${artImg(a.id, 600)}" srcset="${artImg(a.id, 600)} 600w, ${artImg(a.id, 900)} 900w, ${artImg(a.id, 1200)} 1200w" sizes="(max-width: 700px) 92vw, (max-width: 1024px) 46vw, 31vw" alt="${c.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]">`
                     : ""
                 }
               </div>
               <div class="pt-[1.2rem]">
                 <div class="text-2xs font-bold tracking-[0.2em] uppercase text-adlabel mb-[0.6rem]">${c.name}</div>
-                <h3 class="font-serif ${big ?"text-display-4" : "text-lg"} font-bold text-head leading-[1.3] tracking-[-0.015em] text-balance transition-colors duration-200 group-hover:text-brand">${a.title}</h3>
+                <h3 class="font-serif text-xl font-bold text-head leading-[1.3] tracking-[-0.015em] text-balance transition-colors duration-200 group-hover:text-brand">${a.title}</h3>
                 <p class="text-sm text-muted leading-[1.75] mt-[0.65rem] text-pretty">${a.excerpt}</p>
-                <div class="text-sm text-adlabel mt-[1rem] font-medium tracking-[0.02em]">${a.author}</div>
+                <div class="text-sm text-adlabel mt-[1rem] font-medium tracking-[0.02em]">${a.author} · ${a.read} read</div>
               </div>
             </article>`;
         };
-        const colA = filtered.filter((_, i) => i % 2 === 0);
-        const colB = filtered.filter((_, i) => i % 2 === 1);
         return `<div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
           <div class="flex items-center gap-[0.4rem] text-sm text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-brand font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>Articles & Guides</span></div>
           <header class="max-w-[44rem] pt-[clamp(1.5rem,5vw,4rem)] pb-[clamp(2.5rem,6vw,5rem)]">
@@ -7415,36 +7697,115 @@
                 return `<button class="bg-transparent border-0 border-b-[1.5px] border-solid px-0 pt-0 pb-[0.3rem] text-xs font-bold tracking-[0.16em] uppercase transition-colors duration-200 ${isActive ?"text-head border-b-navy" : "text-adlabel border-b-transparent hover:text-head"}" data-action="filter-articles" data-cat="${cat}">${label}</button>`;
               })
               .join("")}</div>
-            <div class="grid grid-cols-[1.55fr_1fr] gap-x-[clamp(1.5rem,3vw,3rem)] items-start max900:grid-cols-1 max900:gap-x-0">
-              <div class="flex flex-col gap-y-[clamp(2.5rem,4vw,4rem)]">${colA.map((a) => card(a, true)).join("")}</div>
-              <div class="flex flex-col gap-y-[clamp(2.5rem,4vw,3.5rem)] max900:mt-[clamp(2.5rem,4vw,4rem)]">${colB.map((a) => card(a, false)).join("")}</div>
+            <!-- Equal tracks, and the cards flow through them in order: three
+                 across, two at tablet width, one on a phone. The old build split
+                 the list into two hand-made columns to get its big/small pair,
+                 which also meant the reading order zig-zagged — 1, 3, 5 down the
+                 left and 2, 4, 6 down the right. A plain grid puts them back in
+                 the order they are written. -->
+            <div class="grid grid-cols-3 gap-x-[clamp(1.5rem,3vw,2.75rem)] gap-y-[clamp(2.5rem,4vw,3.5rem)] items-start max1024:grid-cols-2 max700:grid-cols-1">${filtered.map(card).join("")}</div>
+          </div>
+        </div>`;
+      }
+
+      /* ── Article detail — a page, not a panel ───────────────────
+         The other four detail views in the app (event, listing, ad, and this
+         one until now) are right-side drawers, and for those it is the right
+         call: they are records you glance at and dismiss, and the list you came
+         from stays put behind them. An article is not a record. It is a
+         thousand words of body copy, and reading it in a 600px panel with the
+         page it covers still scrolling underneath is the wrong shape for the
+         job — so this one gets the full width, its own route, and the browser's
+         own scrollbar.
+
+         The measure is capped at 68 characters rather than the container: long
+         lines are what makes body copy tiring to read, and the picture and the
+         "more" row below it still run the full page width. */
+      function viewArticle() {
+        const a = ARTICLES.find((x) => x.id === state.articleId);
+        // Nothing to show — a stale id, or the route reached without one. Fall
+        // back to the index rather than rendering an empty page.
+        if (!a) return viewArticles();
+        const c = catOf(a.cat);
+        const more = ARTICLES.filter((x) => x.id !== a.id).slice(0, 3);
+        return `<div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
+          <div class="flex items-center gap-[0.4rem] text-sm text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-brand font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<a class="cursor-pointer text-brand font-bold underline" data-nav="articles">Articles &amp; Guides</a>${icon("chev-right", 14, "text-adlabel")}<span class="truncate max-w-[38ch]">${a.title}</span></div>
+
+          <div class="bg-surface rounded-[3px] px-[clamp(1.1rem,3.5vw,3.5rem)] pt-[clamp(1.75rem,3vw,2.75rem)] pb-[clamp(2.25rem,4.5vw,4rem)] shadow-[0_1px_2px_rgba(26,46,74,0.05),0_12px_40px_-24px_rgba(26,46,74,0.18)]">
+            <header class="max-w-[68ch] mx-auto pb-[clamp(1.75rem,3vw,2.5rem)]" data-rv="up">
+              <div class="text-2xs font-bold tracking-[0.2em] uppercase text-adlabel mb-[0.7rem]">${c.name}</div>
+              <h1 class="font-serif text-display-2 font-bold text-head tracking-[-0.03em] leading-[1.14] text-balance">${a.title}</h1>
+              <p class="text-muted text-lg leading-[1.75] mt-[1.1rem] text-pretty">${a.excerpt}</p>
+              <div class="flex items-center gap-x-5 gap-y-2 flex-wrap text-sm text-adlabel mt-[1.4rem] pt-[1.2rem] border-t border-line2 font-medium tracking-[0.02em]">
+                <span class="text-head font-bold">${a.author}</span><span>${a.date}</span><span class="inline-flex items-center gap-[0.35rem]">${icon("clock", 14)}${a.read} read</span>
+              </div>
+            </header>
+
+            <!-- Full width, capped only by the panel: the picture is the one
+                 element on the page that gains from the room the drawer never
+                 had. -->
+            <div class="w-full overflow-hidden relative h-[clamp(220px,34vw,460px)] mb-[clamp(2rem,4vw,3.25rem)]" data-rv="zoom">
+              <div class="w-full h-full flex items-center justify-center text-white" style="background:${c.grad}">${icon(c.icon, 64, "opacity-90")}</div>
+              ${
+                ART_IMG[a.id]
+                  ? `<img src="${artImg(a.id, 1200)}" srcset="${artImg(a.id, 900)} 900w, ${artImg(a.id, 1200)} 1200w, ${artImg(a.id, 1600)} 1600w" sizes="(max-width: 1200px) 96vw, 1200px" alt="${c.name}" fetchpriority="high" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">`
+                  : ""
+              }
+            </div>
+
+            <!-- The same short-line-becomes-a-heading rule the drawer used: the
+                 articles carry no markup of their own, so a paragraph under 40
+                 characters that does not end in a full stop is a subhead. -->
+            <div class="max-w-[68ch] mx-auto [&_p]:text-lg [&_p]:leading-[1.85] [&_p]:text-ink [&_p]:mb-[1.35rem] [&_p]:text-pretty [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-head [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:leading-[1.25] [&_h2]:tracking-[-0.015em]">
+              ${a.paras.map((p) => (p.length < 40 && !p.endsWith(".") ? `<h2>${p}</h2>` : `<p>${p}</p>`)).join("")}
+            </div>
+
+            <div class="max-w-[68ch] mx-auto mt-[clamp(2.5rem,4vw,3.5rem)] pt-[clamp(1.75rem,3vw,2.5rem)] border-t border-line2">
+              <a class="btn-type bg-surface text-head px-[1.6rem] py-[0.8rem] rounded-[100px] text-base font-bold no-underline border-[1.5px] border-line inline-flex items-center justify-center gap-2 min-h-[48px] cursor-pointer transition-[border-color,background] duration-200 hover:border-head hover:bg-surface-3" data-nav="articles">${icon("arrow-left", 16)} All articles</a>
+            </div>
+
+            <div class="mt-[clamp(3rem,5vw,4.5rem)] pt-[clamp(2rem,3.5vw,3rem)] border-t border-line2">
+              <div class="font-serif text-2xl font-bold text-head tracking-[-0.015em] mb-[clamp(1.25rem,2.5vw,2rem)]">More for parents</div>
+              <!-- The index's own card, at the index's own three-across — the
+                   read-next row on a page this wide should look like the page it
+                   sends you back to, not like the stacked list a 440px drawer
+                   had to use. -->
+              <div class="grid grid-cols-3 gap-x-[clamp(1.5rem,3vw,2.75rem)] gap-y-[clamp(2.5rem,4vw,3.5rem)] items-start max1024:grid-cols-2 max700:grid-cols-1">
+                ${more
+                  .map((m) => {
+                    const mc = catOf(m.cat);
+                    return `<article class="group cursor-pointer" data-action="open-article" data-id="${m.id}">
+                  <div class="w-full overflow-hidden relative h-[clamp(180px,19vw,235px)]">
+                    <div class="w-full h-full flex items-center justify-center text-white transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]" style="background:${mc.grad}">${icon(mc.icon, 44, "opacity-90")}</div>
+                    ${
+                      ART_IMG[m.id]
+                        ? `<img src="${artImg(m.id, 600)}" srcset="${artImg(m.id, 600)} 600w, ${artImg(m.id, 900)} 900w" sizes="(max-width: 700px) 92vw, (max-width: 1024px) 46vw, 31vw" alt="${mc.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]">`
+                        : ""
+                    }
+                  </div>
+                  <div class="pt-[1.2rem]">
+                    <div class="text-2xs font-bold tracking-[0.2em] uppercase text-adlabel mb-[0.6rem]">${mc.name}</div>
+                    <h3 class="font-serif text-xl font-bold text-head leading-[1.3] tracking-[-0.015em] text-balance transition-colors duration-200 group-hover:text-brand">${m.title}</h3>
+                    <p class="text-sm text-muted leading-[1.75] mt-[0.65rem] text-pretty">${m.excerpt}</p>
+                    <div class="text-sm text-adlabel mt-[1rem] font-medium tracking-[0.02em]">${m.author} · ${m.read} read</div>
+                  </div>
+                </article>`;
+                  })
+                  .join("")}
+              </div>
             </div>
           </div>
         </div>`;
       }
-      // Article detail opens in the same right-side drawer as the event, listing
-      // and ad details, so every detail panel in the app behaves the same way.
-      function articleModal(id) {
-        const a = ARTICLES.find((x) => x.id === id);
-        if (!a) return;
-        const c = catOf(a.cat);
-        const more = ARTICLES.filter((x) => x.id !== a.id).slice(0, 3);
-        openDrawer(
-          `
-          <div class="relative w-full min-h-[220px] overflow-hidden" style="background:${c.grad}"><div class="absolute inset-0 flex items-center justify-center text-white">${icon(c.icon, 56)}</div>${ART_IMG[a.id] ? `<img src="${artImg(a.id, 900)}" srcset="${artImg(a.id, 600)} 600w, ${artImg(a.id, 900)} 900w, ${artImg(a.id, 1200)} 1200w" sizes="(max-width:560px) 100vw, 600px" alt="" decoding="async" onerror="this.remove()" class="relative block w-full h-auto">` : ""}</div>
-          <div class="p-7 max560:p-5 [&_p]:text-lg [&_p]:leading-[1.8] [&_p]:text-ink [&_p]:mb-[1.25rem] [&_p]:text-pretty [&_h3]:font-serif [&_h3]:text-xl [&_h3]:font-black [&_h3]:text-head [&_h3]:mt-7 [&_h3]:mb-3 [&_h3]:leading-[1.25]">
-            <div class="text-sm font-bold tracking-[0.06em] uppercase mb-2" style="color:var(--teal-ink)">${c.name}</div>
-            <h2>${a.title}</h2>
-            <div class="text-muted text-base mt-[0.5rem] mb-6 flex gap-4 flex-wrap"><span>By ${a.author}</span><span>${a.date}</span></div>
-            ${a.paras.map((p) => (p.length < 40 && !p.endsWith(".") ? `<h3>${p}</h3>` : `<p>${p}</p>`)).join("")}
-            <div class="border-t border-line pt-6 mt-8">
-              <div class="font-serif text-lg font-black text-head mb-3">More for parents</div>
-              ${more.map((m) => `<div class="bg-surface border-[1.5px] border-line rounded-[14px] px-4 py-[0.9rem] mb-3 cursor-pointer transition-all duration-150 flex gap-[0.85rem] items-center hover:border-brand hover:translate-x-[2px]" data-action="open-article" data-id="${m.id}"><div class="w-[52px] h-[52px] shrink-0 rounded-[10px] flex items-center justify-center text-head" style="background:${catOf(m.cat).tint}">${icon(catOf(m.cat).icon, 20)}</div><div class="min-w-0"><div class="font-bold text-base text-head leading-[1.35]">${m.title}</div><div class="text-sm text-muted mt-[4px]">${m.author}</div></div></div>`).join("")}
-              <button class="bg-surface text-head px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold border-[1.5px] border-line transition-[border-color,background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] w-full mt-4 hover:border-head hover:bg-surface-3" data-nav="articles">${icon("arrow-left", 16)} Back to all articles</button>
-            </div>
-          </div>`,
-          true // wider drawer, same as the event, listing and ad detail panels
-        );
+
+      // One entry point for "read this article", used by the index cards, the
+      // read-next row, and anywhere else carrying data-action=open-article.
+      // This replaced articleModal(), which opened the same content in the
+      // right-side drawer — see viewArticle() for why an article is not a panel.
+      function openArticle(id) {
+        if (!ARTICLES.some((x) => x.id === id)) return;
+        state.articleId = id;
+        navigate("article");
       }
       function myListings() {
         return LISTINGS.filter((l) => l._mine);
@@ -9028,9 +9389,17 @@
         </div>`;
       }
 
-      // Themed label + input wrapper shared by every field on the profile form.
-      const PF_FIELD =
-        "flex flex-col gap-[0.4rem] [&_label]:text-sm [&_label]:font-bold [&_label]:text-head [&_input]:border-[1.5px] [&_input]:border-line [&_input]:rounded-[10px] [&_input]:px-[0.85rem] [&_input]:py-3 [&_input]:font-sans [&_input]:text-base [&_input]:text-head [&_input]:bg-surface-2 [&_input]:outline-none [&_input]:w-full [&_input]:min-h-[46px] [&_input:focus]:border-brand [&_input:focus]:shadow-[0_0_0_3px_rgba(32,100,61,0.15)] [&_input::placeholder]:text-muted [&_input::placeholder]:opacity-100";
+      /* Themed label + control wrapper shared by every field on the profile
+         form — the same one the ad form uses, not a copy of it. It was a copy,
+         and the copy only ever carried the [&_input] rules: the profile's Town
+         field is a <select>, so it matched nothing and fell back to the browser's
+         native control — short, white, square-cornered, next to inputs that are
+         tall, tinted and rounded. Selects are deliberately transparent
+         page-wide (see "Native select popups") on the understanding that the
+         field wrapper draws the box, so a wrapper that skips them leaves the
+         control with no box at all. Pointing at FLD is what keeps the two from
+         drifting again; the string here was a byte-exact prefix of it. */
+      const PF_FIELD = FLD;
       /* ── Phone field ────────────────────────────────────────────
                A dial-code select welded onto the front of the number input,
                shared by signup and every role's profile form. The dial code is
@@ -9357,7 +9726,7 @@
         const header = `<div class="relative w-full aspect-[3/2] overflow-hidden" style="background:${c.grad}">
                 <div class="absolute inset-0 flex items-center justify-center text-white">${icon(l.icon || c.icon, 52)}</div>
                 ${img ? `<img src="${img}" alt="${l.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">` : ""}
-                <span class="absolute top-3 left-3 z-[1] text-2xs font-extrabold tracking-[0.05em] uppercase px-[10px] py-[5px] rounded-[100px] ${l.plan ==="deluxe" ? "bg-sun text-navy" : "bg-white/95 text-[#465569]"}">${l.plan === "deluxe" ? "Featured" : "Basic"}</span>
+                ${l.plan === "deluxe" ? `<span class="absolute top-3 left-3 z-[1] text-2xs font-extrabold tracking-[0.05em] uppercase px-[10px] py-[5px] rounded-[100px] bg-sun text-navy">Featured</span>` : ""}
               </div>`;
         const logo = l.logo
           ? `<div class="w-[60px] h-[60px] rounded-[15px] flex items-center justify-center text-white shrink-0 border-[3px] border-white shadow-[0_2px_10px_rgba(15,26,44,0.18)]" style="background:${c.grad}" title="${c.name}">${icon(l.icon || c.icon, 28)}</div>`
@@ -9395,14 +9764,9 @@
             <div class="flex gap-3 flex-wrap mt-5 [&>*]:w-full [&>*]:justify-center">
               ${l.website ? `<button class="bg-orange-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow,background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:bg-orange-deep" data-action="ext-link" data-url="${l.website}">${icon("globe", 16)} Visit Link</button>` : ""}
             </div>
-            <div class="mt-7 pt-6 border-t border-line">
-              <div class="mb-3 flex items-center gap-[0.6rem] text-xs font-bold uppercase tracking-[0.14em] text-adlabel after:h-px after:flex-1 after:bg-current after:opacity-30 after:content-['']">Advertisement</div>
-              ${promoAdCarouselMarkup()}
-            </div>
           </div>`,
           true // wider drawer for the directory detail page
         );
-        mountPromoAdCarousel();
       }
 
       /* Same right-side drawer the directory listing and the ad detail open in,
@@ -9819,6 +10183,7 @@
         const reader = new FileReader();
         reader.onload = () => {
           state.user.avatar = reader.result;
+          saveSession();
           refreshProfileHero();
           toast("Profile photo updated", "check");
         };
@@ -9972,11 +10337,50 @@
               break;
             }
             case "open-article":
-              articleModal(id);
+              openArticle(id);
               break;
             case "filter-articles":
               state.articleFilter = actEl.dataset.cat;
               render();
+              break;
+            /* The home page's contact form. Checked in the order the fields are
+               read, and the first thing missing takes focus as well as the
+               toast — a message at the top of the screen naming a field the
+               visitor then has to go and find is only half an answer. */
+            case "contact-send": {
+              const name = el("ct-name")?.value.trim() || "";
+              if (!name) {
+                toast("Please enter your full name", "x");
+                el("ct-name")?.focus();
+                break;
+              }
+              const email = el("ct-email")?.value.trim() || "";
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                toast("Please enter a valid email address", "x");
+                el("ct-email")?.focus();
+                break;
+              }
+              if (!(el("ct-msg")?.value.trim() || "")) {
+                toast("Please tell us what you'd like to convey", "x");
+                el("ct-msg")?.focus();
+                break;
+              }
+              // Phone is optional, so readPhone's empty-means-empty return is
+              // taken as given rather than validated.
+              readPhone("ct-phone");
+              // First word only: the panel greets the sender, and a full
+              // "Thanks, Sarah Mitchell-Okonkwo" reads as a mail merge.
+              state.contactSent = name.split(/\s+/)[0];
+              render();
+              toast("Message sent — thanks for writing in");
+              break;
+            }
+            case "contact-again":
+              state.contactSent = null;
+              render();
+              // The form is only just back in the DOM, so focusing it has to
+              // wait for the repaint that put it there.
+              requestAnimationFrame(() => el("ct-name")?.focus());
               break;
             case "open-auth":
               authModal(actEl.dataset.role);
@@ -10128,6 +10532,7 @@
               break;
             case "do-delete-account":
               state.user = null;
+              saveSession(); // one of the two acts that end a stored session
               forgetPrefs();
               closeModal();
               toast("Account deleted");
@@ -10135,6 +10540,7 @@
               break;
             case "do-logout":
               state.user = null;
+              saveSession(); // the other — nothing else clears the account
               forgetPrefs();
               closeModal();
               toast("Logged out");
@@ -10348,6 +10754,7 @@
               if (el("pf-addr")) state.user.address = el("pf-addr").value.trim();
               if (el("pf-town")) state.user.town = el("pf-town").value;
               if (el("pf-web")) state.user.web = el("pf-web").value.trim();
+              saveSession();
               refreshProfileHero();
               toast("Profile saved", "check");
               break;
@@ -10446,6 +10853,7 @@
               break;
             case "remove-photo":
               state.user.avatar = "";
+              saveSession();
               refreshProfileHero();
               toast("Profile photo removed", "check");
               break;
@@ -10948,6 +11356,7 @@
             role,
             prefs: emptyPrefs(),
           };
+          saveSession();
           forgetPrefs();
           if (role === "advertiser") seedBusinessListings();
           closeModal();
@@ -11047,6 +11456,7 @@
               web: data.web,
               prefs: data.prefs || emptyPrefs(),
             };
+            saveSession();
             state.prefDraft = null;
             // The account starts with no preferences, so this clears whatever
             // the previous visitor left in the filters rather than setting any.
@@ -11096,6 +11506,7 @@
               role: "advertiser",
               prefs: emptyPrefs(),
             };
+            saveSession();
             seedBusinessListings();
             renderNav();
           }
@@ -11729,10 +12140,15 @@
                   ["profile", "My Profile", "user"],
                 ]
               : []),
+            // A fourth field on the tuple is a section to scroll to once the
+            // view is up — the same data-scroll the header's section anchors
+            // use. This is the only route into the contact form on a phone,
+            // where #nav-sections is not on screen at all.
+            ["home", "Contact us", "mail", "contact"],
           ]
             .map(
               (i) =>
-                `<button class="flex items-center gap-[0.7rem] px-[1.1rem] py-[0.8rem] text-base font-medium text-head cursor-pointer border-none bg-transparent w-full text-left min-h-[44px] hover:bg-surface-4" data-nav="${i[0]}">${icon(i[2], 17, "text-muted")} ${i[1]}</button>`
+                `<button class="flex items-center gap-[0.7rem] px-[1.1rem] py-[0.8rem] text-base font-medium text-head cursor-pointer border-none bg-transparent w-full text-left min-h-[44px] hover:bg-surface-4" data-nav="${i[0]}"${i[3] ? ` data-scroll="${i[3]}"` : ""}>${icon(i[2], 17, "text-muted")} ${i[1]}</button>`
             )
             .join("")}</div>`;
       }
@@ -11796,6 +12212,12 @@
         // leaving the previous page's mark up until the first scroll would show
         // the wrong one on arrival.
         syncSectionNav();
+        // The route just changed, and the sponsor bar is home-only — so the
+        // strip it reserves has to be recomputed here, not only on resize.
+        syncSponsorPad();
+        // The corner ad goes with it, and the back-to-top button stacks on top
+        // of that ad, so its offset is stale the moment the ad leaves.
+        placeToTop();
       }
 
       function sideAdMarkup() {
@@ -12131,7 +12553,14 @@
                and the viewport, and collapses to 0 once the bar is dismissed. */
       function syncSponsorPad() {
         const bar = el("sponsor-bar");
-        const gone = document.body.classList.contains("sponsor-dismissed");
+        // Dismissed and off-route are the same thing to the rest of the page:
+        // there is no bar up there, so nothing should be leaving room for one.
+        // Without the route half, every view but home would go on reserving a
+        // 64px strip for a unit CSS has already taken off screen, and anchor
+        // scrolls and toasts would all land that far low.
+        const gone =
+          document.body.classList.contains("sponsor-dismissed") ||
+          document.body.dataset.view !== "home";
         const nav = window.innerWidth <= 560 ? 76 : 104;
         const gutter = window.innerWidth <= 560 ? 10 : 16;
         // Its own `top` plus its layout height, not a bounding rect: the rect
@@ -12639,16 +13068,27 @@
       // this button. Both are fixed and the ad can be dismissed or change
       // height, so the offset is measured rather than hard-coded — a constant
       // here left the button sitting on the ad's footer.
+      //
+      // At this scope rather than inside mountToTop(), because the ad is
+      // home-only now: leaving a view empties that corner exactly as dismissing
+      // the ad does, and afterRender() has to be able to say so.
+      function placeToTop() {
+        const btn = el("to-top");
+        const ad = el("cornerAd");
+        if (!btn) return;
+        // Measured, not read off the class. is-hidden is only the reader's own
+        // dismissal; the route hides the ad in CSS, and a display:none unit is
+        // no part of the stack whatever its classes say.
+        const adH = ad && !ad.classList.contains("is-hidden") ? ad.offsetHeight : 0;
+        const floor = window.innerWidth <= 560 ? 12 : 20;
+        if (ad) ad.style.bottom = floor + "px";
+        btn.style.bottom = (adH ? floor + adH + 12 : floor) + "px";
+      }
       function mountToTop() {
         const btn = el("to-top");
         const ad = el("cornerAd");
         if (!btn) return;
-        const shown = (n) => n && !n.classList.contains("is-hidden");
-        const place = () => {
-          const floor = window.innerWidth <= 560 ? 12 : 20;
-          if (ad) ad.style.bottom = floor + "px";
-          btn.style.bottom = (shown(ad) ? floor + ad.offsetHeight + 12 : floor) + "px";
-        };
+        const place = placeToTop;
         const nav = el("site-nav");
         const ring = btn.querySelector(".totop-bar");
         // Hysteresis: turn on at 40px, off only below 8px. A single threshold
@@ -12671,6 +13111,9 @@
         place();
         toggle();
       }
+      // Before the first render, so the nav paints signed-in on a reload
+      // rather than flashing "Log in" and swapping a frame later.
+      restoreSession();
       render();
       mountSponsorBar();
       mountCornerAd();
