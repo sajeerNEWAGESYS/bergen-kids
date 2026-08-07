@@ -2233,6 +2233,126 @@
         display: block;
       }
 
+      /* ── Deluxe media gallery ───────────────────────────────────
+         The photo-and-video rail at the top of a Deluxe listing's detail panel.
+         Cross-fade rather than the display:none swap the ad carousels use: those
+         rotate on a timer where a hard cut reads as a new ad arriving, and this
+         one steps because someone asked it to, where a cut reads as a flicker.
+
+         The stage is dark, not the category gradient. A gallery holds portrait
+         shots and video at whatever aspect the advertiser uploaded, so something
+         has to show through the letterbox — and a bright gradient behind a
+         letterboxed photo competes with the photo. */
+      .lg-stage {
+        position: relative;
+        background: #0d1626;
+      }
+
+      .lg-slide {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.35s ease;
+      }
+
+      .lg-slide.is-active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      /* object-fit differs by medium on purpose. A photo is cropped to fill the
+         3:2 frame, which is what the rest of the site does with photography. A
+         video is contained: cropping one hides the subject the advertiser
+         framed, and unlike a photo it cannot be re-cropped per breakpoint. */
+      .lg-slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .lg-slide video {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        background: #0d1626;
+      }
+
+      /* Sits at the top of the lifted sheet, so its own top padding is what
+         clears the sheet's rounded corners. */
+      .lg-thumbs {
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding: 1.1rem 1.5rem 0;
+      }
+
+      .lg-thumbs::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* A ring drawn inside the box rather than a border, so the selected thumb
+         does not change size and shuffle the row along by 3px. */
+      .lg-thumb {
+        position: relative;
+        flex: 0 0 auto;
+        width: 88px;
+        height: 62px;
+        border-radius: 9px;
+        overflow: hidden;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        background: #0d1626;
+        opacity: 0.55;
+        box-shadow: inset 0 0 0 2px transparent;
+        transition:
+          opacity 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+
+      .lg-thumb:hover {
+        opacity: 0.85;
+      }
+
+      .lg-thumb.is-active {
+        opacity: 1;
+        box-shadow: inset 0 0 0 2px var(--grass-ink);
+      }
+
+      .lg-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      /* What marks the one video out in a row of stills. Over a scrim, because
+         the poster frame behind it is an unknown photograph. */
+      .lg-thumb-play {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: rgba(13, 22, 38, 0.4);
+        color: #fff;
+      }
+
+      @media (max-width: 560px) {
+        .lg-thumbs {
+          padding-left: 1.25rem;
+          padding-right: 1.25rem;
+        }
+
+        .lg-thumb {
+          width: 64px;
+          height: 46px;
+        }
+      }
+
       /* ── Site nav ───────────────────────────────────────────── */
       /* Rests clear over the hero, then lifts on scroll.
          Height stays fixed on purpose: the nav is sticky and therefore in flow,
@@ -7123,10 +7243,103 @@
         l17: "1441974231531-c6227db76b6e", // forest trail — camp
         l18: "1530103862676-de8c9debad1d", // party balloons
       };
+      const uImg = (id, w = 600, h) =>
+        `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}${h ? "&h=" + h : ""}&q=75`;
+      /* Photography is what Deluxe buys. AD_TYPES sells the upgrade on exactly
+         one thing — "Everything in Basic, plus a photo gallery on your ad" — and
+         a Basic listing carrying a photograph was giving that away on every card
+         in the directory. So a Basic listing gets its category gradient and icon
+         instead, which the card and the detail panel already draw underneath.
+
+         Enforced here rather than at each call site: every surface that shows a
+         listing photo goes through this function, so the rule holds in the grid,
+         the detail panel and anywhere either of them is reused later. */
       const listingImg = (l, w = 600, h) =>
-        LISTING_IMG[l.id]
-          ? `https://images.unsplash.com/photo-${LISTING_IMG[l.id]}?auto=format&fit=crop&w=${w}${h ? "&h=" + h : ""}&q=75`
-          : catImg(l.cat, w, h);
+        l.plan !== "deluxe" ? "" : LISTING_IMG[l.id] ? uImg(LISTING_IMG[l.id], w, h) : catImg(l.cat, w, h);
+
+      /* ── Deluxe media ───────────────────────────────────────────
+         Any number of photos, and at most one video. The cap is the product
+         rule, not a rendering limit, so it is written into the shape of the
+         data — `video` is one object, not a list — rather than as a slice()
+         downstream that a second video could later slip past.
+
+         Only a handful of listings carry a gallery, which is the honest state
+         of a real directory: an advertiser has to upload this material, and
+         most have not. It also lets the panel be seen both ways — with a
+         gallery and with the single lead photo Deluxe listings had before.
+
+         Videos are Pexels' own CDN, at the 720p rendition rather than the
+         2560px one: this plays inside a 720px drawer, and the UHD file is three
+         times the bytes for pixels the panel cannot show. Each carries a poster
+         so the frame is never blank while the file is still arriving.
+
+         Both clips were picked for having an audio track, which most stock
+         video does not: the majority of what Pexels serves is a lone `vide`
+         track with the sound stripped, and the first pair chosen here played
+         silently for exactly that reason. There is nothing in the markup that
+         can fix it — a file with no `soun` track has no sound to unmute — so
+         anything swapped in later has to be checked at the source. */
+      const LISTING_MEDIA = {
+        // AquaKids Swim Academy — lessons, a class, and a clip from the pool
+        l13: {
+          photos: [
+            "1726800789235-e2c75e169eae", // instructor with a child on a float
+            "1651614158095-b98b6c1da74b", // a class on kickboards
+            "1726800820564-2eaecaa66b37", // two children sharing a float
+            "1542497299-99d5862669b4", // boy on a board, mid-lesson
+          ],
+          video: {
+            src: "https://videos.pexels.com/video-files/8686022/8686022-hd_1280_720_30fps.mp4",
+            poster: "https://images.pexels.com/videos/8686022/pictures/preview-0.jpeg?auto=compress&cs=tinysrgb&w=900",
+          },
+        },
+        // Bergen United Soccer Club — match play, and a clip from a session
+        l12: {
+          photos: [
+            "1622659097509-4d56de14539e", // two players challenging for the ball
+            "1622659097972-68f1d8c1829f", // running with the ball
+            "1600077063877-22118d6290eb", // a match in progress
+            "1630552227424-81c9e52d7c83", // keeper diving
+          ],
+          video: {
+            src: "https://videos.pexels.com/video-files/8873024/8873024-hd_1280_720_25fps.mp4",
+            poster: "https://images.pexels.com/videos/8873024/pexels-photo-8873024.jpeg?auto=compress&cs=tinysrgb&w=900",
+          },
+        },
+        // Photos and no video — the other half of the rule, and the more common
+        // case: the tier allows a video, it does not require one.
+        l2: {
+          photos: [
+            "1631051103633-24959376b92d", // child in the chair with a parent alongside
+            "1593183230686-69876b0cb240", // the no-cavity club, laughing
+            "1631051104176-4fb841f41c9f", // dentist talking a child through the screen
+          ],
+        },
+        l18: {
+          photos: [
+            "1759330203240-b89ccee8840f", // slides into the ball pit
+            "1656850713613-e4b663338bff", // the big yellow slide
+            "1621054392284-e4cab544f1ea", // in among the balls
+            "1766505843132-4919154a118a", // the climbing frame
+          ],
+        },
+      };
+      /* Flattened into the order the gallery paints. The lead photo first — it
+         is the one already on the listing's card, so the panel opens on the
+         picture that was clicked. Then the video, second rather than last: it is
+         the most of what Deluxe bought, and at the end of a five-photo rail
+         nobody would find it. Then the rest of the gallery. */
+      function listingMedia(l) {
+        if (!l || l.plan !== "deluxe") return [];
+        const m = LISTING_MEDIA[l.id];
+        if (!m) return [];
+        const items = [];
+        const lead = listingImg(l, 900, 600);
+        if (lead) items.push({ type: "photo", src: lead });
+        if (m.video) items.push({ type: "video", src: m.video.src, poster: m.video.poster });
+        (m.photos || []).forEach((id) => items.push({ type: "photo", src: uImg(id, 900, 600) }));
+        return items;
+      }
       // Article card photo per article. A broken/missing image falls back to the
       // category gradient + icon underneath (see viewArticles' onerror handler).
       const ART_IMG = {
@@ -7156,6 +7369,20 @@
       // ANY of its values, so ticking three categories widens rather than
       // narrows within that field, while the fields still narrow each other.
       const inList = (list, v) => !list.length || list.includes(v);
+      /* Town is the one field where a full list and an empty one have to mean
+         the same thing. Every other filter only ever sees values from its own
+         fixed set, so ticking all of them and ticking none of them give the
+         same results either way. Towns do not: an advertiser can enter a town
+         we do not list — the "Other" case in the create-ad picker — and that
+         value is in no filter list, however many boxes are ticked.
+
+         So an all-towns selection is read as what it plainly means, no town
+         constraint, and an off-list town survives it. Anything narrower than
+         all still excludes it, which is correct: it is not in those towns. The
+         other way to reach it is by name, and the search below already matches
+         on town, so typing it finds it whatever the filter says. */
+      const townPass = (list, town) =>
+        !list.length || list.length >= TOWNS.length || list.includes(town);
       function ageListPass(list, item) {
         if (!list.length) return true;
         return list.some((id) => {
@@ -7167,7 +7394,7 @@
         const f = state.dir;
         return LISTINGS.filter((l) => {
           if (!inList(f.cats, l.cat)) return false;
-          if (!inList(f.towns, l.town)) return false;
+          if (!townPass(f.towns, l.town)) return false;
           if (!ageListPass(f.ages, l)) return false;
           if (f.q) {
             const q = f.q.toLowerCase();
@@ -7537,7 +7764,7 @@
         const f = state.calFilter;
         return EVENTS.filter((e) => {
           if (!inList(f.cats, e.cat)) return false;
-          if (!inList(f.towns, e.town)) return false;
+          if (!townPass(f.towns, e.town)) return false;
           if (!ageListPass(f.ages, e)) return false;
           // Overlap, not containment: a week-long camp that starts before the
           // From date is still running during the range you asked for, so it
@@ -8988,6 +9215,52 @@
       }
       // Multi-select chip group, same control parents use to pick their saved
       // preferences. Town lists run long, so that one scrolls.
+      /* ── Town picker ────────────────────────────────────────────
+         Seventy towns is too many to pick from a wall of chips. The old field
+         listed every one of them in a scrolling box with the chosen ones tinted
+         a different colour, which reads fine while you are choosing and badly
+         the moment you want to undo: to drop Teaneck you had to find Teaneck
+         again among sixty-nine others.
+
+         Split in two instead. The field holds only what has been chosen, each
+         with its own ×, so removing is where the thing you want to remove
+         already is. Choosing happens in a popup, which is where the long list
+         belongs — and it lists only what is left, so it shrinks as you work
+         rather than making you re-read the same names.
+
+         Towns not in TOWNS are the "Other" case: an advertiser typing in
+         somewhere the directory does not know. They are kept as plain strings
+         in the same list — a custom town is a town, and nothing downstream
+         should have to care which kind it is — and marked in the UI only so the
+         advertiser can see which of theirs is off-list. */
+      const isCustomTown = (t) => !TOWNS.includes(t);
+      const townPill = (t) =>
+        `<span class="inline-flex items-center gap-[0.3rem] rounded-[100px] border-[1.5px] ${isCustomTown(t) ? "border-sun bg-sun/[0.14]" : "border-line bg-surface"} pl-[0.8rem] pr-[0.3rem] py-[0.28rem] text-sm font-bold text-head">
+            ${isCustomTown(t) ? icon("pin", 12, "text-[#8a5200] shrink-0") : ""}${t}
+            <button type="button" class="w-[22px] h-[22px] rounded-full grid place-items-center text-muted transition-[background,color] duration-150 hover:bg-surface-3 hover:text-head" data-action="ad-town-remove" data-val="${esc(t)}" aria-label="Remove ${esc(t)}">${icon("x", 12)}</button>
+          </span>`;
+      function adTownField(sel) {
+        const custom = sel.filter(isCustomTown);
+        return `<div class="${FLD_WIDE}">
+              <div class="flex items-baseline justify-between gap-3">
+                <label>Town *</label>
+                <span class="text-sm font-semibold text-adlabel">${sel.length ? sel.length + " selected" : "None"}</span>
+              </div>
+              <div class="mt-[0.3rem] rounded-[12px] border-[1.5px] border-line bg-surface-2 p-3">
+                ${
+                  sel.length
+                    ? `<div class="flex gap-2 flex-wrap mb-3">${sel.map(townPill).join("")}</div>`
+                    : `<div class="text-sm text-muted leading-[1.5] mb-3">No towns yet — choose where this ad should run.</div>`
+                }
+                <button type="button" class="inline-flex items-center justify-center gap-2 min-h-[42px] px-4 rounded-[10px] border-[1.5px] border-dashed border-line bg-surface text-head text-sm font-bold cursor-pointer transition-[border-color,background] duration-200 hover:border-brand hover:bg-surface-4" data-action="ad-town-open">${icon("plus", 15)} ${sel.length ? "Add more towns" : "Choose towns"}</button>
+              </div>
+              ${
+                custom.length
+                  ? `<div class="flex items-start gap-2 text-sm text-muted leading-[1.55] mt-[0.5rem]">${icon("pin", 14, "text-[#8a5200] shrink-0 mt-[0.15rem]")}<span><b class="text-head">${custom.join(", ")}</b> ${custom.length > 1 ? "are towns" : "is a town"} we do not list yet. The ad still runs, but families only reach it with the town filter left open, or by searching that name.</span></div>`
+                  : ""
+              }
+            </div>`;
+      }
       function adChips(kind, label, opts, sel, scroll) {
         return `<div class="${FLD_WIDE}">
               <div class="flex items-baseline justify-between gap-3">
@@ -9093,13 +9366,7 @@
             <div class="${FLD}"><label>Category *</label><select id="ad-cat">${CATEGORIES.map((c) => `<option value="${c.id}" ${d.cat === c.id ? "selected" : ""}>${c.name}</option>`).join("")}</select></div>
             <div class="${FLD}"><label>Subcategory *</label><select id="ad-sub">${subOptions(d.cat, d.sub)}</select></div>
             <div class="${FLD_WIDE}"><label>Click-through link *</label><div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-surface-2 min-h-[46px] focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">${icon("globe", 16)}<input class="border-none outline-none bg-transparent font-sans text-base text-head w-full min-w-0 cursor-text placeholder:text-muted placeholder:opacity-100" id="ad-dest" placeholder="https://yourbusiness.com/enroll" value="${esc(d.dest)}" style="border:none;background:transparent;padding:0;width:100%"></div></div>
-            ${adChips(
-              "towns",
-              "Town *",
-              TOWNS.map((t) => [t, t]),
-              d.towns,
-              true
-            )}
+            ${adTownField(d.towns)}
             ${adChips(
               "ages",
               "Age group",
@@ -9246,6 +9513,154 @@
         const root = el("ad-form-root");
         if (root) root.innerHTML = adFormInner();
       }
+
+      /* The town popup. Everything it does writes straight into the draft, so
+         there is no "apply" step to forget and no second copy of the selection
+         to keep in step — Done just closes a panel whose work is already saved.
+
+         It is driven by its own listeners rather than the global data-action
+         switch, for one reason: the search box. Repainting through the switch
+         would rebuild the input on every keystroke and drop the caret, so the
+         list is filtered by hiding nodes and picked towns are removed from the
+         DOM in place. */
+      function townPickerModal() {
+        syncAdDraft(); // the form is about to repaint behind the popup
+        openModal(`<div class="p-6 max560:p-5" id="town-pick">
+            <h2>Add towns</h2>
+            <div class="text-muted text-base mt-[0.35rem] leading-[1.55]">Everywhere this ad should run. Towns already on the ad are not listed here.</div>
+
+            <div class="flex items-center gap-2 border-[1.5px] border-line rounded-[12px] px-3 py-[0.6rem] bg-surface-2 min-h-[46px] mt-5 focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">
+              ${icon("search", 16, "text-muted shrink-0")}
+              <input id="town-pick-q" type="text" autocomplete="off" placeholder="Search towns…" class="border-none outline-none bg-transparent font-sans text-base text-head w-full min-w-0 placeholder:text-muted placeholder:opacity-100">
+            </div>
+
+            <div id="town-pick-list" class="flex gap-2 flex-wrap mt-4 max-h-[268px] overflow-y-auto pr-1"></div>
+            <div id="town-pick-empty" class="text-sm text-muted leading-[1.5] mt-4" style="display: none">No town matches that. Use <b class="text-head">Other</b> below to enter it by hand.</div>
+
+            <!-- These two swap places, and they hide with an inline style
+                 rather than the hidden attribute. Preflight is off, so nothing
+                 in the stylesheet resets [hidden] — and a flex or inline-flex
+                 utility is an author-level display declaration, which outranks
+                 the browser's own [hidden] rule. Setting hidden on either of
+                 these left it on screen. -->
+            <div class="mt-5 pt-5 border-t border-line2">
+              <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel mb-[0.6rem]">Not on the list?</div>
+              <button type="button" id="town-pick-other-btn" class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 rounded-[10px] border-[1.5px] border-dashed border-line bg-surface text-head text-sm font-bold cursor-pointer transition-[border-color,background] duration-200 hover:border-brand hover:bg-surface-4 mb-3">${icon("plus", 15)} Other — type a town</button>
+              <div id="town-pick-other" class="flex gap-2 items-stretch max560:flex-col" style="display: none">
+                <div class="flex items-center gap-2 border-[1.5px] border-line rounded-[10px] px-3 py-[0.6rem] bg-surface-2 min-h-[46px] flex-1 focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(32,100,61,0.15)]">
+                  ${icon("pin", 16, "text-muted shrink-0")}
+                  <input id="town-pick-other-q" type="text" autocomplete="off" placeholder="Town name" class="border-none outline-none bg-transparent font-sans text-base text-head w-full min-w-0 placeholder:text-muted placeholder:opacity-100">
+                </div>
+                <button type="button" id="town-pick-other-add" class="bg-navy text-white px-5 rounded-[10px] text-sm font-bold border-none cursor-pointer min-h-[46px] shrink-0 transition-[background] duration-200 hover:bg-[#12233a]">Add town</button>
+              </div>
+              <div class="text-sm text-muted leading-[1.55] mt-[0.6rem]">A town we do not list yet still runs the ad — families reach it with the town filter left open, or by searching that name.</div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 mt-6 pt-5 border-t border-line2">
+              <span class="text-sm font-semibold text-adlabel" id="town-pick-count"></span>
+              <button type="button" class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold border-none cursor-pointer inline-flex items-center justify-center gap-2 min-h-[48px] transition-[background] duration-200 hover:bg-logo-green-deep" data-action="close-modal">Done</button>
+            </div>
+          </div>`);
+        mountTownPicker();
+      }
+      function mountTownPicker() {
+        const list = el("town-pick-list");
+        if (!list || !state.adDraft) return;
+        const sel = state.adDraft.towns;
+        const empty = el("town-pick-empty");
+        const count = el("town-pick-count");
+        const paintCount = () => {
+          if (count)
+            count.textContent = sel.length
+              ? `${sel.length} town${sel.length === 1 ? "" : "s"} on this ad`
+              : "No towns yet";
+        };
+        // Only what is not already on the ad, which is the whole point of
+        // reopening: the list gets shorter, not longer.
+        list.innerHTML = TOWNS.filter((t) => !sel.includes(t))
+          .map(
+            (t) =>
+              `<button type="button" class="${PREF_CHIP_OFF}" data-town="${esc(t)}">${t}</button>`
+          )
+          .join("");
+        const showEmpty = () => {
+          const any = Array.from(list.children).some((n) => n.style.display !== "none");
+          if (empty) empty.style.display = any ? "none" : "";
+        };
+        // Adds a town and takes it out of the list, rather than repainting: the
+        // search box keeps its text and its caret.
+        const add = (name, node) => {
+          sel.push(name);
+          if (node) node.remove();
+          paintCount();
+          showEmpty();
+          repaintAdForm();
+        };
+        list.addEventListener("click", (e) => {
+          const btn = e.target.closest("[data-town]");
+          if (btn) add(btn.dataset.town, btn);
+        });
+        const q = el("town-pick-q");
+        if (q)
+          q.addEventListener("input", () => {
+            const v = q.value.trim().toLowerCase();
+            Array.from(list.children).forEach((n) => {
+              // Same reason as the block above: the chips carry a display
+              // utility, so `hidden` would not hide them.
+              n.style.display = v && !n.dataset.town.toLowerCase().includes(v) ? "none" : "";
+            });
+            showEmpty();
+          });
+        const otherBtn = el("town-pick-other-btn");
+        const otherRow = el("town-pick-other");
+        const otherQ = el("town-pick-other-q");
+        if (otherBtn && otherRow)
+          otherBtn.addEventListener("click", () => {
+            otherBtn.style.display = "none";
+            otherRow.style.display = "";
+            // Carries the search text over: someone types "Wyckoff", finds
+            // nothing, and should not have to type it a second time.
+            if (otherQ) {
+              otherQ.value = (q && q.value.trim()) || "";
+              otherQ.focus();
+            }
+          });
+        const addOther = () => {
+          const raw = (otherQ?.value || "").trim().replace(/\s+/g, " ");
+          if (!raw) {
+            toast("Type the town name first", "x");
+            otherQ?.focus();
+            return;
+          }
+          // A name that turns out to be one we do list is added as that town,
+          // not as a lookalike custom string — otherwise "teaneck" typed here
+          // would be a second, unfilterable Teaneck.
+          const known = TOWNS.find((t) => t.toLowerCase() === raw.toLowerCase());
+          const name = known || raw;
+          if (sel.some((t) => t.toLowerCase() === name.toLowerCase())) {
+            toast(name + " is already on this ad", "x");
+            return;
+          }
+          add(name, known ? list.querySelector(`[data-town="${cssEsc(known)}"]`) : null);
+          otherQ.value = "";
+          toast(known ? known + " added" : name + " added as a custom town", "check");
+        };
+        if (el("town-pick-other-add")) el("town-pick-other-add").addEventListener("click", addOther);
+        if (otherQ)
+          otherQ.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addOther();
+            }
+          });
+        paintCount();
+        if (q) q.focus();
+      }
+      // Quotes a value for use inside an attribute selector. Town names hold
+      // spaces and apostrophes ("Ho-Ho-Kus" is fine, "Teaneck" is fine, but the
+      // list is data and may not stay that way).
+      const cssEsc = (v) =>
+        window.CSS && CSS.escape ? CSS.escape(v) : String(v).replace(/["\\]/g, "\\$&");
       function dualBar(series, labels) {
         const max = Math.max(...series.flat(), 1);
         const n = series[0].length;
@@ -9709,11 +10124,23 @@
         el("modal-root").innerHTML = "";
         document.body.style.overflow = "";
       }
-      // Right-side slide-in panel. Shares modal-root + close-modal wiring with openModal,
-      // so closeModal() and Escape close it the same way.
+      /* Right-side slide-in panel. Shares modal-root + close-modal wiring with
+         openModal, so closeModal() and Escape close it the same way.
+
+         720px, up from 600. The wide drawer is the one that carries a picture at
+         the top, and since the Deluxe gallery landed that picture is a 3:2 stage
+         with a thumbnail rail under it — at 600 the thumbs were 74px stamps and
+         a landscape photo was letterboxing inside its own frame. Every detail
+         panel takes the same number, as they always have: they are one component
+         wearing different content, and a directory listing that opens wider than
+         an event reads as a bug rather than as a decision.
+
+         Still a panel, not a page. 720 is roughly half of a 1440 screen, which
+         is the width at which the page behind stays legible as the thing you
+         will go back to — the point of a drawer over a route. */
       function openDrawer(html, wide) {
         el("modal-root").innerHTML =
-          `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex justify-end animate-fade"><div class="drawer relative bg-surface w-full ${wide ?"max-w-[600px]" : "max-w-[440px]"} h-full shadow-[-16px_0_60px_rgba(15,26,44,0.35)] animate-slideInRight overflow-y-auto overscroll-contain max560:max-w-full [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:text-head [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2]"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-[#1a2e4a] flex items-center justify-center z-[5] hover:bg-surface" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
+          `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex justify-end animate-fade"><div class="drawer relative bg-surface w-full ${wide ?"max-w-[720px]" : "max-w-[440px]"} h-full shadow-[-16px_0_60px_rgba(15,26,44,0.35)] animate-slideInRight overflow-y-auto overscroll-contain max560:max-w-full [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:text-head [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2]"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-[#1a2e4a] flex items-center justify-center z-[5] hover:bg-surface" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
         document.body.style.overflow = "hidden";
       }
 
@@ -9723,50 +10150,199 @@
         const c = catOf(l.cat);
         l.clicks++; // track a click
         const img = listingImg(l, 900, 600); // cropped to the 3:2 frame it fills
-        const header = `<div class="relative w-full aspect-[3/2] overflow-hidden" style="background:${c.grad}">
+        const media = listingMedia(l);
+        const featured =
+          l.plan === "deluxe"
+            ? `<span class="absolute top-3 left-3 z-[2] text-2xs font-extrabold tracking-[0.05em] uppercase px-[10px] py-[5px] rounded-[100px] bg-sun text-navy">Featured</span>`
+            : "";
+        /* Three headers, not two, and which one a listing gets is decided by
+           what it actually holds rather than by its tier alone: a gallery, a
+           single lead photo, or — for every Basic listing — the category
+           gradient and its icon, which is what the other two are painted on top
+           of anyway. */
+        const header = media.length
+          ? `<div class="lg-stage w-full aspect-[3/2] overflow-hidden" data-listing-gallery>
+                ${media
+                  .map((it, i) =>
+                    it.type === "video"
+                      ? `<div class="lg-slide${i === 0 ? " is-active" : ""}" data-lg-slide data-lg-video>
+                    <!-- preload=none: the panel opens on a photo, and a 4MB file
+                         should not start downloading for a video nobody has
+                         asked to watch yet. The poster covers the frame until
+                         they do. playsinline keeps iOS from taking it
+                         fullscreen the moment it starts. -->
+                    <video controls preload="none" playsinline poster="${it.poster}" aria-label="Video from ${l.name}"><source src="${it.src}" type="video/mp4"></video>
+                  </div>`
+                      : `<div class="lg-slide${i === 0 ? " is-active" : ""}" data-lg-slide>
+                    <img src="${it.src}" alt="${l.name}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" onerror="this.remove()">
+                  </div>`
+                  )
+                  .join("")}
+                ${featured}
+                <!-- bottom-9, not bottom-3: the sheet below rides 22px up over
+                     this frame, and a counter sitting 12px off the bottom edge
+                     was half-hidden behind it. Cleared past the overlap, and
+                     the pill is opaque rather than 0.6 alpha — over a pale
+                     photograph, dark type on a translucent dark chip is the one
+                     combination that reads as nothing at all. -->
+                <span class="absolute bottom-9 right-3 z-[2] rounded-[100px] bg-[rgba(13,22,38,0.86)] px-[0.65rem] py-[0.25rem] text-2xs font-bold text-white shadow-[0_2px_10px_rgba(0,0,0,0.35)]" data-lg-count>1 / ${media.length}</span>
+              </div>`
+          : `<div class="relative w-full aspect-[3/2] overflow-hidden" style="background:${c.grad}">
                 <div class="absolute inset-0 flex items-center justify-center text-white">${icon(l.icon || c.icon, 52)}</div>
                 ${img ? `<img src="${img}" alt="${l.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">` : ""}
-                ${l.plan === "deluxe" ? `<span class="absolute top-3 left-3 z-[1] text-2xs font-extrabold tracking-[0.05em] uppercase px-[10px] py-[5px] rounded-[100px] bg-sun text-navy">Featured</span>` : ""}
+                ${featured}
               </div>`;
-        const logo = l.logo
-          ? `<div class="w-[60px] h-[60px] rounded-[15px] flex items-center justify-center text-white shrink-0 border-[3px] border-white shadow-[0_2px_10px_rgba(15,26,44,0.18)]" style="background:${c.grad}" title="${c.name}">${icon(l.icon || c.icon, 28)}</div>`
+        /* The rail is rendered apart from the stage because it belongs on the
+           sheet below, not on the picture above: it is a control for what the
+           panel is showing, and the sheet is lifted over the media, so a rail
+           left up here would be clipped by it. */
+        const thumbs = media.length
+          ? `<div class="lg-thumbs" role="tablist" aria-label="${l.name} media">
+                ${media
+                  .map(
+                    (it, i) =>
+                      `<button type="button" class="lg-thumb${i === 0 ? " is-active" : ""}" data-lg-go="${i}" role="tab" aria-selected="${i === 0}" aria-label="${it.type === "video" ? "Video" : "Photo " + (i + 1)}">
+                    <img src="${it.type === "video" ? it.poster : it.src}" alt="" loading="lazy" decoding="async">
+                    ${it.type === "video" ? `<span class="lg-thumb-play">${icon("play", 18)}</span>` : ""}
+                  </button>`
+                  )
+                  .join("")}
+              </div>`
           : "";
-        const info = [
-          l.addr
-            ? `<div class="flex gap-[0.6rem] items-center text-base text-head leading-[1.5] [&_svg]:text-brand [&_svg]:shrink-0 [&_a]:text-brand [&_a]:font-bold [&_a]:underline [&_a]:break-words">${icon("pin", 16)} ${l.addr}</div>`
-            : "",
-          l.hours
-            ? `<div class="flex gap-[0.6rem] items-center text-base text-head leading-[1.5] [&_svg]:text-brand [&_svg]:shrink-0 [&_a]:text-brand [&_a]:font-bold [&_a]:underline [&_a]:break-words">${icon("clock", 16)} ${l.hours}</div>`
-            : "",
+        const logo = l.logo
+          ? `<div class="w-[54px] h-[54px] rounded-[16px] flex items-center justify-center text-white shrink-0 shadow-[0_4px_14px_rgba(15,26,44,0.16)]" style="background:${c.grad}" title="${c.name}">${icon(l.icon || c.icon, 26)}</div>`
+          : "";
+
+        /* One row of the details card: a tinted glyph tile, a label above the
+           value. The label is what the old panel was missing — it ran address,
+           hours, phone, website and ages as five identical icon-and-text lines,
+           so nothing could be found by scanning and a phone number read as no
+           more important than an age range. Naming each field is what turns a
+           list into something you can look things up in. */
+        const field = (ic, label, value, last) =>
+          `<div class="flex gap-[0.85rem] items-start px-4 py-[0.9rem] ${last ? "" : "border-b border-line2"}">
+            <span class="w-[34px] h-[34px] rounded-[10px] bg-mint text-brand grid place-items-center shrink-0 mt-[1px]">${icon(ic, 16)}</span>
+            <div class="min-w-0 flex-1">
+              <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel mb-[0.15rem]">${label}</div>
+              <div class="text-base text-head font-semibold leading-[1.5] [&_a]:text-brand [&_a]:underline [&_a]:break-words">${value}</div>
+            </div>
+          </div>`;
+        const rows = [
+          l.addr ? ["pin", "Address", `${l.addr}, NJ`] : null,
+          l.hours ? ["clock", "Opening hours", l.hours] : null,
           l.phone
-            ? `<div class="flex gap-[0.6rem] items-center text-base text-head leading-[1.5] [&_svg]:text-brand [&_svg]:shrink-0 [&_a]:text-brand [&_a]:font-bold [&_a]:underline [&_a]:break-words">${icon("phone", 16)} <a href="tel:${l.phone.replace(/[^0-9]/g, "")}">${l.phone}</a></div>`
-            : "",
+            ? ["phone", "Phone", `<a href="tel:${l.phone.replace(/[^0-9]/g, "")}">${l.phone}</a>`]
+            : null,
           l.website
-            ? `<div class="flex gap-[0.6rem] items-center text-base text-head leading-[1.5] [&_svg]:text-brand [&_svg]:shrink-0 [&_a]:text-brand [&_a]:font-bold [&_a]:underline [&_a]:break-words">${icon("globe", 16)} <a data-action="ext-link" data-url="${l.website}">${l.website}</a></div>`
-            : "",
-          l.ageMin != null && l.ageMax != null
-            ? `<div class="flex gap-[0.6rem] items-center text-base text-head leading-[1.5] [&_svg]:text-brand [&_svg]:shrink-0 [&_a]:text-brand [&_a]:font-bold [&_a]:underline [&_a]:break-words">${icon("users", 16)} Ages ${l.ageMin}–${l.ageMax}</div>`
-            : "",
-        ]
-          .filter(Boolean)
-          .join("");
+            ? ["globe", "Website", `<a data-action="ext-link" data-url="${l.website}">${l.website}</a>`]
+            : null,
+        ].filter(Boolean);
+
+        /* The chips under the title. Town, age band and subcategory were a
+           single muted run-on sentence — "Swimming · Sports & Athletics · Fort
+           Lee, NJ" — which is three separate facts punctuated to look like one.
+           As chips each is its own object, and the two a parent actually filters
+           on, town and age, stop being buried mid-line. */
+        const chip = (ic, text) =>
+          `<span class="inline-flex items-center gap-[0.35rem] rounded-[100px] bg-surface-2 border border-line2 px-[0.7rem] py-[0.32rem] text-sm font-bold text-head whitespace-nowrap">${icon(ic, 13)}${text}</span>`;
+
         openDrawer(
           `
           ${header}
-          <div class="p-6 max560:p-5">
-            <div class="flex gap-4 items-start mb-4">
-              ${logo}
-              <div style="flex:1"><h2>${l.name}</h2>
-                <div class="text-muted text-base mt-[0.35rem] leading-[1.55]">${l.sub} · ${c.name} · ${l.town}, NJ</div></div>
+          <!-- The sheet rides up over the media by 22px with its top corners
+               rounded, so the panel reads as one surface with a picture at the
+               head of it rather than as a photograph with a slab under it. It is
+               also what puts the gallery's thumbnail rail on the sheet, where it
+               belongs — the rail is a control for the content below, not part of
+               the picture above. -->
+          <div class="relative z-[2] -mt-[22px] rounded-t-[26px] bg-surface min-h-[calc(100%-22px)] flex flex-col">
+            ${thumbs}
+            <div class="px-6 ${media.length ? "pt-4" : "pt-6"} pb-6 max560:px-5 flex-1">
+              <div class="flex gap-[0.9rem] items-start">
+                ${logo}
+                <div class="min-w-0 flex-1">
+                  <div class="text-2xs font-bold tracking-[0.16em] uppercase text-adlabel mb-[0.35rem]">${l.sub} · ${c.name}</div>
+                  <h2>${l.name}</h2>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-2 mt-[0.9rem]">
+                ${chip("pin", `${l.town}, NJ`)}
+                ${l.ageMin != null && l.ageMax != null ? chip("users", `Ages ${l.ageMin}–${l.ageMax}`) : ""}
+              </div>
+
+              ${
+                l.desc
+                  ? `<div class="mt-6">
+                <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel mb-[0.5rem]">About</div>
+                <p class="text-base leading-[1.75] text-ink text-pretty">${l.desc}</p>
+              </div>`
+                  : ""
+              }
+
+              ${
+                rows.length
+                  ? `<div class="mt-6 rounded-[18px] border border-line2 bg-surface-2 overflow-hidden">
+                ${rows.map(([ic, label, value], i) => field(ic, label, value, i === rows.length - 1)).join("")}
+              </div>`
+                  : ""
+              }
             </div>
-            ${l.desc ? `<p style="color:var(--text);line-height:1.7;font-size:var(--fs-base)">${l.desc}</p>` : ""}
-            <div class="grid grid-cols-[1fr] gap-[0.85rem] my-5">${info}</div>
-            <div class="flex gap-3 flex-wrap mt-5 [&>*]:w-full [&>*]:justify-center">
-              ${l.website ? `<button class="bg-orange-ink text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow,background] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:bg-orange-deep" data-action="ext-link" data-url="${l.website}">${icon("globe", 16)} Visit Link</button>` : ""}
-            </div>
+
+            ${
+              l.website
+                ? `<div class="sticky bottom-0 z-[3] border-t border-line2 bg-surface px-6 py-[0.9rem] max560:px-5">
+              <button type="button" class="w-full bg-orange-ink text-white px-[1.9rem] py-[0.9rem] rounded-[14px] text-base font-bold border-none transition-[background,transform] duration-200 inline-flex items-center justify-center gap-2 min-h-[52px] hover:bg-orange-deep hover:-translate-y-[1px]" data-action="ext-link" data-url="${l.website}">${icon("globe", 17)} Visit Website</button>
+            </div>`
+                : ""
+            }
           </div>`,
           true // wider drawer for the directory detail page
         );
+        mountListingGallery();
+      }
+
+      /* Steps the Deluxe gallery. No timer: an ad carousel rotates itself
+         because nobody asked it to be there, and a gallery someone opened moves
+         when they say so. Wired after the drawer is in the DOM, and torn down
+         with it — the listeners live on nodes the next openDrawer() replaces.
+
+         The rail is the only control. It was a rail plus a pair of arrows over
+         the stage, which is two ways to do one thing on a panel where every
+         frame is already visible as a thumbnail — and over the video slide the
+         arrows had to be hidden anyway so they did not sit on its controls.
+
+         The one thing it does beyond swapping a class is pause the video when
+         the gallery leaves it. A video left running under a photo is heard and
+         not seen. */
+      function mountListingGallery() {
+        const stage = document.querySelector("[data-listing-gallery]");
+        if (!stage) return;
+        const slides = Array.from(stage.querySelectorAll("[data-lg-slide]"));
+        if (slides.length < 2) return;
+        const thumbs = Array.from(document.querySelectorAll("[data-lg-go]"));
+        const count = stage.querySelector("[data-lg-count]");
+        let idx = 0;
+        const go = (next) => {
+          idx = (next + slides.length) % slides.length;
+          slides.forEach((s, i) => {
+            s.classList.toggle("is-active", i === idx);
+            const v = s.querySelector("video");
+            if (v && i !== idx) v.pause();
+          });
+          thumbs.forEach((t, i) => {
+            t.classList.toggle("is-active", i === idx);
+            t.setAttribute("aria-selected", i === idx);
+          });
+          if (count) count.textContent = `${idx + 1} / ${slides.length}`;
+        };
+        thumbs.forEach((t) =>
+          t.addEventListener("click", (e) => {
+            e.stopPropagation(); // the drawer's own click handling stays out of this
+            go(Number(t.dataset.lgGo));
+          })
+        );
+        go(0);
       }
 
       /* Same right-side drawer the directory listing and the ad detail open in,
@@ -10588,6 +11164,16 @@
               repaintAdForm();
               break;
             }
+            case "ad-town-open":
+              townPickerModal();
+              break;
+            case "ad-town-remove": {
+              const list = state.adDraft.towns;
+              const i = list.indexOf(actEl.dataset.val);
+              if (i > -1) list.splice(i, 1);
+              repaintAdForm();
+              break;
+            }
             case "ad-type":
               state.adDraft.type = actEl.dataset.val;
               if (state.adDraft.type !== "deluxe") state.adDraft.photos = 0;
@@ -10738,6 +11324,7 @@
             }
             case "save-listing": {
               const l = LISTINGS.find((x) => x.id === id);
+              if (!l) break;
               l.saved = !l.saved;
               toast(l.saved ? "Saved to your list" : "Removed from saved", "heart");
               listingModal(id);
