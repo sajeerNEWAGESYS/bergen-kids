@@ -2143,6 +2143,180 @@
           box-shadow 0.2s ease;
       }
 
+      /* ── In-page ad slots ───────────────────────────────────────
+         See pageAdBand(). Deliberately built like a section of the page and not
+         like the sponsor bar: no fixed position, no entrance animation, no
+         close button, and a border and radius that match the cards it sits
+         above rather than the floating units on the home page. */
+      /* No negative margin. Pulling the band out past the page gutters was an
+         attempt to make it read as a banner rather than another card, and it
+         overshot — a percentage margin resolves against a different box from
+         the container's percentage padding, so the two do not cancel and the
+         band ran off both edges.
+
+         It lines up with the filter tray instead, which is the right answer
+         anyway: everything else on the page starts and ends on that measure,
+         and a banner that alone breaks the column reads as a mistake. Height
+         is what gives it presence — see .page-ad-band. */
+
+      .page-ad-slide {
+        display: none;
+      }
+
+      .page-ad-slide.is-active {
+        display: block;
+        animation: adFade 0.45s ease;
+      }
+
+      @keyframes adFade {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .page-ad-dots {
+        position: absolute;
+        right: 1rem;
+        bottom: 0.7rem;
+        z-index: 3;
+        display: flex;
+        gap: 6px;
+      }
+
+      .page-ad-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 100px;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.4);
+        transition:
+          width 0.25s ease,
+          background 0.25s ease;
+      }
+
+      .page-ad-dot.is-active {
+        width: 20px;
+        background: var(--sun, #f5a623);
+      }
+
+      .page-ad-band {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 1.1rem;
+        overflow: hidden;
+        border-radius: 18px;
+        background: var(--navy);
+        /* The home bar is a 124px stage inside its own padding, so the unit a
+           reader sees there is about 150 tall. This matches that, which is what
+           gives the band its presence now that it sits on the column measure
+           rather than breaking out of it. */
+        padding: 1.4rem 1.5rem;
+        min-height: 150px;
+        cursor: pointer;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+
+      .page-ad-band:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 34px rgba(15, 26, 44, 0.24);
+      }
+
+      .page-ad-band-photo {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .page-ad-band-tint {
+        position: absolute;
+        inset: 0;
+        opacity: 0.72;
+      }
+
+      /* Darkest at the left, where the type is, and thinning out to the right so
+         the photograph is still a photograph on the side the words leave alone. */
+      .page-ad-band-scrim {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(9, 15, 26, 0.88), rgba(9, 15, 26, 0.35) 72%);
+      }
+
+      .page-ad-band-chip {
+        position: relative;
+        z-index: 2;
+        width: 44px;
+        height: 44px;
+        border-radius: 13px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        color: #fff;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+      }
+
+      .page-ad-band-cta {
+        position: relative;
+        z-index: 2;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: var(--orange-ink);
+        color: #fff;
+        border-radius: 100px;
+        padding: 0.55rem 1.15rem;
+        font-size: var(--fs-sm);
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      @media (max-width: 700px) {
+        .page-ad-band-cta {
+          display: none;
+        }
+      }
+
+      .page-ad-rail {
+        width: 300px;
+        flex-shrink: 0;
+      }
+
+      /* It used to be hidden here, on the reasoning that a 300px poster pushed
+         below a page of results is an ad nobody reaches. The reasoning was
+         sound and the conclusion was wrong: the fix is to move it, not to drop
+         it. Under 1024 it goes full width and sits directly under the results
+         header — above the grid, where it is seen — and stops being sticky,
+         because a sticky block in a single column follows you down the page. */
+      @media (max-width: 1024px) {
+        /* Centred at its own measure rather than stretched to the column. A
+           poster run to full width is enormous before a single result, and
+           capping its height instead just crops the Visit Link button off the
+           bottom — so the card keeps the proportions it was drawn at and the
+           column gives it the middle. */
+        .page-ad-rail {
+          width: 100%;
+          max-width: 340px;
+          margin-inline: auto;
+          order: -1;
+          margin-bottom: 1.5rem;
+        }
+
+        .page-ad-rail > div {
+          position: static;
+        }
+      }
+
       .promo-ad:hover {
         transform: translateY(-3px);
         box-shadow: 0 16px 42px rgba(26, 46, 74, 0.22);
@@ -4303,14 +4477,6 @@
         id="nav-sections"
         class="flex gap-1 list-none items-center mr-auto max1200:gap-0 max900:hidden"
       >
-        <li>
-          <a
-            class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.85rem] max1024:px-[0.45rem] py-[0.5rem] inline-block whitespace-nowrap hover:text-head"
-            data-nav="home"
-            data-scroll="inside"
-            >What's Inside</a
-          >
-        </li>
         <li>
           <a
             class="no-underline text-muted text-base font-medium transition-[color] duration-200 cursor-pointer px-[0.85rem] max1024:px-[0.45rem] py-[0.5rem] inline-block whitespace-nowrap hover:text-head"
@@ -7853,8 +8019,13 @@
             "clear-all-dir"
           )}
 
-          <div class="grid grid-cols-[minmax(0,1fr)] [&>*]:min-w-0">
-            <div class="min-w-0">
+          ${catAdBand(f.cats)}
+
+          <!-- Two columns from 1025 up: results, then the ad rail. The
+               wrapper was already a one-column grid built to take a second
+               track — see .page-ad-rail for why it drops rather than stacks. -->
+          <div class="flex items-start gap-6 max1024:flex-col max1024:items-stretch">
+            <div class="min-w-0 flex-1">
               <!-- Results header: what you are looking at, and the filters that
                    got you here underneath. One ruled band, so the grid always
                    starts at the same place. -->
@@ -7871,6 +8042,7 @@
                   : `<div class="empty text-center px-4 py-16 text-muted text-base leading-[1.6]">${icon("search", 40, "text-adlabel mb-3")}<div style="font-weight:700;color:var(--head);margin-bottom:0.3rem">No results found</div><div>Try adjusting your filters or clearing them to see everything.</div></div>`
               }
             </div>
+            ${catAdRail(f.cats)}
           </div>
         </div></div></div>`;
       }
@@ -8003,8 +8175,11 @@
             "clear-cal"
           )}
 
-          <div class="grid grid-cols-[minmax(0,1fr)] [&>*]:min-w-0">
-            <div class="min-w-0">
+          <!-- Two columns from 1025 up: results, then the ad rail. The
+               wrapper was already a one-column grid built to take a second
+               track — see .page-ad-rail for why it drops rather than stacks. -->
+          <div class="flex items-start gap-6 max1024:flex-col max1024:items-stretch">
+            <div class="min-w-0 flex-1">
               <div class="flex justify-between items-center gap-3 flex-wrap mb-4 max560:flex-col max560:items-start">
                 <div class="cal-showing text-base text-muted">${calShowingText(list)}</div>
               </div>
@@ -8964,6 +9139,167 @@
       // In-page ad unit, styled like the corner popup. Driven off PUBLIC_ADS so
       // any campaign renders without hand-written copy at the call site; clicking
       // it falls through to data-adclick → adDetailModal.
+      /* ── In-page ad areas ───────────────────────────────────────
+         Everywhere but the home page, an ad is a slot on the page rather than
+         something thrown over it. The sponsor bar and the corner unit are
+         popups — fixed to the viewport, dismissible, sitting on top of what you
+         came to read — and that is a home-page device: the landing page is the
+         one you are being sold on. On the directory, the events list and the
+         articles index you are working, and a panel covering the work is in the
+         way of it.
+
+         So those pages get a leaderboard band at the top of the results and a
+         card in a right-hand rail. Both scroll with the page, neither can be
+         closed because neither is covering anything, and both carry the word
+         Advertisement rather than relying on a close button to say what they
+         are.
+
+         Which ad goes where is fixed per surface rather than random, so a
+         repaint does not reshuffle the page under the reader. */
+      const PAGE_AD_KEYS = Object.keys(PUBLIC_ADS);
+      /* These are the category placements, and the rule they are sold on is
+         that they run inside the category the ad belongs to and nowhere else.
+         So the slots appear on the directory, and only once a category filter
+         is on — with no category chosen the visitor is browsing everything, and
+         there is no category page to be inside of.
+
+         What fills them is matched the same way: only ads filed under a
+         category the visitor has actually picked. If nobody has bought the
+         category being browsed the slot does not appear at all, rather than
+         falling back to whatever ad was to hand — an unrelated ad in a slot
+         sold as targeted is the advertiser's money spent on the wrong page.
+
+         Of the eight categories, ads exist today for sports (two), medical,
+         tutoring, schools, camps and parties; arts and music have none, so
+         those two browse ad-free until someone buys them. */
+      const catAdKeys = (cats) =>
+        (cats || []).length ? PAGE_AD_KEYS.filter((k) => cats.includes(PUBLIC_ADS[k].cat)) : [];
+      /* Every matching ad, stacked as slides and rotated on a timer — the same
+         behaviour the home page's sponsor bar has, because an advertiser buying
+         a leaderboard should get a leaderboard wherever it runs. What it does
+         not take from the home unit is the close button: that one is a popup
+         over the page and has to be dismissible, this one is a row of the page
+         and there is nothing to dismiss.
+
+         One matching ad renders as one slide and simply sits there. Sports has
+         two advertisers today and rotates; picking several categories at once
+         gathers all of theirs into the one rail. */
+      const catAdBand = (cats) => {
+        const keys = catAdKeys(cats);
+        if (!keys.length) return "";
+        return `<div class="page-ad-top mb-6">
+            ${adSlotLabel()}
+            <div class="relative" data-page-ad-band>
+              ${keys.map((k, i) => `<div class="page-ad-slide${i === 0 ? " is-active" : ""}" data-page-ad-slide>${pageAdBand(k)}</div>`).join("")}
+              ${
+                keys.length > 1
+                  ? `<div class="page-ad-dots">${keys
+                      .map(
+                        (k, i) =>
+                          `<button type="button" class="page-ad-dot${i === 0 ? " is-active" : ""}" data-page-ad-dot aria-label="Advertisement ${i + 1} of ${keys.length}"></button>`
+                      )
+                      .join("")}</div>`
+                  : ""
+              }
+            </div>
+          </div>`;
+      };
+      // The rail takes the second matching ad where there is one, so a category
+      // with two advertisers shows both rather than the same ad twice.
+      const catAdRail = (cats) => {
+        const keys = catAdKeys(cats);
+        return keys.length ? pageAdRail(keys[keys.length > 1 ? 1 : 0]) : "";
+      };
+      /* Rotates the band. Same shape as the sponsor bar's own rotator: a plain
+         interval, paused while the pointer is on it and while the tab is
+         hidden, and stopped the moment someone uses the dots — nobody wants the
+         ad they just chose to look at to slide away under them. */
+      let pageAdTimer = null;
+      function mountPageAdBand() {
+        if (pageAdTimer) {
+          clearInterval(pageAdTimer);
+          pageAdTimer = null;
+        }
+        const host = document.querySelector("[data-page-ad-band]");
+        if (!host) return;
+        const slides = Array.from(host.querySelectorAll("[data-page-ad-slide]"));
+        const dots = Array.from(host.querySelectorAll("[data-page-ad-dot]"));
+        if (slides.length < 2) return;
+        let idx = 0;
+        const paint = () => {
+          slides.forEach((s, i) => s.classList.toggle("is-active", i === idx));
+          dots.forEach((d, i) => d.classList.toggle("is-active", i === idx));
+        };
+        const go = (n) => {
+          idx = (n + slides.length) % slides.length;
+          paint();
+        };
+        const start = () => {
+          if (!pageAdTimer)
+            pageAdTimer = setInterval(() => {
+              if (!document.hidden) go(idx + 1);
+            }, 4500);
+        };
+        const stop = () => {
+          if (!pageAdTimer) return;
+          clearInterval(pageAdTimer);
+          pageAdTimer = null;
+        };
+        dots.forEach((d, i) =>
+          d.addEventListener("click", (e) => {
+            e.stopPropagation();
+            stop();
+            go(i);
+          })
+        );
+        host.addEventListener("mouseenter", stop);
+        host.addEventListener("mouseleave", start);
+        paint();
+        start();
+      }
+      // The label that sits above every in-page slot. Small, ruled, and the
+      // same on all of them, so an ad is recognisable as one before it is read.
+      const adSlotLabel = (text) =>
+        `<div class="flex items-center gap-[0.6rem] text-2xs font-bold uppercase tracking-[0.14em] text-adlabel mb-[0.6rem] after:h-px after:flex-1 after:bg-current after:opacity-25 after:content-['']"><span class="sponsor-live"></span>${text || "Advertisement"}</div>`;
+      /* The wide slot. Built to the same shape as the sponsor bar — dark ground,
+         photo behind, chip, headline, Visit Link — because an advertiser buying
+         "Leaderboard" should get the same unit wherever it runs. What it does
+         not have is the bar's fixed position, its entrance animation or its
+         close button: this one is part of the page. */
+      function pageAdBand(key) {
+        const a = PUBLIC_ADS[key];
+        if (!a) return "";
+        const c = catOf(a.cat);
+        const photo = a.img
+          ? `https://images.unsplash.com/photo-${a.img}?auto=format&fit=crop&w=1600&q=70`
+          : catImg(a.cat, 1600);
+        // No label and no outer spacing: catAdBand wraps the whole rotation in
+        // one, and each slide carrying its own said Advertisement twice.
+        return `<div class="page-ad-band" data-adclick="${key}" data-adgo>
+              ${photo ? `<img src="${photo}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="page-ad-band-photo">` : ""}
+              <span class="page-ad-band-tint" style="background:${a.grad}"></span>
+              <span class="page-ad-band-scrim"></span>
+              <span class="page-ad-band-chip">${icon(a.icon, 20)}</span>
+              <span class="min-w-0 flex-1 relative z-[2]">
+                <span class="block text-2xs font-extrabold uppercase tracking-[0.14em] text-white/80 truncate">${a.advertiser}</span>
+                <span class="block font-serif text-xl font-bold text-white leading-[1.2] mt-[2px] max560:text-lg">${a.headline}</span>
+                <span class="block text-2xs text-white/65 mt-[3px] truncate max700:hidden">${c ? c.name : ""}${a.sub ? " · " + a.sub : ""}</span>
+              </span>
+              <span class="page-ad-band-cta">${icon("globe", 14)} Visit Link</span>
+          </div>`;
+      }
+      // The rail. promoAdCard is the poster unit the listing panel used to
+      // carry; a 300px column is the shape it was always drawn for.
+      function pageAdRail(key) {
+        // No adSlotLabel() here: promoAdCard draws its own "Advertisement" mark
+        // inside the card, and the two together said it twice.
+        return `<aside class="page-ad-rail" aria-label="Advertisement">
+            <div class="sticky top-[124px]">
+              ${promoAdCard(key)}
+              <div class="text-2xs text-adlabel leading-[1.5] mt-[0.7rem]">Ads keep Bergen Kids free for families. <button type="button" class="text-brand font-bold underline" data-nav="advertiser" data-dashtab="add">Advertise here</button></div>
+            </div>
+          </aside>`;
+      }
       function promoAdCard(key) {
         const a = PUBLIC_ADS[key];
         if (!a) return "";
@@ -13156,6 +13492,10 @@
         mountCategoryMarquee();
         mountHeroPill();
         mountSideAd();
+        // The directory's category leaderboard rotates itself; the markup it
+        // runs on was just rewritten, so the timer is rebuilt against the new
+        // slides and the old one torn down.
+        mountPageAdBand();
         // The events lane is part of the markup that was just written, so the
         // live slider is rebuilt against the new one (and the old one torn
         // down) here rather than once at startup.
