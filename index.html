@@ -1866,11 +1866,33 @@
          chapter rather than more cream. Purely decorative and behind
          everything, hence the ::before rather than a background on the
          section — the arrows and cards need to paint over it. */
+      /* Filled, and filled with the Visit Link orange — --orange-ink, the same
+         value every CTA on the site is painted in. It used to be transparent so
+         the backdrop photograph ran through it, which put two picture-backed
+         bands in a row with nothing between them.
+
+         Solid, not a wash: the band is a full-strength brand colour now, so the
+         copy on it goes white. The tiles were already white-on-scrim and the
+         headings already carry .band-copy, so the only thing that had to change
+         is the paragraph and the "See all events" link, which read as muted
+         grey on cream and would have vanished here. */
       .ev-band {
         position: relative;
         overflow: hidden;
-        /* Transparent for the same reason as .inside-band. */
-        background: transparent;
+        background: linear-gradient(168deg, var(--orange) 0%, var(--orange-ink) 62%, var(--orange-deep) 100%);
+      }
+
+      /* On the filled band nothing may stay grey. Scoped to the band rather
+         than set on each element, so a tile or a heading added later inherits
+         it instead of arriving invisible. */
+      .ev-band .text-muted,
+      .ev-band .text-adlabel {
+        color: rgba(255, 255, 255, 0.86);
+      }
+
+      .ev-band .text-head,
+      .ev-band .text-brand {
+        color: #fff;
       }
 
       .ev-band::before {
@@ -2141,6 +2163,50 @@
         transition:
           transform 0.2s ease,
           box-shadow 0.2s ease;
+      }
+
+      /* ── Directory card, no photograph ──────────────────────────
+         A Basic listing has no picture — that is what Deluxe buys — and until
+         now the empty slot was filled with the category's own gradient at full
+         strength. Which made the cheapest cards the loudest things in the grid:
+         a wall of saturated orange and magenta next to the paid listings'
+         actual photographs, so the eye went to exactly the wrong ones.
+
+         Neutral instead. A soft grey panel with a faint grid behind the glyph:
+         plainly a placeholder, quiet next to a photograph, and the same on
+         every card so a row of them reads as one texture rather than as eight
+         competing colours. */
+      .lcard-blank {
+        background:
+          linear-gradient(
+            rgba(26, 46, 74, 0.045) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, rgba(26, 46, 74, 0.045) 1px, transparent 1px),
+          linear-gradient(160deg, #eef1f5 0%, #e3e8ee 55%, #d9e0e8 100%);
+        background-size:
+          22px 22px,
+          22px 22px,
+          auto;
+      }
+
+      .lcard-blank-ic {
+        color: rgba(26, 46, 74, 0.22);
+      }
+
+      [data-theme="dark"] .lcard-blank {
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+          linear-gradient(160deg, #222935 0%, #1c222c 55%, #171c24 100%);
+        background-size:
+          22px 22px,
+          22px 22px,
+          auto;
+      }
+
+      [data-theme="dark"] .lcard-blank-ic {
+        color: rgba(255, 255, 255, 0.2);
       }
 
       /* ── In-page ad slots ───────────────────────────────────────
@@ -3763,6 +3829,19 @@
 
       [data-theme="dark"] .plan-card--pop {
         box-shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
+      }
+
+      /* Deepened for the dark page. The light theme's orange at full strength
+         against near-black glares; the same three stops taken down a step keep
+         the band unmistakably the orange one without it burning. */
+      [data-theme="dark"] .ev-band {
+        background: linear-gradient(168deg, #b8430c 0%, #9c3409 62%, #7d2a07 100%);
+      }
+
+      /* The corner washes were drawn for a band with the page showing through.
+         There is a solid fill under them now, so they only muddy it. */
+      .ev-band::before {
+        display: none;
       }
 
       /* Green reads on cream but muddies on a dark page; the warm corner
@@ -6779,7 +6858,12 @@
                  background, so a dark halo behind brand-green text on mint
                  would read as smudge. Same split as the events band. -->
             <div class="relative z-[1] text-center" data-rv-stagger="110">
-              <div class="inline-flex items-center gap-2 rounded-[100px] bg-mint px-[0.85rem] py-[0.35rem] text-xs font-extrabold tracking-[0.1em] uppercase text-brand mb-3">${icon("sliders", 13)} What's Inside</div>
+              <!-- Black on white, for the same reason as the events band's
+                   eyebrow: mint is authored to sit on cream, and this band sits
+                   on the backdrop photograph, where a pale green pill with green
+                   type on it washes out against whatever the picture happens to
+                   be doing behind it. -->
+              <div class="inline-flex items-center gap-2 rounded-[100px] bg-[#12161d] px-[0.85rem] py-[0.35rem] text-xs font-extrabold tracking-[0.1em] uppercase text-white mb-3">${icon("sliders", 13)} What's Inside</div>
               <div class="band-copy font-serif text-display-2 font-black text-white tracking-[-0.02em] mb-3 leading-[1.15] text-balance mx-auto max-w-[22ch]">Everything for Bergen County families, in one place.</div>
               <p class="band-copy text-white/90 text-lg leading-[1.65] max-w-[60ch] mx-auto mb-12 text-pretty">From newborn care to college prep — Bergen Kids brings together every trusted local service in one place.</p>
             </div>
@@ -6858,7 +6942,12 @@
                    needs, and was breaking the title across two lines. The measure
                    belongs on the paragraph, the only part that needs one. -->
               <div class="min-w-0">
-                <div class="inline-flex items-center gap-2 rounded-[100px] bg-mint px-[0.85rem] py-[0.35rem] text-xs font-extrabold tracking-[0.1em] uppercase text-brand mb-3">${icon("calendar", 13)} What's Happening</div>
+                <!-- Black on the orange band, not the mint pill the other
+                     eyebrows use. Mint is a pale green authored to sit on cream;
+                     dropped on a full-strength orange it turned muddy and the
+                     brand-green type inside it all but disappeared. Black and
+                     white is the one pairing that holds against any fill. -->
+                <div class="inline-flex items-center gap-2 rounded-[100px] bg-[#12161d] px-[0.85rem] py-[0.35rem] text-xs font-extrabold tracking-[0.1em] uppercase text-white mb-3">${icon("calendar", 13)} What's Happening</div>
                 <div class="band-copy font-serif text-display-2 font-black text-white tracking-[-0.02em] mb-[0.5rem] leading-[1.15] text-balance">Upcoming in Bergen County</div>
                 <p class="band-copy text-white/90 text-base leading-[1.6] max-w-[68ch] text-pretty">Story times, clinics, camps and festivals — the next few weeks, town by town.</p>
               </div>
@@ -7284,6 +7373,7 @@
           icon: "sliders",
           rate: 40,
           needsTown: false,
+          banner: true,
           desc: "A card in the home page's corner rail, shown as a popup a family can close.",
         },
         {
@@ -7303,6 +7393,7 @@
           icon: "sliders",
           rate: 30,
           needsTown: true,
+          banner: true,
           desc: "A side-rail card shown only inside the category and subcategory this ad is filed under.",
         },
       ];
@@ -8064,7 +8155,7 @@
 
               ${
                 list.length
-                  ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-3 items-stretch">${list.map(listingCard).join("")}</div>`
+                  ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-[10px] items-stretch">${list.map(listingCard).join("")}</div>`
                   : `<div class="empty text-center px-4 py-16 text-muted text-base leading-[1.6]">${icon("search", 40, "text-adlabel mb-3")}<div style="font-weight:700;color:var(--head);margin-bottom:0.3rem">No results found</div><div>Try adjusting your filters or clearing them to see everything.</div></div>`
               }
             </div>
@@ -8081,17 +8172,33 @@
         const c = catOf(l.cat);
         const dlx = l.plan === "deluxe";
         const photo = listingImg(l);
-        return `<div class="lcard group bg-surface border-[1.5px] rounded-[18px] overflow-hidden cursor-pointer transition-[transform,box-shadow] duration-200 flex flex-col hover:-translate-y-1 hover:shadow-[0_14px_40px_rgba(26,46,74,0.12)] ${dlx ?"border-[#f0c98a] shadow-[0_4px_18px_rgba(245,166,35,0.12)]" : "border-line"}" data-action="open-listing" data-id="${l.id}">
-          <div class="relative h-[168px] overflow-hidden shrink-0" style="background:${c.grad}">
-            <div class="absolute inset-0 flex items-center justify-center text-white">${icon(l.icon, 54, "opacity-95")}</div>
+        /* Square corners, and one border colour for every card. Deluxe used to
+           carry an amber border and an amber glow, which marked the paid cards
+           twice — the Featured badge already says it — and put a second warm
+           colour next to the badge that was not quite the badge's own. */
+        return `<div class="lcard group bg-surface border-[1.5px] border-line overflow-hidden cursor-pointer transition-[transform,box-shadow] duration-200 flex flex-col hover:-translate-y-1 hover:shadow-[0_14px_40px_rgba(26,46,74,0.12)]" data-action="open-listing" data-id="${l.id}">
+          <div class="lcard-media relative h-[168px] overflow-hidden shrink-0${photo ? "" : " lcard-blank"}"${photo ? ` style="background:${c.grad}"` : ""}>
+            <!-- One mark on every photoless card, and it is the picture glyph
+                 rather than the category's own. A category icon here reads as
+                 the card's subject — the school card looked like it was
+                 illustrating a school — when what the empty slot actually means
+                 is "no photograph". Same glyph on all of them also makes a run
+                 of Basic cards read as one texture instead of eight different
+                 drawings at the same weight. -->
+            <div class="absolute inset-0 flex items-center justify-center ${photo ? "text-white" : "lcard-blank-ic"}">${photo ? icon(l.icon, 54, "opacity-95") : icon("image", 46)}</div>
             ${photo ? `<img src="${photo}" alt="${l.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">` : ""}
             <!-- Only the paid upgrade gets a badge. "Basic" said nothing about
                  the business and everything about what it had not bought, on
                  the majority of cards; and "Verified" was on so many of them
                  that it stopped marking anything out. Both were corners of the
                  photograph spent on labels a parent scanning the grid has no
-                 use for. Featured stays: it is the one that means something. -->
-            ${dlx ? `<span class="absolute top-3 left-3 z-[1] text-2xs font-extrabold tracking-[0.05em] uppercase px-[10px] py-[5px] rounded-[100px] bg-sun text-navy">Featured</span>` : ""}
+                 use for. Featured stays: it is the one that means something.
+
+                 In the brand green now rather than amber. Amber is the sun in
+                 the logo and the site uses it for warnings and highlights; a
+                 badge in it read as an alert on every paid card. Green is what
+                 the site says "this is ours" in. -->
+            ${dlx ? `<span class="absolute top-3 left-3 z-[1] text-2xs font-extrabold tracking-[0.05em] uppercase px-[10px] py-[5px] rounded-[100px] bg-logo-green text-white shadow-[0_2px_10px_rgba(9,15,26,0.28)]">Featured</span>` : ""}
           </div>
           <div class="px-[1.1rem] pt-[0.9rem] pb-[1.05rem] flex flex-col flex-1 min-w-0">
             <div class="text-xs font-bold tracking-[0.04em] uppercase text-adlabel truncate">${l.sub} · ${c.name.split(" ")[0]}</div>
@@ -8178,7 +8285,7 @@
       // box around the hole rather than hiding it. The tiles are photographs
       // under dark scrims and hold their own edges without help.
       const calGridHtml = (list) =>
-        `<div class="ev-grid grid grid-cols-[repeat(auto-fill,minmax(min(205px,100%),1fr))] gap-[3px]">${list.map(evTile).join("")}</div>`;
+        `<div class="ev-grid grid grid-cols-[repeat(auto-fill,minmax(min(205px,100%),1fr))] gap-[10px]">${list.map(evTile).join("")}</div>`;
       function viewCalendar() {
         const f = state.calFilter;
         const list = calEvents();
@@ -9761,14 +9868,24 @@
         bannerTitle: "",
         bannerText: "",
       });
-      /* What the leaderboard slot is actually painted at, and therefore what an
-         advertiser has to supply. #sponsor-bar caps at 1240px and .sponsor-stage
-         is 124px tall, so the artwork is that box at 2x — stated as one number
-         rather than a range because "recommended 1240–2480 wide" is a decision
-         handed back to someone who came here to upload a picture. */
-      const BANNER_W = 2480;
-      const BANNER_H = 248;
-      const BANNER_SPEC = `${BANNER_W} × ${BANNER_H} px`;
+      /* What each slot is actually painted at, and therefore what the advertiser
+         has to supply. Every figure is the live box at 2×: the leaderboard is
+         #sponsor-bar's 1240 cap by .sponsor-stage's 124px height, and the
+         sidebar is the 300px rail card by the 380 its body runs to.
+
+         One number per slot rather than a range, because "recommended
+         1240–2480 wide" hands a decision back to someone who came here to
+         upload a picture. A wide slot and a tall one need genuinely different
+         artwork, so the two are quoted separately rather than averaged into a
+         single figure that suits neither. */
+      const AD_ARTWORK = {
+        "home-leaderboard": { w: 2480, h: 248, shape: "wide banner" },
+        "cat-leaderboard": { w: 2480, h: 248, shape: "wide banner" },
+        "home-sidebar": { w: 600, h: 760, shape: "upright card" },
+        "cat-sidebar": { w: 600, h: 760, shape: "upright card" },
+      };
+      const artSpec = (d) => AD_ARTWORK[d.type] || AD_ARTWORK["cat-leaderboard"];
+      const artSpecText = (d) => `${artSpec(d).w} × ${artSpec(d).h} px`;
       // A numbered step in the create form.
       function adStep(n, title, sub, body) {
         return `<div class="border-t-[1.5px] border-line pt-6 mt-6 first:border-t-0 first:pt-0 first:mt-0">
@@ -9853,30 +9970,155 @@
          same layout, the same Visit Link button. Both designs run through it,
          so choosing between them is looking at the two rather than reading
          about them. */
-      function bannerPreview(d) {
+      /* ── Placement previews ─────────────────────────────────────
+         Every type that runs somewhere other than the directory gets a picture
+         of the thing it will actually be, drawn with the same classes the real
+         unit uses. Four types, four different objects — a home leaderboard is
+         not a category leaderboard with a different price, it is a popup that
+         can be closed rather than a row of the page — and a form that describes
+         that difference in a sentence is asking the advertiser to imagine it.
+
+         The two directory types have no preview here: a Basic or Deluxe ad is a
+         listing card, and the panel that shows one is a click away in the
+         directory itself.
+
+         All four read from the draft, so the name, category and subcategory
+         being typed above appear in them as they are typed; the leaderboards
+         additionally take the custom artwork, logo and wording. */
+      const previewCopy = (d) => {
         const c = catOf(d.cat) || CATEGORIES[0];
-        const custom = d.banner === "custom";
-        const title = (custom && d.bannerTitle.trim()) || d.name.trim() || "Your advertisement";
-        const sub =
-          (custom && d.bannerText.trim()) ||
-          [c.name, d.sub].filter(Boolean).join(" · ") ||
-          c.name;
-        const art = custom ? d.bannerImg : "";
-        const mark = custom && d.bannerIcon;
-        return `<div class="relative rounded-[14px] overflow-hidden bg-[linear-gradient(180deg,rgba(14,14,16,0.94),rgba(0,0,0,0.96))] px-4 py-3 flex items-center gap-3 min-h-[86px] shadow-[0_10px_30px_rgba(0,0,0,0.3)]"${art ? ` style="background-image:url('${art}');background-size:cover;background-position:center"` : ""}>
-            ${art ? `<span class="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,10,14,0.82),rgba(8,10,14,0.35))]"></span>` : ""}
-            <span class="relative z-[1] flex items-center gap-[0.4rem] text-2xs font-bold tracking-[0.12em] uppercase text-white/80 shrink-0 max560:hidden"><span class="sponsor-live"></span>Ad</span>
-            <span class="relative z-[1] w-[38px] h-[38px] rounded-[10px] grid place-items-center shrink-0 overflow-hidden ${mark ? "bg-white" : "text-white"}" ${mark ? "" : `style="background:${c.grad}"`}>${
-              mark
-                ? `<img src="${mark}" alt="" class="w-full h-full object-contain">`
-                : icon(c.icon, 18)
-            }</span>
+        const custom = d.banner === "custom" && adHasBanner(d);
+        const w = artSpec(d).w;
+        return {
+          c,
+          custom,
+          title: (custom && d.bannerTitle.trim()) || d.name.trim() || "Your advertisement",
+          sub:
+            (custom && d.bannerText.trim()) ||
+            [c.name, d.sub].filter(Boolean).join(" · ") ||
+            c.name,
+          /* The picture, and there is always one. Custom artwork where it has
+             been uploaded, and the category's own photograph where it has not —
+             the leaderboards used to fall back to a flat gradient, which is not
+             what the slot looks like in the wild and made the standard design
+             read as the cheaper option rather than as a different one. */
+          art: (custom && d.bannerImg) || catImg(d.cat, w > 1000 ? 1600 : 800),
+          mark: custom ? d.bannerIcon : "",
+          who: (state.user && state.user.name) || "Your business",
+        };
+      };
+      // The mark on a leaderboard: the advertiser's own logo where they have
+      // uploaded one, the category glyph where they have not.
+      const previewChip = (p, size, cls) =>
+        `<span class="${cls} overflow-hidden ${p.mark ? "bg-white" : "text-white"}"${p.mark ? "" : ` style="background:${p.c.grad}"`}>${
+          p.mark ? `<img src="${p.mark}" alt="" class="w-full h-full object-contain">` : icon(p.c.icon, size)
+        }</span>`;
+      // Home leaderboard — the sponsor bar. Carries the close button, because
+      // that unit is fixed over the hero and a family has to be able to get rid
+      // of it.
+      function previewHomeLeaderboard(d) {
+        const p = previewCopy(d);
+        return `<div class="relative rounded-[18px] overflow-hidden bg-[linear-gradient(180deg,rgba(14,14,16,0.94),rgba(0,0,0,0.96))] px-4 py-3 flex items-center gap-3 min-h-[104px] shadow-[0_18px_50px_rgba(0,0,0,0.42)]"${p.art ? ` style="background-image:url('${p.art}');background-size:cover;background-position:center"` : ""}>
+            <span class="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,10,14,0.86),rgba(8,10,14,0.4))]"></span>
+            <span class="relative z-[1] flex items-center gap-[0.45rem] text-2xs font-bold tracking-[0.12em] uppercase text-white/80 shrink-0 max700:hidden"><span class="sponsor-live"></span>Advertisement</span>
+            ${previewChip(p, 20, "relative z-[1] w-[44px] h-[44px] rounded-[12px] grid place-items-center shrink-0")}
             <span class="relative z-[1] min-w-0 flex-1">
-              <span class="block font-serif text-base font-bold text-white leading-[1.2] truncate">${escText(title)}</span>
-              <span class="block text-2xs text-white/75 truncate mt-[1px]">${escText(sub)}</span>
+              <span class="block text-2xs font-extrabold uppercase tracking-[0.14em] text-white/80 truncate">${escText(p.who)}</span>
+              <span class="block font-serif text-lg font-bold text-white leading-[1.2] truncate mt-[1px]">${escText(p.title)}</span>
+              <span class="block text-2xs text-white/70 truncate mt-[2px]">${escText(p.sub)}</span>
             </span>
-            <span class="relative z-[1] bg-orange-ink text-white rounded-[100px] px-4 py-[0.45rem] text-sm font-bold inline-flex items-center gap-[0.35rem] shrink-0 max560:hidden">${icon("globe", 13)} Visit Link</span>
-            <span class="relative z-[1] w-[26px] h-[26px] rounded-full bg-white/15 text-white grid place-items-center shrink-0">${icon("x", 13)}</span>
+            <span class="relative z-[1] bg-orange-ink text-white rounded-[100px] px-4 py-[0.5rem] text-sm font-bold inline-flex items-center gap-[0.35rem] shrink-0 max700:hidden">${icon("globe", 13)} Visit Link</span>
+            <span class="relative z-[1] w-[30px] h-[30px] rounded-full bg-black/25 text-white grid place-items-center shrink-0" title="A family can close this">${icon("x", 14)}</span>
+          </div>`;
+      }
+      // Category leaderboard — .page-ad-band, the in-page row. Same classes as
+      // the live unit, and no close button, because it is part of the page.
+      function previewCatLeaderboard(d) {
+        const p = previewCopy(d);
+        return `<div class="page-ad-band"${p.art ? ` style="background-image:url('${p.art}');background-size:cover;background-position:center"` : ""}>
+            <span class="page-ad-band-scrim"></span>
+            ${previewChip(p, 20, "page-ad-band-chip")}
+            <span class="min-w-0 flex-1 relative z-[2]">
+              <span class="block text-2xs font-extrabold uppercase tracking-[0.14em] text-white/80 truncate">${escText(p.who)}</span>
+              <span class="block font-serif text-xl font-bold text-white leading-[1.2] mt-[2px]">${escText(p.title)}</span>
+              <span class="block text-2xs text-white/65 mt-[3px] truncate">${escText(p.sub)}</span>
+            </span>
+            <span class="page-ad-band-cta">${icon("globe", 14)} Visit Link</span>
+          </div>`;
+      }
+      // Home sidebar — the corner popup. Photo, scrim, close button, and the
+      // same stacked copy the live unit carries.
+      function previewHomeSidebar(d) {
+        const p = previewCopy(d);
+        const photo = p.art;
+        return `<div class="relative z-[1] overflow-hidden rounded-[16px] bg-navy shadow-[0_20px_54px_rgba(26,46,74,0.24)] w-[300px] max-w-full">
+            ${photo ? `<img src="${photo}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 h-full w-full object-cover">` : ""}
+            <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,15,26,0.93)_0%,rgba(9,15,26,0.8)_34%,rgba(9,15,26,0.34)_60%,rgba(9,15,26,0.92)_100%)]"></div>
+            <div class="relative flex min-h-[300px] flex-col p-[1.15rem]">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-[0.6rem]">
+                  ${previewChip(p, 17, "w-[34px] h-[34px] rounded-[10px] grid place-items-center shrink-0")}
+                  <div class="flex items-center gap-[0.4rem] text-2xs font-bold uppercase tracking-[0.14em] text-on-dark-3"><span class="sponsor-live"></span>Advertisement</div>
+                </div>
+                <span class="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[50%] bg-black/25 text-white" title="A family can close this">${icon("x", 15)}</span>
+              </div>
+              <div class="mt-auto pt-6">
+                <div class="text-xs font-extrabold uppercase tracking-[0.14em] text-white/85">${escText(p.who)}</div>
+                <div class="mt-[0.35rem] font-serif text-2xl font-black leading-[1.14] text-white">${escText(p.title)}</div>
+                <div class="mt-[0.5rem] text-xs leading-[1.55] text-white/60">${escText(p.sub)}</div>
+                <span class="promo-ad-cta">${icon("globe", 14)} Visit Link <span aria-hidden="true">→</span></span>
+              </div>
+            </div>
+          </div>`;
+      }
+      // Category sidebar — .promo-ad, the poster in the directory's right rail.
+      function previewCatSidebar(d) {
+        const p = previewCopy(d);
+        const photo = p.art;
+        return `<div class="promo-ad w-[300px] max-w-full">
+            ${photo ? `<img src="${photo}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="promo-ad-photo">` : ""}
+            ${p.custom && d.bannerImg ? "" : `<div class="promo-ad-tint" style="background:${p.c.grad}"></div>`}
+            <div class="promo-ad-scrim"></div>
+            <div class="promo-ad-body">
+              <div class="flex items-center gap-3">
+                ${previewChip(p, 20, "promo-ad-chip")}
+                <div class="flex items-center gap-[0.4rem] text-2xs font-bold uppercase tracking-[0.14em] text-on-dark-3"><span class="sponsor-live"></span>Advertisement</div>
+              </div>
+              <div class="mt-auto pt-6">
+                <div class="text-xs font-extrabold uppercase tracking-[0.14em] text-white/85">${escText(p.who)}</div>
+                <div class="mt-[0.35rem] font-serif text-2xl font-black leading-[1.14] text-white">${escText(p.title)}</div>
+                <div class="mt-[0.5rem] text-xs leading-[1.55] text-white/60">${escText(p.sub)}</div>
+                <span class="promo-ad-cta">Visit Link <span aria-hidden="true">→</span></span>
+              </div>
+            </div>
+          </div>`;
+      }
+      const AD_PREVIEWS = {
+        "home-leaderboard": [
+          previewHomeLeaderboard,
+          "Across the top of the home page, over the hero. A family can close it.",
+        ],
+        "cat-leaderboard": [
+          previewCatLeaderboard,
+          "A row of the category page, above the results. Nothing to close — it is part of the page.",
+        ],
+        "home-sidebar": [
+          previewHomeSidebar,
+          "The card in the home page's bottom-right corner. A family can close it.",
+        ],
+        "cat-sidebar": [
+          previewCatSidebar,
+          "The card in the category page's right-hand rail, beside the results.",
+        ],
+      };
+      function adPlacementPreview(d) {
+        const entry = AD_PREVIEWS[d.type];
+        if (!entry) return "";
+        const [build, note] = entry;
+        return `<div class="mt-4">
+            <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel mb-[0.5rem]">Preview — ${adTypeOf(d.type).name}</div>
+            ${build(d)}
+            <div class="text-sm text-muted leading-[1.55] mt-[0.6rem]">${note}</div>
           </div>`;
       }
       // Text the advertiser typed, printed back onto the preview. Escaped for
@@ -9899,19 +10141,35 @@
               <div class="text-base font-semibold text-head">${label}</div>
               <div class="text-sm text-muted mt-[0.15rem]">${note}</div>
             </div>`;
+        /* All four placement types get the same treatment now: a design choice,
+           the upload fields behind it, and a preview of the object being
+           bought. The sidebars used to be built only from the ad's own fields
+           on the reasoning that a card has nothing to design — which was
+           wrong. A card is a picture with words on it exactly as a banner is;
+           the only thing that differs is the shape of the picture, and that is
+           what AD_ARTWORK carries.
+
+           So the wording follows the slot rather than assuming a banner. */
+        const banner = adHasBanner(d);
+        const shape = artSpec(d).shape; // "wide banner" | "upright card"
+        const noun = shape === "wide banner" ? "banner" : "card";
         return `<div class="mt-5 rounded-[14px] border-[1.5px] border-line2 bg-surface-4 p-5 max380:p-4">
-            <div class="font-bold text-base text-head flex items-center gap-[0.4rem] mb-[0.3rem]">${icon("image", 15)} Banner design</div>
-            <div class="text-sm text-muted leading-[1.55] mb-4">This type runs a wide banner. Take the standard design, or supply your own artwork and wording.</div>
-            <div class="grid grid-cols-2 gap-3 max700:grid-cols-1">
-              ${pick("default", "check", "Standard banner", "Built from what you filled in above — your ad name, the category glyph and its name.", !custom)}
-              ${pick("custom", "palette", "Your own banner", "Your artwork, your logo and your wording in place of all three.", custom)}
-            </div>
+            <div class="font-bold text-base text-head flex items-center gap-[0.4rem] mb-[0.3rem]">${icon("image", 15)} ${banner ? "Ad design" : "How this ad appears"}</div>
+            <div class="text-sm text-muted leading-[1.55] mb-4">${banner ? `This type runs a ${shape}. Take the standard design, or supply your own artwork and wording.` : "Built from what you filled in above — your ad name, the category and its glyph."}</div>
             ${
-              custom
+              banner
+                ? `<div class="grid grid-cols-2 gap-3 max700:grid-cols-1">
+              ${pick("default", "check", `Standard ${noun}`, "Built from what you filled in above — your ad name, the category photograph and its glyph.", !custom)}
+              ${pick("custom", "palette", `Your own ${noun}`, "Your artwork, your logo and your wording in place of all three.", custom)}
+            </div>`
+                : ""
+            }
+            ${
+              banner && custom
                 ? `<div class="grid grid-cols-2 gap-[1.1rem] mt-4 max700:grid-cols-1">
-              <div class="${FLD_WIDE}"><label>Banner artwork</label>
-                ${drop("ad-banner-img", d.bannerImg ? "Artwork added — click to replace" : "Click to upload your banner", `${BANNER_SPEC} · JPG or PNG up to 4 MB`, !!d.bannerImg)}
-                <div class="flex items-start gap-2 text-sm text-muted leading-[1.55] mt-[0.5rem]">${icon("image", 14, "shrink-0 mt-[0.15rem]")}<span>The slot is painted at ${BANNER_W / 2} × ${BANNER_H / 2}, so ${BANNER_SPEC} is that at 2× and stays sharp on a retina screen. Anything wider is scaled to fit and cropped from the centre.</span></div>
+              <div class="${FLD_WIDE}"><label>${noun === "banner" ? "Banner" : "Card"} artwork</label>
+                ${drop("ad-banner-img", d.bannerImg ? "Artwork added — click to replace" : `Click to upload your ${noun}`, `${artSpecText(d)} · JPG or PNG up to 4 MB`, !!d.bannerImg)}
+                <div class="flex items-start gap-2 text-sm text-muted leading-[1.55] mt-[0.5rem]">${icon("image", 14, "shrink-0 mt-[0.15rem]")}<span>The slot is painted at ${artSpec(d).w / 2} × ${artSpec(d).h / 2}, so ${artSpecText(d)} is that at 2× and stays sharp on a retina screen. Anything larger is scaled to fit and cropped from the centre.</span></div>
               </div>
               <div class="${FLD}"><label>Your logo <span style="color:var(--muted);font-weight:400">— replaces the category icon</span></label>
                 ${drop("ad-banner-icon", d.bannerIcon ? "Logo added — click to replace" : "Click to upload a logo", "Square PNG works best · up to 2 MB", !!d.bannerIcon)}
@@ -9929,11 +10187,7 @@
             </div>`
                 : ""
             }
-            <div class="mt-4">
-              <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel mb-[0.5rem]">Preview</div>
-              ${bannerPreview(d)}
-              <div class="text-sm text-muted leading-[1.55] mt-[0.5rem]">Shown at about a quarter of the width families see.</div>
-            </div>
+            <div id="ad-preview">${adPlacementPreview(d)}</div>
             <input type="file" id="ad-banner-file" accept="image/*" class="hidden">
           </div>`;
       }
@@ -10067,7 +10321,7 @@
             </div>`
                   ).join("")
             }
-          ${!locked && adHasBanner(d) ? adBannerBlock(d) : ""}
+          ${!locked && AD_PREVIEWS[d.type] ? adBannerBlock(d) : ""}
           ${
             deluxe
               ? `<div class="${FLD} mt-4"><label>Upload photos <span style="color:var(--muted);font-weight:400">— Deluxe feature</span></label>
@@ -10193,6 +10447,14 @@
         syncAdDraft();
         const root = el("ad-form-root");
         if (root) root.innerHTML = adFormInner();
+      }
+      /* Redraws the preview alone. Everything that feeds it — the ad name, the
+         category, the subcategory, the custom wording — is typed or picked in a
+         field that must survive the redraw, so repaintAdForm() is the wrong
+         tool: it rebuilds the input under the caret. */
+      function refreshAdPreview() {
+        const box = el("ad-preview");
+        if (box && state.adDraft) box.innerHTML = adPlacementPreview(state.adDraft);
       }
 
       /* The town popup. Everything it does writes straight into the draft, so
@@ -11450,16 +11712,17 @@
           // uploads a 600px-wide banner should hear it now, not after the ad
           // is live and painted soft across a 1240px slot.
           if (BANNER_SLOT === "bannerImg") {
+            const spec = artSpec(state.adDraft);
             const probe = new Image();
             probe.onload = () => {
-              if (probe.naturalWidth < BANNER_W / 2)
+              if (probe.naturalWidth < spec.w / 2)
                 toast(
-                  `That artwork is ${probe.naturalWidth}px wide — ${BANNER_SPEC} keeps it sharp`,
+                  `That artwork is ${probe.naturalWidth}px wide — ${spec.w} × ${spec.h} px keeps it sharp`,
                   "x"
                 );
-              else toast("Banner artwork added", "check");
+              else toast("Artwork added", "check");
             };
-            probe.onerror = () => toast("Banner artwork added", "check");
+            probe.onerror = () => toast("Artwork added", "check");
             probe.src = reader.result;
           } else toast("Logo added", "check");
         };
@@ -12346,6 +12609,29 @@
           otpMaybeSubmit();
           return;
         }
+        /* The preview redraws as the wording is typed. It used to move only on
+           a full repaintAdForm(), which nothing about typing triggers — so the
+           headline and supporting line went into the draft and the picture of
+           the ad carried on showing the defaults, which reads as the fields
+           doing nothing at all.
+
+           Only the preview node is rewritten, not the form: repainting the form
+           would rebuild the input under the caret on every keystroke. */
+        if (
+          e.target.id === "ad-banner-title" ||
+          e.target.id === "ad-banner-text" ||
+          e.target.id === "ad-name"
+        ) {
+          if (!state.adDraft) return;
+          const field = {
+            "ad-banner-title": "bannerTitle",
+            "ad-banner-text": "bannerText",
+            "ad-name": "name",
+          }[e.target.id];
+          state.adDraft[field] = e.target.value;
+          refreshAdPreview();
+          return;
+        }
         if (e.target.id === "d-q") {
           state.dir.q = e.target.value;
           updateDirResults();
@@ -12390,6 +12676,12 @@
             s.innerHTML = subOptions(e.target.value);
             if (state.adDraft) state.adDraft.sub = s.value;
           }
+          // The preview prints the category, its photograph and its glyph, so
+          // changing the category has to redraw it.
+          refreshAdPreview();
+        } else if (e.target.id === "ad-sub") {
+          if (state.adDraft) state.adDraft.sub = e.target.value;
+          refreshAdPreview();
         } else if (e.target.id === "ml-cat") {
           state.listingFilter.cat = e.target.value;
           render();
@@ -12526,7 +12818,7 @@
         if (!container) return;
         const target = grid || empty;
         const newHtml = list.length
-          ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-3">${list.map(listingCard).join("")}</div>`
+          ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-[10px]">${list.map(listingCard).join("")}</div>`
           : `<div class="empty text-center px-4 py-16 text-muted text-base leading-[1.6]">${icon("search", 40, "text-adlabel mb-3")}<div style="font-weight:700;color:var(--head);margin-bottom:0.3rem">No results found</div><div>Try adjusting your filters or clearing them to see everything.</div></div>`;
         if (target) target.outerHTML = newHtml;
       }
