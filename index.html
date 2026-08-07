@@ -2204,6 +2204,27 @@
         background: var(--sun, #f5a623);
       }
 
+      /* In the rail they go under the card, not on it. The band is a wide strip
+         with dead space bottom-right; the poster is not — its bottom corner is
+         where the Visit Link button lives, and seven dots laid over it landed
+         squarely on the call to action.
+
+         Which also means they are no longer on a dark ground, so the white they
+         were drawn in would be invisible against the page. */
+      .page-ad-rail .page-ad-dots {
+        position: static;
+        justify-content: center;
+        margin-top: 0.75rem;
+      }
+
+      .page-ad-rail .page-ad-dot {
+        background: var(--line);
+      }
+
+      .page-ad-rail .page-ad-dot.is-active {
+        background: var(--brand);
+      }
+
       .page-ad-band {
         position: relative;
         display: flex;
@@ -2356,6 +2377,11 @@
         flex-direction: column;
         min-height: 310px;
         padding: 1.15rem;
+        /* More room under the button than beside it. A full-width CTA sitting
+           1.15rem off the bottom edge reads as touching it — the eye measures
+           the gap under a button against the button's own height, not against
+           the side margins. */
+        padding-bottom: 1.7rem;
       }
 
       .promo-ad-chip {
@@ -9174,6 +9200,23 @@
          those two browse ad-free until someone buys them. */
       const catAdKeys = (cats) =>
         (cats || []).length ? PAGE_AD_KEYS.filter((k) => cats.includes(PUBLIC_ADS[k].cat)) : [];
+      /* What actually goes into the rotation: the category's own advertisers
+         first, then the rest of the live inventory behind them.
+
+         Strict matching alone would not rotate. Of the eight categories only
+         sports has two advertisers — every other one has a single ad, so the
+         slot showed one frame and sat there, which is not what a leaderboard
+         does. Filling the tail from general inventory is how a real rotation
+         works on a page whose own category is thinly sold: the targeted ads
+         still lead, and every impression after them goes to someone rather
+         than to a static frame.
+
+         The slot still only appears at all when a category is picked, and it
+         still leads with that category's advertisers — that part is unchanged. */
+      const adRotation = (cats) => {
+        const first = catAdKeys(cats);
+        return [...first, ...PAGE_AD_KEYS.filter((k) => !first.includes(k))];
+      };
       /* Every matching ad, stacked as slides and rotated on a timer — the same
          behaviour the home page's sponsor bar has, because an advertiser buying
          a leaderboard should get a leaderboard wherever it runs. What it does
@@ -9184,78 +9227,107 @@
          One matching ad renders as one slide and simply sits there. Sports has
          two advertisers today and rotates; picking several categories at once
          gathers all of theirs into the one rail. */
+      // Both slots are gated on the same thing and it is the category filter,
+      // not the rotation being non-empty — adRotation() falls back to the whole
+      // inventory, so testing its length let the rail through on an unfiltered
+      // directory where there is no category page to be inside of.
+      const anyCat = (cats) => !!(cats || []).length;
       const catAdBand = (cats) => {
-        const keys = catAdKeys(cats);
+        if (!anyCat(cats)) return "";
+        const keys = adRotation(cats);
         if (!keys.length) return "";
         return `<div class="page-ad-top mb-6">
             ${adSlotLabel()}
-            <div class="relative" data-page-ad-band>
+            <div class="relative" data-page-ad-rotator>
               ${keys.map((k, i) => `<div class="page-ad-slide${i === 0 ? " is-active" : ""}" data-page-ad-slide>${pageAdBand(k)}</div>`).join("")}
-              ${
-                keys.length > 1
-                  ? `<div class="page-ad-dots">${keys
-                      .map(
-                        (k, i) =>
-                          `<button type="button" class="page-ad-dot${i === 0 ? " is-active" : ""}" data-page-ad-dot aria-label="Advertisement ${i + 1} of ${keys.length}"></button>`
-                      )
-                      .join("")}</div>`
-                  : ""
-              }
+              ${dotsFor(keys.length)}
             </div>
           </div>`;
       };
-      // The rail takes the second matching ad where there is one, so a category
-      // with two advertisers shows both rather than the same ad twice.
+      /* The rail rotates too, and starts one ad further down the same list so
+         the two slots are never showing the same advertiser at the same moment.
+         Its timer runs at a different interval for the same reason — two
+         carousels flipping in lockstep read as the page redrawing itself. */
       const catAdRail = (cats) => {
-        const keys = catAdKeys(cats);
-        return keys.length ? pageAdRail(keys[keys.length > 1 ? 1 : 0]) : "";
+        if (!anyCat(cats)) return "";
+        const keys = adRotation(cats);
+        if (!keys.length) return "";
+        // Started halfway down the list rather than one along: with two timers
+        // running at different speeds the two slots drift, and starting them
+        // adjacent means they meet almost immediately. Half the list apart
+        // keeps them showing different advertisers for most of the cycle.
+        const cut = Math.floor(keys.length / 2);
+        const order = keys.slice(cut).concat(keys.slice(0, cut));
+        return `<aside class="page-ad-rail" aria-label="Advertisement">
+            <div class="sticky top-[124px]">
+              <div class="relative" data-page-ad-rotator data-interval="6200">
+                ${order.map((k, i) => `<div class="page-ad-slide${i === 0 ? " is-active" : ""}" data-page-ad-slide>${promoAdCard(k)}</div>`).join("")}
+                ${dotsFor(order.length)}
+              </div>
+              <div class="text-2xs text-adlabel leading-[1.5] mt-[0.7rem]">Ads keep Bergen Kids free for families. <button type="button" class="text-brand font-bold underline" data-nav="advertiser" data-dashtab="add">Advertise here</button></div>
+            </div>
+          </aside>`;
       };
+      const dotsFor = (n) =>
+        n > 1
+          ? `<div class="page-ad-dots">${Array.from({ length: n })
+              .map(
+                (_, i) =>
+                  `<button type="button" class="page-ad-dot${i === 0 ? " is-active" : ""}" data-page-ad-dot aria-label="Advertisement ${i + 1} of ${n}"></button>`
+              )
+              .join("")}</div>`
+          : "";
       /* Rotates the band. Same shape as the sponsor bar's own rotator: a plain
          interval, paused while the pointer is on it and while the tab is
          hidden, and stopped the moment someone uses the dots — nobody wants the
          ad they just chose to look at to slide away under them. */
-      let pageAdTimer = null;
+      let pageAdTimers = [];
       function mountPageAdBand() {
-        if (pageAdTimer) {
-          clearInterval(pageAdTimer);
-          pageAdTimer = null;
-        }
-        const host = document.querySelector("[data-page-ad-band]");
-        if (!host) return;
-        const slides = Array.from(host.querySelectorAll("[data-page-ad-slide]"));
-        const dots = Array.from(host.querySelectorAll("[data-page-ad-dot]"));
-        if (slides.length < 2) return;
-        let idx = 0;
-        const paint = () => {
-          slides.forEach((s, i) => s.classList.toggle("is-active", i === idx));
-          dots.forEach((d, i) => d.classList.toggle("is-active", i === idx));
-        };
-        const go = (n) => {
-          idx = (n + slides.length) % slides.length;
-          paint();
-        };
-        const start = () => {
-          if (!pageAdTimer)
-            pageAdTimer = setInterval(() => {
+        // Every rotator on the page is rebuilt together, because the markup they
+        // run on was just rewritten — a timer left pointing at detached nodes
+        // ticks forever over nothing.
+        pageAdTimers.forEach(clearInterval);
+        pageAdTimers = [];
+        document.querySelectorAll("[data-page-ad-rotator]").forEach((host) => {
+          const slides = Array.from(host.querySelectorAll("[data-page-ad-slide]"));
+          const dots = Array.from(host.querySelectorAll("[data-page-ad-dot]"));
+          if (slides.length < 2) return;
+          const every = Number(host.dataset.interval) || 4500;
+          let idx = 0;
+          let timer = null;
+          const paint = () => {
+            slides.forEach((s, i) => s.classList.toggle("is-active", i === idx));
+            dots.forEach((d, i) => d.classList.toggle("is-active", i === idx));
+          };
+          const go = (n) => {
+            idx = (n + slides.length) % slides.length;
+            paint();
+          };
+          const start = () => {
+            if (timer) return;
+            timer = setInterval(() => {
               if (!document.hidden) go(idx + 1);
-            }, 4500);
-        };
-        const stop = () => {
-          if (!pageAdTimer) return;
-          clearInterval(pageAdTimer);
-          pageAdTimer = null;
-        };
-        dots.forEach((d, i) =>
-          d.addEventListener("click", (e) => {
-            e.stopPropagation();
-            stop();
-            go(i);
-          })
-        );
-        host.addEventListener("mouseenter", stop);
-        host.addEventListener("mouseleave", start);
-        paint();
-        start();
+            }, every);
+            pageAdTimers.push(timer);
+          };
+          const stop = () => {
+            if (!timer) return;
+            clearInterval(timer);
+            pageAdTimers = pageAdTimers.filter((t) => t !== timer);
+            timer = null;
+          };
+          dots.forEach((d, i) =>
+            d.addEventListener("click", (e) => {
+              e.stopPropagation();
+              stop();
+              go(i);
+            })
+          );
+          host.addEventListener("mouseenter", stop);
+          host.addEventListener("mouseleave", start);
+          paint();
+          start();
+        });
       }
       // The label that sits above every in-page slot. Small, ruled, and the
       // same on all of them, so an ad is recognisable as one before it is read.
@@ -9290,16 +9362,6 @@
       }
       // The rail. promoAdCard is the poster unit the listing panel used to
       // carry; a 300px column is the shape it was always drawn for.
-      function pageAdRail(key) {
-        // No adSlotLabel() here: promoAdCard draws its own "Advertisement" mark
-        // inside the card, and the two together said it twice.
-        return `<aside class="page-ad-rail" aria-label="Advertisement">
-            <div class="sticky top-[124px]">
-              ${promoAdCard(key)}
-              <div class="text-2xs text-adlabel leading-[1.5] mt-[0.7rem]">Ads keep Bergen Kids free for families. <button type="button" class="text-brand font-bold underline" data-nav="advertiser" data-dashtab="add">Advertise here</button></div>
-            </div>
-          </aside>`;
-      }
       function promoAdCard(key) {
         const a = PUBLIC_ADS[key];
         if (!a) return "";
