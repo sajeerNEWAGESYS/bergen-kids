@@ -1866,20 +1866,22 @@
          chapter rather than more cream. Purely decorative and behind
          everything, hence the ::before rather than a background on the
          section — the arrows and cards need to paint over it. */
-      /* Filled, and filled with the Visit Link orange — --orange-ink, the same
-         value every CTA on the site is painted in. It used to be transparent so
-         the backdrop photograph ran through it, which put two picture-backed
-         bands in a row with nothing between them.
+      /* Filled with the brand green rather than the CTA orange. Orange is what
+         the site says "click this" in — it is the Visit Link fill and nothing
+         else — and a whole band of it made the section read as one enormous
+         button, with the actual buttons inside it losing the only colour that
+         marks them out.
 
-         Solid, not a wash: the band is a full-strength brand colour now, so the
-         copy on it goes white. The tiles were already white-on-scrim and the
-         headings already carry .band-copy, so the only thing that had to change
-         is the paragraph and the "See all events" link, which read as muted
-         grey on cream and would have vanished here. */
+         Green is what the site says "this is Bergen Kids" in: the logo, the
+         nav CTA, every brand mark. Led with --logo-green and run down into the
+         teal the category gradients use, so it is plainly the same family as
+         the plans band and the app band without being either of them.
+
+         Solid, not a wash, so the copy on it goes white — see the rule below. */
       .ev-band {
         position: relative;
         overflow: hidden;
-        background: linear-gradient(168deg, var(--orange) 0%, var(--orange-ink) 62%, var(--orange-deep) 100%);
+        background: linear-gradient(168deg, #0a7d4b 0%, #14685a 58%, #10514a 100%);
       }
 
       /* On the filled band nothing may stay grey. Scoped to the band rather
@@ -3831,11 +3833,11 @@
         box-shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
       }
 
-      /* Deepened for the dark page. The light theme's orange at full strength
-         against near-black glares; the same three stops taken down a step keep
-         the band unmistakably the orange one without it burning. */
+      /* Deepened for the dark page. The light theme's green against near-black
+         sits too bright and too forward; the same three stops taken down a step
+         keep the band unmistakably the green one without it glowing. */
       [data-theme="dark"] .ev-band {
-        background: linear-gradient(168deg, #b8430c 0%, #9c3409 62%, #7d2a07 100%);
+        background: linear-gradient(168deg, #0a5334 0%, #0d4740 58%, #0a3733 100%);
       }
 
       /* The corner washes were drawn for a band with the page showing through.
