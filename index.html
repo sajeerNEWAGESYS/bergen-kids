@@ -2272,25 +2272,25 @@
         background: var(--sun, #f5a623);
       }
 
-      /* In the rail they go under the card, not on it. The band is a wide strip
-         with dead space bottom-right; the poster is not — its bottom corner is
-         where the Visit Link button lives, and seven dots laid over it landed
-         squarely on the call to action.
+      /* On the card, centred along its foot. They were under it for a while,
+         which kept them off the Visit Link button but left them adrift on the
+         page — a control belonging to the card, sitting outside it.
 
-         Which also means they are no longer on a dark ground, so the white they
-         were drawn in would be invisible against the page. */
+         Inside works as long as the card makes room: the poster's body carries
+         extra bottom padding below, so the button ends above the dots rather
+         than under them. That is the fix the first attempt was missing — the
+         dots were moved instead of the space being made. */
       .page-ad-rail .page-ad-dots {
-        position: static;
+        left: 0;
+        right: 0;
+        bottom: 0.85rem;
         justify-content: center;
-        margin-top: 0.75rem;
       }
 
-      .page-ad-rail .page-ad-dot {
-        background: var(--line);
-      }
-
-      .page-ad-rail .page-ad-dot.is-active {
-        background: var(--brand);
+      /* The room the dots sit in. Without it the CTA runs to the card's own
+         bottom padding and the dots land on top of it. */
+      .page-ad-rail .promo-ad-body {
+        padding-bottom: 2.6rem;
       }
 
       .page-ad-band {
