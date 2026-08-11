@@ -754,75 +754,11 @@
         color: var(--head);
       }
 
-      /* The location pill wears the same border beam as the ad units, sharing
-         their --beamAngle property and beamSpin keyframes. Built like the
-         sponsor bar's, not the corner ad's: painted inside the box with a mask
-         punching out the middle, so the ring follows the pill's own radius
-         instead of needing a second box sized to match a 100px round end. */
-      .hero-pill {
-        position: relative;
-      }
-
-      .hero-pill::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        padding: 2px; /* ring thickness */
-        pointer-events: none;
-        background: conic-gradient(
-          from var(--beamAngle),
-          #f5a623,
-          #ffe6bd,
-          #1e8c7a,
-          #2d5a8e,
-          #c3b1e6,
-          #f5a623
-        );
-        -webkit-mask:
-          linear-gradient(#000 0 0) content-box,
-          linear-gradient(#000 0 0);
-        -webkit-mask-composite: xor;
-        mask:
-          linear-gradient(#000 0 0) content-box,
-          linear-gradient(#000 0 0);
-        mask-composite: exclude;
-        animation: beamSpin 3.4s linear infinite;
-      }
-
-      /* ── Hero pill, rolling location ────────────────────────────
-         The pill used to state one fixed place. The site covers 70 Bergen
-         County towns, and this is the one spot on the page where that can be
-         felt rather than claimed, so the label alternates between the county
-         and a real town from TOWNS.
-
-         The window clips to a single line and animates its own width, so a
-         long name like "Washington Township" widens the pill smoothly instead
-         of snapping it. The county name is always every other step — it stays
-         on screen half the time rather than scrolling away into a list of
-         towns nobody outside Bergen would recognise. */
+      /* ── Hero pill, location label ──────────────────────────────
+         A plain, static label: no border beam, no rolling town names. */
       .hero-pill-roll {
         display: inline-block;
-        overflow: hidden;
-        vertical-align: bottom;
         white-space: nowrap;
-        transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-      }
-
-      .hero-pill-word {
-        display: inline-block;
-        animation: pillRoll 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-      }
-
-      @keyframes pillRoll {
-        from {
-          opacity: 0;
-          transform: translateY(100%);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
       }
 
       .hero-photo {
@@ -4959,14 +4895,14 @@
           </ul>
         </div>
         <div class="footer-col">
-          <h4 class="text-base font-semibold text-head mb-5">Business/Advertiser</h4>
+          <h4 class="text-base font-semibold text-head mb-5">Advertiser</h4>
           <ul class="list-none">
             <li>
               <a
                 class="text-muted text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-brand"
                 data-nav="advertiser"
-                data-dashtab="add"
-                >Add a Listing</a
+                data-advtab="create"
+                >Create Advertisement</a
               >
             </li>
             <li>
@@ -4975,15 +4911,6 @@
                 data-nav="home"
                 data-scroll="plans"
                 >Listing Plans</a
-              >
-            </li>
-            <li>
-              <a
-                class="text-muted text-base no-underline cursor-pointer transition-[color] duration-200 inline-block py-[0.32rem] min-h-[32px] hover:text-brand"
-                data-nav="advertiser"
-                data-authcommon
-                data-advtab="create"
-                >Start Campaign</a
               >
             </li>
           </ul>
@@ -5055,11 +4982,6 @@
       >
         <span>© 2026 Bergen Kids. All rights reserved.</span>
         <span class="flex items-center gap-7">
-          <a
-            class="text-muted no-underline cursor-pointer transition-[color] duration-200 hover:text-brand"
-            data-adclick="About"
-            >About</a
-          >
           <a
             class="text-muted no-underline cursor-pointer transition-[color] duration-200 hover:text-brand"
             data-adclick="Privacy"
@@ -6108,18 +6030,20 @@
       };
 
       /* ── Parent preferences ─────────────────────────────────────
-               Age groups, towns and categories a parent picks at sign-up or later in
-               their profile. Every field is optional and multi-select, and an empty
-               list means "no preference" — which reads as *everything*, not nothing.
-               They are applied as default filters on the Directory and Events pages;
-               a filter the visitor picks by hand always wins for that one field. */
-      const emptyPrefs = () => ({ ages: [], towns: [], cats: [] });
+               Age groups and towns a parent picks at sign-up or later in their
+               profile. Category used to be a third field; it was dropped, so the
+               only preferences left are the two that describe the family rather
+               than what it happens to be browsing for. Both are optional and
+               multi-select, and an empty list means "no preference" — which reads
+               as *everything*, not nothing. They are applied as default filters on
+               the Directory and Events pages; a filter the visitor picks by hand
+               always wins for that one field. */
+      const emptyPrefs = () => ({ ages: [], towns: [] });
       const clonePrefs = (p) => ({
         ages: [...((p && p.ages) || [])],
         towns: [...((p && p.towns) || [])],
-        cats: [...((p && p.cats) || [])],
       });
-      const prefCount = (p) => (p ? p.ages.length + p.towns.length + p.cats.length : 0);
+      const prefCount = (p) => (p ? p.ages.length + p.towns.length : 0);
 
       /* ── Session ────────────────────────────────────────────────
          Who is signed in, kept in localStorage so a reload does not drop the
@@ -6219,7 +6143,10 @@
       function applyPrefsToFilters() {
         const p = userPrefs();
         [state.dir, state.calFilter].forEach((f) => {
-          f.cats = [...((p && p.cats) || [])];
+          // Category is no longer a preference, but it is still re-armed here:
+          // the page filters belong to whoever is signed in, and one account's
+          // hand-picked category must not follow the next one in.
+          f.cats = [];
           f.ages = [...((p && p.ages) || [])];
           f.towns = [...((p && p.towns) || [])];
         });
@@ -6231,7 +6158,9 @@
         const p = userPrefs();
         if (!prefCount(p)) return false;
         const same = (a, b) => a.length === b.length && a.every((v) => b.includes(v));
-        return same(f.cats, p.cats) && same(f.ages, p.ages) && same(f.towns, p.towns);
+        // Category is not a preference, so any category picked by hand means the
+        // results are no longer only what was saved.
+        return !f.cats.length && same(f.ages, p.ages) && same(f.towns, p.towns);
       }
       // Same pill as the directory sidebar filters, so a preference reads as the
       // filter it becomes.
@@ -6239,7 +6168,7 @@
         "border-[1.5px] text-sm font-semibold px-3 py-[0.4rem] rounded-[100px] cursor-pointer transition-all duration-150";
       const PREF_CHIP_ON = PREF_CHIP + " bg-navy border-navy text-white";
       const PREF_CHIP_OFF = PREF_CHIP + " bg-surface border-line text-head hover:border-head";
-      const PREF_LABEL = { ages: "Age Group", towns: "Town", cats: "Category" };
+      const PREF_LABEL = { ages: "Age Group", towns: "Town" };
       // Nothing chosen reads as nothing at all — the old "No preference — shows
       // all" wording explained a default the onboarding no longer spells out.
       // The count still appears the moment there is something to count.
@@ -6247,8 +6176,7 @@
       // Options per field, as [value, label] pairs.
       function prefOptions(key) {
         if (key === "ages") return AGE_GROUPS.map((a) => [a.id, a.label]);
-        if (key === "towns") return TOWNS.map((t) => [t, t]);
-        return CATEGORIES.map((c) => [c.id, c.name]);
+        return TOWNS.map((t) => [t, t]);
       }
       // Read-only pill — the profile lists what was picked, it does not set it.
       const PREF_CHIP_STATIC =
@@ -6261,7 +6189,7 @@
                is left out rather than shown as an empty row. Setting them is one popup,
                the same one sign-up opens, so there is a single place that edits. */
       function prefsChosenHtml(p) {
-        const groups = ["ages", "towns", "cats"].filter((k) => p[k] && p[k].length);
+        const groups = ["ages", "towns"].filter((k) => p[k] && p[k].length);
         if (!groups.length) return `<div class="text-base text-muted">No preferences chosen</div>`;
         return groups
           .map(
@@ -6294,11 +6222,6 @@
           key: "towns",
           title: "Choose Your Preferred Towns",
           lead: "Discover businesses, events, and resources from these towns first.",
-        },
-        {
-          key: "cats",
-          title: "Choose Your Interests",
-          lead: "We'll prioritize your content with these categories.",
         },
       ];
       // Preferences are saved on the way out, whichever button ends the run,
@@ -6395,7 +6318,6 @@
         const p = userPrefs();
         const names = [];
         if (p.ages.length) names.push("Age Group");
-        if (p.cats.length) names.push("Category");
         if (p.towns.length) names.push("Town");
         const list =
           names.length > 1
@@ -8360,7 +8282,7 @@
                 <div class="text-2xs font-bold tracking-[0.2em] uppercase text-adlabel mb-[0.6rem]">${c.name}</div>
                 <h3 class="font-serif text-xl font-bold text-head leading-[1.3] tracking-[-0.015em] text-balance transition-colors duration-200 group-hover:text-brand">${a.title}</h3>
                 <p class="text-sm text-muted leading-[1.75] mt-[0.65rem] text-pretty">${a.excerpt}</p>
-                <div class="text-sm text-adlabel mt-[1rem] font-medium tracking-[0.02em]">${a.author} · ${a.read} read</div>
+                <div class="text-sm text-adlabel mt-[1rem] font-medium tracking-[0.02em]">${a.author}</div>
               </div>
             </article>`;
         };
@@ -8419,7 +8341,7 @@
               <h1 class="font-serif text-display-2 font-bold text-head tracking-[-0.03em] leading-[1.14] text-balance">${a.title}</h1>
               <p class="text-muted text-lg leading-[1.75] mt-[1.1rem] text-pretty">${a.excerpt}</p>
               <div class="flex items-center gap-x-5 gap-y-2 flex-wrap text-sm text-adlabel mt-[1.4rem] pt-[1.2rem] border-t border-line2 font-medium tracking-[0.02em]">
-                <span class="text-head font-bold">${a.author}</span><span>${a.date}</span><span class="inline-flex items-center gap-[0.35rem]">${icon("clock", 14)}${a.read} read</span>
+                <span class="text-head font-bold">${a.author}</span><span>${a.date}</span>
               </div>
             </header>
 
@@ -8469,7 +8391,7 @@
                     <div class="text-2xs font-bold tracking-[0.2em] uppercase text-adlabel mb-[0.6rem]">${mc.name}</div>
                     <h3 class="font-serif text-xl font-bold text-head leading-[1.3] tracking-[-0.015em] text-balance transition-colors duration-200 group-hover:text-brand">${m.title}</h3>
                     <p class="text-sm text-muted leading-[1.75] mt-[0.65rem] text-pretty">${m.excerpt}</p>
-                    <div class="text-sm text-adlabel mt-[1rem] font-medium tracking-[0.02em]">${m.author} · ${m.read} read</div>
+                    <div class="text-sm text-adlabel mt-[1rem] font-medium tracking-[0.02em]">${m.author}</div>
                   </div>
                 </article>`;
                   })
@@ -13905,34 +13827,13 @@
                 </div>`;
       }
 
-      /* The hero pill's rolling location. Steps county → town → county → next
-         town, so the place name is only ever one step from the county it
-         belongs to. Towns come from TOWNS, the same list the filters use, so
-         the pill can never advertise a town the directory does not cover. */
+      /* The hero pill states one fixed place. It used to roll through TOWNS;
+         that rotation and its border beam were removed, so the label is now
+         just painted once from the markup. */
       const HERO_PILL_HOME = "Bergen County, New Jersey";
-      let heroPillTimer = null;
       function mountHeroPill() {
-        if (heroPillTimer) {
-          clearInterval(heroPillTimer);
-          heroPillTimer = null;
-        }
         const box = el("hero-pill-roll");
-        if (!box) return;
-        // Width is measured from the word itself, which keeps its intrinsic
-        // size inside the clipped window — so the pill can ease to the new
-        // width instead of jumping when a longer town comes round.
-        const show = (text, roll) => {
-          box.innerHTML = `<span class="hero-pill-word"${roll ? "" : ' style="animation:none"'}>${text}</span>`;
-          const word = box.firstElementChild;
-          if (word) box.style.width = word.offsetWidth + "px";
-        };
-        show(HERO_PILL_HOME, false);
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-        let i = 0;
-        heroPillTimer = setInterval(() => {
-          i++;
-          show(i % 2 ? TOWNS[Math.floor(i / 2) % TOWNS.length] : HERO_PILL_HOME, true);
-        }, 2600);
+        if (box) box.textContent = HERO_PILL_HOME;
       }
 
       let sideAdTimer = null;
