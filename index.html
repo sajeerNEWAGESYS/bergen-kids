@@ -6073,7 +6073,6 @@
         filterDraft: null, // the multi-select popup's working selection
         prefDraft: null, // preferences being edited in the onboarding popup
         onboardStep: 0, // which ONBOARD_STEPS page a new parent is on
-        onboardFrom: null, // where finishing the preference popup lands
         // The ad being composed. Everything the create form cannot read back
         // out of a plain input — the multi-selects, the type, the add-ons and
         // the billing choices — lives here so a repaint never loses it.
@@ -6234,30 +6233,15 @@
         if (key === "ages") return AGE_GROUPS.map((a) => [a.id, a.label]);
         return TOWNS.map((t) => [t, t]);
       }
-      // Read-only pill — the profile lists what was picked, it does not set it.
-      const PREF_CHIP_STATIC =
-        "border-[1.5px] border-line bg-surface-4 text-head text-sm font-semibold px-3 py-[0.4rem] rounded-[100px]";
-      const prefLabelOf = (key, v) => {
-        const hit = prefOptions(key).find((o) => o[0] === v);
-        return hit ? hit[1] : v;
-      };
-      /* What the parent actually chose, and nothing else — a field with no picks
-               is left out rather than shown as an empty row. Setting them is one popup,
-               the same one sign-up opens, so there is a single place that edits. */
-      function prefsChosenHtml(p) {
-        const groups = ["ages", "towns"].filter((k) => p[k] && p[k].length);
-        if (!groups.length) return `<div class="text-base text-muted">No preferences chosen</div>`;
-        return groups
-          .map(
-            (
-              key
-            ) => `<div class="border-t border-line pt-4 mt-4 first:border-t-0 first:pt-0 first:mt-0">
-              <div class="text-sm font-extrabold tracking-[0.05em] uppercase text-head mb-[0.6rem]">${PREF_LABEL[key]}</div>
-              <div class="flex gap-2 flex-wrap">${p[key].map((v) => `<span class="${PREF_CHIP_STATIC}">${prefLabelOf(key, v)}</span>`).join("")}</div>
-            </div>`
-          )
-          .join("");
-      }
+      /* The profile used to carry a Preferences card: a read-only list of what
+         was picked, with an Edit icon that reopened the onboarding popup. It is
+         gone, and the pieces that existed only to draw it — the static chip,
+         the label lookup, prefsChosenHtml() — went with it.
+
+         What is left of preferences still works. They are poured into the page
+         filters when they are saved, so they show up as the filters themselves
+         rather than as a saved list reported somewhere else, and the tray on
+         each page is where they are changed from now on. */
 
       /* ── Onboarding ─────────────────────────────────────────────
                One preference per page, straight after a parent's phone is
@@ -6291,17 +6275,15 @@
         }
         state.prefDraft = null;
         state.onboardStep = 0;
-        state.onboardFrom = null;
       }
       // Parents only, and only with an account — there is nothing to save into
-      // otherwise, so the panel simply never opens. `from` is where finishing
-      // lands: sign-up sends a new parent to the Directory, the profile's Edit
-      // icon sends them back to the profile.
-      function startOnboarding(from) {
+      // otherwise, so the panel simply never opens. Sign-up is the one thing
+      // that opens it now that the profile's Edit icon is gone, so finishing
+      // always lands on the Directory.
+      function startOnboarding() {
         const u = state.user;
         if (!u || u.role !== "parent") return;
         state.onboardStep = 0;
-        state.onboardFrom = from === "profile" ? "profile" : "directory";
         state.prefDraft = clonePrefs(u.prefs || emptyPrefs());
         // Locked: no close button, no backdrop dismiss, no Escape. Safe to lock
         // because every page carries a Skip and the last one ends the run — the
@@ -6383,7 +6365,10 @@
             <span class="w-[30px] h-[30px] rounded-[9px] bg-logo-green text-white flex items-center justify-center shrink-0">${icon("sliders", 15)}</span>
             <div class="min-w-0 flex-1">
               <div class="text-sm font-bold text-head leading-[1.35]">Filtered by your preferences of ${list}.</div>
-              <div class="text-sm text-muted leading-[1.5] mt-[0.15rem]">Visit Profile to update your preferences.</div>
+              <!-- It used to say "Visit Profile to update your preferences",
+                   which the profile no longer does. The filters above are the
+                   preferences — clearing them is the whole edit. -->
+              <div class="text-sm text-muted leading-[1.5] mt-[0.15rem]">Change the filters above to see more.</div>
             </div>
           </div>`;
       }
@@ -8112,9 +8097,12 @@
             <p class="text-muted text-lg leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Every trusted kids service and activity in Bergen County, gathered by category. Open one to see its listings and filter by age or town.</p>
           </div>
           ${
+            // The listing grid's own track sizing, not the events index's three
+            // fixed columns: these are cards of type rather than pictures, and
+            // they sit at the width the cards one level down sit at.
             groups.length
-              ? `<div class="grid grid-cols-3 gap-[10px] max1024:grid-cols-2 max560:grid-cols-1">${groups
-                  .map(([c, ls]) => catListingTile(c, ls))
+              ? `<div class="grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-[10px] items-stretch">${groups
+                  .map(([c, ls]) => catListingCard(c, ls))
                   .join("")}</div>`
               : DIR_EMPTY
           }
@@ -8135,6 +8123,13 @@
         // here, and it is never empty — which is the whole point.
         const cats = [c.id];
         return `<div class="w-full"><div class="min-w-0"><div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
+          <!-- The leaderboard leads the page, above the breadcrumb and the
+               heading. It sat between the filter tray and the results, which is
+               the one place on the page a visitor is mid-task — they have just
+               changed a filter and are looking for what it did — and an ad
+               there is in the way of the answer. At the top it is the first
+               thing on the page and then it is behind you. -->
+          ${catAdBand(cats)}
           <div class="mb-7">
             <div class="flex items-center gap-[0.4rem] text-sm text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-brand font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<a class="cursor-pointer text-brand font-bold underline" data-nav="directory">Directory</a>${icon("chev-right", 14, "text-adlabel")}<span>${c.name}</span></div>
             <div class="flex items-center gap-4 max560:gap-3">
@@ -8153,8 +8148,6 @@
             ${ftMulti("dir", "ages")}
             ${ftMulti("dir", "towns")}`
           )}
-
-          ${catAdBand(cats)}
 
           <!-- Two columns from 1025 up: results, then the ad rail. The
                wrapper was already a one-column grid built to take a second
@@ -8344,17 +8337,26 @@
          and that is where the filters live, because that is the only level with
          a list long enough to need narrowing.
 
-         The tile is the events tile's language at a larger size: the category
-         photograph under its own colour and a scrim, name and count at the
-         foot. A category with nothing in it is left out rather than opening an
-         empty page. */
-      /* The tile both indexes are built from — events and the directory. They
-         differ only in what they count and where they lead, so those are passed
-         in rather than copied: a second version of this drifts from the first
-         the moment either page is touched. */
-      const catIndexTile = (c, action, line) => {
+         A category with nothing in it is left out rather than opening an empty
+         page. */
+      /* The two indexes were one component for a while and came out identical,
+         which made Directory and Events read as the same page with the words
+         swapped. They are each built in the language of what they hold instead,
+         so the index looks like a preview of the level below it.
+
+         Events: the tile. Copy set over a photograph under a dark scrim, edge
+         to edge, exactly as the event tiles one level down are — a page of
+         things happening, shown as pictures.
+
+         Directory: the card. A photo band with a body of type under it, framed
+         and on the page's own surface, exactly as the listing cards one level
+         down are — a page of businesses, shown as entries. */
+      const catEventTile = (c, evs) => {
         const photo = catImg(c.id, 800);
-        return `<button type="button" class="cat-tile group relative block w-full text-left aspect-[3/2] min-h-[190px] overflow-hidden cursor-pointer isolate border-0 p-0 bg-transparent" data-action="${action}" data-cat="${c.id}">
+        // Soonest first, so evs[0] is the next thing on. The date drops its
+        // year, as the event tiles' own badges do.
+        const next = new Date(evs[0].date + "T00:00");
+        return `<button type="button" class="cat-tile group relative block w-full text-left aspect-[3/2] min-h-[190px] overflow-hidden cursor-pointer isolate border-0 p-0 bg-transparent" data-action="open-event-cat" data-cat="${c.id}">
           <!-- The category's gradient underneath the photograph, not instead of
                it: a category with no picture, or one that fails to load, still
                comes up in its own colour rather than as a dark rectangle. -->
@@ -8365,30 +8367,44 @@
           <span class="absolute top-3 right-3 z-[1] w-[34px] h-[34px] rounded-[10px] border border-white/30 bg-white/15 backdrop-blur-[3px] flex items-center justify-center text-white">${icon(c.icon, 17)}</span>
           <span class="absolute inset-x-0 bottom-0 z-[1] p-[1.15rem] max380:p-[0.9rem]">
             <span class="block font-serif text-2xl font-bold text-white leading-[1.2] tracking-[-0.015em] decoration-white/60 underline-offset-[3px] group-hover:underline">${c.name}</span>
-            <!-- Middots rather than dot elements: the rule that squares the
-                 badges on the events tiles would square a 3px round one too. -->
-            <span class="block mt-[0.4rem] text-sm font-semibold text-white/85 truncate">${line}</span>
+            <!-- A middot rather than a dot element: the rule that squares the
+                 badges on these tiles would square a 3px round one too. -->
+            <span class="block mt-[0.4rem] text-sm font-semibold text-white/85 truncate">${evs.length} event${evs.length !== 1 ? "s" : ""} · Next ${MONTHS[next.getMonth()]} ${next.getDate()}</span>
           </span>
         </button>`;
       };
-      // The events index counts events and leads with the next one — the date
-      // drops its year, as the event tiles' own badges do.
-      const catEventTile = (c, evs) => {
-        const next = new Date(evs[0].date + "T00:00");
-        return catIndexTile(
-          c,
-          "open-event-cat",
-          `${evs.length} event${evs.length !== 1 ? "s" : ""} · Next ${MONTHS[next.getMonth()]} ${next.getDate()}`
-        );
+      /* The directory's card, built on listingCard's own bands: the same 168px
+         media, the same small uppercase line, the same rule above a footer of
+         supporting detail. The count leads because it is what a visitor is
+         choosing between — six pediatricians or one — and the subcategories
+         follow because they say what is actually inside without opening it.
+         The name is set in the serif at card size, which is the one place this
+         departs from a listing: a category is a heading, not a business. */
+      const catListingCard = (c, ls) => {
+        const photo = catImg(c.id, 800);
+        return `<button type="button" class="group flex flex-col w-full h-full text-left p-0 bg-surface border-[1.5px] border-line overflow-hidden cursor-pointer transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_14px_40px_rgba(26,46,74,0.12)]" data-action="open-dir-cat" data-cat="${c.id}">
+          <span class="relative block h-[168px] shrink-0 overflow-hidden" style="background:${c.grad}">
+            ${photo ? `<img src="${photo}" srcset="${catImg(c.id, 600)} 600w, ${catImg(c.id, 1000)} 1000w" sizes="(max-width:700px) 92vw, (max-width:1024px) 46vw, 31vw" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">` : ""}
+            <!-- The glyph rides over the photograph in a chip rather than
+                 filling the band behind it, which is where the listing cards
+                 put it. On a card whose picture is the category's own stock
+                 photograph, a 54px icon centred on it reads as a broken image. -->
+            <span class="absolute top-3 left-3 z-[1] w-[34px] h-[34px] rounded-[10px] border border-white/30 bg-white/20 backdrop-blur-[3px] flex items-center justify-center text-white">${icon(c.icon, 17)}</span>
+          </span>
+          <!-- flex-1 with the footer on mt-auto, as the listing cards do: in a
+               row of cards stretched to a common height, the rule and the
+               subcategories stay in line across all of them instead of ending
+               wherever each name happens to. -->
+          <span class="flex flex-col flex-1 min-w-0 px-[1.1rem] pt-[0.9rem] pb-[1.05rem]">
+            <span class="block text-xs font-bold tracking-[0.04em] uppercase text-adlabel">${ls.length} listing${ls.length !== 1 ? "s" : ""}</span>
+            <span class="block font-serif text-xl font-bold text-head leading-[1.25] tracking-[-0.015em] mt-[0.3rem] transition-colors duration-200 group-hover:text-brand">${c.name}</span>
+            <span class="flex items-center gap-2 mt-auto pt-[0.85rem] border-t border-line2 text-sm text-muted font-medium leading-[1.5]">
+              <span class="min-w-0 flex-1 truncate">${c.sub.slice(0, 3).join(" · ")}</span>
+              <span class="shrink-0 text-adlabel transition-transform duration-200 group-hover:translate-x-[3px]">${icon("arrow-right", 15)}</span>
+            </span>
+          </span>
+        </button>`;
       };
-      // The directory counts listings, and follows with what is inside the
-      // category rather than a date — a directory has no "next".
-      const catListingTile = (c, ls) =>
-        catIndexTile(
-          c,
-          "open-dir-cat",
-          `${ls.length} listing${ls.length !== 1 ? "s" : ""} · ${c.sub.slice(0, 2).join(" · ")}`
-        );
       function viewCalendar() {
         const groups = CATEGORIES.map((c) => [c, catEvents(c.id)]).filter(([, evs]) => evs.length);
         return `<div class="w-full"><div class="min-w-0"><div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
@@ -9430,11 +9446,11 @@
          articles index you are working, and a panel covering the work is in the
          way of it.
 
-         So those pages get a leaderboard band at the top of the results and a
-         card in a right-hand rail. Both scroll with the page, neither can be
-         closed because neither is covering anything, and both carry the word
-         Advertisement rather than relying on a close button to say what they
-         are.
+         So those pages get a leaderboard band at the head of the page, above
+         the heading and ahead of the work, and a card in a right-hand rail.
+         Both scroll with the page, neither can be closed because neither is
+         covering anything, and both carry the word Advertisement rather than
+         relying on a close button to say what they are.
 
          Which ad goes where is fixed per surface rather than random, so a
          repaint does not reshuffle the page under the reader. */
@@ -11105,25 +11121,10 @@
             phoneField("pf-phone", u.phone) +
             field("Email *", "pf-email", u.email, "", true);
         }
-        // Preferences are a parent-only concept, and the profile only reports
-        // them — the Edit icon hands over to the same popup sign-up uses.
-        const prefsCard =
-          u.role !== "parent"
-            ? ""
-            : `<div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 shadow-[0_4px_20px_rgba(26,46,74,0.05)] mt-6 max380:p-[1.1rem]">
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <div class="font-serif text-xl font-black text-head mb-[0.3rem]">Preferences</div>
-                  <div class="text-sm text-muted leading-[1.55]">Applied as your default filters on the Directory and Events pages. Anything left out just means no preference — you'll see every result.</div>
-                </div>
-                <button class="w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-surface text-muted inline-flex items-center justify-center shrink-0 transition-colors duration-150 hover:border-head hover:text-head" data-action="edit-prefs" title="Edit preferences" aria-label="Edit preferences">${icon("edit", 16)}</button>
-              </div>
-              <div class="mt-5">${prefsChosenHtml(u.prefs || emptyPrefs())}</div>
-            </div>`;
         /* Saved cards. Only advertisers can be charged, so only they get the
-           section — the same way Preferences is parent-only. Delete is rendered
-           disabled rather than hidden when a card is locked, so the reason is
-           discoverable instead of the button silently going missing. */
+           section. Delete is rendered disabled rather than hidden when a card
+           is locked, so the reason is discoverable instead of the button
+           silently going missing. */
         const ICON_BTN =
           "w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-surface text-muted inline-flex items-center justify-center shrink-0 transition-colors duration-150 hover:border-head hover:text-head disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-line disabled:hover:text-muted";
         const cardRow = (c) => {
@@ -11173,7 +11174,6 @@
               <div class="grid grid-cols-[1fr_1fr] gap-[1.1rem] max700:grid-cols-[1fr]">${fields}</div>
               <div class="flex gap-3 flex-wrap mt-6 max560:flex-col [&>*]:max560:w-full [&>*]:max560:justify-center"><button class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold no-underline border-none transition-[transform,box-shadow] duration-200 inline-flex items-center justify-center gap-2 min-h-[48px] hover:-translate-y-[2px] hover:bg-logo-green-deep" data-action="save-profile">${icon("check", 16)} Save changes</button></div>
             </div>
-            ${prefsCard}
             ${cardsCard}
             </div>
 
@@ -12544,21 +12544,14 @@
             case "onboard-skip": {
               if (state.onboardStep >= ONBOARD_STEPS.length - 1) {
                 const picked = prefCount(state.prefDraft);
-                const from = state.onboardFrom;
                 commitOnboarding();
-                if (from === "profile")
-                  toast(
-                    picked ? "Preferences saved" : "Preferences cleared — showing everything",
-                    "check"
-                  );
-                else
-                  toast(
-                    picked
-                      ? "You're all set — these are your default filters now"
-                      : "You're all set. Add preferences any time in your profile.",
-                    picked ? "sliders" : "check"
-                  );
-                navigate(from === "profile" ? "profile" : "directory");
+                toast(
+                  picked
+                    ? "You're all set — these are your default filters now"
+                    : "You're all set. Narrow any page with its own filters whenever you like.",
+                  picked ? "sliders" : "check"
+                );
+                navigate("directory");
                 break;
               }
               state.onboardStep += 1;
@@ -12570,11 +12563,6 @@
               paintOnboarding();
               break;
             }
-            // The profile only reports preferences; setting them is the same
-            // popup sign-up opens, returning here rather than to the Directory.
-            case "edit-prefs":
-              startOnboarding("profile");
-              break;
             case "book":
               closeModal();
               toast("Enquiry sent to " + actEl.dataset.name, "mail");
