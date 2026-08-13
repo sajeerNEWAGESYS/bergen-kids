@@ -3767,6 +3767,19 @@
         box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
       }
 
+      /* The unread badge's ring. It is there to cut the red disc away from the
+         bell button it overlaps, so it has to be the colour of what is behind
+         it — the nav bar — and the nav bar is two different colours. It was
+         hardcoded white, which on the dark page drew a white ring on a near
+         black bar. The two values here are #site-nav's own, above. */
+      .notif-badge {
+        border-color: #ffffff;
+      }
+
+      [data-theme="dark"] .notif-badge {
+        border-color: #10151c;
+      }
+
       @media (max-width: 900px) {
         [data-theme="dark"] #site-nav {
           background-image: linear-gradient(180deg, #1c242f 0%, #10151c 100%);
@@ -10832,11 +10845,21 @@
       const notifUnread = () => notifVisible().filter((n) => !n.read);
       // Unread count badge that sits on the header bell. Caps at 9+ so a long
       // count can never stretch past the button.
+      /* One count on the bell. A single digit is a circle and "9+" is a pill,
+         and the difference matters: the badge used to be min-width 19 by height
+         19 with 5px of padding either side, so one digit came out 21 wide by 19
+         tall — a rounded-full box that is not square is an oval, and it was
+         reading as a squashed one on every card of the nav.
+
+         So the shape is chosen rather than left to the content: a fixed square
+         while the label is one character, a min-width pill once it is two. */
       function notifBadge() {
         const n = notifUnread().length;
         if (!n) return "";
         const label = n > 9 ? "9+" : String(n);
-        return `<span class="absolute -top-[5px] -right-[5px] min-w-[19px] h-[19px] px-[5px] rounded-full bg-[linear-gradient(135deg,#ff6b5e,#e0361f)] text-white text-xs font-extrabold leading-none flex items-center justify-center border-2 border-white max380:min-w-[17px] max380:h-[17px] max380:text-2xs" aria-hidden="true">${label}</span>`;
+        const wide = label.length > 1;
+        const size = wide ? "min-w-[26px] px-[5px] max380:min-w-[24px]" : "w-[20px] max380:w-[18px]";
+        return `<span class="notif-badge absolute -top-[5px] -right-[5px] h-[20px] ${size} rounded-full bg-[linear-gradient(135deg,#ff6b5e,#e0361f)] text-white text-xs font-extrabold leading-none flex items-center justify-center border-2 max380:h-[18px] max380:text-2xs" aria-hidden="true">${label}</span>`;
       }
       // One row, shared by the dropdown and the full page: round avatar with an
       // unread dot, title + detail on one line, then time and the row's action.
