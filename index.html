@@ -2104,47 +2104,91 @@
       }
 
       /* ── Directory card, no photograph ──────────────────────────
-         A Basic listing has no picture — that is what Deluxe buys — and until
-         now the empty slot was filled with the category's own gradient at full
-         strength. Which made the cheapest cards the loudest things in the grid:
-         a wall of saturated orange and magenta next to the paid listings'
-         actual photographs, so the eye went to exactly the wrong ones.
+         A Basic listing has no picture — that is what Deluxe buys. The slot was
+         a grey panel with a picture glyph in it, which is a photo frame saying
+         the photo is missing: a row of Basic cards read as a row of failures,
+         and the glyph was the largest thing on each of them while the name of
+         the business sat small underneath.
 
-         Neutral instead. A soft grey panel with a faint grid behind the glyph:
-         plainly a placeholder, quiet next to a photograph, and the same on
-         every card so a row of them reads as one texture rather than as eight
-         competing colours. */
-      .lcard-blank {
-        background:
-          linear-gradient(
-            rgba(26, 46, 74, 0.045) 1px,
-            transparent 1px
-          ),
-          linear-gradient(90deg, rgba(26, 46, 74, 0.045) 1px, transparent 1px),
-          linear-gradient(160deg, #eef1f5 0%, #e3e8ee 55%, #d9e0e8 100%);
-        background-size:
-          22px 22px,
-          22px 22px,
-          auto;
+         So the panel stops pretending to be a photograph and becomes the card's
+         title block instead — the category's own colour, with the category line
+         and the business name set on it. Nothing is absent from it any more.
+
+         The colour is the category tint, the pale wash the site already uses
+         behind category chips, not the saturated gradient the paid cards carry
+         over their photos. That distinction is the point: the tint is quiet
+         enough that a grid of Basic cards does not out-shout the Deluxe
+         photographs beside them, which is what the full-strength gradient here
+         used to do. --accent and --tint come off the card as custom properties
+         so the dark theme can answer them; inline colours could not be. */
+      .lcard-basic {
+        background: var(--tint);
       }
 
-      .lcard-blank-ic {
-        color: rgba(26, 46, 74, 0.22);
+      /* The category glyph, kept as a watermark rather than as the subject: big
+         enough to give the panel a texture, faint enough that the name is still
+         the first thing read. Bottom-right, where the copy is not. */
+      .lcard-basic-mark {
+        position: absolute;
+        right: -14px;
+        bottom: -18px;
+        color: var(--accent);
+        opacity: 0.14;
+        pointer-events: none;
       }
 
-      [data-theme="dark"] .lcard-blank {
-        background:
-          linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-          linear-gradient(160deg, #222935 0%, #1c222c 55%, #171c24 100%);
-        background-size:
-          22px 22px,
-          22px 22px,
-          auto;
+      /* The category line is the page's own ink at three-fifths, not --accent.
+         The accents are mid-tones authored to sit on white — the sun orange on
+         its own cream tint comes out around 2.4:1, which is under the floor for
+         12px uppercase — and this label has to be read, unlike the watermark
+         behind it. The panel colour and the glyph carry the category; the words
+         only have to be legible. */
+      .lcard-basic-cat {
+        color: var(--head);
+        opacity: 0.62;
       }
 
-      [data-theme="dark"] .lcard-blank-ic {
-        color: rgba(255, 255, 255, 0.2);
+      /* The pale tints are authored for a white card and stay pale dots on a
+         dark one, so the dark theme derives the panel from --accent instead —
+         the same trick, and the same color-mix fallback pair, as the home
+         page's category badges. */
+      [data-theme="dark"] .lcard-basic {
+        background: rgba(255, 255, 255, 0.06);
+        background: color-mix(in srgb, var(--accent) 22%, transparent);
+      }
+
+      [data-theme="dark"] .lcard-basic-cat {
+        opacity: 0.72;
+      }
+
+      [data-theme="dark"] .lcard-basic-mark {
+        color: #ffffff;
+        opacity: 0.1;
+      }
+
+      /* ── Clear Filters, dark theme ──────────────────────────────
+         The button is solid black on the light page: the one dark thing on the
+         results line, so it reads as the one action there. Black on a page that
+         is already near-black inverts that — the fill disappears into --cream
+         and what is left is a floating white label — so the dark theme mirrors
+         the relationship rather than the colour, and the button becomes the one
+         light thing instead. --head as the fill and the page ground as the
+         label, which is the same pairing turned over.
+
+         Written here rather than as dark: utilities because the light values are
+         Tailwind classes of equal specificity, and the CDN injects its sheet
+         after this one. The attribute selector puts this a step above them and
+         settles it regardless of order. The × mark takes no colour of its own on
+         either theme — it inherits the label's, at 70%. */
+      [data-theme="dark"] .clear-btn {
+        background: var(--head);
+        border-color: var(--head);
+        color: var(--cream);
+      }
+
+      [data-theme="dark"] .clear-btn:hover {
+        background: #cfdaea;
+        border-color: #cfdaea;
       }
 
       /* ── In-page ad slots ───────────────────────────────────────
@@ -7720,68 +7764,12 @@
           return a.name.localeCompare(b.name);
         });
       }
-      /* Active-filter pills above the results grid. One pill per field carrying
-               its count, not one per value — twenty ticked towns would otherwise bury
-               the grid under twenty pills, which is the same problem the preferences
-               notice had. Clearing a pill clears that whole field. */
-      function activeChipsInner(f, rmAction, clearAction) {
-        const esc = (v) =>
-          String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        const chips = ["cats", "subs", "ages", "towns"]
-          .filter((k) => (f[k] || []).length)
-          .map((k) => [k, `${FILTER_FIELDS[k].label} (${f[k].length})`]);
-        if (f.q) chips.push(["q", '"' + f.q + '"']);
-        // Events only. One pill per bound rather than a single "From–To": each
-        // can be set alone, and each clears alone.
-        if (f.from) chips.push(["from", "From " + fmtDate(f.from)]);
-        if (f.to) chips.push(["to", "To " + fmtDate(f.to)]);
-        if (!chips.length) return "";
-        return `<span class="text-sm font-bold tracking-[0.06em] uppercase text-adlabel mr-1">Active Filter</span>${chips
-          .map(
-            ([k, label]) =>
-              `<button class="inline-flex items-center gap-2 bg-navy text-white text-sm font-semibold pl-[0.85rem] pr-[0.55rem] py-[0.4rem] rounded-[100px] transition-colors duration-150 hover:bg-[#12233d]" data-action="${rmAction}" data-key="${k}">${esc(label)} ${icon("x", 13)}</button>`
-          )
-          .join(
-            ""
-          )}<button type="button" class="${CLEAR_BTN}" data-action="${clearAction}">${icon("x", 14, "text-muted")} Clear All</button>`;
-      }
-      const dirActiveChipsInner = () => activeChipsInner(state.dir, "rm-filter", "clear-all-dir");
-      /* The same pill strip for the dashboard trays. activeChipsInner above is
-         built around the directory's three multi-select fields and labels each
-         with a count; these bars hold one value per field, so the pill carries
-         the value itself — the category name, the status, the date. `fields` is
-         [key, format] pairs, and only the keys holding something are shown. */
-      function dashChipsInner(f, fields, rmAction, clearAction) {
-        const esc = (v) =>
-          String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        const chips = fields.filter(([k]) => f[k]).map(([k, fmt]) => [k, fmt(f[k])]);
-        if (!chips.length) return "";
-        return `<span class="text-sm font-bold tracking-[0.06em] uppercase text-adlabel mr-1">Active Filter</span>${chips
-          .map(
-            ([k, label]) =>
-              `<button class="inline-flex items-center gap-2 bg-navy text-white text-sm font-semibold pl-[0.85rem] pr-[0.55rem] py-[0.4rem] rounded-[100px] transition-colors duration-150 hover:bg-[#12233d]" data-action="${rmAction}" data-key="${k}">${esc(label)} ${icon("x", 13)}</button>`
-          )
-          .join(
-            ""
-          )}<button type="button" class="${CLEAR_BTN}" data-action="${clearAction}">${icon("x", 14, "text-muted")} Clear All</button>`;
-      }
-      const catName = (v) => (catOf(v) || {}).name || v;
-      const BILLING_CHIP_FIELDS = [
-        ["q", (v) => '"' + v + '"'],
-        ["cat", catName],
-        ["from", (v) => "From " + fmtDate(v)],
-        ["to", (v) => "To " + fmtDate(v)],
-      ];
-      const AD_CHIP_FIELDS = [
-        ["cat", catName],
-        ["status", (v) => (AD_STATUSES.find((s) => s.id === v) || {}).name || v],
-        ["from", (v) => "From " + fmtDate(v)],
-        ["to", (v) => "To " + fmtDate(v)],
-      ];
-      const billingChipsInner = () =>
-        dashChipsInner(state.billing, BILLING_CHIP_FIELDS, "rm-billing-filter", "clear-billing");
-      const adChipsInner = () =>
-        dashChipsInner(state.adFilter, AD_CHIP_FIELDS, "rm-ad-filter", "clear-ad-filter");
+      /* There used to be a strip of active-filter pills under an "Active Filter"
+         caption here. It restated what the tray already shows: a control that is
+         narrowing the results paints itself navy and carries its own count, so a
+         second copy of the same answer sat between the reader and the grid. The
+         one thing the pills did that the tray does not is undo everything at
+         once, and that survives as the clear button beside the result count. */
       function dirShowingText(list) {
         return `Showing <b class="text-head">${list.length}</b> of <b class="text-head">${LISTINGS.length}</b> result${LISTINGS.length !== 1 ? "s" : ""}`;
       }
@@ -7815,11 +7803,18 @@
       // the longest category names have none to spare.
       const FT_INPUT =
         "border-none outline-none bg-transparent font-sans text-base text-head w-full min-w-0 cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap";
-      // "Clear all" is a real button everywhere it appears — the filter tray and
-      // the end of the active-filter chips — so the two read as the same control
-      // rather than one button and one piece of underlined text.
+      /* The clear control is a real button everywhere it appears — the dashboard
+         trays and the head of the results — rather than a piece of underlined
+         text, so every copy of it reads as the same control.
+
+         Solid black on white: it used to be an outlined pill in the page's own
+         surface colour, which beside a row of outlined filter pills was one more
+         quiet outline among five. Filled, it is the only dark thing on the
+         results line and reads as the one action there — and black rather than
+         the navy the rest of the page is built from, so it is not mistaken for
+         another navy filter pill in its on-state. */
       const CLEAR_BTN =
-        "inline-flex items-center gap-[0.4rem] rounded-[100px] border-[1.5px] border-line bg-surface px-[0.9rem] py-[0.4rem] text-sm font-bold text-head min-h-[38px] shrink-0 transition-[border-color,background] duration-150 hover:border-head hover:bg-surface-3";
+        "clear-btn inline-flex items-center gap-[0.4rem] rounded-[100px] border-[1.5px] border-black bg-black px-[0.9rem] py-[0.4rem] text-sm font-bold text-white min-h-[38px] shrink-0 transition-[background,border-color] duration-150 hover:bg-[#2b2b2b] hover:border-[#2b2b2b]";
       const ftCtl = (on, grow, body) =>
         `<div class="${FT_CTL} ${grow}" data-on="${!!on}">${body}</div>`;
       /* The search box leads the tray and takes twice the slack of a select.
@@ -8004,7 +7999,7 @@
             )
             .join("")}</div>
           <div class="flex gap-3 flex-wrap items-center mt-6 max560:flex-col-reverse [&>*]:max560:w-full [&>*]:max560:justify-center">
-            <button type="button" class="${CLEAR_BTN}" data-action="clear-filter-opts">${icon("x", 14, "text-muted")} Clear</button>
+            <button type="button" class="${CLEAR_BTN}" data-action="clear-filter-opts">${icon("x", 14, "opacity-70")} Clear</button>
             <span class="flex-1 max560:hidden"></span>
             <button class="bg-logo-green text-white px-[1.9rem] py-[0.9rem] rounded-[100px] text-base font-bold border-none inline-flex items-center justify-center gap-2 min-h-[48px] transition-[transform,box-shadow] duration-200 hover:-translate-y-[2px] hover:bg-logo-green-deep" data-action="apply-filter">${icon("check", 16)} Apply</button>
           </div>`;
@@ -8019,21 +8014,27 @@
           if (field) box.dataset.on = String(!!field.value);
         });
       }
-      // Tail of the tray. Split out so the partial result updates (typing in the
-      // search box, changing a select) can keep the active count honest without
-      // re-rendering the whole view.
+      // The undo for the whole tray. Split out so the partial result updates
+      // (typing in the search box, changing a select) can keep it honest without
+      // re-rendering the whole view. The count rides in the label because the
+      // pill strip that used to carry it is gone — "Clear 3 filters" is the last
+      // thing left saying how much is on beyond the controls' own navy.
       function ftHead(count, clearAction) {
         // Nothing to clear, nothing to show — the controls speak for themselves.
         if (!count) return "";
-        return `<button type="button" class="${CLEAR_BTN}" data-action="${clearAction}">${icon("x", 14, "text-muted")} Clear ${count} filter${count > 1 ? "s" : ""}</button>`;
+        return `<button type="button" class="${CLEAR_BTN}" data-action="${clearAction}">${icon("x", 14, "opacity-70")} Clear Filter${count > 1 ? "s" : ""}</button>`;
       }
       // Wrapper tray, so both pages' bars look and space the same. Neither
       // sticks — the tray scrolls away with the results it sits above.
+      //
+      // clearAction is optional: the directory and events pages put their clear
+      // button on the results line instead, where Sort By used to sit, so they
+      // leave it off here rather than carrying two of the same button.
       function filtersTop(inner, count, clearAction) {
         return `<div class="filters-top bg-surface border-[1.5px] border-line rounded-[18px] p-[0.6rem] mb-5">
             <div class="flex items-center gap-2 flex-wrap">
               ${inner}
-              <div class="ft-head flex items-center gap-2 shrink-0 pl-1 pr-[0.35rem]">${ftHead(count, clearAction)}</div>
+              ${clearAction ? `<div class="ft-head flex items-center gap-2 shrink-0 pl-1 pr-[0.35rem]">${ftHead(count, clearAction)}</div>` : ""}
             </div>
           </div>`;
       }
@@ -8055,9 +8056,7 @@
             `${ftSearch("d-q", f.q, "Name, service or town…", "Search listings", "rm-filter")}
             ${ftMulti("dir", "cats", "wide")}
             ${ftMulti("dir", "ages")}
-            ${ftMulti("dir", "towns")}`,
-            dirActiveCount,
-            "clear-all-dir"
+            ${ftMulti("dir", "towns")}`
           )}
 
           ${catAdBand(f.cats)}
@@ -8067,12 +8066,13 @@
                track — see .page-ad-rail for why it drops rather than stacks. -->
           <div class="flex items-start gap-6 max1024:flex-col max1024:items-stretch">
             <div class="min-w-0 flex-1">
-              <!-- Results header: what you are looking at, and the filters that
-                   got you here underneath. One ruled band, so the grid always
-                   starts at the same place. -->
-              <div class="border-b-[1.5px] border-line pb-4 mb-5">
+              <!-- Results header: what you are looking at on the left, and the
+                   way to undo it on the right — the slot the Sort By select used
+                   to hold. One ruled band, so the grid always starts at the same
+                   place whether or not anything is filtered. -->
+              <div class="border-b-[1.5px] border-line pb-4 mb-5 flex items-center justify-between gap-3 flex-wrap max560:flex-col max560:items-start">
                 <div class="dir-showing text-base text-muted">${dirShowingText(list)}</div>
-                <div class="dir-chips empty:hidden flex items-center gap-2 flex-wrap mt-3">${dirActiveChipsInner()}</div>
+                <div class="dir-clear empty:hidden shrink-0">${ftHead(dirActiveCount, "clear-all-dir")}</div>
               </div>
 
               ${prefsNoticeHtml(f)}
@@ -8087,30 +8087,48 @@
           </div>
         </div></div></div>`;
       }
-      /* Every card is the same four bands, top to bottom: photo, category
-               line, name, then a footer of town / ages. The name is
-               clamped to two lines and the footer is pushed down with mt-auto, so
-               a long name never shunts the footer out of line with its
-               neighbours — the grid reads as rows rather than a ragged mosaic. */
+      // One flat colour out of the category's gradient, for the surfaces that
+      // need a single value where the data carries two.
+      const catInk = (c) => ((((c || {}).grad || "").match(/#[0-9a-f]{3,8}/i) || [])[0] || "#1a2e4a");
+      /* A Deluxe card is four bands, top to bottom: photo, category line, name,
+         then a footer of town / ages. The name is clamped to two lines and the
+         footer is pushed down with mt-auto, so a long name never shunts the
+         footer out of line with its neighbours — the grid reads as rows rather
+         than a ragged mosaic.
+
+         A Basic card has no photo to lead with, so it is two bands: the coloured
+         title panel carrying the category line and the name, and the same
+         footer. The panel takes the height the photo and the copy would have
+         taken together, which is why the two plans still line up in a row. */
       function listingCard(l) {
         const c = catOf(l.cat);
         const dlx = l.plan === "deluxe";
         const photo = listingImg(l);
+        const catLine = `${l.sub} · ${c.name.split(" ")[0]}`;
+        // Same footer on both plans. The rule above it belongs to the Deluxe
+        // card only: there the footer is the tail of a block of copy and needs
+        // separating from it, where on a Basic card the panel's own edge is
+        // already the divider and a second line under it draws twice.
+        const foot = (extra) => `<div class="flex items-center gap-x-[1.1rem] gap-y-1 flex-wrap text-sm text-muted font-medium leading-[1.5]${extra ? " " + extra : ""}">
+              <div class="flex items-center gap-[0.3rem] min-w-0">${icon("pin", 13, "shrink-0")}<span class="truncate">${l.town}</span></div>
+              <div class="flex items-center gap-[0.3rem] min-w-0">${icon("users", 13, "shrink-0")}<span class="truncate">Ages ${l.ageMin}–${l.ageMax}</span></div>
+            </div>`;
         /* Square corners, and one border colour for every card. Deluxe used to
            carry an amber border and an amber glow, which marked the paid cards
            twice — the Featured badge already says it — and put a second warm
            colour next to the badge that was not quite the badge's own. */
-        return `<div class="lcard group bg-surface border-[1.5px] border-line overflow-hidden cursor-pointer transition-[transform,box-shadow] duration-200 flex flex-col hover:-translate-y-1 hover:shadow-[0_14px_40px_rgba(26,46,74,0.12)]" data-action="open-listing" data-id="${l.id}">
-          <div class="lcard-media relative h-[168px] overflow-hidden shrink-0${photo ? "" : " lcard-blank"}"${photo ? ` style="background:${c.grad}"` : ""}>
-            <!-- One mark on every photoless card, and it is the picture glyph
-                 rather than the category's own. A category icon here reads as
-                 the card's subject — the school card looked like it was
-                 illustrating a school — when what the empty slot actually means
-                 is "no photograph". Same glyph on all of them also makes a run
-                 of Basic cards read as one texture instead of eight different
-                 drawings at the same weight. -->
-            <div class="absolute inset-0 flex items-center justify-center ${photo ? "text-white" : "lcard-blank-ic"}">${photo ? icon(l.icon, 54, "opacity-95") : icon("image", 46)}</div>
-            ${photo ? `<img src="${photo}" alt="${l.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">` : ""}
+        const shell = (body) =>
+          `<div class="lcard group bg-surface border-[1.5px] border-line overflow-hidden cursor-pointer transition-[transform,box-shadow] duration-200 flex flex-col hover:-translate-y-1 hover:shadow-[0_14px_40px_rgba(26,46,74,0.12)]" data-action="open-listing" data-id="${l.id}">${body}</div>`;
+        if (!photo)
+          return shell(`<div class="lcard-basic relative flex-1 min-h-[168px] overflow-hidden flex flex-col justify-end px-[1.1rem] pt-[1.3rem] pb-[1.15rem] min-w-0" style="--tint:${c.tint};--accent:${catInk(c)}">
+            <span class="lcard-basic-mark">${icon(l.icon, 132)}</span>
+            <div class="lcard-basic-cat relative text-xs font-bold tracking-[0.04em] uppercase truncate">${catLine}</div>
+            <div class="relative font-extrabold text-xl text-head leading-[1.25] mt-[0.35rem] line-clamp-3">${l.name}</div>
+          </div>
+          <div class="px-[1.1rem] py-[0.95rem] min-w-0">${foot()}</div>`);
+        return shell(`<div class="lcard-media relative h-[168px] overflow-hidden shrink-0" style="background:${c.grad}">
+            <div class="absolute inset-0 flex items-center justify-center text-white">${icon(l.icon, 54, "opacity-95")}</div>
+            <img src="${photo}" alt="${l.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
             <!-- Only the paid upgrade gets a badge. "Basic" said nothing about
                  the business and everything about what it had not bought, on
                  the majority of cards; and "Verified" was on so many of them
@@ -8125,13 +8143,10 @@
             ${dlx ? `<span class="absolute top-3 left-3 z-[1] text-2xs font-extrabold tracking-[0.05em] uppercase px-[10px] py-[5px] rounded-[100px] bg-logo-green text-white shadow-[0_2px_10px_rgba(9,15,26,0.28)]">Featured</span>` : ""}
           </div>
           <div class="px-[1.1rem] pt-[0.9rem] pb-[1.05rem] flex flex-col flex-1 min-w-0">
-            <div class="text-xs font-bold tracking-[0.04em] uppercase text-adlabel truncate">${l.sub} · ${c.name.split(" ")[0]}</div>
+            <div class="text-xs font-bold tracking-[0.04em] uppercase text-adlabel truncate">${catLine}</div>
             <div class="font-extrabold text-lg text-head leading-[1.3] mt-[0.3rem] line-clamp-2 min-h-[2.73rem]">${l.name}</div>
-            <div class="mt-auto pt-[0.85rem] flex items-center gap-x-[1.1rem] gap-y-1 flex-wrap border-t border-line2 text-sm text-muted font-medium leading-[1.5]">
-              <div class="flex items-center gap-[0.3rem] min-w-0">${icon("pin", 13, "shrink-0")}<span class="truncate">${l.town}</span></div>
-              <div class="flex items-center gap-[0.3rem] min-w-0">${icon("users", 13, "shrink-0")}<span class="truncate">Ages ${l.ageMin}–${l.ageMax}</span></div>
-            </div>
-          </div></div>`;
+            ${foot("mt-auto pt-[0.85rem] border-t border-line2")}
+          </div>`);
       }
       function calEvents() {
         const f = state.calFilter;
@@ -8191,8 +8206,6 @@
           </div>
         </div>`;
       }
-      const calActiveChipsInner = () =>
-        activeChipsInner(state.calFilter, "rm-cal-filter", "clear-cal");
       function calShowingText(list) {
         return `Showing <b class="text-head">${list.length}</b> of <b class="text-head">${EVENTS.length}</b> event${EVENTS.length !== 1 ? "s" : ""}`;
       }
@@ -8227,9 +8240,7 @@
             ${ftMulti("cal", "subs", "wide")}
             ${ftMulti("cal", "ages")}
             ${ftMulti("cal", "towns")}
-            ${ftDateRange("c-from", f.from, "c-to", f.to)}`,
-            activeCount,
-            "clear-cal"
+            ${ftDateRange("c-from", f.from, "c-to", f.to)}`
           )}
 
           <!-- Two columns from 1025 up: results, then the ad rail. The
@@ -8237,13 +8248,14 @@
                track — see .page-ad-rail for why it drops rather than stacks. -->
           <div class="flex items-start gap-6 max1024:flex-col max1024:items-stretch">
             <div class="min-w-0 flex-1">
-              <div class="flex justify-between items-center gap-3 flex-wrap mb-4 max560:flex-col max560:items-start">
+              <!-- Count on the left, clear on the right — the slot Sort By used
+                   to hold on this page too. -->
+              <div class="flex justify-between items-center gap-3 flex-wrap mb-5 max560:flex-col max560:items-start">
                 <div class="cal-showing text-base text-muted">${calShowingText(list)}</div>
+                <div class="cal-clear empty:hidden shrink-0">${ftHead(activeCount, "clear-cal")}</div>
               </div>
 
               ${prefsNoticeHtml(f)}
-
-              <div class="cal-chips empty:hidden flex items-center gap-2 flex-wrap mb-5">${calActiveChipsInner()}</div>
 
               ${list.length ? calGridHtml(list) : CAL_EMPTY}
             </div>
@@ -8654,8 +8666,8 @@
         if (t) t.textContent = "$" + filtered.reduce((s, r) => s + r.amount, 0).toFixed(2);
         const b = el("bl-results");
         if (b) b.innerHTML = billingResults(filtered);
-        // The tray and the pill strip are not re-rendered on this path, so the
-        // control's on-state, its inline X, and the chips are flipped by hand.
+        // The tray is not re-rendered on this path, so the control's on-state,
+        // its inline X, and the clear button are flipped by hand.
         syncFilterStates();
         const head = document.querySelector(".filters-top .ft-head");
         if (head)
@@ -8663,8 +8675,6 @@
             dashFilterCount(state.billing, ["q", "cat", "from", "to"]),
             "clear-billing"
           );
-        const chips = el("bl-chips");
-        if (chips) chips.innerHTML = billingChipsInner();
       }
       function billingHistory() {
         const all = billingTransactions();
@@ -8673,8 +8683,8 @@
         const filtered = filteredBilling();
         const total = filtered.reduce((s, r) => s + r.amount, 0);
         // The tray is its own card above the table's, as on the Directory —
-        // the heading names the section, the tray narrows it, the pills say
-        // what is currently narrowing it, and the results sit below all three.
+        // the heading names the section, the tray narrows it, and the results
+        // sit below the two.
         return `<div class="mb-5 [&_h3]:text-lg [&_h3]:text-head [&_h3]:mb-[0.3rem]">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem">
               <div><h3>Billing history</h3><div class="text-sm text-muted leading-[1.55]">All charges for your ads.</div></div>
@@ -8696,7 +8706,6 @@
             dashFilterCount(f, ["q", "cat", "from", "to"]),
             "clear-billing"
           )}
-          <div id="bl-chips" class="empty:hidden flex items-center gap-2 flex-wrap mb-5">${billingChipsInner()}</div>
           <div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 mb-6 max380:p-[1.1rem]">
             <div id="bl-results">${billingResults(filtered)}</div>
           </div>`;
@@ -9648,8 +9657,8 @@
               (!f.to || a.start <= f.to)
           );
           const cats = CATEGORIES.filter((c) => ADS.some((a) => a.cat === c.id));
-          // Heading, then tray, then the pills saying what is applied — the
-          // table gets its own card underneath, as on the Directory.
+          // Heading, then tray — the table gets its own card underneath, as on
+          // the Directory.
           return `<div class="mb-5 [&_h3]:text-lg [&_h3]:text-head [&_h3]:mb-[0.3rem]"><h3>My Ads</h3><div class="text-sm text-muted leading-[1.55]">${shown.length} of ${ADS.length} ad${ADS.length !== 1 ? "s" : ""}</div></div>
           ${
             ADS.length
@@ -9676,7 +9685,6 @@
                 )
               : ""
           }
-          <div class="empty:hidden flex items-center gap-2 flex-wrap mb-5">${adChipsInner()}</div>
           <div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 mb-6 max380:p-[1.1rem]">
             ${!ADS.length ? adTable(ADS, true) : shown.length ? adTable(shown, true) : emptyPanel("No ads match your filters", "Try widening the category, status, or date range.")}
           </div>`;
@@ -11891,28 +11899,23 @@
               state.dir = { q: "", cats: [], ages: [], towns: [] };
               render();
               break;
-            case "rm-filter": {
-              const k = actEl.dataset.key;
-              // A pill stands for a whole field, so removing it empties the list.
-              if (k === "q") state.dir.q = "";
-              else state.dir[k] = [];
+            // The X inside the search pill, and nothing else now that the
+            // active-filter pills are gone: it clears the field it sits in,
+            // where "Clear Filters" beside the count empties the whole tray.
+            case "rm-filter":
+              state.dir.q = "";
               render();
               break;
-            }
             case "near-me":
               state.dir.towns = ["Hackensack"];
               toast("Location set to Hackensack (nearest)");
               render();
               break;
-            case "rm-cal-filter": {
-              const k = actEl.dataset.key;
-              // q and the two date bounds hold a single value; the rest hold
-              // lists, and a pill stands for the whole field either way.
-              if (k === "q" || k === "from" || k === "to") state.calFilter[k] = "";
-              else state.calFilter[k] = [];
+            // As with rm-filter: only the search box's own X reaches this.
+            case "rm-cal-filter":
+              state.calFilter.q = "";
               render();
               break;
-            }
             case "clear-cal":
               state.calFilter = {
                 q: "",
@@ -12397,7 +12400,7 @@
               break;
             }
             // The X inside the billing search pill clears only that field —
-            // "Clear N filters" beside it is what empties the whole tray.
+            // "Clear Filters" beside it is what empties the whole tray.
             case "rm-billing-filter":
               state.billing[actEl.dataset.key || "q"] = "";
               render();
@@ -12408,11 +12411,6 @@
               break;
             case "clear-listing-filter":
               state.listingFilter = { cat: "", plan: "", status: "", from: "", to: "" };
-              render();
-              break;
-            // One pill stands for one field, so removing it empties that field.
-            case "rm-ad-filter":
-              state.adFilter[actEl.dataset.key] = "";
               render();
               break;
             case "clear-ad-filter":
@@ -12732,10 +12730,10 @@
         const empty = document.querySelector(".view-full .empty");
         const showing = document.querySelector(".dir-showing");
         if (showing) showing.innerHTML = dirShowingText(list);
-        const chips = document.querySelector(".dir-chips");
-        if (chips) chips.innerHTML = dirActiveChipsInner();
-        // The bar's count badge would otherwise go stale as you type.
-        const head = document.querySelector(".ft-head");
+        // The clear button's count would otherwise go stale as you type — and
+        // the button itself has to appear and disappear with the first and last
+        // active filter, since it is not rendered at all when nothing is on.
+        const head = document.querySelector(".dir-clear");
         if (head) head.innerHTML = ftHead(activeFilterCount(state.dir), "clear-all-dir");
         syncFilterStates();
         const container = document.querySelector(".view-full");
@@ -12762,9 +12760,7 @@
         const list = calEvents();
         const showing = document.querySelector(".cal-showing");
         if (showing) showing.innerHTML = calShowingText(list);
-        const chips = document.querySelector(".cal-chips");
-        if (chips) chips.innerHTML = calActiveChipsInner();
-        const head = document.querySelector(".ft-head");
+        const head = document.querySelector(".cal-clear");
         if (head) head.innerHTML = ftHead(activeFilterCount(state.calFilter), "clear-cal");
         syncFilterStates();
         const target =
