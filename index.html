@@ -8301,8 +8301,12 @@
             <p class="text-muted text-lg leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Everything on for children across Bergen County, gathered by category. Open one to see its events and filter by age, town or date.</p>
           </div>
           ${
+            // The same 10px the event tiles sit at one level down, rather than
+            // a wider card gutter: both grids are photographs held apart by the
+            // page showing through, and two different gaps read as two
+            // different pages.
             groups.length
-              ? `<div class="grid grid-cols-3 gap-[clamp(0.9rem,1.6vw,1.35rem)] max1024:grid-cols-2 max560:grid-cols-1">${groups
+              ? `<div class="grid grid-cols-3 gap-[10px] max1024:grid-cols-2 max560:grid-cols-1">${groups
                   .map(([c, evs]) => catEventTile(c, evs))
                   .join("")}</div>`
               : CAL_EMPTY
