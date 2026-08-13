@@ -4135,10 +4135,11 @@
       /* ── Events page: square cards ──────────────────────────────
          Every card-shaped surface on the events view loses its radius.
 
-         Scoped to body[data-view="calendar"] — the key render() writes for
-         viewCalendar — rather than edited at the source, because the two
-         panels above the grid are shared components: filtersTop() also builds
-         the Directory's filter bar, and prefsNoticeHtml() renders on both.
+         Scoped to the two route keys render() writes for the events pages —
+         "calendar", the index of categories, and "eventCat", one category's
+         own page — rather than edited at the source, because the two panels
+         above the grid are shared components: filtersTop() also builds the
+         Directory's filter bar, and prefsNoticeHtml() renders on both.
          Squaring them where they are defined would flatten Directory too,
          which is not what was asked for.
 
@@ -4152,20 +4153,24 @@
          stable hook, only utilities, and matching it on `bg-mint` would have
          been a selector that breaks the first time someone recolours it.
 
-         The second rule reaches inside the tiles for the date badge, which is
-         a full 100px pill. A pill left at full round on a hard-square card is
-         the most conspicuous thing on the grid, so it goes too.
+         The second rule reaches inside the tiles for the badges that ride on
+         them — the event's date pill, the category tile's icon chip. A pill
+         left at full round on a hard-square card is the most conspicuous thing
+         on the grid, so those go too. The category page's own heading badge is
+         not covered and should not be: it sits on the page, not on a card.
 
          Buttons, inputs and the filter chips are deliberately untouched. They
          are controls rather than cards, they are the same controls the rest of
          the app uses, and a square search field would read as a different
          design system instead of as this one with its cards squared. */
-      body[data-view="calendar"] .filters-top,
-      body[data-view="calendar"] .prefs-notice {
+      body:is([data-view="calendar"], [data-view="eventCat"]) .filters-top,
+      body:is([data-view="calendar"], [data-view="eventCat"]) .prefs-notice {
         border-radius: 0;
       }
 
-      body[data-view="calendar"] .ev-tile [class*="rounded-"] {
+      body:is([data-view="calendar"], [data-view="eventCat"])
+        :is(.ev-tile, .ev-cat-tile)
+        [class*="rounded-"] {
         border-radius: 0;
       }
     </style>
@@ -6048,6 +6053,10 @@
         // from/to bound the events list to a date range; empty means unbounded
         // at that end, so either can be set on its own.
         calFilter: { q: "", cats: [], subs: [], ages: [], towns: [], from: "", to: "" },
+        // Which category the "eventCat" view is showing. Events is an index of
+        // categories now, and this is the one that was opened from it — the
+        // same relationship articleId has to the articles index.
+        calCat: null,
         advTab: "ads", // the advertiser dashboard's tab — My Ads, plus the create screen
         billing: { q: "", cat: "", from: "", to: "" },
         listingFilter: { cat: "", plan: "", status: "", from: "", to: "" },
@@ -6558,6 +6567,10 @@
           home: viewHome,
           directory: viewDirectory,
           calendar: viewCalendar,
+          // One category's events. A route of its own for the same reason the
+          // article has one: it is a page you arrive at from an index and go
+          // back from, not a state of the index.
+          eventCat: viewEventCategory,
           articles: viewArticles,
           // A route of its own, so an article is a page with a back button and
           // a scrollbar rather than a drawer over the index.
@@ -6574,9 +6587,12 @@
         root.innerHTML = map[view]();
         if (el("topAd-meta")) el("topAd-meta").innerHTML = adMeta("Bergen Aquatic Center");
         document.querySelectorAll("[data-navkey]").forEach((a) => {
+          // A detail route lights its own index in the nav — an article keeps
+          // Articles lit, a category page keeps Events lit.
           const on =
             a.dataset.navkey === state.view ||
-            (state.view === "article" && a.dataset.navkey === "articles");
+            (state.view === "article" && a.dataset.navkey === "articles") ||
+            (state.view === "eventCat" && a.dataset.navkey === "calendar");
           a.classList[on ? "add" : "remove"](...NAV_ON);
           a.classList[on ? "remove" : "add"]("text-muted");
         });
@@ -7934,19 +7950,22 @@
       function filterOptions(key, page) {
         if (key === "ages") return AGE_GROUPS.map((a) => [a.id, a.label]);
         if (key === "towns") return TOWNS.map((t) => [t, t]);
-        /* Subcategory narrows to whatever categories are already picked, and
-           offers the lot when none are. Showing all thirty at once would be a
-           list nobody can read — and most of it would be subcategories of
-           categories the visitor has already filtered away.
+        /* Subcategory narrows to whatever categories are in play, and offers
+           the lot when none are. All thirty at once is a list nobody can read,
+           and most of it would be subcategories of categories that are not on
+           screen. Two things narrow it: the category multi-select beside it on
+           the directory, and — on the events pages, which have no such control
+           — the category whose page is open, since that is the only one whose
+           events the list can contain.
 
            Values are the subcategory's own name rather than an id, because that
            is what the records carry: a listing's `sub` and an event's `sub` are
            both the label. Which does mean two categories sharing a subcategory
-           name would match each other — none do today, and the category filter
-           beside this one is what would settle it if they ever did. */
+           name would match each other — none do today, and whichever of the two
+           is narrowing the list is what would settle it if they ever did. */
         if (key === "subs") {
           const f = filterState(page);
-          const picked = f.cats || [];
+          const picked = page === "cal" && state.calCat ? [state.calCat] : f.cats || [];
           const cats = picked.length ? CATEGORIES.filter((c) => picked.includes(c.id)) : CATEGORIES;
           return [...new Set(cats.flatMap((c) => c.sub))].sort().map((s) => [s, s]);
         }
@@ -8148,9 +8167,22 @@
             ${foot("mt-auto pt-[0.85rem] border-t border-line2")}
           </div>`);
       }
+      // Soonest first, which is the only order an events list wants by default
+      // and the order the date range reads against.
+      const bySoonest = (a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time);
+      /* Everything in one category, before the tray touches it. The index
+         counts with this and the category page measures its "showing" line
+         against it, so the number on the tile and the number on the page it
+         opens are the same number. */
+      const catEvents = (id) => EVENTS.filter((e) => e.cat === id).sort(bySoonest);
+      /* The filtered list for the category page. state.calCat is a gate on the
+         way in rather than a value in calFilter: the tray's fields are what the
+         visitor is narrowing by and what "Clear Filters" empties, and the
+         category is neither — it is which page they are on. */
       function calEvents() {
         const f = state.calFilter;
         return EVENTS.filter((e) => {
+          if (state.calCat && e.cat !== state.calCat) return false;
           if (!inList(f.cats, e.cat)) return false;
           if (!inList(f.subs || [], e.sub)) return false;
           if (!townPass(f.towns, e.town)) return false;
@@ -8176,12 +8208,7 @@
               return false;
           }
           return true;
-        }).sort(
-          // One fixed order, since the Sort By control is gone. Soonest first
-          // is the only order an events list wants by default, and it is the
-          // order the date range filter now reads against.
-          (a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)
-        );
+        }).sort(bySoonest);
       }
       // Event tile: the photo in its own colour under a light category-coloured
       // wash, with the copy stacked bottom-left over a scrim that is only as dark
@@ -8206,8 +8233,11 @@
           </div>
         </div>`;
       }
-      function calShowingText(list) {
-        return `Showing <b class="text-head">${list.length}</b> of <b class="text-head">${EVENTS.length}</b> event${EVENTS.length !== 1 ? "s" : ""}`;
+      // Measured against the category's own total, not every event on the site —
+      // the category page cannot show the other seven categories, so counting
+      // them in the denominator would only ever read as events gone missing.
+      function calShowingText(list, total) {
+        return `Showing <b class="text-head">${list.length}</b> of <b class="text-head">${total}</b> event${total !== 1 ? "s" : ""}`;
       }
       const CAL_EMPTY = `<div class="empty text-center px-4 py-16 text-muted text-base leading-[1.6]">${icon("calendar", 40, "text-adlabel mb-3")}<div style="font-weight:700;color:var(--head);margin-bottom:0.3rem">No events found</div><div>Try adjusting your filters or clearing them to see everything.</div></div>`;
       // The 3px separation between tiles used to be the container's own
@@ -8223,20 +8253,92 @@
       // under dark scrims and hold their own edges without help.
       const calGridHtml = (list) =>
         `<div class="ev-grid grid grid-cols-[repeat(auto-fill,minmax(min(205px,100%),1fr))] gap-[10px]">${list.map(evTile).join("")}</div>`;
+      /* ── Events, two levels ─────────────────────────────────────
+         Events used to be one grid of everything with a Category control in the
+         tray: to see what was on in Arts you picked Arts out of a popup, and
+         until you did, the page said nothing at all about how its events
+         divided up.
+
+         It is an index of categories now, and each one opens its own page —
+         the same two-level shape the Articles index and an article have. The
+         index answers "what kinds of things are on?", which is the question a
+         parent arrives with; the category page answers "which ones, and when?",
+         and that is where the filters live, because that is the only level with
+         a list long enough to need narrowing.
+
+         The tile is the events tile's language at a larger size: the category
+         photograph under its own colour and a scrim, name and count at the
+         foot. A category with nothing in it is left out rather than opening an
+         empty page. */
+      const catEventTile = (c, evs) => {
+        const photo = catImg(c.id, 800);
+        // Soonest first, so evs[0] is the next thing on in this category.
+        const next = new Date(evs[0].date + "T00:00");
+        return `<button type="button" class="ev-cat-tile group relative block w-full text-left aspect-[3/2] min-h-[190px] overflow-hidden cursor-pointer isolate border-0 p-0 bg-transparent" data-action="open-event-cat" data-cat="${c.id}">
+          <!-- The category's gradient underneath the photograph, not instead of
+               it: a category with no picture, or one that fails to load, still
+               comes up in its own colour rather than as a dark rectangle. -->
+          <span class="absolute inset-0" style="background:${c.grad}"></span>
+          ${photo ? `<img src="${photo}" srcset="${catImg(c.id, 600)} 600w, ${catImg(c.id, 1000)} 1000w" sizes="(max-width:700px) 92vw, (max-width:1024px) 46vw, 31vw" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[400ms] group-hover:scale-[1.06]">` : ""}
+          <span class="absolute inset-0 mix-blend-multiply opacity-[0.34] transition-opacity duration-200 group-hover:opacity-[0.24]" style="background:${c.grad}"></span>
+          <span class="absolute inset-0 bg-[linear-gradient(to_top,rgba(10,20,36,0.72)_0%,rgba(10,20,36,0.18)_52%,transparent_80%)]"></span>
+          <span class="absolute top-3 right-3 z-[1] w-[34px] h-[34px] rounded-[10px] border border-white/30 bg-white/15 backdrop-blur-[3px] flex items-center justify-center text-white">${icon(c.icon, 17)}</span>
+          <span class="absolute inset-x-0 bottom-0 z-[1] p-[1.15rem] max380:p-[0.9rem]">
+            <span class="block font-serif text-2xl font-bold text-white leading-[1.2] tracking-[-0.015em] decoration-white/60 underline-offset-[3px] group-hover:underline">${c.name}</span>
+            <!-- A middot rather than a dot element: the rule that squares the
+                 badges on these tiles would square a 3px round one too. The
+                 date drops the year, as the tiles' own date badges do. -->
+            <span class="block mt-[0.4rem] text-sm font-semibold text-white/85 truncate">${evs.length} event${evs.length !== 1 ? "s" : ""} · Next ${MONTHS[next.getMonth()]} ${next.getDate()}</span>
+          </span>
+        </button>`;
+      };
       function viewCalendar() {
-        const f = state.calFilter;
-        const list = calEvents();
-        const activeCount = activeFilterCount(f);
+        const groups = CATEGORIES.map((c) => [c, catEvents(c.id)]).filter(([, evs]) => evs.length);
         return `<div class="w-full"><div class="min-w-0"><div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
           <div class="mb-7">
             <div class="flex items-center gap-[0.4rem] text-sm text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-brand font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>Events</span></div>
             <div class="font-serif text-display-2 font-black text-head tracking-[-0.02em] leading-[1.15] text-balance">Kids Events &amp; Activities</div>
-            <p class="text-muted text-lg leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Browse every kids' event across Bergen County. Filter by category, age, or town, then tap any event for the full details.</p>
+            <p class="text-muted text-lg leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Everything on for children across Bergen County, gathered by category. Open one to see its events and filter by age, town or date.</p>
+          </div>
+          ${
+            groups.length
+              ? `<div class="grid grid-cols-3 gap-[clamp(0.9rem,1.6vw,1.35rem)] max1024:grid-cols-2 max560:grid-cols-1">${groups
+                  .map(([c, evs]) => catEventTile(c, evs))
+                  .join("")}</div>`
+              : CAL_EMPTY
+          }
+        </div></div></div>`;
+      }
+      /* One category's events, with the tray the whole events page used to
+         carry — minus the Category control, since the page is the category.
+         Everything else narrows exactly as it did. */
+      function viewEventCategory() {
+        const c = catOf(state.calCat);
+        // A stale or missing category falls back to the index rather than
+        // rendering a page with no events and no name, the same way viewArticle
+        // falls back to its own index.
+        if (!c) return viewCalendar();
+        const f = state.calFilter;
+        const all = catEvents(c.id);
+        const list = calEvents();
+        const activeCount = activeFilterCount(f);
+        return `<div class="w-full"><div class="min-w-0"><div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
+          <div class="mb-7">
+            <div class="flex items-center gap-[0.4rem] text-sm text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-brand font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<a class="cursor-pointer text-brand font-bold underline" data-nav="calendar">Events</a>${icon("chev-right", 14, "text-adlabel")}<span>${c.name}</span></div>
+            <div class="flex items-center gap-4 max560:gap-3">
+              <span class="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center text-white shrink-0 max560:w-[42px] max560:h-[42px]" style="background:${c.grad}">${icon(c.icon, 24)}</span>
+              <div class="font-serif text-display-2 font-black text-head tracking-[-0.02em] leading-[1.15] text-balance min-w-0">${c.name}</div>
+            </div>
+            <!-- Worded around the category rather than into the sentence:
+                 "every schools & preschools event" does not read, and eight
+                 category names cannot all be made to. -->
+            <p class="text-muted text-lg leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Kids' events across Bergen County, filed under ${c.name}. Narrow by age, town or date, then tap any event for the full details.</p>
           </div>
 
+          <!-- No Category control: this page is one category. What is left is
+               the set of fields that narrow a list without replacing it. -->
           ${filtersTop(
             `${ftSearch("c-q", f.q, "Event name, organizer or town…", "Search events", "rm-cal-filter", true)}
-            ${ftMulti("cal", "cats", "wide")}
             ${ftMulti("cal", "subs", "wide")}
             ${ftMulti("cal", "ages")}
             ${ftMulti("cal", "towns")}
@@ -8251,7 +8353,7 @@
               <!-- Count on the left, clear on the right — the slot Sort By used
                    to hold on this page too. -->
               <div class="flex justify-between items-center gap-3 flex-wrap mb-5 max560:flex-col max560:items-start">
-                <div class="cal-showing text-base text-muted">${calShowingText(list)}</div>
+                <div class="cal-showing text-base text-muted">${calShowingText(list, all.length)}</div>
                 <div class="cal-clear empty:hidden shrink-0">${ftHead(activeCount, "clear-cal")}</div>
               </div>
 
@@ -8261,6 +8363,19 @@
             </div>
           </div>
         </div></div></div>`;
+      }
+      /* Opening a category from the index. Any subcategory left ticked from the
+         last category is dropped on the way in: "Swimming" carried from Sports
+         into Music filters every event away against a word that is not even in
+         this page's own subcategory list. Same rule the category multi-select
+         applies when it narrows — see apply-filter. */
+      function openEventCat(id) {
+        const c = catOf(id);
+        if (!c) return;
+        state.calCat = id;
+        const subs = state.calFilter.subs || [];
+        if (subs.length) state.calFilter.subs = subs.filter((s) => c.sub.includes(s));
+        navigate("eventCat");
       }
       function viewArticles() {
         const categories = ["all", ...new Set(ARTICLES.map((a) => a.cat))];
@@ -11830,6 +11945,9 @@
             case "open-article":
               openArticle(id);
               break;
+            case "open-event-cat":
+              openEventCat(actEl.dataset.cat);
+              break;
             case "filter-articles":
               state.articleFilter = actEl.dataset.cat;
               render();
@@ -12759,7 +12877,9 @@
       function updateCalResults() {
         const list = calEvents();
         const showing = document.querySelector(".cal-showing");
-        if (showing) showing.innerHTML = calShowingText(list);
+        // The denominator is this category's total, and it does not move as the
+        // tray narrows — only the numerator does.
+        if (showing) showing.innerHTML = calShowingText(list, catEvents(state.calCat).length);
         const head = document.querySelector(".cal-clear");
         if (head) head.innerHTML = ftHead(activeFilterCount(state.calFilter), "clear-cal");
         syncFilterStates();
