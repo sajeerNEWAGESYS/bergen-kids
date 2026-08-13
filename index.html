@@ -3983,152 +3983,109 @@
         filter: brightness(0.92);
       }
 
-      /* ── Theme switch ───────────────────────────────────────────
-         A track with both destinations on it and a knob that slides between
-         them, rather than a button showing one icon. Nothing re-renders: the
-         knob's position and the icon emphasis are driven off <html data-theme>,
-         which the theme bootstrap already sets. */
-      .theme-switch {
-        position: relative;
+      /* ── Theme control ──────────────────────────────────────────
+         Three settings, not two: Light, System, Dark.
+
+         Light and Dark are a choice — remembered, and outranking the machine
+         from then on. System is the absence of one: it forgets the choice and
+         the page follows the OS again, live, including a change made while the
+         tab is open. That third state was always in the logic, and until now
+         there was no way back to it — the switch here was a two-position knob,
+         so the moment anyone touched it "follow my computer" was gone until
+         they cleared the site's storage. Three destinations cannot be a slider
+         between two, which is why this is a segmented control.
+
+         The selected segment is painted from aria-checked rather than from
+         <html data-theme>, because the theme cannot tell you which setting
+         produced it: System on a dark machine and Dark are the same page. */
+      .theme-seg {
+        display: flex;
+        align-items: center;
+        gap: 2px;
         flex-shrink: 0;
-        width: 62px;
-        height: 34px;
-        padding: 0;
+        padding: 2px;
         border: 1.5px solid var(--line);
         border-radius: 100px;
         background: var(--surface-4);
-        cursor: pointer;
-        /* How far the knob travels. Kept as a variable so the press-squish can
-           compose with the slide without every rule repeating the distance. */
-        --knob-x: 0px;
         transition:
           background 0.28s ease,
           border-color 0.28s ease;
       }
 
-      .theme-switch:hover {
+      .theme-seg:hover {
         border-color: var(--head);
       }
 
-      [data-theme="dark"] .theme-switch {
-        background: #0e1520;
-        border-color: rgba(255, 255, 255, 0.16);
-        --knob-x: 28px; /* 62 track − 26 knob − 3 each side − border */
-      }
-
-      /* The knob carries the current icon. It used to sit on top of icons laid
-         out in the track, which meant the knob covered whichever one was active
-         — the only icon you could see was the mode you were NOT in. */
-      .theme-switch-knob {
-        position: absolute;
-        top: 50%;
-        left: 3px;
-        width: 26px;
-        height: 26px;
-        margin-top: -13px;
-        border-radius: 50%;
-        background: var(--surface);
+      .theme-seg-btn {
+        width: 30px;
+        height: 28px;
+        padding: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        transform: translateX(var(--knob-x));
-        transform-origin: left center;
-        transition:
-          transform 0.34s cubic-bezier(0.34, 1.56, 0.5, 1),
-          background 0.28s ease,
-          box-shadow 0.28s ease;
-        z-index: 1;
-      }
-
-      [data-theme="dark"] .theme-switch-knob {
-        background: #f5f7fa;
-        box-shadow: 0 2px 12px rgba(180, 205, 255, 0.4);
-        /* Squishing has to grow from the trailing edge, which swaps with side. */
-        transform-origin: right center;
-      }
-
-      /* Press-and-hold stretches the knob toward the side it will land on, so
-         the switch feels physical rather than instant. */
-      .theme-switch:active .theme-switch-knob {
-        transform: translateX(var(--knob-x)) scaleX(1.22);
-      }
-
-      /* Both icons stack in the centre of the knob; only the current one is
-         opaque. They are always on the pale knob, never on the track, so the
-         contrast holds in either theme. */
-      .theme-switch-ic {
-        position: absolute;
-        display: flex;
-        line-height: 0;
-        transition:
-          opacity 0.24s ease,
-          transform 0.34s cubic-bezier(0.34, 1.56, 0.5, 1);
-      }
-
-      /* The outgoing icon spins away and the incoming one spins upright, so the
-         swap reads as a dial turning rather than a hard cut. */
-      .theme-switch-ic--sun {
-        color: #c47f0a;
-        opacity: 1;
-        transform: rotate(0deg) scale(1);
-      }
-
-      .theme-switch-ic--moon {
-        color: #1a2e4a;
-        opacity: 0;
-        transform: rotate(70deg) scale(0.5);
-      }
-
-      [data-theme="dark"] .theme-switch-ic--sun {
-        opacity: 0;
-        transform: rotate(-70deg) scale(0.5);
-      }
-
-      [data-theme="dark"] .theme-switch-ic--moon {
-        opacity: 1;
-        transform: rotate(0deg) scale(1);
-      }
-
-      /* Faint hint of the other mode on the empty half of the track. The knob
-         hides the one on its own side, which is exactly the icon it is already
-         showing crisply. */
-      .theme-switch-ghost {
-        position: absolute;
-        top: 50%;
-        margin-top: -7px;
-        display: flex;
-        line-height: 0;
+        border: none;
+        border-radius: 100px;
+        background: transparent;
         color: var(--muted);
-        opacity: 0.45;
+        cursor: pointer;
+        transition:
+          background 0.2s ease,
+          color 0.2s ease,
+          box-shadow 0.2s ease;
       }
 
-      .theme-switch-ghost--sun {
-        left: 8px;
+      .theme-seg-btn:hover {
+        color: var(--head);
       }
 
-      .theme-switch-ghost--moon {
-        right: 9px;
+      /* The chosen setting is a raised pill on the track — the same pale chip
+         the old knob was, standing still instead of sliding. */
+      .theme-seg-btn[aria-checked="true"] {
+        background: var(--surface);
+        color: var(--head);
+        box-shadow: 0 1px 3px rgba(26, 46, 74, 0.16);
       }
 
-      [data-theme="dark"] .theme-switch-ghost {
-        color: rgba(255, 255, 255, 0.75);
-        opacity: 0.5;
+      /* Light and Dark carry their own colour once they are the one on. System
+         does not: it has no colour of its own to be. */
+      .theme-seg-btn--light[aria-checked="true"] {
+        color: #c47f0a;
       }
 
+      .theme-seg-btn--dark[aria-checked="true"] {
+        color: #1a2e4a;
+      }
+
+      [data-theme="dark"] .theme-seg {
+        background: #0e1520;
+        border-color: rgba(255, 255, 255, 0.16);
+      }
+
+      /* The chip stays pale on the dark page, so the glyph on it stays dark —
+         the contrast is against the chip, never against the track. */
+      [data-theme="dark"] .theme-seg-btn[aria-checked="true"] {
+        background: #f5f7fa;
+        color: #1a2e4a;
+        box-shadow: 0 2px 12px rgba(180, 205, 255, 0.35);
+      }
+
+      [data-theme="dark"] .theme-seg-btn--light[aria-checked="true"] {
+        color: #c47f0a;
+      }
+
+      /* Three segments take roughly twice the width the old two-position knob
+         did, and the narrowest phone has to fit this, the bell, the account
+         chip and the menu button on one bar. So the segments tighten rather
+         than the control wrapping or scrolling. */
       @media (max-width: 380px) {
-        .theme-switch {
-          width: 54px;
-          height: 30px;
+        .theme-seg {
+          gap: 0;
+          padding: 1.5px;
         }
 
-        .theme-switch-knob {
-          width: 22px;
-          height: 22px;
-          margin-top: -11px;
-        }
-
-        [data-theme="dark"] .theme-switch {
-          --knob-x: 24px;
+        .theme-seg-btn {
+          width: 25px;
+          height: 24px;
         }
       }
 
@@ -4334,6 +4291,13 @@
         <symbol id="ic-tv" viewBox="0 0 24 24">
           <rect width="20" height="15" x="2" y="7" rx="2" />
           <path d="m17 2-5 5-5-5" />
+        </symbol>
+        <!-- A monitor on a stand, for the theme control's System setting. Not
+             the TV above it: an antenna reads as broadcast, and what this has
+             to say is "whatever this machine is set to". -->
+        <symbol id="ic-monitor" viewBox="0 0 24 24">
+          <rect width="20" height="14" x="2" y="3" rx="2" />
+          <path d="M8 21h8M12 17v4" />
         </symbol>
         <symbol id="ic-leaf" viewBox="0 0 24 24">
           <path
@@ -6613,17 +6577,7 @@
         }
         const MENU_BTN =
           "hidden relative w-[40px] h-[40px] rounded-[50%] border-[1.5px] border-line bg-surface items-center justify-center text-head transition-[border-color,background] duration-200 shrink-0 max900:flex max900:bg-navy max900:border-navy max900:text-white max900:hover:bg-[#12233a] max900:hover:border-[#12233a] max380:w-[36px] max380:h-[36px]";
-        // A switch, not a button: both destinations are on the track at once and
-        // the knob shows which one you are on. aria-checked is what tells a
-        // screen reader it is a switch rather than a toggle button.
-        const themeBtn = `<button class="theme-switch" data-action="toggle-theme" role="switch" aria-checked="${document.documentElement.getAttribute("data-theme") === "dark"}" aria-label="Dark mode" title="Switch light / dark">
-            <span class="theme-switch-ghost theme-switch-ghost--sun" aria-hidden="true">${icon("sun-toggle", 14)}</span>
-            <span class="theme-switch-ghost theme-switch-ghost--moon" aria-hidden="true">${icon("moon", 13)}</span>
-            <span class="theme-switch-knob" aria-hidden="true">
-              <span class="theme-switch-ic theme-switch-ic--sun">${icon("sun-toggle", 15)}</span>
-              <span class="theme-switch-ic theme-switch-ic--moon">${icon("moon", 14)}</span>
-            </span>
-          </button>`;
+        const themeBtn = themeSegHtml();
         // Log in sits ahead of the green button, so the pair reads "log in, or
         // list your business" and the one thing in the bar shaped like a button
         // is the last thing before the menu. The account chip is the exception
@@ -12103,8 +12057,8 @@
             case "open-auth":
               authModal(actEl.dataset.role);
               break;
-            case "toggle-theme":
-              setTheme(currentTheme() === "dark" ? "light" : "dark", true);
+            case "set-theme":
+              setThemeMode(actEl.dataset.themeMode);
               break;
             case "toggle-notif":
               toggleNotif();
@@ -13934,12 +13888,11 @@
       }
       /* ── Theme ───────────────────────────────────────────────────
                <html data-theme> is already set by the bootstrap in <head>, so
-               this is only the switch. An explicit choice is remembered and
-               outranks the OS from then on; until someone picks a side, the
-               page keeps following the system setting live. */
+               this is only the control. An explicit choice is remembered and
+               outranks the OS from then on; with nothing stored the page
+               follows the system setting live, and choosing System is what
+               puts it back into that state by clearing the stored choice. */
       const THEME_KEY = "bk-theme";
-      const currentTheme = () =>
-        document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
       function savedTheme() {
         try {
           return localStorage.getItem(THEME_KEY);
@@ -13947,20 +13900,59 @@
           return null; // private mode
         }
       }
+      // Which of the three the control is on. Storage holds "light" or "dark"
+      // or nothing at all, and nothing at all is System — the setting is the
+      // absence of a stored choice rather than a third value written into it,
+      // so the OS-follows-live path needs no separate flag to consult.
+      const themeMode = () => {
+        const s = savedTheme();
+        return s === "light" || s === "dark" ? s : "system";
+      };
+      const THEME_MODES = [
+        ["light", "sun-toggle", "Light"],
+        ["system", "monitor", "System"],
+        ["dark", "moon", "Dark"],
+      ];
+      const themeSegHtml = () => {
+        const mode = themeMode();
+        return `<div class="theme-seg" role="radiogroup" aria-label="Colour theme">${THEME_MODES.map(
+          ([m, ic, label]) =>
+            `<button type="button" class="theme-seg-btn theme-seg-btn--${m}" data-action="set-theme" data-theme-mode="${m}" role="radio" aria-checked="${mode === m}" title="${label}" aria-label="${label} theme">${icon(ic, 15)}</button>`
+        ).join("")}</div>`;
+      };
+      // Changing the theme does not re-render the nav, so the control is
+      // repainted by hand — and aria-checked is both what a screen reader
+      // announces and what the selected pill is drawn from.
+      function paintThemeSeg() {
+        const mode = themeMode();
+        document
+          .querySelectorAll(".theme-seg-btn")
+          .forEach((b) => b.setAttribute("aria-checked", String(b.dataset.themeMode === mode)));
+      }
       function setTheme(next, remember) {
         document.documentElement.setAttribute("data-theme", next);
-        // The switch's look is CSS off <html data-theme>, but its announced
-        // state is an attribute — and toggling the theme does not re-render the
-        // nav, so it has to be set here or a screen reader reads it stale.
-        document
-          .querySelectorAll(".theme-switch")
-          .forEach((s) => s.setAttribute("aria-checked", next === "dark"));
-        if (!remember) return;
-        try {
-          localStorage.setItem(THEME_KEY, next);
-        } catch (e) {
-          /* private mode — the choice just will not survive a reload */
+        if (remember) {
+          try {
+            localStorage.setItem(THEME_KEY, next);
+          } catch (e) {
+            /* private mode — the choice just will not survive a reload */
+          }
         }
+        // After the write, never before: the paint reads storage back to work
+        // out which of the three is on.
+        paintThemeSeg();
+      }
+      /* Picking a setting. System is the one that removes rather than writes,
+         which is the whole of what makes it live: with nothing stored, the
+         media-query listener below owns the theme again. */
+      function setThemeMode(mode) {
+        if (mode !== "system") return setTheme(mode === "dark" ? "dark" : "light", true);
+        try {
+          localStorage.removeItem(THEME_KEY);
+        } catch (e) {
+          /* private mode — there was nothing stored to remove */
+        }
+        setTheme(systemDark.matches ? "dark" : "light", false);
       }
       const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
       const onSystemTheme = (e) => {
