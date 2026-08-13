@@ -109,7 +109,6 @@
                 "lavender-ink": "var(--lavender-ink)",
                 teal: "var(--teal)",
                 danger: "var(--danger-ink)",
-                dot: "#d64518", // unread dot          —  3.8:1 on mint
                 "mint-2": "#d3ebde", // accent on dark cards, used with /alpha
                 // surfaces
                 cream: "var(--cream)", // the page
@@ -517,15 +516,21 @@
          for font-black on most headings, and Georgia ships no 900, so the
          browser was synthesising one: thick, smeared strokes that read nothing
          like the reference. Repeating the class beats the utility on
-         specificity without reaching for !important, and an explicit
-         `font-bold` (a real Georgia weight, which the reference does use in a
-         couple of places) still outranks it. */
+         specificity without reaching for !important.
+
+         Every heading now, with no exception carved out. There used to be one:
+         `.font-serif.font-bold` outranked this and held twelve headings at a
+         real Georgia 700 — the article titles, the category card names, the ad
+         headlines. Two weights of the same face across a page of headings is a
+         distinction the reader has to account for, and there was no rule
+         behind which heading got which. Size and colour separate them instead,
+         which is what the reference does. The twelve call sites dropped their
+         `font-bold` with this rule, so the markup still says what it gets. */
       .font-serif.font-serif {
         font-weight: 400;
         letter-spacing: -0.02em;
       }
 
-      .font-serif.font-bold.font-bold,
       .brand-text.brand-text.brand-text {
         font-weight: 700;
       }
@@ -3778,6 +3783,26 @@
 
       [data-theme="dark"] .notif-badge {
         border-color: #10151c;
+      }
+
+      /* The row action is a tint of the row's own accent rather than a solid
+         fill, so its hover is one step deeper into that same tint — written
+         out per theme because "deeper" is darker on the light page and
+         lighter on the dark one, and a single filter cannot be both. */
+      .notif-cta--blue:hover {
+        background: #d7e5fa;
+      }
+
+      .notif-cta--mint:hover {
+        background: var(--mint-2);
+      }
+
+      [data-theme="dark"] .notif-cta--blue:hover {
+        background: #24436b;
+      }
+
+      [data-theme="dark"] .notif-cta--mint:hover {
+        background: #1f4530;
       }
 
       @media (max-width: 900px) {
@@ -7096,7 +7121,7 @@
                       <div class="flex items-center justify-between mb-[10px]">
                         <div class="min-w-0">
                           <div class="text-2xs font-bold text-muted leading-tight">Hi Sarah 👋</div>
-                          <div class="font-serif text-base font-bold text-head leading-tight tracking-[-0.01em] mt-[1px]">Find the best for your kids</div>
+                          <div class="font-serif text-base text-head leading-tight tracking-[-0.01em] mt-[1px]">Find the best for your kids</div>
                         </div>
                         <span class="relative w-[32px] h-[32px] rounded-full bg-surface grid place-items-center shrink-0 text-head">${icon("bell", 15)}<span class="absolute top-[6px] right-[7px] w-[6px] h-[6px] rounded-full bg-sun"></span></span>
                       </div>
@@ -8340,7 +8365,7 @@
                reads on any picture underneath it. -->
           <span class="absolute top-3 right-3 z-[1] w-[36px] h-[36px] rounded-[10px] border border-white/25 bg-[rgba(10,20,36,0.55)] backdrop-blur-[3px] flex items-center justify-center text-white">${icon(c.icon, 21)}</span>
           <span class="absolute inset-x-0 bottom-0 z-[1] p-[1.15rem] max380:p-[0.9rem]">
-            <span class="block font-serif text-2xl font-bold text-white leading-[1.2] tracking-[-0.015em] decoration-white/60 underline-offset-[3px] group-hover:underline">${c.name}</span>
+            <span class="block font-serif text-2xl text-white leading-[1.2] tracking-[-0.015em] decoration-white/60 underline-offset-[3px] group-hover:underline">${c.name}</span>
             <!-- A middot rather than a dot element: the rule that squares the
                  badges on these tiles would square a 3px round one too. -->
             <span class="block mt-[0.4rem] text-sm font-semibold text-white/85 truncate">${evs.length} event${evs.length !== 1 ? "s" : ""} · Next ${MONTHS[next.getMonth()]} ${next.getDate()}</span>
@@ -8376,7 +8401,7 @@
                wherever each name happens to. -->
           <span class="flex flex-col flex-1 min-w-0 px-[1.1rem] pt-[0.9rem] pb-[1.05rem]">
             <span class="block text-xs font-bold tracking-[0.04em] uppercase text-adlabel">${ls.length} listing${ls.length !== 1 ? "s" : ""}</span>
-            <span class="block font-serif text-xl font-bold text-head leading-[1.25] tracking-[-0.015em] mt-[0.3rem] transition-colors duration-200 group-hover:text-brand">${c.name}</span>
+            <span class="block font-serif text-xl text-head leading-[1.25] tracking-[-0.015em] mt-[0.3rem] transition-colors duration-200 group-hover:text-brand">${c.name}</span>
             <span class="flex items-center gap-2 mt-auto pt-[0.85rem] border-t border-line2 text-sm text-muted font-medium leading-[1.5]">
               <span class="min-w-0 flex-1 truncate">${c.sub.slice(0, 3).join(" · ")}</span>
               <span class="shrink-0 text-adlabel transition-transform duration-200 group-hover:translate-x-[3px]">${icon("arrow-right", 15)}</span>
@@ -8503,7 +8528,7 @@
               </div>
               <div class="pt-[1.2rem]">
                 <div class="text-2xs font-bold tracking-[0.2em] uppercase text-adlabel mb-[0.6rem]">${c.name}</div>
-                <h3 class="font-serif text-xl font-bold text-head leading-[1.3] tracking-[-0.015em] text-balance transition-colors duration-200 group-hover:text-brand">${a.title}</h3>
+                <h3 class="font-serif text-xl text-head leading-[1.3] tracking-[-0.015em] text-balance transition-colors duration-200 group-hover:text-brand">${a.title}</h3>
                 <p class="text-sm text-muted leading-[1.75] mt-[0.65rem] text-pretty">${a.excerpt}</p>
                 <div class="text-sm text-adlabel mt-[1rem] font-medium tracking-[0.02em]">${a.author}</div>
               </div>
@@ -8512,7 +8537,7 @@
         return `<div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
           <div class="flex items-center gap-[0.4rem] text-sm text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-brand font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>Articles & Guides</span></div>
           <header class="max-w-[44rem] pt-[clamp(1.5rem,5vw,4rem)] pb-[clamp(2.5rem,6vw,5rem)]">
-            <h1 class="font-serif text-display-2 font-bold text-head tracking-[-0.03em] leading-[1.14] text-balance">Articles &amp; Guides</h1>
+            <h1 class="font-serif text-display-2 text-head tracking-[-0.03em] leading-[1.14] text-balance">Articles &amp; Guides</h1>
             <p class="text-muted text-lg leading-[1.75] mt-[1.1rem] max-w-[52ch] text-pretty">Parenting resources, activity ideas, and local guides written for Bergen County families.</p>
           </header>
           <div class="bg-surface rounded-[3px] px-[clamp(1.1rem,3.5vw,3.5rem)] pt-[clamp(1.75rem,3vw,2.75rem)] pb-[clamp(2.25rem,4.5vw,4rem)] shadow-[0_1px_2px_rgba(26,46,74,0.05),0_12px_40px_-24px_rgba(26,46,74,0.18)]">
@@ -8561,7 +8586,7 @@
           <div class="bg-surface rounded-[3px] px-[clamp(1.1rem,3.5vw,3.5rem)] pt-[clamp(1.75rem,3vw,2.75rem)] pb-[clamp(2.25rem,4.5vw,4rem)] shadow-[0_1px_2px_rgba(26,46,74,0.05),0_12px_40px_-24px_rgba(26,46,74,0.18)]">
             <header class="max-w-[68ch] mx-auto pb-[clamp(1.75rem,3vw,2.5rem)]" data-rv="up">
               <div class="text-2xs font-bold tracking-[0.2em] uppercase text-adlabel mb-[0.7rem]">${c.name}</div>
-              <h1 class="font-serif text-display-2 font-bold text-head tracking-[-0.03em] leading-[1.14] text-balance">${a.title}</h1>
+              <h1 class="font-serif text-display-2 text-head tracking-[-0.03em] leading-[1.14] text-balance">${a.title}</h1>
               <p class="text-muted text-lg leading-[1.75] mt-[1.1rem] text-pretty">${a.excerpt}</p>
               <div class="flex items-center gap-x-5 gap-y-2 flex-wrap text-sm text-adlabel mt-[1.4rem] pt-[1.2rem] border-t border-line2 font-medium tracking-[0.02em]">
                 <span class="text-head font-bold">${a.author}</span><span>${a.date}</span>
@@ -8583,7 +8608,7 @@
             <!-- The same short-line-becomes-a-heading rule the drawer used: the
                  articles carry no markup of their own, so a paragraph under 40
                  characters that does not end in a full stop is a subhead. -->
-            <div class="max-w-[68ch] mx-auto [&_p]:text-lg [&_p]:leading-[1.85] [&_p]:text-ink [&_p]:mb-[1.35rem] [&_p]:text-pretty [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-head [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:leading-[1.25] [&_h2]:tracking-[-0.015em]">
+            <div class="max-w-[68ch] mx-auto [&_p]:text-lg [&_p]:leading-[1.85] [&_p]:text-ink [&_p]:mb-[1.35rem] [&_p]:text-pretty [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:text-head [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:leading-[1.25] [&_h2]:tracking-[-0.015em]">
               ${a.paras.map((p) => (p.length < 40 && !p.endsWith(".") ? `<h2>${p}</h2>` : `<p>${p}</p>`)).join("")}
             </div>
 
@@ -8592,7 +8617,7 @@
             </div>
 
             <div class="mt-[clamp(3rem,5vw,4.5rem)] pt-[clamp(2rem,3.5vw,3rem)] border-t border-line2">
-              <div class="font-serif text-2xl font-bold text-head tracking-[-0.015em] mb-[clamp(1.25rem,2.5vw,2rem)]">More for parents</div>
+              <div class="font-serif text-2xl text-head tracking-[-0.015em] mb-[clamp(1.25rem,2.5vw,2rem)]">More for parents</div>
               <!-- The index's own card, at the index's own three-across — the
                    read-next row on a page this wide should look like the page it
                    sends you back to, not like the stacked list a 440px drawer
@@ -8612,7 +8637,7 @@
                   </div>
                   <div class="pt-[1.2rem]">
                     <div class="text-2xs font-bold tracking-[0.2em] uppercase text-adlabel mb-[0.6rem]">${mc.name}</div>
-                    <h3 class="font-serif text-xl font-bold text-head leading-[1.3] tracking-[-0.015em] text-balance transition-colors duration-200 group-hover:text-brand">${m.title}</h3>
+                    <h3 class="font-serif text-xl text-head leading-[1.3] tracking-[-0.015em] text-balance transition-colors duration-200 group-hover:text-brand">${m.title}</h3>
                     <p class="text-sm text-muted leading-[1.75] mt-[0.65rem] text-pretty">${m.excerpt}</p>
                     <div class="text-sm text-adlabel mt-[1rem] font-medium tracking-[0.02em]">${m.author}</div>
                   </div>
@@ -9612,7 +9637,7 @@
               <span class="page-ad-band-chip">${icon(a.icon, 20)}</span>
               <span class="min-w-0 flex-1 relative z-[2]">
                 <span class="block text-2xs font-extrabold uppercase tracking-[0.14em] text-white/80 truncate">${a.advertiser}</span>
-                <span class="block font-serif text-xl font-bold text-white leading-[1.2] mt-[2px] max560:text-lg">${a.headline}</span>
+                <span class="block font-serif text-xl text-white leading-[1.2] mt-[2px] max560:text-lg">${a.headline}</span>
                 <span class="block text-2xs text-white/65 mt-[3px] truncate max700:hidden">${c ? c.name : ""}${a.sub ? " · " + a.sub : ""}</span>
               </span>
               <span class="page-ad-band-cta">${icon("globe", 14)} Visit Link</span>
@@ -10174,7 +10199,7 @@
             ${previewChip(p, 20, "relative z-[1] w-[44px] h-[44px] rounded-[12px] grid place-items-center shrink-0")}
             <span class="relative z-[1] min-w-0 flex-1">
               <span class="block text-2xs font-extrabold uppercase tracking-[0.14em] text-white/80 truncate">${escText(p.who)}</span>
-              <span class="block font-serif text-lg font-bold text-white leading-[1.2] truncate mt-[1px]">${escText(p.title)}</span>
+              <span class="block font-serif text-lg text-white leading-[1.2] truncate mt-[1px]">${escText(p.title)}</span>
               <span class="block text-2xs text-white/70 truncate mt-[2px]">${escText(p.sub)}</span>
             </span>
             <span class="relative z-[1] bg-orange-ink text-white rounded-[100px] px-4 py-[0.5rem] text-sm font-bold inline-flex items-center gap-[0.35rem] shrink-0 max700:hidden">${icon("globe", 13)} Visit Link</span>
@@ -10190,7 +10215,7 @@
             ${previewChip(p, 20, "page-ad-band-chip")}
             <span class="min-w-0 flex-1 relative z-[2]">
               <span class="block text-2xs font-extrabold uppercase tracking-[0.14em] text-white/80 truncate">${escText(p.who)}</span>
-              <span class="block font-serif text-xl font-bold text-white leading-[1.2] mt-[2px]">${escText(p.title)}</span>
+              <span class="block font-serif text-xl text-white leading-[1.2] mt-[2px]">${escText(p.title)}</span>
               <span class="block text-2xs text-white/65 mt-[3px] truncate">${escText(p.sub)}</span>
             </span>
             <span class="page-ad-band-cta">${icon("globe", 14)} Visit Link</span>
@@ -10861,21 +10886,32 @@
         const size = wide ? "min-w-[26px] px-[5px] max380:min-w-[24px]" : "w-[20px] max380:w-[18px]";
         return `<span class="notif-badge absolute -top-[5px] -right-[5px] h-[20px] ${size} rounded-full bg-[linear-gradient(135deg,#ff6b5e,#e0361f)] text-white text-xs font-extrabold leading-none flex items-center justify-center border-2 max380:h-[18px] max380:text-2xs" aria-hidden="true">${label}</span>`;
       }
-      // One row, shared by the dropdown and the full page: round avatar with an
-      // unread dot, title + detail on one line, then time and the row's action.
+      /* One row, worn two ways. The full page draws it as a card in the blue
+         its own panels take — a rounded tile for the icon and a pill for the
+         action; the dropdown keeps the mint circle and the hairline between
+         rows it has always had, and only its action changes to match. The
+         tint carries the icon and the pill together, so a row never mixes the
+         two accents.
+
+         The action was a solid navy block in both. Three rows stacked read as
+         three primary buttons in a list where the row itself is already the
+         target — a pill in the row's own accent, with the arrow that every
+         other "go there" control on the site carries, says the same thing
+         without shouting over the copy it sits under. */
       function notifRow(n, page) {
-        const unread = !n.read;
-        return `<div class="group relative flex gap-3 ${page ?"px-5 py-4 rounded-[16px] border-[1.5px] border-line" : "px-5 py-[0.9rem] border-b border-b-line2"} cursor-pointer transition-colors duration-150 bg-surface hover:bg-surface-4" data-action="read-notif" data-id="${n.id}">
-            <span class="relative shrink-0 self-start">
-              <span class="w-[42px] h-[42px] rounded-full bg-mint text-brand flex items-center justify-center">${icon(n.ic, 19)}</span>
-              ${unread ? `<span class="absolute bottom-0 right-0 w-[13px] h-[13px] rounded-full border-2 border-white bg-dot"></span>` : ""}
-            </span>
+        const shell = page
+          ? "px-5 py-[1.15rem] rounded-[16px] border-[1.5px] border-line2 hover:bg-surface-2 hover:border-line"
+          : "px-5 py-[0.95rem] border-b border-b-line2 hover:bg-surface-4";
+        const tile = page ? "rounded-[13px] bg-sel text-head" : "rounded-full bg-mint text-brand";
+        const cta = page
+          ? "notif-cta--blue bg-sel text-head"
+          : "notif-cta--mint bg-mint text-brand";
+        return `<div class="group relative flex gap-[0.9rem] items-start ${shell} bg-surface cursor-pointer transition-[background,border-color] duration-200" data-action="read-notif" data-id="${n.id}">
+            <span class="w-[42px] h-[42px] ${tile} shrink-0 flex items-center justify-center">${icon(n.ic, 19)}</span>
             <span class="min-w-0 flex-1">
-              <span class="block text-sm leading-[1.45] text-ink">${n.s}</span>
-              <span class="block text-sm text-adlabel font-semibold mt-[4px]">${n.time}</span>
-              <span class="flex items-center gap-2 mt-[0.6rem]">
-                <button class="inline-flex items-center gap-[0.3rem] bg-navy text-white text-sm font-bold px-[0.9rem] py-[0.4rem] rounded-[8px] border-none transition-colors duration-150 hover:bg-[#12233a]" data-action="open-notif" data-id="${n.id}">${n.cta}</button>
-              </span>
+              <span class="block ${page ?"text-base" : "text-sm"} leading-[1.5] text-head">${n.s}</span>
+              <span class="block text-sm text-adlabel mt-[0.2rem]">${n.time}</span>
+              <button class="${cta} mt-[0.7rem] inline-flex items-center gap-[0.4rem] text-sm font-bold px-[0.95rem] py-[0.5rem] rounded-[100px] border-none cursor-pointer transition-colors duration-200" data-action="open-notif" data-id="${n.id}">${n.cta} ${icon("arrow-right", 14)}</button>
             </span>
           </div>`;
       }
