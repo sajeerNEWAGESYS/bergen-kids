@@ -8318,7 +8318,14 @@
           ${photo ? `<img src="${photo}" srcset="${catImg(c.id, 600)} 600w, ${catImg(c.id, 1000)} 1000w" sizes="(max-width:700px) 92vw, (max-width:1024px) 46vw, 31vw" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[400ms] group-hover:scale-[1.06]">` : ""}
           <span class="absolute inset-0 mix-blend-multiply opacity-[0.34] transition-opacity duration-200 group-hover:opacity-[0.24]" style="background:${c.grad}"></span>
           <span class="absolute inset-0 bg-[linear-gradient(to_top,rgba(10,20,36,0.72)_0%,rgba(10,20,36,0.18)_52%,transparent_80%)]"></span>
-          <span class="absolute top-3 right-3 z-[1] w-[34px] h-[34px] rounded-[10px] border border-white/30 bg-white/15 backdrop-blur-[3px] flex items-center justify-center text-white">${icon(c.icon, 17)}</span>
+          <!-- Dark glass, not white. The chip was a 15% white wash with a white
+               glyph in it, and it sits in the top corner — which is the one
+               part of these tiles the scrim never reaches, since the gradient
+               is already transparent by 80% up. Over the bright half of a
+               photograph that is white line-work on white, and the mark
+               disappeared. Filled with the same ink the scrim is made of, it
+               reads on any picture underneath it. -->
+          <span class="absolute top-3 right-3 z-[1] w-[36px] h-[36px] rounded-[10px] border border-white/25 bg-[rgba(10,20,36,0.55)] backdrop-blur-[3px] flex items-center justify-center text-white">${icon(c.icon, 21)}</span>
           <span class="absolute inset-x-0 bottom-0 z-[1] p-[1.15rem] max380:p-[0.9rem]">
             <span class="block font-serif text-2xl font-bold text-white leading-[1.2] tracking-[-0.015em] decoration-white/60 underline-offset-[3px] group-hover:underline">${c.name}</span>
             <!-- A middot rather than a dot element: the rule that squares the
@@ -8342,8 +8349,13 @@
             <!-- The glyph rides over the photograph in a chip rather than
                  filling the band behind it, which is where the listing cards
                  put it. On a card whose picture is the category's own stock
-                 photograph, a 54px icon centred on it reads as a broken image. -->
-            <span class="absolute top-3 left-3 z-[1] w-[34px] h-[34px] rounded-[10px] border border-white/30 bg-white/20 backdrop-blur-[3px] flex items-center justify-center text-white">${icon(c.icon, 17)}</span>
+                 photograph, a 54px icon centred on it reads as a broken image.
+
+                 Dark glass, for the reason the events tile's chip is — and
+                 more so here, because this band carries no scrim at all: a
+                 white glyph on a 20% white wash had nothing but the raw
+                 photograph behind it. -->
+            <span class="absolute top-3 left-3 z-[1] w-[36px] h-[36px] rounded-[10px] border border-white/25 bg-[rgba(10,20,36,0.55)] backdrop-blur-[3px] flex items-center justify-center text-white">${icon(c.icon, 21)}</span>
           </span>
           <!-- flex-1 with the footer on mt-auto, as the listing cards do: in a
                row of cards stretched to a common height, the rule and the
