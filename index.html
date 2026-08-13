@@ -4169,7 +4169,7 @@
       }
 
       body:is([data-view="calendar"], [data-view="eventCat"])
-        :is(.ev-tile, .ev-cat-tile)
+        :is(.ev-tile, .cat-tile)
         [class*="rounded-"] {
         border-radius: 0;
       }
@@ -6050,6 +6050,9 @@
         // narrowing by category and then again by a type inside it was a second
         // decision most visitors did not want to make.
         dir: { q: "", cats: [], ages: [], towns: [] },
+        // Which category the "dirCat" view is showing, the same way calCat
+        // works for events. Both indexes are lists of categories now.
+        dirCat: null,
         // from/to bound the events list to a date range; empty means unbounded
         // at that end, so either can be set on its own.
         calFilter: { q: "", cats: [], subs: [], ages: [], towns: [], from: "", to: "" },
@@ -6526,6 +6529,15 @@
         // The business dashboard folded into the advertiser one; anything still
         // asking for it lands on the merged dashboard rather than nowhere.
         state.view = view === "business" ? "advertiser" : view;
+        /* An index owns no category, so arriving at one drops whichever
+           category page was last open. Kept here rather than at the call sites
+           because there are several ways into each index — the nav, a
+           breadcrumb, the home page — and a stale id surviving any one of them
+           would come back the next time its page rendered. The category routes
+           set their own id immediately before calling this, and are not the
+           routes being cleared. */
+        if (state.view === "directory") state.dirCat = null;
+        if (state.view === "calendar") state.calCat = null;
         if (opts.scrollTo) state.scrollTo = opts.scrollTo;
         closeDropdowns();
         closeModal(); // a drawer/modal must not outlive the page it was opened from
@@ -6566,6 +6578,9 @@
         const map = {
           home: viewHome,
           directory: viewDirectory,
+          // One category's listings, the directory's half of the same index →
+          // detail pair the events pages use.
+          dirCat: viewDirectoryCategory,
           calendar: viewCalendar,
           // One category's events. A route of its own for the same reason the
           // article has one: it is a page you arrive at from an index and go
@@ -6588,11 +6603,11 @@
         if (el("topAd-meta")) el("topAd-meta").innerHTML = adMeta("Bergen Aquatic Center");
         document.querySelectorAll("[data-navkey]").forEach((a) => {
           // A detail route lights its own index in the nav — an article keeps
-          // Articles lit, a category page keeps Events lit.
+          // Articles lit, and either category page keeps the index it came
+          // from lit.
+          const DETAIL_OF = { article: "articles", eventCat: "calendar", dirCat: "directory" };
           const on =
-            a.dataset.navkey === state.view ||
-            (state.view === "article" && a.dataset.navkey === "articles") ||
-            (state.view === "eventCat" && a.dataset.navkey === "calendar");
+            a.dataset.navkey === state.view || a.dataset.navkey === DETAIL_OF[state.view];
           a.classList[on ? "add" : "remove"](...NAV_ON);
           a.classList[on ? "remove" : "add"]("text-muted");
         });
@@ -7750,9 +7765,23 @@
           return g && item.ageMin <= g.max && item.ageMax >= g.min;
         });
       }
+      // Deluxe first — that is what an advertiser pays for — then alphabetical
+      // within each plan, so the sequence is stable and scannable rather than
+      // falling back to seed order. One fixed order, since Sort By is gone.
+      const byPlanThenName = (a, b) =>
+        a.plan !== b.plan ? (a.plan === "deluxe" ? -1 : 1) : a.name.localeCompare(b.name);
+      // Everything filed under one category, before the tray touches it — what
+      // the index counts and what the category page measures against, so the
+      // number on the tile and the number on the page it opens agree.
+      const catListings = (id) => LISTINGS.filter((l) => l.cat === id).sort(byPlanThenName);
+      /* state.dirCat gates on the way in rather than living in state.dir: the
+         tray's fields are what the visitor is narrowing by and what "Clear
+         Filters" empties, and the category is neither — it is which page they
+         are on. Same split as calCat and the events pages. */
       function filteredListings() {
         const f = state.dir;
         return LISTINGS.filter((l) => {
+          if (state.dirCat && l.cat !== state.dirCat) return false;
           if (!inList(f.cats, l.cat)) return false;
           if (!townPass(f.towns, l.town)) return false;
           if (!ageListPass(f.ages, l)) return false;
@@ -7771,14 +7800,7 @@
               return false;
           }
           return true;
-        }).sort((a, b) => {
-          // One fixed order, since the Sort By control is gone: Deluxe listings
-          // first — that is what an advertiser pays for — then alphabetical
-          // within each plan so the sequence is stable and scannable rather
-          // than falling back to seed order.
-          if (a.plan !== b.plan) return a.plan === "deluxe" ? -1 : 1;
-          return a.name.localeCompare(b.name);
-        });
+        }).sort(byPlanThenName);
       }
       /* There used to be a strip of active-filter pills under an "Active Filter"
          caption here. It restated what the tray already shows: a control that is
@@ -7786,8 +7808,11 @@
          second copy of the same answer sat between the reader and the grid. The
          one thing the pills did that the tray does not is undo everything at
          once, and that survives as the clear button beside the result count. */
-      function dirShowingText(list) {
-        return `Showing <b class="text-head">${list.length}</b> of <b class="text-head">${LISTINGS.length}</b> result${LISTINGS.length !== 1 ? "s" : ""}`;
+      // Measured against the category's own total rather than every listing on
+      // the site — the category page cannot show the other seven, so counting
+      // them in the denominator would only ever read as listings gone missing.
+      function dirShowingText(list, total) {
+        return `Showing <b class="text-head">${list.length}</b> of <b class="text-head">${total}</b> result${total !== 1 ? "s" : ""}`;
       }
       /* ── Filter bar ─────────────────────────────────────────────
                The filters used to be a tall left rail, which meant scrolling down to
@@ -7945,24 +7970,29 @@
         towns: { label: "Town", ic: "pin", empty: "All towns" },
       };
       const filterState = (page) => (page === "cal" ? state.calFilter : state.dir);
-      // The directory hides the medical category (it has its own landing route);
-      // the events page lists every one.
+      /* No page renders a Category control any more — both indexes are lists of
+         categories, and a listing or event page is already inside one — so the
+         "cats" case below is unreached. It is left standing because the popup
+         it feeds is generic and the field may come back; what it must not do is
+         keep claiming, as the comment here used to, that the directory hides
+         medical behind a landing route of its own. There is no such route, and
+         with category as the page rather than a filter option, hiding it would
+         put its listings out of reach entirely. */
       function filterOptions(key, page) {
         if (key === "ages") return AGE_GROUPS.map((a) => [a.id, a.label]);
         if (key === "towns") return TOWNS.map((t) => [t, t]);
-        /* Subcategory narrows to whatever categories are in play, and offers
-           the lot when none are. All thirty at once is a list nobody can read,
-           and most of it would be subcategories of categories that are not on
-           screen. Two things narrow it: the category multi-select beside it on
-           the directory, and — on the events pages, which have no such control
-           — the category whose page is open, since that is the only one whose
-           events the list can contain.
+        /* Subcategory narrows to whatever category is in play, and offers the
+           lot when none is. All thirty at once is a list nobody can read, and
+           most of it would be subcategories of categories that are not on
+           screen. On the events category page — the only page carrying this
+           field — that is the category whose page is open, since its events are
+           the only ones the list can contain.
 
            Values are the subcategory's own name rather than an id, because that
            is what the records carry: a listing's `sub` and an event's `sub` are
            both the label. Which does mean two categories sharing a subcategory
-           name would match each other — none do today, and whichever of the two
-           is narrowing the list is what would settle it if they ever did. */
+           name would match each other — none do today, and the category the
+           page is for is what would settle it if they ever did. */
         if (key === "subs") {
           const f = filterState(page);
           const picked = page === "cal" && state.calCat ? [state.calCat] : f.cats || [];
@@ -8057,28 +8087,74 @@
             </div>
           </div>`;
       }
+      const DIR_EMPTY = `<div class="empty text-center px-4 py-16 text-muted text-base leading-[1.6]">${icon("search", 40, "text-adlabel mb-3")}<div style="font-weight:700;color:var(--head);margin-bottom:0.3rem">No results found</div><div>Try adjusting your filters or clearing them to see everything.</div></div>`;
+      const listingGridHtml = (list) =>
+        `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-[10px] items-stretch">${list.map(listingCard).join("")}</div>`;
+      /* ── Directory, two levels ──────────────────────────────────
+         The same shape the events pages take, for the same reason: category was
+         a control in the tray, so the directory opened on every listing of
+         every kind at once and you narrowed your way out of them. It is an
+         index of categories now, and each one opens its own page.
+
+         What that buys here beyond the events pages is the advertising. Both
+         category slots — the leaderboard above the results and the rail beside
+         them — are sold as running inside the category the ad belongs to, and
+         they were gated on a category being picked by hand. Most visitors never
+         picked one, so the slots mostly did not run at all. Every listing page
+         is a category page now, so every one of them carries its category's
+         ads. */
       function viewDirectory() {
-        const f = state.dir;
-        // The page still titles itself after a category when exactly one is
-        // picked — with several there is no single name to use.
-        const cat = f.cats.length === 1 ? catOf(f.cats[0]) : null;
-        const list = filteredListings();
-        const dirActiveCount = activeFilterCount(f);
+        const groups = CATEGORIES.map((c) => [c, catListings(c.id)]).filter(([, ls]) => ls.length);
         return `<div class="w-full"><div class="min-w-0"><div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
           <div class="mb-7">
-            <div class="flex items-center gap-[0.4rem] text-sm text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-brand font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>Directory</span>${cat ? icon("chev-right", 14, "text-adlabel") + "<span>" + cat.name + "</span>" : ""}</div>
-            <div class="font-serif text-display-2 font-black text-head tracking-[-0.02em] leading-[1.15] text-balance">${cat ? cat.name : "Kids Services Directory"}</div>
-            <p class="text-muted text-lg leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">${cat ? "Browse trusted " + cat.name.toLowerCase() + " for children across Bergen County." : "Search and filter every trusted kids service and activity in Bergen County by category, age, and town."}</p>
+            <div class="flex items-center gap-[0.4rem] text-sm text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-brand font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>Directory</span></div>
+            <div class="font-serif text-display-2 font-black text-head tracking-[-0.02em] leading-[1.15] text-balance">Kids Services Directory</div>
+            <p class="text-muted text-lg leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Every trusted kids service and activity in Bergen County, gathered by category. Open one to see its listings and filter by age or town.</p>
+          </div>
+          ${
+            groups.length
+              ? `<div class="grid grid-cols-3 gap-[10px] max1024:grid-cols-2 max560:grid-cols-1">${groups
+                  .map(([c, ls]) => catListingTile(c, ls))
+                  .join("")}</div>`
+              : DIR_EMPTY
+          }
+        </div></div></div>`;
+      }
+      /* One category's listings, with the tray the directory used to carry —
+         minus the Category control, since the page is the category. */
+      function viewDirectoryCategory() {
+        const c = catOf(state.dirCat);
+        // A stale or missing category falls back to the index rather than
+        // rendering a page with no listings and no name.
+        if (!c) return viewDirectory();
+        const f = state.dir;
+        const all = catListings(c.id);
+        const list = filteredListings();
+        const dirActiveCount = activeFilterCount(f);
+        // The ad slots take the list of categories in play. That is exactly one
+        // here, and it is never empty — which is the whole point.
+        const cats = [c.id];
+        return `<div class="w-full"><div class="min-w-0"><div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
+          <div class="mb-7">
+            <div class="flex items-center gap-[0.4rem] text-sm text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-brand font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<a class="cursor-pointer text-brand font-bold underline" data-nav="directory">Directory</a>${icon("chev-right", 14, "text-adlabel")}<span>${c.name}</span></div>
+            <div class="flex items-center gap-4 max560:gap-3">
+              <span class="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center text-white shrink-0 max560:w-[42px] max560:h-[42px]" style="background:${c.grad}">${icon(c.icon, 24)}</span>
+              <div class="font-serif text-display-2 font-black text-head tracking-[-0.02em] leading-[1.15] text-balance min-w-0">${c.name}</div>
+            </div>
+            <!-- Worded around the category rather than into the sentence:
+                 "trusted schools & preschools for children" does not read, and
+                 eight category names cannot all be made to. -->
+            <p class="text-muted text-lg leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Trusted services for children across Bergen County, filed under ${c.name}. Narrow by age or town, or search within the category.</p>
           </div>
 
+          <!-- No Category control: this page is one category. -->
           ${filtersTop(
             `${ftSearch("d-q", f.q, "Name, service or town…", "Search listings", "rm-filter")}
-            ${ftMulti("dir", "cats", "wide")}
             ${ftMulti("dir", "ages")}
             ${ftMulti("dir", "towns")}`
           )}
 
-          ${catAdBand(f.cats)}
+          ${catAdBand(cats)}
 
           <!-- Two columns from 1025 up: results, then the ad rail. The
                wrapper was already a one-column grid built to take a second
@@ -8090,21 +8166,23 @@
                    to hold. One ruled band, so the grid always starts at the same
                    place whether or not anything is filtered. -->
               <div class="border-b-[1.5px] border-line pb-4 mb-5 flex items-center justify-between gap-3 flex-wrap max560:flex-col max560:items-start">
-                <div class="dir-showing text-base text-muted">${dirShowingText(list)}</div>
+                <div class="dir-showing text-base text-muted">${dirShowingText(list, all.length)}</div>
                 <div class="dir-clear empty:hidden shrink-0">${ftHead(dirActiveCount, "clear-all-dir")}</div>
               </div>
 
               ${prefsNoticeHtml(f)}
 
-              ${
-                list.length
-                  ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-[10px] items-stretch">${list.map(listingCard).join("")}</div>`
-                  : `<div class="empty text-center px-4 py-16 text-muted text-base leading-[1.6]">${icon("search", 40, "text-adlabel mb-3")}<div style="font-weight:700;color:var(--head);margin-bottom:0.3rem">No results found</div><div>Try adjusting your filters or clearing them to see everything.</div></div>`
-              }
+              ${list.length ? listingGridHtml(list) : DIR_EMPTY}
             </div>
-            ${catAdRail(f.cats)}
+            ${catAdRail(cats)}
           </div>
         </div></div></div>`;
+      }
+      // Opening a category from the directory index.
+      function openDirCat(id) {
+        if (!catOf(id)) return;
+        state.dirCat = id;
+        navigate("dirCat");
       }
       // One flat colour out of the category's gradient, for the surfaces that
       // need a single value where the data carries two.
@@ -8270,11 +8348,13 @@
          photograph under its own colour and a scrim, name and count at the
          foot. A category with nothing in it is left out rather than opening an
          empty page. */
-      const catEventTile = (c, evs) => {
+      /* The tile both indexes are built from — events and the directory. They
+         differ only in what they count and where they lead, so those are passed
+         in rather than copied: a second version of this drifts from the first
+         the moment either page is touched. */
+      const catIndexTile = (c, action, line) => {
         const photo = catImg(c.id, 800);
-        // Soonest first, so evs[0] is the next thing on in this category.
-        const next = new Date(evs[0].date + "T00:00");
-        return `<button type="button" class="ev-cat-tile group relative block w-full text-left aspect-[3/2] min-h-[190px] overflow-hidden cursor-pointer isolate border-0 p-0 bg-transparent" data-action="open-event-cat" data-cat="${c.id}">
+        return `<button type="button" class="cat-tile group relative block w-full text-left aspect-[3/2] min-h-[190px] overflow-hidden cursor-pointer isolate border-0 p-0 bg-transparent" data-action="${action}" data-cat="${c.id}">
           <!-- The category's gradient underneath the photograph, not instead of
                it: a category with no picture, or one that fails to load, still
                comes up in its own colour rather than as a dark rectangle. -->
@@ -8285,13 +8365,30 @@
           <span class="absolute top-3 right-3 z-[1] w-[34px] h-[34px] rounded-[10px] border border-white/30 bg-white/15 backdrop-blur-[3px] flex items-center justify-center text-white">${icon(c.icon, 17)}</span>
           <span class="absolute inset-x-0 bottom-0 z-[1] p-[1.15rem] max380:p-[0.9rem]">
             <span class="block font-serif text-2xl font-bold text-white leading-[1.2] tracking-[-0.015em] decoration-white/60 underline-offset-[3px] group-hover:underline">${c.name}</span>
-            <!-- A middot rather than a dot element: the rule that squares the
-                 badges on these tiles would square a 3px round one too. The
-                 date drops the year, as the tiles' own date badges do. -->
-            <span class="block mt-[0.4rem] text-sm font-semibold text-white/85 truncate">${evs.length} event${evs.length !== 1 ? "s" : ""} · Next ${MONTHS[next.getMonth()]} ${next.getDate()}</span>
+            <!-- Middots rather than dot elements: the rule that squares the
+                 badges on the events tiles would square a 3px round one too. -->
+            <span class="block mt-[0.4rem] text-sm font-semibold text-white/85 truncate">${line}</span>
           </span>
         </button>`;
       };
+      // The events index counts events and leads with the next one — the date
+      // drops its year, as the event tiles' own badges do.
+      const catEventTile = (c, evs) => {
+        const next = new Date(evs[0].date + "T00:00");
+        return catIndexTile(
+          c,
+          "open-event-cat",
+          `${evs.length} event${evs.length !== 1 ? "s" : ""} · Next ${MONTHS[next.getMonth()]} ${next.getDate()}`
+        );
+      };
+      // The directory counts listings, and follows with what is inside the
+      // category rather than a date — a directory has no "next".
+      const catListingTile = (c, ls) =>
+        catIndexTile(
+          c,
+          "open-dir-cat",
+          `${ls.length} listing${ls.length !== 1 ? "s" : ""} · ${c.sub.slice(0, 2).join(" · ")}`
+        );
       function viewCalendar() {
         const groups = CATEGORIES.map((c) => [c, catEvents(c.id)]).filter(([, evs]) => evs.length);
         return `<div class="w-full"><div class="min-w-0"><div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
@@ -9344,15 +9441,22 @@
       const PAGE_AD_KEYS = Object.keys(PUBLIC_ADS);
       /* These are the category placements, and the rule they are sold on is
          that they run inside the category the ad belongs to and nowhere else.
-         So the slots appear on the directory, and only once a category filter
-         is on — with no category chosen the visitor is browsing everything, and
-         there is no category page to be inside of.
+         So the slots appear on a directory category page and nowhere else —
+         the index above it is a list of categories rather than a page inside
+         one, and there is nothing there to be inside of.
 
-         What fills them is matched the same way: only ads filed under a
-         category the visitor has actually picked. If nobody has bought the
-         category being browsed the slot does not appear at all, rather than
-         falling back to whatever ad was to hand — an unrelated ad in a slot
-         sold as targeted is the advertiser's money spent on the wrong page.
+         This is what the directory's two levels are worth to the advertising.
+         The slots used to be gated on a visitor picking a category out of the
+         filter tray by hand, which most never did, so a placement sold against
+         a category ran on a fraction of the sessions that browsed it. Reaching
+         a listing now means opening its category, so the category's ads run on
+         every one of those visits.
+
+         What fills them is matched the same way: only ads filed under the
+         category being browsed. If nobody has bought it the slot does not
+         appear at all, rather than falling back to whatever ad was to hand —
+         an unrelated ad in a slot sold as targeted is the advertiser's money
+         spent on the wrong page.
 
          Of the eight categories, ads exist today for sports (two), medical,
          tutoring, schools, camps and parties; arts and music have none, so
@@ -9370,8 +9474,8 @@
          still lead, and every impression after them goes to someone rather
          than to a static frame.
 
-         The slot still only appears at all when a category is picked, and it
-         still leads with that category's advertisers — that part is unchanged. */
+         The slot still only appears on a category page, and it still leads with
+         that category's advertisers — that part is unchanged. */
       const adRotation = (cats) => {
         const first = catAdKeys(cats);
         return [...first, ...PAGE_AD_KEYS.filter((k) => !first.includes(k))];
@@ -9384,12 +9488,12 @@
          and there is nothing to dismiss.
 
          One matching ad renders as one slide and simply sits there. Sports has
-         two advertisers today and rotates; picking several categories at once
-         gathers all of theirs into the one rail. */
-      // Both slots are gated on the same thing and it is the category filter,
-      // not the rotation being non-empty — adRotation() falls back to the whole
-      // inventory, so testing its length let the rail through on an unfiltered
-      // directory where there is no category page to be inside of.
+         two advertisers today and rotates. */
+      // Both slots are gated on there being a category at all, not on the
+      // rotation being non-empty — adRotation() falls back to the whole
+      // inventory, so testing its length would let the rail through anywhere.
+      // Both callers pass exactly one category now; the list shape is kept
+      // because the matching and the rotation are written against a set.
       const anyCat = (cats) => !!(cats || []).length;
       const catAdBand = (cats) => {
         if (!anyCat(cats)) return "";
@@ -11899,20 +12003,18 @@
             state.editAd = null; // arriving fresh, never mid-edit of another campaign
             state.advTab = navEl.dataset.advtab;
           }
+          /* A link into the directory that names a category — the home page's
+             category shortcuts — lands on that category's own page rather than
+             on the index, which is where it always meant to go; the index is
+             just the way there when no category is named. The tray is reset on
+             the way, so the shortcut shows the whole category rather than
+             whatever the last visit was still narrowed to. */
           if (navEl.dataset.cat !== undefined || navEl.dataset.q !== undefined) {
-            state.dir = {
-              q: navEl.dataset.q || "",
-              cats: navEl.dataset.cat ? [navEl.dataset.cat] : [],
-              ages: [],
-              towns: [],
-            };
-          }
-          if (
-            v === "directory" &&
-            navEl.dataset.cat === undefined &&
-            navEl.dataset.q === undefined &&
-            !navEl.dataset.keep
-          ) {
+            state.dir = { q: navEl.dataset.q || "", cats: [], ages: [], towns: [] };
+            if (navEl.dataset.cat && v === "directory") {
+              openDirCat(navEl.dataset.cat);
+              return;
+            }
           }
           if (navEl.dataset.scroll) {
             navigate(v, { scrollTo: navEl.dataset.scroll });
@@ -11951,6 +12053,9 @@
               break;
             case "open-event-cat":
               openEventCat(actEl.dataset.cat);
+              break;
+            case "open-dir-cat":
+              openDirCat(actEl.dataset.cat);
               break;
             case "filter-articles":
               state.articleFilter = actEl.dataset.cat;
@@ -12851,7 +12956,9 @@
         const grid = document.querySelector(".listing-grid");
         const empty = document.querySelector(".view-full .empty");
         const showing = document.querySelector(".dir-showing");
-        if (showing) showing.innerHTML = dirShowingText(list);
+        // The denominator is this category's total, and it does not move as the
+        // tray narrows — only the numerator does.
+        if (showing) showing.innerHTML = dirShowingText(list, catListings(state.dirCat).length);
         // The clear button's count would otherwise go stale as you type — and
         // the button itself has to appear and disappear with the first and last
         // active filter, since it is not rendered at all when nothing is on.
@@ -12861,21 +12968,18 @@
         const container = document.querySelector(".view-full");
         if (!container) return;
         const target = grid || empty;
-        const newHtml = list.length
-          ? `<div class="listing-grid grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-[10px]">${list.map(listingCard).join("")}</div>`
-          : `<div class="empty text-center px-4 py-16 text-muted text-base leading-[1.6]">${icon("search", 40, "text-adlabel mb-3")}<div style="font-weight:700;color:var(--head);margin-bottom:0.3rem">No results found</div><div>Try adjusting your filters or clearing them to see everything.</div></div>`;
-        if (target) target.outerHTML = newHtml;
+        // Through the same two builders the view uses. Written out again here,
+        // they drifted: this copy had lost the grid's items-stretch.
+        if (target) target.outerHTML = list.length ? listingGridHtml(list) : DIR_EMPTY;
       }
+      // The home page's hero search. Its input is gone from the markup for now,
+      // so this runs on empty values and simply opens the directory — kept
+      // whole, and routed like every other category link, for when it returns.
       function doHomeSearch() {
-        const q = el("home-search")?.value || "";
         const cat = el("home-cat")?.value || "";
-        state.dir = {
-          q,
-          cats: cat ? [cat] : [],
-          ages: [],
-          towns: [],
-        };
-        navigate("directory");
+        state.dir = { q: el("home-search")?.value || "", cats: [], ages: [], towns: [] };
+        if (cat) openDirCat(cat);
+        else navigate("directory");
       }
       // Swaps just the events grid so typing in the sidebar search keeps focus.
       function updateCalResults() {
