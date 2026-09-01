@@ -24,12 +24,7 @@
          render-blocking script and stylesheet would delay first paint to
          reach the thing painted behind it. -->
     <link rel="preload" as="image" href="assets/logo.png" fetchpriority="high" />
-    <link
-      rel="preload"
-      as="image"
-      href="assets/home-backdrop-sm.jpg"
-      media="(max-width: 900px)"
-    />
+    <link rel="preload" as="image" href="assets/home-backdrop-sm.jpg" media="(max-width: 900px)" />
     <link rel="preload" as="image" href="assets/home-backdrop.jpg" media="(min-width: 901px)" />
     <!-- No favicon was declared, so browsers fell back to whatever /favicon.ico
          they had cached — which is the old icon that kept coming back on
@@ -55,7 +50,10 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
       media="print"
-      onload="this.media='all'; this.onload=null;"
+      onload="
+        this.media = 'all';
+        this.onload = null;
+      "
     />
     <noscript>
       <link
@@ -63,6 +61,30 @@
         rel="stylesheet"
       />
     </noscript>
+    <!-- cdn.tailwindcss.com prints a "should not be used in production"
+         warning on every load. It is aimed at whoever wired the page up, not at
+         whoever is reading it, and it has been said — this file is a prototype
+         and the CDN build is the right tool for one. Repeating it into the
+         console of every preview only buries anything that actually matters, so
+         that one line is filtered here, before the script runs. Nothing else is
+         touched: any other warning, from Tailwind or from anywhere, still comes
+         through. -->
+    <script
+      type="text/javascript"
+      src="https://gc.kes.v2.scr.kaspersky-labs.com/7EA5E9BB-55E1-4C31-9C21-4943DDFED2E4/main.js?attr=Ab0D38nA_Q2dfpbLcY4Vlp8mocV_Mu9TRYAj341NQs-Fm8s496jSAlhuOxeJ3w0KV_nlYou3X4U-9eFj3QDSMJ_NYYiTvKhKaDZ5oJGkbzO69ILyRxA5Us0H-cuIEGrD9dxXxleIvA3qEGpxwjV_0wiaxL0CGI6ohDuIZ5QLxEJsqeb2aZLi0Ka90Cc0O1PMsRxF19M0fniWufCsnQqg9fy__tY4f29nM7cG1sIUMPcpcKOwdoTJ8aeMo631qHvjB44U01zVjGTm2qxvNWRIqFhAOwH2HqBiAlJs7X7WLcFfZBBduJbzWyMnSl_m_j5ekpihnoKo8BYT5tzJDQINUy5Aq6epjL5OCnrPR6YbKbCitibnvfMp-B8TQOEMb_OIEqyOgyoKwKw2L4fN4jNKtMQFQgzd5721RA5iApC4IozkLvEvtelqhOs2macjyiw_IhE8ThQd-Y8ZZx2Dkr7dD0-eZT43jLKjRznxCD-b3ew-YppG9UtfH44OtTHrPOWUYOYpFFf9kmpv_bCY8lqKLBelZp5ckFh6R0H961F_wl8GWriVvDtRhHevirbpfFhncjUd7BwuzakPNhldoHUeBXZ_GEkBP6Gph9HiXfsh1VHB-bI_Euxv3qH-q72o8eeMAV22L3ioXtUTv2MTx8ojyu2cnVHu3mRQuPcIPWIa7wOonuhTBqz8MX6z3aRjk-L-96SsVCT8M5ay-QxNn7S8JV8mJ5ldZ7V2km3efHoUtZu6XC8cGphK_RCPRWgQgXuF2eIReh8TGuLif0U3YsXJxKa0OoJhPJ_oAOGQZ00_on7b10d3abGp0l7bO5Ph8XTl44-XPSOQpuFCkKs9fzbYMScosrXz93_5x2aG2mTx4ctZj5RC_-zY1NwihS3qzPmNbyQEnhElZGdaiV78Z60eNDzg2b4ozUvwSKRy1xxIo0B5MoVHBdXuZGtUG07ncvZyagqgnWOHCaBpurtjGdcwiTqjhXi5cvU2F84yQ3lZV7NTfUDm-Gsry7LteteQL6UIuQ3JxuTpzrzbDb3K4P9MHJlBn4_gQxYJR6TLB0aipmfKlzhqLHDzIBVHfnCsTd3zYfjANyFIOeOtD4KAgxDBnRQRDgK6CSZ5T0dVl-cGHvw8OL16xV__9jhxPhS1z-SSp8prxgBKH89pSFrWP8zPj3x9GbOBPSu4TwgGh9KihvSpyBbCxGdfbO4i9tiZHxYvGGdxIpw-5U6uVINr9bTg8XIIWFCUrk50ZcCQ2U9b6-SGK9OFlXf61G861b5TbV04KjJ1swLuRyNRoZJSlYyCQXP5k4wiM7sm8g_GIetbG9x5m_rSnkr_BvHhViDQ1uzh_SLC6Z6XTAAhpCkUTOYI5hdYflfyeCPnFBQQuSsxMku-hmYNYt68iOAMw9sSbU-zngfZ4Tsxl8J7Wbja3dEWBPiqZDQz2XGyFHye4qB7VHc_W-P1SXS0xpPprdhr7znV4lV3byUpEu8g3XZstJgWbd8lq8RB2ASJrZC_JTC0KH9ccSbIkeZXPRZ8HsdBddOwiLAVWqwZlagESgLY6Z6_jPKudAJcViEodUi3dCz0JSapVCXEDlvBXhCo21E20Ckj3Z4Pn_zLxlJ7Kvq4743jn8eRrOukeuxuQmGAWTDk4pfCdZQ5gv-mWrkrtZKyxVOK1EKGPGJRNBCxh9wNTZdOLW05WsqZRM1MdRIKAqr-kUKMcZ3nBXQH3XP1eho0O_6b"
+      nonce="76fdd484d508b7d97c688dc1fbc5b3a6"
+      charset="UTF-8"
+    ></script>
+    <script>
+      (function () {
+        const warn = console.warn.bind(console);
+        console.warn = function (...args) {
+          const first = args.length ? String(args[0]) : "";
+          if (first.includes("cdn.tailwindcss.com should not be used in production")) return;
+          warn(...args);
+        };
+      })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- GSAP drives the events carousel: the seamless loop, the drag with
          inertia, the arrow-fill wipe and the trailing DRAG cursor. Deferred so
@@ -4189,14 +4211,7 @@
              stroked path's own bounds — the camera dot alone is a couple of
              units across — and every part of the icon would restart the ramp
              instead of sharing one across the whole mark. -->
-        <linearGradient
-          id="ig-brand"
-          gradientUnits="userSpaceOnUse"
-          x1="2"
-          y1="22"
-          x2="22"
-          y2="2"
-        >
+        <linearGradient id="ig-brand" gradientUnits="userSpaceOnUse" x1="2" y1="22" x2="22" y2="2">
           <stop offset="0" stop-color="#f9ce34" />
           <stop offset="0.5" stop-color="#ee2a7b" />
           <stop offset="1" stop-color="#6228d7" />
@@ -4691,7 +4706,6 @@
           alt=""
           loading="lazy"
           decoding="async"
-          onerror="this.remove()"
           class="absolute inset-0 h-full w-full object-cover"
         />
         <div
@@ -4700,13 +4714,20 @@
         <div
           class="relative flex min-h-[clamp(310px,52vh,420px)] cursor-pointer flex-col p-[1.15rem]"
           data-adclick="Bergen Aquatic Center"
-          data-adgo
         >
           <div class="flex items-start justify-between gap-3">
-            <div
-              class="flex items-center gap-[0.4rem] pt-[6px] text-2xs font-bold uppercase tracking-[0.14em] text-on-dark-3"
-            >
-              <span class="sponsor-live"></span>Advertisement
+            <div class="flex items-center gap-[0.6rem]">
+              <!-- The advertiser's mark. Every other placement leads with one;
+                   this was the only unit that opened on bare text. -->
+              <span
+                id="cornerAd-chip"
+                class="grid h-[34px] w-[34px] shrink-0 place-items-center overflow-hidden rounded-[10px] text-white"
+              ></span>
+              <div
+                class="flex items-center gap-[0.4rem] text-2xs font-bold uppercase tracking-[0.14em] text-on-dark-3"
+              >
+                <span class="sponsor-live"></span>Advertisement
+              </div>
             </div>
             <button
               class="-mr-[2px] flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[50%] border-none bg-black/25 p-0 leading-[0] text-white backdrop-blur-sm transition-[background] duration-200 hover:bg-black/45"
@@ -4726,43 +4747,44 @@
             </button>
           </div>
 
-          <div
-            id="cornerAd-heading"
-            class="mt-[1.1rem] font-serif text-2xl font-black leading-[1.14] text-white [text-shadow:0_2px_16px_rgba(9,15,26,0.75)] max380:text-xl"
-          >
-            How does your kid like to cool off?
-          </div>
-
-          <div class="mt-4">
-            <button
-              id="cornerAd-visit"
-              type="button"
-              data-adclick="Bergen Aquatic Center"
-              data-adgo
-              class="flex w-full items-center justify-center gap-2 rounded-[100px] border-none bg-orange-ink px-4 py-[0.7rem] text-sm font-extrabold text-white transition-[transform,box-shadow,background] duration-200 hover:bg-orange-deep hover:-translate-y-[1px]"
-            >
-              <svg
-                class="icon inline-block align-middle shrink-0 [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:1.9] fill-none stroke-current"
-                width="16"
-                height="16"
-              >
-                <use href="#ic-globe" />
-              </svg>
-              Visit Link
-            </button>
-          </div>
-
+          <!-- Advertiser, ad, category, then the button — the same order the
+               create form previews the card in, and the order the other three
+               placements now use. It ran the ad name first, put the button
+               straight under it, and left the advertiser stranded at the foot
+               of the card under a line of flight dates: the name of the
+               business you would be visiting sat below the button asking you
+               to visit it. -->
           <div class="mt-auto pt-7">
             <div
-              class="text-sm font-semibold leading-[1.45] text-on-dark-2 [text-shadow:0_2px_10px_rgba(9,15,26,0.85)]"
+              class="text-xs font-extrabold uppercase tracking-[0.14em] text-white/85 [text-shadow:0_2px_10px_rgba(9,15,26,0.85)]"
               id="cornerAd-advertiser"
-            >
-              Bergen Aquatic Center
-            </div>
+            ></div>
             <div
-              class="mt-[0.35rem] text-2xs leading-[1.5] text-white/55 [text-shadow:0_2px_10px_rgba(9,15,26,0.85)]"
+              id="cornerAd-heading"
+              class="mt-[0.35rem] font-serif text-2xl font-black leading-[1.14] text-white [text-shadow:0_2px_16px_rgba(9,15,26,0.75)] max380:text-xl"
+            ></div>
+            <div
+              class="mt-[0.5rem] text-xs leading-[1.55] text-white/60 [text-shadow:0_2px_10px_rgba(9,15,26,0.85)]"
               id="cornerAd-meta"
             ></div>
+            <div class="mt-4">
+              <button
+                id="cornerAd-visit"
+                type="button"
+                data-adclick="Bergen Aquatic Center"
+                data-adgo
+                class="flex w-full items-center justify-center gap-2 rounded-[100px] border-none bg-orange-ink px-4 py-[0.7rem] text-sm font-extrabold text-white transition-[transform,box-shadow,background] duration-200 hover:bg-orange-deep hover:-translate-y-[1px]"
+              >
+                <svg
+                  class="icon inline-block align-middle shrink-0 [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:1.9] fill-none stroke-current"
+                  width="16"
+                  height="16"
+                >
+                  <use href="#ic-globe" />
+                </svg>
+                Visit Link
+              </button>
+            </div>
             <!-- Filled by mountCornerAd(): the slide count comes from
                  PUBLIC_ADS at runtime, not from this markup. -->
             <div class="corner-ad-dots" id="cornerAd-dots"></div>
@@ -5058,7 +5080,7 @@
         const solid = cls.includes("icon--solid");
         const extra = cls.replace("icon--solid", "").trim();
         const paint = solid ? ICON_SOLID : ICON_LINE;
-        return `<svg class="${ICON_BASE} ${paint}${extra ?" " + extra : ""}" width="${size}" height="${size}"><use href="#ic-${name}"/></svg>`;
+        return `<svg class="${ICON_BASE} ${paint}${extra ? " " + extra : ""}" width="${size}" height="${size}"><use href="#ic-${name}"/></svg>`;
       }
       const MONTHS = [
         "Jan",
@@ -6051,7 +6073,7 @@
         // values, and an empty list means no constraint. Sub-type is gone —
         // narrowing by category and then again by a type inside it was a second
         // decision most visitors did not want to make.
-        dir: { q: "", cats: [], ages: [], towns: [] },
+        dir: { q: "", cats: [], subs: [], ages: [], towns: [] },
         // Which category the "dirCat" view is showing, the same way calCat
         // works for events. Both indexes are lists of categories now.
         dirCat: null,
@@ -6309,7 +6331,7 @@
         const p = state.prefDraft || emptyPrefs();
         const dots = ONBOARD_STEPS.map(
           (s, n) =>
-            `<span class="h-[5px] rounded-[100px] transition-all duration-300 ${n === i ?"w-8 bg-logo-green" : n < i ? "w-4 bg-brand/45" : "w-4 bg-line"}"></span>`
+            `<span class="h-[5px] rounded-[100px] transition-all duration-300 ${n === i ? "w-8 bg-logo-green" : n < i ? "w-4 bg-brand/45" : "w-4 bg-line"}"></span>`
         ).join("");
         return `<div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
             <div class="flex items-center gap-[0.4rem]">${dots}</div>
@@ -6325,7 +6347,7 @@
               <div class="text-sm font-extrabold tracking-[0.05em] uppercase text-head">${PREF_LABEL[step.key]}</div>
               <span class="text-sm font-semibold text-adlabel" id="pref-count-${step.key}">${prefSummary(p, step.key)}</span>
             </div>
-            <div class="flex gap-2 flex-wrap mt-[0.9rem]${step.key ==="towns" ? " max-h-[240px] overflow-y-auto pr-1" : ""}">${prefOptions(
+            <div class="flex gap-2 flex-wrap mt-[0.9rem]${step.key === "towns" ? " max-h-[240px] overflow-y-auto pr-1" : ""}">${prefOptions(
               step.key
             )
               .map(
@@ -6593,8 +6615,7 @@
           // Articles lit, and either category page keeps the index it came
           // from lit.
           const DETAIL_OF = { article: "articles", eventCat: "calendar", dirCat: "directory" };
-          const on =
-            a.dataset.navkey === state.view || a.dataset.navkey === DETAIL_OF[state.view];
+          const on = a.dataset.navkey === state.view || a.dataset.navkey === DETAIL_OF[state.view];
           a.classList[on ? "add" : "remove"](...NAV_ON);
           a.classList[on ? "remove" : "add"]("text-muted");
         });
@@ -6662,18 +6683,24 @@
       function sponsorBar() {
         const slides = SPONSOR_ADS.map(
           (a, i) =>
-            `<div class="sponsor-slide${i === 0 ?" is-active" : ""}" data-slide data-adclick="${a.key}" data-adgo>
+            `<div class="sponsor-slide${i === 0 ? " is-active" : ""}" data-slide data-adclick="${a.key}">
               <div class="sponsor-chip" style="background:${a.grad}">${icon(a.icon, 22)}</div>
+              <!-- Advertiser, then the ad, then where it is filed — the order
+                   the create form previews it in. The bar was leading with the
+                   headline and never naming the business at all, so the one
+                   unit on the site a family sees first was the one that did not
+                   say who was talking. -->
               <div class="min-w-0 flex-1 [text-shadow:0_2px_14px_rgba(0,0,0,0.92)]">
-                <div class="font-serif text-xl text-white leading-[1.25] truncate">${a.title}</div>
-                <div class="text-sm text-white/85 leading-[1.35] truncate [&_div]:inline-block [&_div:first-child]:mr-[0.6rem] max560:hidden">${adMeta(a.key)}</div>
+                <div class="text-2xs font-extrabold uppercase tracking-[0.14em] text-white/80 truncate">${(PUBLIC_ADS[a.key] || {}).advertiser || ""}</div>
+                <div class="font-serif text-xl text-white leading-[1.25] truncate mt-[1px]">${a.title}</div>
+                <div class="text-2xs text-white/70 leading-[1.35] truncate mt-[2px] max560:hidden">${PUBLIC_ADS[a.key] ? adCatLine(PUBLIC_ADS[a.key]) : ""}</div>
               </div>
               <span class="btn-type inline-flex items-center gap-2 shrink-0 bg-orange-ink text-white text-sm font-bold px-[1.1rem] py-[0.5rem] rounded-[100px] no-underline min-h-[40px] whitespace-nowrap hover:bg-orange-deep max380:hidden" data-adclick="${a.key}" data-adgo>${icon("globe", 16)} Visit Link</span>
             </div>`
         ).join("");
         const dots = SPONSOR_ADS.map(
           (a, i) =>
-            `<button class="sponsor-dot${i === 0 ?" is-active" : ""}" data-sponsor-dot aria-label="Show sponsor ${i + 1}"></button>`
+            `<button class="sponsor-dot${i === 0 ? " is-active" : ""}" data-sponsor-dot aria-label="Show sponsor ${i + 1}"></button>`
         ).join("");
         return `<div id="sponsor-bar" role="complementary" aria-label="Advertisement">
           <div class="w-full px-6 py-[0.85rem] flex items-center gap-4 max700:px-4 max700:gap-3">
@@ -6698,7 +6725,7 @@
         (h, i) => `L${((i * 1200) / (TORN_H.length - 1)).toFixed(1)} ${h}`
       ).join(" ")} L1200 44 Z`;
       const tornEdge = (cls = "") =>
-        `<svg class="section-torn${cls ?" " + cls : ""}" viewBox="0 0 1200 44" preserveAspectRatio="none" aria-hidden="true"><path d="${TORN_D}" fill="currentColor"/></svg>`;
+        `<svg class="section-torn${cls ? " " + cls : ""}" viewBox="0 0 1200 44" preserveAspectRatio="none" aria-hidden="true"><path d="${TORN_D}" fill="currentColor"/></svg>`;
 
       /* The slider control's arrow, taken verbatim from the reference — a long
          shaft with a barbed, slightly swept head that overshoots the tail. The
@@ -7161,7 +7188,7 @@
                           const d = new Date(e.date + "T00:00");
                           return `<div class="flex gap-[0.7rem] items-center bg-surface rounded-[14px] p-[0.5rem] mb-[0.55rem] shadow-[0_2px_10px_rgba(26,46,74,0.07)] border border-line2">
                         <div class="relative w-[52px] h-[52px] rounded-[10px] overflow-hidden shrink-0" style="background:${catOf(e.cat).grad}">
-                          <img src="${evImg(e.id, 160)}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">
+                          <img src="${evImg(e.id, 160)}" alt="" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover">
                           <div class="absolute inset-x-0 bottom-0 text-center text-white text-[8px] font-extrabold leading-[1.5] bg-[rgba(26,46,74,0.74)]">${MONTHS[d.getMonth()].toUpperCase()} ${d.getDate()}</div>
                         </div>
                         <div class="min-w-0 flex-1">
@@ -7189,7 +7216,7 @@
                       ]
                         .map(
                           ([ic, t, on]) =>
-                            `<span class="flex flex-col items-center gap-[3px] text-2xs font-bold ${on ?"text-brand" : "text-adlabel"}">${icon(ic, 17)}${t}</span>`
+                            `<span class="flex flex-col items-center gap-[3px] text-2xs font-bold ${on ? "text-brand" : "text-adlabel"}">${icon(ic, 17)}${t}</span>`
                         )
                         .join("")}
                       <span class="absolute bottom-[5px] left-1/2 -translate-x-1/2 w-[104px] h-[4px] rounded-full bg-[rgba(26,46,74,0.25)]"></span>
@@ -7229,7 +7256,11 @@
                 ${[
                   ["users", "Parents", "Questions about a listing, an event, or the app itself."],
                   ["briefcase", "Businesses", "How listings, plans and advertising work."],
-                  ["megaphone", "Feedback", "Something missing, something wrong, or an idea worth building."],
+                  [
+                    "megaphone",
+                    "Feedback",
+                    "Something missing, something wrong, or an idea worth building.",
+                  ],
                 ]
                   .map(
                     ([ic, t, d]) => `<div class="flex gap-[0.85rem] items-start mb-5 last:mb-0">
@@ -7318,6 +7349,7 @@
           id: "basic",
           group: "In the directory",
           name: "Basic",
+          slot: "Basic",
           icon: "check",
           rate: 0,
           needsTown: true,
@@ -7327,6 +7359,7 @@
           id: "deluxe",
           group: "In the directory",
           name: "Deluxe",
+          slot: "Deluxe",
           icon: "star",
           rate: 10,
           needsTown: true,
@@ -7336,6 +7369,7 @@
           id: "home-leaderboard",
           group: "On the home page",
           name: "Home — Leaderboard",
+          slot: "Leaderboard",
           icon: "megaphone",
           rate: 60,
           needsTown: false,
@@ -7346,6 +7380,7 @@
           id: "home-sidebar",
           group: "On the home page",
           name: "Home — Sidebar",
+          slot: "Sidebar",
           icon: "sliders",
           rate: 40,
           needsTown: false,
@@ -7356,6 +7391,7 @@
           id: "cat-leaderboard",
           group: "Inside a category",
           name: "Category — Leaderboard",
+          slot: "Leaderboard",
           icon: "megaphone",
           rate: 45,
           needsTown: true,
@@ -7366,6 +7402,7 @@
           id: "cat-sidebar",
           group: "Inside a category",
           name: "Category — Sidebar",
+          slot: "Sidebar",
           icon: "sliders",
           rate: 30,
           needsTown: true,
@@ -7375,11 +7412,57 @@
       ];
       const adTypeOf = (id) => AD_TYPES.find((t) => t.id === id) || AD_TYPES[0];
       const AD_TYPE_GROUPS = [...new Set(AD_TYPES.map((t) => t.group))];
+      /* Two of the three groups hold two slots that are genuinely separate
+         buys rather than two names for one product. A home-page campaign that
+         takes the leaderboard and the corner card is one advertiser in two
+         places, priced as two, and a picker that made them alternatives was
+         forcing that advertiser to raise two ads to say one thing. The same
+         goes for the category pair.
+
+         The directory group stays exclusive, because Basic and Deluxe are two
+         tiers of the same listing — taking both is not a thing that exists.
+         Groups stay exclusive of each other for the same reason they always
+         were: the towns, the add-on and the artwork all follow from which
+         surface the ad is on. */
+      /* The surface each group names, said in one word with a glyph. The full
+         type names carry the surface inside them — "Home — Leaderboard",
+         "Home — Sidebar" — which is right on a picker where the six sit side by
+         side and have to be told apart, and wrong in a table cell, where an ad
+         holding both repeated "Home" twice inside a single value and buried the
+         only part that differed. Naming the surface once, above, leaves the
+         slots to be read as what they are: a list. */
+      const AD_SURFACES = {
+        "In the directory": { label: "Directory", icon: "dashboard" },
+        "On the home page": { label: "Home", icon: "home" },
+        "Inside a category": { label: "Category", icon: "tag" },
+      };
+      const adSurfaceOf = (d) => {
+        const g = adTypesOf(d)[0].group;
+        return AD_SURFACES[g] || { label: g, icon: "tag" };
+      };
+      const MULTI_TYPE_GROUPS = ["On the home page", "Inside a category"];
+      const groupIsMulti = (g) => MULTI_TYPE_GROUPS.includes(g);
+      /* Every type on the ad, and always at least one. `types` is the field
+         now; `type` is kept alongside it as the first of them so the seeded
+         records — and anything written before this — still read correctly. */
+      const adTypeIds = (d) => {
+        const list = ((d.types && d.types.length ? d.types : [d.type]) || []).filter(Boolean);
+        return list.length ? list : ["basic"];
+      };
+      const adTypesOf = (d) => adTypeIds(d).map(adTypeOf);
+      // Keeps the two fields in step after any change to the selection.
+      const adSetTypes = (d, list) => {
+        d.types = list.length ? [...list] : ["basic"];
+        d.type = d.types[0];
+        return d.types;
+      };
       // A directory listing is the only type a gallery belongs to, and the only
       // one Deluxe upgrades.
-      const adHasGallery = (d) => d.type === "deluxe";
-      const adNeedsTown = (d) => adTypeOf(d.type).needsTown !== false;
-      const adHasBanner = (d) => !!adTypeOf(d.type).banner;
+      const adHasGallery = (d) => adTypeIds(d).includes("deluxe");
+      const adNeedsTown = (d) => adTypesOf(d).some((t) => t.needsTown !== false);
+      // Which of the selected types the advertiser has to design artwork for.
+      const adBannerTypes = (d) => adTypeIds(d).filter((id) => !!adTypeOf(id).banner);
+      const adHasBanner = (d) => adBannerTypes(d).length > 0;
       /* One add-on is left. Everything else that lived here is a type now, and
          Top 10 is not a type: it does not decide where the ad appears, it moves
          an ad that is already in the directory to the front of it. Which is
@@ -7397,7 +7480,7 @@
         },
       ];
       const DIRECTORY_TYPES = ["basic", "deluxe"];
-      const adCanTop10 = (d) => DIRECTORY_TYPES.includes(d.type);
+      const adCanTop10 = (d) => adTypeIds(d).some((id) => DIRECTORY_TYPES.includes(id));
       const placementOf = (id) => AD_PLACEMENTS.find((p) => p.id === id);
       /* There are only ten pinned slots in the directory to sell, so Top 10 is
                the one add-on that can sell out. An ad holds its slot while it is in
@@ -7442,8 +7525,11 @@
                price can never disagree with itself between screens. */
       function adBilling(d) {
         const plan = planOf(d.plan);
-        const type = adTypeOf(d.type);
-        const typeCost = type.rate;
+        // Each type on the ad is its own flat charge. `type` is still the first
+        // of them, so every caller that quotes a single name keeps working.
+        const types = adTypesOf(d);
+        const type = types[0];
+        const typeCost = types.reduce((s, t) => s + t.rate, 0);
         const addons = (d.addons || [])
           .map(placementOf)
           .filter(Boolean)
@@ -7453,6 +7539,7 @@
         return {
           plan,
           type,
+          types,
           typeCost,
           addons,
           addonCost,
@@ -7473,10 +7560,10 @@
          hand-written white/navy pair could never do. */
       function adTypeCard(a) {
         const free = !a.rate;
-        return `<div class="plan-surface rounded-[18px] border-[1.5px] p-5 h-full flex flex-col transition-[transform,box-shadow] duration-200 hover:-translate-y-1 ${free ?"border-sun shadow-[0_4px_18px_rgba(245,166,35,0.18)]" : "border-line shadow-[0_2px_14px_rgba(26,46,74,0.08)]"}">
+        return `<div class="plan-surface rounded-[18px] border-[1.5px] p-5 h-full flex flex-col transition-[transform,box-shadow] duration-200 hover:-translate-y-1 ${free ? "border-sun shadow-[0_4px_18px_rgba(245,166,35,0.18)]" : "border-line shadow-[0_2px_14px_rgba(26,46,74,0.08)]"}">
             <div class="flex items-start justify-between gap-3 mb-2">
-              <span class="w-[34px] h-[34px] rounded-[10px] grid place-items-center shrink-0 ${free ?"bg-sun text-navy" : "bg-mint text-brand"}">${icon(a.icon, 17)}</span>
-              <span class="text-sm font-extrabold whitespace-nowrap ${free ?"text-orange-ink" : "text-head"}">${free ? "Included" : "+" + money(a.rate) + `<span class='font-semibold text-muted'>/ad</span>`}</span>
+              <span class="w-[34px] h-[34px] rounded-[10px] grid place-items-center shrink-0 ${free ? "bg-sun text-navy" : "bg-mint text-brand"}">${icon(a.icon, 17)}</span>
+              <span class="text-sm font-extrabold whitespace-nowrap ${free ? "text-orange-ink" : "text-head"}">${free ? "Included" : "+" + money(a.rate) + `<span class='font-semibold text-muted'>/ad</span>`}</span>
             </div>
             <div class="font-bold text-base text-head leading-[1.3]">${a.name}</div>
             <div class="text-sm leading-[1.55] text-muted mt-[0.35rem]">${a.desc}</div>
@@ -7528,10 +7615,111 @@
       function testi(quote, name, loc, initials, cls, img) {
         return `<div class="bg-surface rounded-[20px] p-7 shadow-[0_2px_16px_rgba(26,46,74,0.06)] border-[1.5px] border-line2 max560:p-[1.35rem]">
           <div class="text-lg leading-[1.75] text-ink mb-5 italic text-pretty">"${quote}"</div>
-          <div class="flex items-center gap-3"><div class="w-[46px] h-[46px] rounded-[50%] relative overflow-hidden shrink-0 flex items-center justify-center font-bold text-sm text-head ${TA_BG[cls]}">${initials}<img class="absolute inset-0 w-full h-full object-cover" src="${img}" alt="" loading="lazy" onerror="this.remove()"></div>
+          <div class="flex items-center gap-3"><div class="w-[46px] h-[46px] rounded-[50%] relative overflow-hidden shrink-0 flex items-center justify-center font-bold text-sm text-head ${TA_BG[cls]}">${initials}<img class="absolute inset-0 w-full h-full object-cover" src="${img}" alt="" loading="lazy"></div>
           <div><div class="font-bold text-base text-head">${name}</div><div class="text-sm text-muted">${loc}</div></div></div></div>`;
       }
       // Card photo per event. Anything missing here falls back to the icon tile.
+      /* The gallery beyond the cover: up to five images and one video, the same
+         allowance an event carries in the admin panel. The cover is the first
+         frame, so it is listed here too and the strip reads in the same order
+         the organiser arranged it. */
+      const EV_MEDIA = {
+        e1: {
+          photos: [
+            "1441974231531-c6227db76b6e",
+            "1502082553048-f009c37129b9",
+            "1472214103451-9374bd1c798e",
+          ],
+          video: "Trail walk-through",
+        },
+        e2: {
+          photos: [
+            "1493106641515-6b5631de4bb9",
+            "1513364776144-60967b0f800f",
+            "1509395176047-4a66953fd231",
+          ],
+          video: "",
+        },
+        e3: {
+          photos: ["1600965962361-9035dbfd1c50", "1530549387789-4c1017266635"],
+          video: "Last year's gala",
+        },
+        e4: {
+          photos: [
+            "1530103862676-de8c9debad1d",
+            "1464349095431-e9a21285b5f3",
+            "1478146896981-b80fe463b330",
+            "1527529482837-4698179dc6ce",
+            "1519671482749-fd09be7ccebf",
+          ],
+          video: "",
+        },
+        e5: { photos: ["1503095396549-807759245b35"], video: "" },
+      };
+      const evMedia = (id) => EV_MEDIA[id] || { photos: [], video: "" };
+
+      /* Every photograph on this site is a remote Unsplash URL. When that host
+         is slow, blocked or offline the images do not merely fail — they left
+         alt text where the artwork should be, and the ones carrying
+         onerror="this.remove()" deleted themselves for good.
+
+         So each one gets a locally drawn stand-in in the site's own palette,
+         keyed off its own URL so the same photo always falls back to the same
+         picture. Real photographs still load when the network allows; nothing
+         is ever blank when it does not. */
+      const FALLBACK_INKS = [
+        ["#1F5C4A", "#2E7D63"],
+        ["#B4532A", "#D97742"],
+        ["#1A2E4A", "#37507A"],
+        ["#6B4C86", "#8E6BA8"],
+        ["#2C6E77", "#3F949E"],
+        ["#8A6D1F", "#C0982F"],
+      ];
+      function imgFallback(src, w, h) {
+        let seed = 0;
+        for (let i = 0; i < String(src).length; i++)
+          seed = (seed * 31 + String(src).charCodeAt(i)) % 100000;
+        const [a, b] = FALLBACK_INKS[seed % FALLBACK_INKS.length];
+        const W = w || 900,
+          H = h || 600;
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+          <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>
+          <rect width="${W}" height="${H}" fill="url(#g)"/>
+          <circle cx="${W * 0.78}" cy="${H * 0.24}" r="${H * 0.34}" fill="#ffffff" opacity="0.10"/>
+          <circle cx="${W * 0.22}" cy="${H * 0.82}" r="${H * 0.42}" fill="#ffffff" opacity="0.07"/>
+        </svg>`;
+        return "data:image/svg+xml;utf8," + encodeURIComponent(svg.replace(/\s+/g, " "));
+      }
+      function applyFallback(t) {
+        // Gated on the src rather than a flag: render() rebuilds the markup, so
+        // a replaced element arrives pointing back at the remote URL and needs
+        // the stand-in again. Guarding on "already a data URI" stops the loop
+        // without stopping the retry.
+        if (!t || t.tagName !== "IMG") return;
+        if ((t.getAttribute("src") || "").startsWith("data:")) return;
+        const r = t.getBoundingClientRect();
+        t.src = imgFallback(
+          t.getAttribute("src") || t.alt || "",
+          Math.round(r.width) || 900,
+          Math.round(r.height) || 600
+        );
+      }
+      /* Capture phase, because error does not bubble from an image. One listener
+         covers every image on the site, including the ones rendered later. */
+      document.addEventListener("error", (ev) => applyFallback(ev.target), true);
+      /* The header images are in the static markup and can fail before this
+         script has even parsed, so the listener alone would miss them. A sweep
+         catches anything that finished loading badly before we were listening,
+         and runs again after each repaint for anything just added. */
+      function sweepImages() {
+        document.querySelectorAll("img").forEach((t) => {
+          if (t.complete && !t.naturalWidth) applyFallback(t);
+        });
+      }
+      addEventListener("load", sweepImages);
+      document.addEventListener("DOMContentLoaded", sweepImages);
+
       const EV_IMG = {
         e1: "1441974231531-c6227db76b6e", // forest trail — scavenger hunt
         e2: "1493106641515-6b5631de4bb9", // hands throwing a pot
@@ -7575,6 +7763,95 @@
                category photo on every card in that category, so three tutoring
                listings in a row look like the same business repeated. Anything
                missing here still falls back to the category photo. */
+      /* The business behind each listing. A directory card names the ad and
+         the advertiser as two separate lines, and the seeded listings only
+         carried one name — the trading name of the service. These are the
+         parent operators, so the two lines say different things; an ad-backed
+         listing carries its own `advertiser` and uses that instead. */
+      const LISTING_ADVERTISER = {
+        l1: "Kids First Medical Group",
+        l2: "Bright Smiles Dental Partners",
+        l3: "Little Steps Health Network",
+        l4: "Meadowbrook Education Trust",
+        l5: "Tiny Explorers Learning Co.",
+        l6: "STEM Futures Academy Group",
+        l7: "Bergen Learning Partners",
+        l8: "Summit Prep Holdings",
+        l9: "Mathwise Education Ltd.",
+        l10: "Creative Hands Studios",
+        l11: "Clayworks Collective",
+        l12: "Bergen United Sports Club",
+        l13: "Aquatic Center Group",
+        l14: "Dragon Martial Arts Assoc.",
+        l15: "Harmony Music Schools",
+        l16: "Grace Ballet Academy Trust",
+        l17: "Wildwood Camps Company",
+        l18: "FunZone Entertainment Group",
+      };
+      const listingAdvertiser = (l) => l.advertiser || LISTING_ADVERTISER[l.id] || "";
+      /* Service area and age bands, for the listings that genuinely have more
+         than one of either. Every seeded listing carried a single town and a
+         single min–max span, which is true of a dentist with one surgery and
+         false of a tutoring service that travels or a swim school running
+         separate classes for infants and teens. With one value each, the detail
+         panel could never be seen doing the thing it was rebuilt to do.
+
+         `town` and `ageMin`/`ageMax` stay on every record — the filters read
+         them and the cards do too. These are the wider claim where one exists,
+         and the panel prefers them. */
+      const LISTING_REACH = {
+        l1: {
+          towns: ["Hackensack", "Teaneck", "Bergenfield"],
+          ages: ["infant", "preschool", "early", "tween", "teen"],
+        },
+        l3: {
+          towns: ["Teaneck", "Englewood", "Fort Lee", "Leonia"],
+          ages: ["infant", "preschool", "early"],
+        },
+        l7: {
+          towns: ["Ridgewood", "Glen Rock", "Midland Park", "Wyckoff"],
+          ages: ["early", "tween", "teen"],
+        },
+        l10: {
+          towns: ["Ridgewood", "Ho-Ho-Kus", "Waldwick"],
+          ages: ["preschool", "early", "tween"],
+        },
+        l12: {
+          towns: ["Paramus", "Ridgewood", "Fair Lawn", "Glen Rock", "Wyckoff"],
+          ages: ["preschool", "early", "tween", "teen"],
+        },
+        l13: {
+          towns: ["Fort Lee", "Edgewater", "Cliffside Park"],
+          ages: ["infant", "preschool", "early", "tween", "teen"],
+        },
+        l17: {
+          towns: ["Mahwah", "Ramsey", "Oakland", "Franklin Lakes"],
+          ages: ["early", "tween", "teen"],
+        },
+        l18: {
+          towns: ["Paramus", "Hackensack", "Rochelle Park"],
+          ages: ["preschool", "early", "tween"],
+        },
+      };
+      // Applied once the seed array exists, so the table above stays readable
+      // rather than being threaded through mk()'s fifteen positional arguments.
+      function seedListingReach() {
+        Object.keys(LISTING_REACH).forEach((id) => {
+          const l = LISTINGS.find((x) => x.id === id);
+          if (l) Object.assign(l, LISTING_REACH[id]);
+        });
+      }
+      // LISTINGS is built above this point, so the merge can run on sight.
+      seedListingReach();
+      // Every town a listing serves, and every age band — the wider claim where
+      // one was made, the single value where it was not.
+      const listingTowns = (l) => (l.towns && l.towns.length ? l.towns : l.town ? [l.town] : []);
+      const listingAges = (l) =>
+        l.ages && l.ages.length
+          ? l.ages.map((id) => (AGE_GROUPS.find((a) => a.id === id) || {}).label).filter(Boolean)
+          : l.ageMin != null && l.ageMax != null
+            ? [`Ages ${l.ageMin}–${l.ageMax}`]
+            : [];
       const LISTING_IMG = {
         l1: "1519494026892-80bbd2d6fd0d", // paediatric check-up
         l2: "1606811841689-23dfddce3e95", // dental chair
@@ -7607,7 +7884,11 @@
          listing photo goes through this function, so the rule holds in the grid,
          the detail panel and anywhere either of them is reused later. */
       const listingImg = (l, w = 600, h) =>
-        l.plan !== "deluxe" ? "" : LISTING_IMG[l.id] ? uImg(LISTING_IMG[l.id], w, h) : catImg(l.cat, w, h);
+        l.plan !== "deluxe"
+          ? ""
+          : LISTING_IMG[l.id]
+            ? uImg(LISTING_IMG[l.id], w, h)
+            : catImg(l.cat, w, h);
 
       /* ── Deluxe media ───────────────────────────────────────────
          Any number of photos, and at most one video. The cap is the product
@@ -7642,7 +7923,8 @@
           ],
           video: {
             src: "https://videos.pexels.com/video-files/8686022/8686022-hd_1280_720_30fps.mp4",
-            poster: "https://images.pexels.com/videos/8686022/pictures/preview-0.jpeg?auto=compress&cs=tinysrgb&w=900",
+            poster:
+              "https://images.pexels.com/videos/8686022/pictures/preview-0.jpeg?auto=compress&cs=tinysrgb&w=900",
           },
         },
         // Bergen United Soccer Club — match play, and a clip from a session
@@ -7655,7 +7937,8 @@
           ],
           video: {
             src: "https://videos.pexels.com/video-files/8873024/8873024-hd_1280_720_25fps.mp4",
-            poster: "https://images.pexels.com/videos/8873024/pexels-photo-8873024.jpeg?auto=compress&cs=tinysrgb&w=900",
+            poster:
+              "https://images.pexels.com/videos/8873024/pexels-photo-8873024.jpeg?auto=compress&cs=tinysrgb&w=900",
           },
         },
         // Photos and no video — the other half of the rule, and the more common
@@ -7760,7 +8043,10 @@
         return LISTINGS.filter((l) => {
           if (state.dirCat && l.cat !== state.dirCat) return false;
           if (!inList(f.cats, l.cat)) return false;
-          if (!townPass(f.towns, l.town)) return false;
+          if (!inList(f.subs || [], l.sub)) return false;
+          // Any of its towns, not just the one it is filed under: a service
+          // covering four towns should surface when any of the four is picked.
+          if (!listingTowns(l).some((t) => townPass(f.towns, t))) return false;
           if (!ageListPass(f.ages, l)) return false;
           if (f.q) {
             const q = f.q.toLowerCase();
@@ -7972,7 +8258,8 @@
            page is for is what would settle it if they ever did. */
         if (key === "subs") {
           const f = filterState(page);
-          const picked = page === "cal" && state.calCat ? [state.calCat] : f.cats || [];
+          const openCat = page === "cal" ? state.calCat : page === "dir" ? state.dirCat : "";
+          const picked = openCat ? [openCat] : f.cats || [];
           const cats = picked.length ? CATEGORIES.filter((c) => picked.includes(c.id)) : CATEGORIES;
           return [...new Set(cats.flatMap((c) => c.sub))].sort().map((s) => [s, s]);
         }
@@ -8086,7 +8373,7 @@
           <div class="mb-7">
             <div class="flex items-center gap-[0.4rem] text-sm text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-brand font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>Directory</span></div>
             <div class="font-serif text-display-2 font-black text-head tracking-[-0.02em] leading-[1.15] text-balance">Kids Services Directory</div>
-            <p class="text-muted text-lg leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Every trusted kids service and activity in Bergen County, gathered by category. Open one to see its listings and filter by age or town.</p>
+            <p class="text-muted text-lg leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Every trusted kids service and activity in Bergen County, gathered by category. Open one to see its listings and filter by subcategory, age or town.</p>
           </div>
           ${
             // The listing grid's own track sizing, not the events index's three
@@ -8131,12 +8418,13 @@
             <!-- Worded around the category rather than into the sentence:
                  "trusted schools & preschools for children" does not read, and
                  eight category names cannot all be made to. -->
-            <p class="text-muted text-lg leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Trusted services for children across Bergen County, filed under ${c.name}. Narrow by age or town, or search within the category.</p>
+            <p class="text-muted text-lg leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Trusted services for children across Bergen County, filed under ${c.name}. Narrow by subcategory, age or town, or search within the category.</p>
           </div>
 
           <!-- No Category control: this page is one category. -->
           ${filtersTop(
             `${ftSearch("d-q", f.q, "Name, service or town…", "Search listings", "rm-filter")}
+            ${ftMulti("dir", "subs", "wide")}
             ${ftMulti("dir", "ages")}
             ${ftMulti("dir", "towns")}`
           )}
@@ -8165,13 +8453,18 @@
       }
       // Opening a category from the directory index.
       function openDirCat(id) {
-        if (!catOf(id)) return;
+        const c = catOf(id);
+        if (!c) return;
         state.dirCat = id;
+        // Subcategories the new category does not have would filter the page to
+        // nothing, the same way openEventCat prunes them.
+        const subs = state.dir.subs || [];
+        if (subs.length) state.dir.subs = subs.filter((x) => c.sub.includes(x));
         navigate("dirCat");
       }
       // One flat colour out of the category's gradient, for the surfaces that
       // need a single value where the data carries two.
-      const catInk = (c) => ((((c || {}).grad || "").match(/#[0-9a-f]{3,8}/i) || [])[0] || "#1a2e4a");
+      const catInk = (c) => (((c || {}).grad || "").match(/#[0-9a-f]{3,8}/i) || [])[0] || "#1a2e4a";
       /* A Deluxe card is four bands, top to bottom: photo, category line, name,
          then a footer of town / ages. The name is clamped to two lines and the
          footer is pushed down with mt-auto, so a long name never shunts the
@@ -8186,15 +8479,28 @@
         const c = catOf(l.cat);
         const dlx = l.plan === "deluxe";
         const photo = listingImg(l);
-        const catLine = `${l.sub} · ${c.name.split(" ")[0]}`;
-        // Same footer on both plans. The rule above it belongs to the Deluxe
-        // card only: there the footer is the tail of a block of copy and needs
-        // separating from it, where on a Basic card the panel's own edge is
-        // already the divider and a second line under it draws twice.
-        const foot = (extra) => `<div class="flex items-center gap-x-[1.1rem] gap-y-1 flex-wrap text-sm text-muted font-medium leading-[1.5]${extra ? " " + extra : ""}">
-              <div class="flex items-center gap-[0.3rem] min-w-0">${icon("pin", 13, "shrink-0")}<span class="truncate">${l.town}</span></div>
-              <div class="flex items-center gap-[0.3rem] min-w-0">${icon("users", 13, "shrink-0")}<span class="truncate">Ages ${l.ageMin}–${l.ageMax}</span></div>
-            </div>`;
+        /* Category first, then subcategory — the way the site files things
+           everywhere else, and the way the ad units read. Reversed, the line
+           opened on the narrowest fact and worked outwards, so a column of
+           cards began with eight different words instead of the one they have
+           in common. The full category name, not its first word: "Schools"
+           standing in for "Schools & Preschools" was a truncation the card had
+           room not to make.
+
+           Below the name, the advertiser. A listing has two names — the service
+           and the business running it — and the card was showing only the
+           first, so two listings from the same operator looked unrelated. */
+        const catLine = `${c.name}${l.sub ? " · " + l.sub : ""}`;
+        const who = listingAdvertiser(l);
+        // Town and ages are gone from the card. Both are filters — you arrive
+        // at this grid having already said which town and which age you want,
+        // so printing them back on every card spends two lines confirming what
+        // you just typed. They are in the detail panel, which is where you go
+        // to check a particular listing rather than to scan them all.
+        const foot = (extra) =>
+          who
+            ? `<div class="text-sm text-muted font-medium leading-[1.5] truncate${extra ? " " + extra : ""}">${who}</div>`
+            : "";
         /* Square corners, and one border colour for every card. Deluxe used to
            carry an amber border and an amber glow, which marked the paid cards
            twice — the Featured badge already says it — and put a second warm
@@ -8206,11 +8512,11 @@
             <span class="lcard-basic-mark">${icon(l.icon, 132)}</span>
             <div class="lcard-basic-cat relative text-xs font-bold tracking-[0.04em] uppercase truncate">${catLine}</div>
             <div class="relative font-extrabold text-xl text-head leading-[1.25] mt-[0.35rem] line-clamp-3">${l.name}</div>
-          </div>
-          <div class="px-[1.1rem] py-[0.95rem] min-w-0">${foot()}</div>`);
+            ${who ? `<div class="relative text-sm font-medium mt-[0.3rem] truncate opacity-80">${who}</div>` : ""}
+          </div>`);
         return shell(`<div class="lcard-media relative h-[168px] overflow-hidden shrink-0" style="background:${c.grad}">
             <div class="absolute inset-0 flex items-center justify-center text-white">${icon(l.icon, 54, "opacity-95")}</div>
-            <img src="${photo}" alt="${l.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+            <img src="${photo}" alt="${l.name}" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
             <!-- Only the paid upgrade gets a badge. "Basic" said nothing about
                  the business and everything about what it had not bought, on
                  the majority of cards; and "Verified" was on so many of them
@@ -8281,7 +8587,7 @@
         const c = catOf(e.cat);
         const d = new Date(e.date + "T00:00");
         const photo = EV_IMG[e.id]
-          ? `<img src="${evImg(e.id, 600)}" srcset="${evImg(e.id, 600)} 600w, ${evImg(e.id, 900)} 900w" sizes="(max-width:700px) 100vw, 300px" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[400ms] group-hover:scale-[1.06]">`
+          ? `<img src="${evImg(e.id, 600)}" srcset="${evImg(e.id, 600)} 600w, ${evImg(e.id, 900)} 900w" sizes="(max-width:700px) 100vw, 300px" alt="" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[400ms] group-hover:scale-[1.06]">`
           : "";
         return `<div class="ev-tile group relative aspect-[4/5] min-h-[260px] overflow-hidden cursor-pointer isolate" data-action="open-event" data-id="${e.id}">
           <div class="absolute inset-0 ${EH_BG[e.eh || (i % 6) + 1]}"></div>
@@ -8353,7 +8659,7 @@
                it: a category with no picture, or one that fails to load, still
                comes up in its own colour rather than as a dark rectangle. -->
           <span class="absolute inset-0" style="background:${c.grad}"></span>
-          ${photo ? `<img src="${photo}" srcset="${catImg(c.id, 600)} 600w, ${catImg(c.id, 1000)} 1000w" sizes="(max-width:700px) 92vw, (max-width:1024px) 46vw, 31vw" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[400ms] group-hover:scale-[1.06]">` : ""}
+          ${photo ? `<img src="${photo}" srcset="${catImg(c.id, 600)} 600w, ${catImg(c.id, 1000)} 1000w" sizes="(max-width:700px) 92vw, (max-width:1024px) 46vw, 31vw" alt="" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[400ms] group-hover:scale-[1.06]">` : ""}
           <span class="absolute inset-0 mix-blend-multiply opacity-[0.34] transition-opacity duration-200 group-hover:opacity-[0.24]" style="background:${c.grad}"></span>
           <span class="absolute inset-0 bg-[linear-gradient(to_top,rgba(10,20,36,0.72)_0%,rgba(10,20,36,0.18)_52%,transparent_80%)]"></span>
           <!-- Dark glass, not white. The chip was a 15% white wash with a white
@@ -8383,7 +8689,7 @@
         const photo = catImg(c.id, 800);
         return `<button type="button" class="group flex flex-col w-full h-full text-left p-0 bg-surface border-[1.5px] border-line overflow-hidden cursor-pointer transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_14px_40px_rgba(26,46,74,0.12)]" data-action="open-dir-cat" data-cat="${c.id}">
           <span class="relative block h-[168px] shrink-0 overflow-hidden" style="background:${c.grad}">
-            ${photo ? `<img src="${photo}" srcset="${catImg(c.id, 600)} 600w, ${catImg(c.id, 1000)} 1000w" sizes="(max-width:700px) 92vw, (max-width:1024px) 46vw, 31vw" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">` : ""}
+            ${photo ? `<img src="${photo}" srcset="${catImg(c.id, 600)} 600w, ${catImg(c.id, 1000)} 1000w" sizes="(max-width:700px) 92vw, (max-width:1024px) 46vw, 31vw" alt="" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">` : ""}
             <!-- The glyph rides over the photograph in a chip rather than
                  filling the band behind it, which is where the listing cards
                  put it. On a card whose picture is the category's own stock
@@ -8401,10 +8707,14 @@
                wherever each name happens to. -->
           <span class="flex flex-col flex-1 min-w-0 px-[1.1rem] pt-[0.9rem] pb-[1.05rem]">
             <span class="block text-xs font-bold tracking-[0.04em] uppercase text-adlabel">${ls.length} listing${ls.length !== 1 ? "s" : ""}</span>
-            <span class="block font-serif text-xl text-head leading-[1.25] tracking-[-0.015em] mt-[0.3rem] transition-colors duration-200 group-hover:text-brand">${c.name}</span>
-            <span class="flex items-center gap-2 mt-auto pt-[0.85rem] border-t border-line2 text-sm text-muted font-medium leading-[1.5]">
-              <span class="min-w-0 flex-1 truncate">${c.sub.slice(0, 3).join(" · ")}</span>
-              <span class="shrink-0 text-adlabel transition-transform duration-200 group-hover:translate-x-[3px]">${icon("arrow-right", 15)}</span>
+            <!-- The arrow sits with the name it points at. Once the
+                 subcategory run-on came off, the footer it shared was an empty
+                 ruled band holding a single glyph in the corner — a divider
+                 with nothing on either side of it. Beside the name it reads as
+                 what it is: this heading opens. -->
+            <span class="flex items-baseline gap-2 mt-[0.3rem] min-w-0">
+              <span class="block font-serif text-xl text-head leading-[1.25] tracking-[-0.015em] min-w-0 flex-1 transition-colors duration-200 group-hover:text-brand">${c.name}</span>
+              <span class="shrink-0 self-center text-adlabel transition-[transform,color] duration-200 group-hover:translate-x-[3px] group-hover:text-brand">${icon("arrow-right", 16)}</span>
             </span>
           </span>
         </button>`;
@@ -8522,7 +8832,7 @@
                 <div class="w-full h-full flex items-center justify-center text-white transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]" style="background:${c.grad}">${icon(c.icon, 44, "opacity-90")}</div>
                 ${
                   ART_IMG[a.id]
-                    ? `<img src="${artImg(a.id, 600)}" srcset="${artImg(a.id, 600)} 600w, ${artImg(a.id, 900)} 900w, ${artImg(a.id, 1200)} 1200w" sizes="(max-width: 700px) 92vw, (max-width: 1024px) 46vw, 31vw" alt="${c.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]">`
+                    ? `<img src="${artImg(a.id, 600)}" srcset="${artImg(a.id, 600)} 600w, ${artImg(a.id, 900)} 900w, ${artImg(a.id, 1200)} 1200w" sizes="(max-width: 700px) 92vw, (max-width: 1024px) 46vw, 31vw" alt="${c.name}" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]">`
                     : ""
                 }
               </div>
@@ -8546,7 +8856,7 @@
                 const isAll = cat === "all";
                 const isActive = state.articleFilter === cat;
                 const label = isAll ? "All" : catOf(cat).name;
-                return `<button class="bg-transparent border-0 border-b-[1.5px] border-solid px-0 pt-0 pb-[0.3rem] text-xs font-bold tracking-[0.16em] uppercase transition-colors duration-200 ${isActive ?"text-head border-b-navy" : "text-adlabel border-b-transparent hover:text-head"}" data-action="filter-articles" data-cat="${cat}">${label}</button>`;
+                return `<button class="bg-transparent border-0 border-b-[1.5px] border-solid px-0 pt-0 pb-[0.3rem] text-xs font-bold tracking-[0.16em] uppercase transition-colors duration-200 ${isActive ? "text-head border-b-navy" : "text-adlabel border-b-transparent hover:text-head"}" data-action="filter-articles" data-cat="${cat}">${label}</button>`;
               })
               .join("")}</div>
             <!-- Equal tracks, and the cards flow through them in order: three
@@ -8600,7 +8910,7 @@
               <div class="w-full h-full flex items-center justify-center text-white" style="background:${c.grad}">${icon(c.icon, 64, "opacity-90")}</div>
               ${
                 ART_IMG[a.id]
-                  ? `<img src="${artImg(a.id, 1200)}" srcset="${artImg(a.id, 900)} 900w, ${artImg(a.id, 1200)} 1200w, ${artImg(a.id, 1600)} 1600w" sizes="(max-width: 1200px) 96vw, 1200px" alt="${c.name}" fetchpriority="high" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">`
+                  ? `<img src="${artImg(a.id, 1200)}" srcset="${artImg(a.id, 900)} 900w, ${artImg(a.id, 1200)} 1200w, ${artImg(a.id, 1600)} 1600w" sizes="(max-width: 1200px) 96vw, 1200px" alt="${c.name}" fetchpriority="high" decoding="async" class="absolute inset-0 w-full h-full object-cover">`
                   : ""
               }
             </div>
@@ -8631,7 +8941,7 @@
                     <div class="w-full h-full flex items-center justify-center text-white transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]" style="background:${mc.grad}">${icon(mc.icon, 44, "opacity-90")}</div>
                     ${
                       ART_IMG[m.id]
-                        ? `<img src="${artImg(m.id, 600)}" srcset="${artImg(m.id, 600)} 600w, ${artImg(m.id, 900)} 900w" sizes="(max-width: 700px) 92vw, (max-width: 1024px) 46vw, 31vw" alt="${mc.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]">`
+                        ? `<img src="${artImg(m.id, 600)}" srcset="${artImg(m.id, 600)} 600w, ${artImg(m.id, 900)} 900w" sizes="(max-width: 700px) 92vw, (max-width: 1024px) 46vw, 31vw" alt="${mc.name}" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]">`
                         : ""
                     }
                   </div>
@@ -9141,6 +9451,11 @@
           ...o,
         };
         const plan = planOf(d.plan);
+        // Written once, here, so nothing downstream has to cope with an ad that
+        // has `type` but no `types` — the seeded records are all written the
+        // old way.
+        adSetTypes(d, adTypeIds(d));
+        if (!d.creative) d.creative = {};
         d.end = o.end || addDays(d.start, plan.days);
         // A live subscription renews on its end date; a cancelled one runs out on it.
         d.renewal = d.payMode === "subscription" && d.status === "live" ? d.end : "";
@@ -9159,9 +9474,28 @@
          only qualifies it. This used to read "No placements" for the great
          majority of ads, which described the old model's default rather than
          telling anyone anything. */
+      // The slots an ad occupies, plus anything bought on top, short-named.
+      const adSlotNames = (a) => [
+        ...adTypesOf(a).map((t) => t.slot || t.name),
+        ...(a.addons || []).map((id) => (placementOf(id) || {}).name).filter(Boolean),
+      ];
+      // One line, for the places that have room for exactly one — the Recent
+      // ads rail truncates to a single row.
       function addonLabel(a) {
-        const extra = (a.addons || []).map((id) => (placementOf(id) || {}).name).filter(Boolean);
-        return [adTypeOf(a.type).name, ...extra].join(" + ");
+        return [adSurfaceOf(a).label, ...adSlotNames(a)].join(" · ");
+      }
+      /* The Placement cell: the surface as a pill, the slots under it. Reading
+         "Home — Leaderboard + Home — Sidebar" meant reading the word Home twice
+         to learn one thing, and the plus sign made two slots on one surface look
+         like two separate purchases bolted together. Stacked, the surface is
+         stated once and the slots below it are a list — which is what they are,
+         and it stays legible when a third slot is sold. */
+      function placementCell(a) {
+        const s = adSurfaceOf(a);
+        return `<div class="flex flex-col items-start gap-[0.3rem]">
+            <span class="inline-flex items-center gap-[0.35rem] rounded-[100px] bg-sel border border-line2 px-[0.6rem] py-[0.2rem] text-sm font-bold text-head whitespace-nowrap">${icon(s.icon, 13)}${s.label}</span>
+            <span class="text-sm text-muted leading-[1.35]">${adSlotNames(a).join(" · ")}</span>
+          </div>`;
       }
       // Seeded so every state in AD_STATUSES is visible from the dashboard
       // without having to run the create flow first.
@@ -9178,7 +9512,12 @@
           phone: "(201) 555-0188",
           hours: "Mon–Fri 9:00 AM–6:00 PM · Sat 9:00 AM–1:00 PM",
           desc: "Group lessons, private coaching and family memberships. Certified instructors, heated indoor pools, and small class sizes for ages 6 months and up.",
-          type: "home-leaderboard",
+          /* Both home-page slots on one ad. The two are separate buys and the
+             seed carries them together so My Ads shows the Placement column
+             doing what it now has to do — "Home — Leaderboard + Home — Sidebar"
+             — rather than leaving the pair to be discovered only by running
+             the create flow. */
+          types: ["home-leaderboard", "home-sidebar"],
           photos: 3,
           addons: [],
           payMode: "subscription",
@@ -9308,6 +9647,10 @@
           ages: ["preschool", "early"],
           desc: "One-week pottery intensive — wheel throwing, glazing and a kiln firing to take home.",
           type: "deluxe",
+          // The full Deluxe gallery, so the detail panel shows the five photos
+          // and the video the tier is sold on.
+          photos: 5,
+          video: true,
           addons: ["top10"],
           payMode: "onetime",
           plan: "monthly",
@@ -9333,6 +9676,8 @@
       // Creatives shown to visitors, keyed by their data-adclick value.
       const PUBLIC_ADS = {
         "Bergen Aquatic Center": {
+          towns: ["Paramus", "Fort Lee", "Edgewater", "Cliffside Park"],
+          ages: ["infant", "preschool", "early", "tween", "teen"],
           headline: "Summer Swim Enrollment Now Open!",
           advertiser: "Bergen Aquatic Center",
           desc: "Group lessons, private coaching & family memberships in Paramus, NJ. Certified instructors, heated indoor pools, and small class sizes for ages 6 months & up.",
@@ -9347,6 +9692,8 @@
           end: adDate(20),
         },
         "Smiles for Kids Pediatric Dentistry": {
+          towns: ["Paramus", "Hackensack", "Ridgewood"],
+          ages: ["preschool", "early", "tween", "teen"],
           headline: "Bergen County's #1 Rated Kids' Dentist",
           advertiser: "Smiles for Kids Pediatric Dentistry",
           desc: "New patient specials, evening & weekend hours, and 3 convenient Bergen County locations. Gentle care from a team that specializes in kids.",
@@ -9361,6 +9708,8 @@
           end: adDate(16),
         },
         "Kumon Math & Reading": {
+          towns: ["Ridgewood", "Glen Rock", "Midland Park", "Wyckoff", "Fair Lawn"],
+          ages: ["early", "tween", "teen"],
           headline: "Now Enrolling in Bergen County",
           advertiser: "Kumon Math & Reading Centers",
           desc: "Self-paced learning programs for PreK through high school. Daily worksheets, individualized plans, and 12 locations near you.",
@@ -9375,6 +9724,8 @@
           end: adDate(24),
         },
         "Montclair Academy": {
+          towns: ["Montclair", "Bloomfield", "Glen Ridge"],
+          ages: ["preschool", "early", "tween"],
           headline: "Montclair Academy Open Enrollment",
           advertiser: "Montclair Academy",
           desc: "Award-winning K–8 private school. Small classes, big outcomes. Accepting applications for Fall 2026.",
@@ -9389,6 +9740,8 @@
           end: adDate(25),
         },
         "Bergen United Soccer Club": {
+          towns: ["Paramus", "Ridgewood", "Fair Lawn", "Glen Rock", "Wyckoff"],
+          ages: ["preschool", "early", "tween", "teen"],
           headline: "Bergen United Soccer Club",
           advertiser: "Bergen United SC",
           desc: "Recreational & competitive leagues for ages 4–18. Spring registration closing soon!",
@@ -9403,6 +9756,8 @@
           end: adDate(28),
         },
         "NJ Youth Theater": {
+          towns: ["Englewood", "Teaneck", "Fort Lee", "Leonia"],
+          ages: ["early", "tween", "teen"],
           headline: "NJ Youth Theater Summer Intensive",
           advertiser: "NJ Youth Theater",
           desc: "2-week performing arts program for ages 8–16. Singing, acting, and dance. Limited spots!",
@@ -9417,6 +9772,8 @@
           end: adDate(44),
         },
         "FunZone Paramus": {
+          towns: ["Paramus", "Hackensack", "Rochelle Park"],
+          ages: ["infant", "preschool", "early", "tween"],
           headline: "Birthday Party at FunZone Paramus",
           advertiser: "FunZone Paramus",
           desc: "All-inclusive packages from $299. Laser tag, arcade & more. Book your date!",
@@ -9432,11 +9789,22 @@
         },
       };
       // Category · subcategory + flight dates, shown under the campaign name on every public ad unit.
+      /* Category and subcategory, in that order, and nothing else.
+
+         Every live unit used to carry the flight dates next to them — "Aug 27,
+         2026 – Sep 26, 2026" — which is the advertiser's billing arrangement
+         printed on the family's screen. It tells a parent nothing they can act
+         on, and it took the width that the thing they can act on needed. The
+         dates still show on the ad's own detail panel, where an advertiser
+         checking their campaign would look for them. */
+      const adCatLine = (a) => {
+        const c = catOf(a.cat);
+        return [c ? c.name : "", a.sub].filter(Boolean).join(" · ");
+      };
       function adMeta(key) {
         const a = PUBLIC_ADS[key];
         if (!a) return "";
-        const c = catOf(a.cat);
-        return `<div class="inline-flex items-center gap-[0.4rem] text-sm font-semibold text-white/85"><span>${icon("tag", 13)}</span>${c ? c.name : ""}${a.sub ? " · " + a.sub : ""}</div><div class="inline-flex items-center gap-[0.4rem] text-sm font-semibold text-white/85"><span>${icon("calendar", 13)}</span>${fmtDate(a.start)} – ${fmtDate(a.end)}</div>`;
+        return `<div class="inline-flex items-center gap-[0.4rem] text-sm font-semibold text-white/85"><span>${icon("tag", 13)}</span>${adCatLine(a)}</div>`;
       }
       // In-page ad unit, styled like the corner popup. Driven off PUBLIC_ADS so
       // any campaign renders without hand-written copy at the call site; clicking
@@ -9630,15 +9998,15 @@
           : catImg(a.cat, 1600);
         // No label and no outer spacing: catAdBand wraps the whole rotation in
         // one, and each slide carrying its own said Advertisement twice.
-        return `<div class="page-ad-band" data-adclick="${key}" data-adgo>
-              ${photo ? `<img src="${photo}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="page-ad-band-photo">` : ""}
+        return `<div class="page-ad-band" data-adclick="${key}">
+              ${photo ? `<img src="${photo}" alt="" loading="lazy" decoding="async" class="page-ad-band-photo">` : ""}
               <span class="page-ad-band-tint" style="background:${a.grad}"></span>
               <span class="page-ad-band-scrim"></span>
               <span class="page-ad-band-chip">${icon(a.icon, 20)}</span>
               <span class="min-w-0 flex-1 relative z-[2]">
                 <span class="block text-2xs font-extrabold uppercase tracking-[0.14em] text-white/80 truncate">${a.advertiser}</span>
                 <span class="block font-serif text-xl text-white leading-[1.2] mt-[2px] max560:text-lg">${a.headline}</span>
-                <span class="block text-2xs text-white/65 mt-[3px] truncate max700:hidden">${c ? c.name : ""}${a.sub ? " · " + a.sub : ""}</span>
+                <span class="block text-2xs text-white/65 mt-[3px] truncate max700:hidden">${adCatLine(a)}</span>
               </span>
               <span class="page-ad-band-cta">${icon("globe", 14)} Visit Link</span>
           </div>`;
@@ -9652,8 +10020,8 @@
         const photo = a.img
           ? `https://images.unsplash.com/photo-${a.img}?auto=format&fit=crop&w=800&q=75`
           : catImg(a.cat, 800);
-        return `<div class="promo-ad" data-adclick="${key}" data-adgo>
-            ${photo ? `<img src="${photo}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="promo-ad-photo">` : ""}
+        return `<div class="promo-ad" data-adclick="${key}">
+            ${photo ? `<img src="${photo}" alt="" loading="lazy" decoding="async" class="promo-ad-photo">` : ""}
             <div class="promo-ad-tint" style="background:${a.grad}"></div>
             <div class="promo-ad-scrim"></div>
             <div class="promo-ad-body">
@@ -9667,38 +10035,109 @@
                 <div class="text-xs font-extrabold uppercase tracking-[0.14em] text-white/85 [text-shadow:0_2px_10px_rgba(9,15,26,0.85)]">${a.advertiser}</div>
                 <div class="mt-[0.35rem] font-serif text-2xl font-black leading-[1.14] text-white [text-shadow:0_2px_16px_rgba(9,15,26,0.75)]">${a.headline}</div>
                 <div class="mt-[0.5rem] text-xs leading-[1.55] text-white/60 [text-shadow:0_2px_10px_rgba(9,15,26,0.85)]">
-                  ${c ? c.name : ""}${a.sub ? " · " + a.sub : ""}<br>${fmtDate(a.start)} – ${fmtDate(a.end)}
+                  ${adCatLine(a)}
                 </div>
                 <span class="promo-ad-cta">Visit Link <span aria-hidden="true">→</span></span>
               </div>
             </div>
           </div>`;
       }
+      /* ── The public ad detail panel ─────────────────────────────
+         Clicking a leaderboard or a sidebar card used to open a small centred
+         modal: the headline, one line of copy, Visit Link, No thanks. A
+         listing in the directory opens a full right-hand drawer — picture at
+         the head, chips, an About block, a card of addressable facts, and the
+         action pinned to the bottom — and the two being different objects was
+         the whole problem. A family who taps an ad and a family who taps a
+         listing are doing the same thing, and landing somewhere that looks
+         like an interstitial rather than a page made the ad read as something
+         to dismiss.
+
+         So it is the same drawer, built to the same shape as listingModal, and
+         every public ad unit on the home page and inside a category now opens
+         it. The differences are the ones that are actually true of an ad: it
+         carries the Advertisement label, the flight dates, and the advertiser's
+         own name above the headline. */
       function adDetailModal(key) {
         const a = PUBLIC_ADS[key];
         if (!a) return false;
         const c = catOf(a.cat);
-        openModal(
-          `
-          <div class="grid grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)] max700:grid-cols-1">
-            <div class="relative flex flex-col justify-end min-h-[350px] max700:min-h-[180px] p-7 max700:p-5 overflow-hidden" style="background:${a.grad}">
-              ${catImg(a.cat, 800) ? `<img src="${catImg(a.cat, 800)}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">` : `<div class="absolute inset-0 flex items-center justify-center text-white/20">${icon(a.icon, 132)}</div>`}
-              <div class="absolute inset-0 mix-blend-multiply opacity-[0.82]" style="background:${a.grad}"></div>
-              <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,26,44,0)_30%,rgba(15,26,44,0.62))]"></div>
-              <div class="relative z-[1]">
-                <div class="inline-flex items-center gap-[0.4rem] text-2xs font-extrabold tracking-[0.16em] uppercase text-white/90 mb-[0.55rem]"><span class="sponsor-live"></span>Advertisement</div>
-                <div class="font-serif text-2xl font-black text-white leading-[1.12] max700:text-xl" style="text-shadow:0 2px 14px rgba(15,26,44,0.55)">${a.headline}</div>
-              </div>
+        const photo = a.img ? uImg(a.img, 900, 600) : catImg(a.cat, 900, 600);
+        const chip = (ic, text) =>
+          `<span class="inline-flex items-center gap-[0.35rem] rounded-[100px] bg-surface-2 border border-line2 px-[0.7rem] py-[0.32rem] text-sm font-bold text-head whitespace-nowrap">${icon(ic, 13)}${text}</span>`;
+        const field = (ic, label, value, last) =>
+          `<div class="flex gap-[0.85rem] items-start px-4 py-[0.9rem] ${last ? "" : "border-b border-line2"}">
+            <span class="w-[34px] h-[34px] rounded-[10px] bg-mint text-brand grid place-items-center shrink-0 mt-[1px]">${icon(ic, 16)}</span>
+            <div class="min-w-0 flex-1">
+              <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel mb-[0.15rem]">${label}</div>
+              <div class="text-base text-head font-semibold leading-[1.5] [&_a]:text-brand [&_a]:underline [&_a]:break-words">${value}</div>
             </div>
-            <div class="p-8 max700:p-6 flex flex-col justify-center text-center">
-              <div class="text-xs font-extrabold tracking-[0.16em] uppercase text-adlabel mb-3">${c ? c.name : "Advertisement"}${a.sub ? " · " + a.sub : ""}</div>
-              <div class="font-serif text-2xl font-black leading-[1.28] max700:text-lg" style="color:var(--teal-ink)">${a.desc}</div>
-              <div class="inline-flex items-center justify-center gap-2 text-sm font-semibold text-head mt-4 mb-6 [&_svg]:text-brand">${icon("calendar", 16)} ${fmtDate(a.start)} – ${fmtDate(a.end)}</div>
-              <button class="w-full bg-orange-ink text-white px-6 py-[0.95rem] rounded-[12px] text-lg font-extrabold border-none inline-flex items-center justify-center gap-2 min-h-[54px] transition-[transform,box-shadow,background] duration-200 hover:bg-orange-deep hover:-translate-y-[2px]" data-action="ext-link" data-url="${a.dest}">${icon("globe", 17)} Visit Link</button>
-              <button class="mt-3 mx-auto text-sm text-muted underline underline-offset-2 bg-transparent border-none cursor-pointer hover:text-head" data-action="close-modal">No thanks</button>
+          </div>`;
+        /* Towns and age groups, stacked one per line — the same shape the
+           directory panel uses, because a family reading an ad wants the same
+           two facts it wants from a listing: is this near me, and is it for a
+           child my child's age. The panel answered neither. */
+        const towns = listingTowns(a);
+        const ages = listingAges(a);
+        /* `not-first:` is a Tailwind v4 variant and this page is on the v3 CDN
+           build, so it compiled to nothing and every entry sat flush against
+           the one above. Indexed instead, which needs no variant at all. */
+        const stack = (items) =>
+          items.map((x, i) => `<div class="${i ? "mt-[0.15rem]" : ""}">${x}</div>`).join("");
+        const rows = [
+          ["megaphone", "Advertiser", a.advertiser],
+          towns.length ? ["pin", towns.length > 1 ? "Towns" : "Town", stack(towns)] : null,
+          ages.length ? ["users", ages.length > 1 ? "Age groups" : "Age group", stack(ages)] : null,
+          ["calendar", "Running", `${fmtDate(a.start)} – ${fmtDate(a.end)}`],
+          a.dest
+            ? [
+                "globe",
+                "Website",
+                `<a data-action="ext-link" data-url="${esc(a.dest)}">${a.dest}</a>`,
+              ]
+            : null,
+        ].filter(Boolean);
+        const header = `<div class="relative w-full aspect-[3/2] overflow-hidden" style="background:${a.grad}">
+            <div class="absolute inset-0 flex items-center justify-center text-white/25">${icon(a.icon, 92)}</div>
+            ${photo ? `<img src="${photo}" alt="" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover">` : ""}
+            <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,26,44,0)_45%,rgba(15,26,44,0.55))]"></div>
+            <span class="absolute top-3 left-3 z-[2] inline-flex items-center gap-[0.4rem] rounded-[100px] border border-white/30 bg-black/35 px-[0.7rem] py-[0.32rem] text-2xs font-extrabold uppercase tracking-[0.14em] text-white backdrop-blur-[3px]"><span class="sponsor-live"></span>Advertisement</span>
+          </div>`;
+        openDrawer(
+          `
+          ${header}
+          <div class="relative z-[2] -mt-[22px] rounded-t-[26px] bg-surface min-h-[calc(100%-22px)] flex flex-col">
+            <div class="px-6 pt-6 pb-6 max560:px-5 flex-1">
+              <div class="flex gap-[0.9rem] items-start">
+                <div class="w-[54px] h-[54px] rounded-[16px] flex items-center justify-center text-white shrink-0 shadow-[0_4px_14px_rgba(15,26,44,0.16)]" style="background:${a.grad}">${icon(a.icon, 26)}</div>
+                <div class="min-w-0 flex-1">
+                  <div class="text-2xs font-bold tracking-[0.16em] uppercase text-adlabel mb-[0.35rem]">${c ? c.name : "Advertisement"}${a.sub ? " · " + a.sub : ""}</div>
+                  <h2>${a.headline}</h2>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-2 mt-[0.9rem]">
+                ${chip("tag", a.sub || (c ? c.name : "Sponsored"))}
+                ${chip("calendar", `${fmtShort(a.start)} – ${fmtShort(a.end)}`)}
+              </div>
+
+              <div class="mt-6">
+                <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel mb-[0.5rem]">About</div>
+                <p class="text-base leading-[1.75] text-ink text-pretty">${a.desc}</p>
+              </div>
+
+              <div class="mt-6 rounded-[18px] border border-line2 bg-surface-2 overflow-hidden">
+                ${rows.map(([ic, label, value], i) => field(ic, label, value, i === rows.length - 1)).join("")}
+              </div>
+
+              <div class="text-2xs text-adlabel leading-[1.55] mt-4">Ads keep Bergen Kids free for families. <button type="button" class="text-brand font-bold underline" data-nav="advertiser" data-dashtab="add">Advertise here</button></div>
+            </div>
+
+            <div class="sticky bottom-0 z-[3] border-t border-line2 bg-surface px-6 py-[0.9rem] max560:px-5">
+              <button type="button" class="w-full bg-orange-ink text-white px-[1.9rem] py-[0.9rem] rounded-[14px] text-base font-bold border-none transition-[background,transform] duration-200 inline-flex items-center justify-center gap-2 min-h-[52px] hover:bg-orange-deep hover:-translate-y-[1px]" data-action="ext-link" data-url="${esc(a.dest)}">${icon("globe", 17)} Visit Website</button>
             </div>
           </div>`,
-          true
+          true // the wide drawer, same as the directory listing panel
         );
         return true;
       }
@@ -9720,9 +10159,18 @@
           );
         const tab = state.advTab;
         const tabs = ADV_TABS;
-        // Every screen has a nav entry now, so the lit tab is simply the current
-        // one; anything unrecognised falls back to My Ads.
-        const navTab = tabs.some((t) => t[0] === tab) ? tab : "ads";
+        /* Every screen has a nav entry, so the lit tab is normally the current
+           one; anything unrecognised falls back to My Ads.
+
+           Editing is the exception, and it is why this is not simply `tab`. An
+           edit reuses the create form because it is the same form, but it is
+           not the Create Ad screen: it started from a row in My Ads, it ends by
+           going back there, and nothing about it makes a new ad. Lighting up
+           Create Ad told the advertiser they had left the list and were now
+           raising a second advertisement — which is the one thing an edit must
+           not look like. So the list stays lit and the form says which ad it is
+           on, with a way back written into it. */
+        const navTab = state.editAd ? "ads" : tabs.some((t) => t[0] === tab) ? tab : "ads";
         return `<div class="view-full mx-auto px-[clamp(1rem,5%,7rem)] pt-10 pb-16 max700:pt-7 max700:pb-12 max380:px-4">
           <div class="mb-7"><div class="flex items-center gap-[0.4rem] text-sm text-muted mb-[0.9rem] flex-wrap"><a class="cursor-pointer text-brand font-bold underline" data-nav="home">Home</a>${icon("chev-right", 14, "text-adlabel")}<span>Advertiser Dashboard</span></div>
             <div class="font-serif text-display-2 font-black text-head tracking-[-0.02em] leading-[1.15] text-balance">Advertiser Dashboard</div><p class="text-muted text-lg leading-[1.65] mt-[0.6rem] max-w-[65ch] text-pretty">Welcome back, ${state.user.name}. Manage your ad campaigns in one place.</p></div>
@@ -9733,7 +10181,7 @@
                 <div class="mt-3 font-serif text-base font-black text-head leading-[1.2] break-words">${state.user.name}</div>
                 <div class="text-sm text-muted mt-[0.15rem]">Advertiser</div>
               </div>
-              ${tabs.map((t) => `<button class="${navTab === t[0] ?"flex items-center gap-[0.7rem] w-full text-left border-none px-[0.85rem] py-3 rounded-[11px] text-base font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto bg-navy text-white [&_svg]:text-white [&_svg]:shrink-0" : "flex items-center gap-[0.7rem] w-full text-left bg-transparent border-none px-[0.85rem] py-3 rounded-[11px] text-base font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto text-muted [&_svg]:text-adlabel [&_svg]:shrink-0 hover:bg-surface-4 hover:text-head [&:hover_svg]:text-brand"}" data-action="adv-tab" data-tab="${t[0]}">${icon(t[2], 18)} ${t[1]}</button>`).join("")}
+              ${tabs.map((t) => `<button class="${navTab === t[0] ? "flex items-center gap-[0.7rem] w-full text-left border-none px-[0.85rem] py-3 rounded-[11px] text-base font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto bg-navy text-white [&_svg]:text-white [&_svg]:shrink-0" : "flex items-center gap-[0.7rem] w-full text-left bg-transparent border-none px-[0.85rem] py-3 rounded-[11px] text-base font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto text-muted [&_svg]:text-adlabel [&_svg]:shrink-0 hover:bg-surface-4 hover:text-head [&:hover_svg]:text-brand"}" data-action="adv-tab" data-tab="${t[0]}">${icon(t[2], 18)} ${t[1]}</button>`).join("")}
               <div class="pt-2 mt-2 border-t border-line2 max1024:hidden">
                 <button class="flex items-center gap-[0.7rem] w-full text-left bg-transparent border-none px-[0.85rem] py-3 rounded-[11px] text-base font-semibold text-muted [&_svg]:text-adlabel [&_svg]:shrink-0 min-h-[46px] transition-colors duration-150 hover:bg-[#fdf3f2] hover:text-[#a3271c] [&:hover_svg]:text-[#a3271c]" data-action="logout">${icon("logout", 18)} Log out</button>
               </div>
@@ -9876,7 +10324,11 @@
       // one create screen there is: the advertisement form.
       const DASH_TO_ADV = { add: "create" };
       function goDashTab(tab) {
-        state.editAd = null; // arriving fresh, never mid-edit of another campaign
+        // Arriving fresh, never mid-edit of another campaign — and the draft
+        // goes with it, or the abandoned edit is reloaded into the next form
+        // that opens.
+        state.editAd = null;
+        state.adDraft = null;
         state.advTab = tab;
         render();
       }
@@ -10031,18 +10483,47 @@
         hours: "",
         desc: "",
         type: "basic",
+        types: ["basic"],
         photos: 0,
+        // Deluxe allows one video alongside the photos. `false` is a Deluxe ad
+        // that chose not to add one; absent means the allowance is intact.
+        video: false,
         addons: [],
         payMode: "onetime",
         plan: "monthly",
-        // Banner design, for the two leaderboard types. "default" builds the
-        // banner from the ad's own fields; "custom" is everything below.
+        /* Artwork, per type. A home-page pair is a 2480×248 banner and a
+           600×760 card, and one shared set of fields cannot hold both — the
+           picture that fits the strip is the wrong crop for the poster. So the
+           design lives against the type it is for.
+
+           The five flat fields below it are the shape this used to have, kept
+           because the seeded ads are written in them; adCreative() reads them
+           as the record for whichever type an old ad was filed under. */
+        creative: {},
         banner: "default",
         bannerImg: "", // data URL of the uploaded artwork
         bannerIcon: "", // data URL of a logo shown instead of the category glyph
         bannerTitle: "",
         bannerText: "",
       });
+      /* The design record for one type of one ad, created on demand. An ad
+         written before artwork was per-type carries its design in the flat
+         fields, so the type it was filed under inherits them rather than
+         opening blank. */
+      function adCreative(d, t) {
+        if (!d.creative) d.creative = {};
+        if (!d.creative[t]) {
+          const legacy = t === d.type;
+          d.creative[t] = {
+            mode: (legacy && d.banner) || "default",
+            img: (legacy && d.bannerImg) || "",
+            icon: (legacy && d.bannerIcon) || "",
+            title: (legacy && d.bannerTitle) || "",
+            text: (legacy && d.bannerText) || "",
+          };
+        }
+        return d.creative[t];
+      }
       /* What each slot is actually painted at, and therefore what the advertiser
          has to supply. Every figure is the live box at 2×: the leaderboard is
          #sponsor-bar's 1240 cap by .sponsor-stage's 124px height, and the
@@ -10059,8 +10540,10 @@
         "home-sidebar": { w: 600, h: 760, shape: "upright card" },
         "cat-sidebar": { w: 600, h: 760, shape: "upright card" },
       };
-      const artSpec = (d) => AD_ARTWORK[d.type] || AD_ARTWORK["cat-leaderboard"];
-      const artSpecText = (d) => `${artSpec(d).w} × ${artSpec(d).h} px`;
+      // Keyed on the type, not the draft: one ad can now be carrying two of
+      // these at once and they are different shapes.
+      const artSpec = (t) => AD_ARTWORK[t] || AD_ARTWORK["cat-leaderboard"];
+      const artSpecText = (t) => `${artSpec(t).w} × ${artSpec(t).h} px`;
       // A numbered step in the create form.
       function adStep(n, title, sub, body) {
         return `<div class="border-t-[1.5px] border-line pt-6 mt-6 first:border-t-0 first:pt-0 first:mt-0">
@@ -10126,7 +10609,7 @@
                 <label>${label}</label>
                 <span class="text-sm font-semibold text-adlabel">${sel.length ? sel.length + " selected" : "None"}</span>
               </div>
-              <div class="flex gap-2 flex-wrap mt-[0.3rem]${scroll ?" max-h-[176px] overflow-y-auto pr-1 border-[1.5px] border-line rounded-[12px] p-3 bg-surface-2" : ""}">${opts
+              <div class="flex gap-2 flex-wrap mt-[0.3rem]${scroll ? " max-h-[176px] overflow-y-auto pr-1 border-[1.5px] border-line rounded-[12px] p-3 bg-surface-2" : ""}">${opts
                 .map(
                   ([v, l]) =>
                     `<button type="button" class="${sel.includes(v) ? PREF_CHIP_ON : PREF_CHIP_OFF}" data-action="ad-chip" data-kind="${kind}" data-val="${esc(v)}" aria-pressed="${sel.includes(v)}">${l}</button>`
@@ -10160,25 +10643,24 @@
          All four read from the draft, so the name, category and subcategory
          being typed above appear in them as they are typed; the leaderboards
          additionally take the custom artwork, logo and wording. */
-      const previewCopy = (d) => {
+      const previewCopy = (d, t) => {
         const c = catOf(d.cat) || CATEGORIES[0];
-        const custom = d.banner === "custom" && adHasBanner(d);
-        const w = artSpec(d).w;
+        const cr = adCreative(d, t);
+        const custom = cr.mode === "custom" && !!adTypeOf(t).banner;
+        const w = artSpec(t).w;
         return {
           c,
           custom,
-          title: (custom && d.bannerTitle.trim()) || d.name.trim() || "Your advertisement",
-          sub:
-            (custom && d.bannerText.trim()) ||
-            [c.name, d.sub].filter(Boolean).join(" · ") ||
-            c.name,
+          cr,
+          title: (custom && cr.title.trim()) || (d.name || "").trim() || "Your advertisement",
+          sub: (custom && cr.text.trim()) || [c.name, d.sub].filter(Boolean).join(" · ") || c.name,
           /* The picture, and there is always one. Custom artwork where it has
              been uploaded, and the category's own photograph where it has not —
              the leaderboards used to fall back to a flat gradient, which is not
              what the slot looks like in the wild and made the standard design
              read as the cheaper option rather than as a different one. */
-          art: (custom && d.bannerImg) || catImg(d.cat, w > 1000 ? 1600 : 800),
-          mark: custom ? d.bannerIcon : "",
+          art: (custom && cr.img) || catImg(d.cat, w > 1000 ? 1600 : 800),
+          mark: custom ? cr.icon : "",
           who: (state.user && state.user.name) || "Your business",
         };
       };
@@ -10186,13 +10668,15 @@
       // uploaded one, the category glyph where they have not.
       const previewChip = (p, size, cls) =>
         `<span class="${cls} overflow-hidden ${p.mark ? "bg-white" : "text-white"}"${p.mark ? "" : ` style="background:${p.c.grad}"`}>${
-          p.mark ? `<img src="${p.mark}" alt="" class="w-full h-full object-contain">` : icon(p.c.icon, size)
+          p.mark
+            ? `<img src="${p.mark}" alt="" class="w-full h-full object-contain">`
+            : icon(p.c.icon, size)
         }</span>`;
       // Home leaderboard — the sponsor bar. Carries the close button, because
       // that unit is fixed over the hero and a family has to be able to get rid
       // of it.
-      function previewHomeLeaderboard(d) {
-        const p = previewCopy(d);
+      function previewHomeLeaderboard(d, t) {
+        const p = previewCopy(d, t);
         return `<div class="relative rounded-[18px] overflow-hidden bg-[linear-gradient(180deg,rgba(14,14,16,0.94),rgba(0,0,0,0.96))] px-4 py-3 flex items-center gap-3 min-h-[104px] shadow-[0_18px_50px_rgba(0,0,0,0.42)]"${p.art ? ` style="background-image:url('${p.art}');background-size:cover;background-position:center"` : ""}>
             <span class="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,10,14,0.86),rgba(8,10,14,0.4))]"></span>
             <span class="relative z-[1] flex items-center gap-[0.45rem] text-2xs font-bold tracking-[0.12em] uppercase text-white/80 shrink-0 max700:hidden"><span class="sponsor-live"></span>Advertisement</span>
@@ -10208,8 +10692,8 @@
       }
       // Category leaderboard — .page-ad-band, the in-page row. Same classes as
       // the live unit, and no close button, because it is part of the page.
-      function previewCatLeaderboard(d) {
-        const p = previewCopy(d);
+      function previewCatLeaderboard(d, t) {
+        const p = previewCopy(d, t);
         return `<div class="page-ad-band"${p.art ? ` style="background-image:url('${p.art}');background-size:cover;background-position:center"` : ""}>
             <span class="page-ad-band-scrim"></span>
             ${previewChip(p, 20, "page-ad-band-chip")}
@@ -10223,11 +10707,11 @@
       }
       // Home sidebar — the corner popup. Photo, scrim, close button, and the
       // same stacked copy the live unit carries.
-      function previewHomeSidebar(d) {
-        const p = previewCopy(d);
+      function previewHomeSidebar(d, t) {
+        const p = previewCopy(d, t);
         const photo = p.art;
         return `<div class="relative z-[1] overflow-hidden rounded-[16px] bg-navy shadow-[0_20px_54px_rgba(26,46,74,0.24)] w-[300px] max-w-full">
-            ${photo ? `<img src="${photo}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 h-full w-full object-cover">` : ""}
+            ${photo ? `<img src="${photo}" alt="" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover">` : ""}
             <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,15,26,0.93)_0%,rgba(9,15,26,0.8)_34%,rgba(9,15,26,0.34)_60%,rgba(9,15,26,0.92)_100%)]"></div>
             <div class="relative flex min-h-[300px] flex-col p-[1.15rem]">
               <div class="flex items-start justify-between gap-3">
@@ -10247,12 +10731,12 @@
           </div>`;
       }
       // Category sidebar — .promo-ad, the poster in the directory's right rail.
-      function previewCatSidebar(d) {
-        const p = previewCopy(d);
+      function previewCatSidebar(d, t) {
+        const p = previewCopy(d, t);
         const photo = p.art;
         return `<div class="promo-ad w-[300px] max-w-full">
-            ${photo ? `<img src="${photo}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="promo-ad-photo">` : ""}
-            ${p.custom && d.bannerImg ? "" : `<div class="promo-ad-tint" style="background:${p.c.grad}"></div>`}
+            ${photo ? `<img src="${photo}" alt="" loading="lazy" decoding="async" class="promo-ad-photo">` : ""}
+            ${p.custom && p.cr.img ? "" : `<div class="promo-ad-tint" style="background:${p.c.grad}"></div>`}
             <div class="promo-ad-scrim"></div>
             <div class="promo-ad-body">
               <div class="flex items-center gap-3">
@@ -10286,16 +10770,20 @@
           "The card in the category page's right-hand rail, beside the results.",
         ],
       };
-      function adPlacementPreview(d) {
-        const entry = AD_PREVIEWS[d.type];
+      function adPlacementPreview(d, t) {
+        const entry = AD_PREVIEWS[t];
         if (!entry) return "";
         const [build, note] = entry;
         return `<div class="mt-4">
-            <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel mb-[0.5rem]">Preview — ${adTypeOf(d.type).name}</div>
-            ${build(d)}
+            <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel mb-[0.5rem]">Preview — ${adTypeOf(t).name}</div>
+            ${build(d, t)}
             <div class="text-sm text-muted leading-[1.55] mt-[0.6rem]">${note}</div>
           </div>`;
       }
+      /* The unit an ad actually renders as, at the size it renders — used by
+         the create form's preview and by the ad detail panel, so an advertiser
+         checking a live ad sees the same object they signed off on. */
+      const adUnitPreview = (d, t) => (AD_PREVIEWS[t] ? AD_PREVIEWS[t][0](d, t) : "");
       // Text the advertiser typed, printed back onto the preview. Escaped for
       // content, not for an attribute — it goes between tags.
       const escText = (v) =>
@@ -10303,15 +10791,78 @@
           .replace(/&/g, "&amp;")
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;");
-      function adBannerBlock(d) {
-        const custom = d.banner === "custom";
+      /* Photos and video, as two fields rather than one.
+
+         They were a single drop that added both at once, which cannot express
+         the thing that is actually true of a Deluxe ad: the photos are required
+         and the video is not. One control meant one state — either you had a
+         gallery and a video or you had nothing — so an advertiser with five
+         photographs and no film had no way to say so, and the asterisk had
+         nowhere to sit. Split, each says its own limit, carries its own count,
+         and clears on its own.
+
+         The asterisk is on Photos alone, and validateAd enforces it. */
+      const AD_UPLOAD_FIELDS = {
+        photos: {
+          label: "Photos",
+          req: true,
+          cta: "Click to upload photos",
+          note: "PNG or JPG up to 5MB each",
+        },
+        video: {
+          label: "Video",
+          req: false,
+          cta: "Click to upload a video",
+          note: "MP4 up to 100MB",
+        },
+      };
+      function adUploadField(d, kind) {
+        const m = AD_UPLOAD_FIELDS[kind];
+        const isVideo = kind === "video";
+        // Read here rather than baked into the table above: AD_GALLERY_PHOTOS
+        // is declared further down the file with the gallery code it belongs
+        // to, and a const object referencing it at definition time is evaluated
+        // before that line has run.
+        const max = isVideo ? 1 : AD_GALLERY_PHOTOS;
+        const n = isVideo ? (d.video ? 1 : 0) : d.photos || 0;
+        const full = n >= max;
+        // The count lives in the label — "Photos * — Max 5" answers how many
+        // are allowed, and the line under the count answers how many are in.
+        return `<div class="${FLD} mt-4">
+            <label>${m.label}${m.req ? ' <span style="color:var(--orange-ink)">*</span>' : ""} <span style="color:var(--muted);font-weight:400">— Max ${max}</span></label>
+            <div class="border-2 border-dashed ${full ? "border-brand bg-surface-4" : "border-[#b0bdc9] bg-surface-2"} rounded-[12px] p-6 text-center text-muted cursor-pointer transition-all duration-150 hover:border-brand hover:text-head hover:bg-surface-4 [&_svg]:text-brand [&_svg]:mb-[0.4rem]" data-action="ad-upload" data-kind="${kind}">${icon(full ? "check" : "upload", 26)}
+              <div style="font-weight:600">${full ? `${m.label} added — click to replace` : m.cta}</div>
+              <div style="font-size:var(--fs-sm);margin-top:0.2rem">${m.note}</div>
+            </div>
+            ${
+              n
+                ? `<div style="margin-top:0.6rem;display:flex;gap:4px;height:64px">${Array.from({
+                    length: n,
+                  })
+                    .map(() =>
+                      isVideo
+                        ? `<div style="flex:1;background:linear-gradient(135deg,#1a2e4a,#2d5a8e);border-radius:8px;display:grid;place-items:center;color:#fff">${icon("play", 20)}</div>`
+                        : `<div style="flex:1;background:linear-gradient(135deg,#c8ead8,#a8d5b8);border-radius:8px"></div>`
+                    )
+                    .join("")}</div>
+              <div class="flex items-center justify-between gap-3 flex-wrap" style="margin-top:0.4rem">
+                <div style="font-size:var(--fs-sm);color:var(--grass-ink);font-weight:700">${icon("check", 14)} ${n} ${isVideo ? "video" : n === 1 ? "photo" : "photos"} added (demo)</div>
+                <button type="button" class="inline-flex items-center gap-2 min-h-[34px] px-[0.7rem] rounded-[9px] border-[1.5px] border-line bg-surface text-sm font-bold text-head hover:border-head" data-action="ad-upload-clear" data-kind="${kind}">${icon("trash", 13)} Remove</button>
+              </div>`
+                : ""
+            }
+          </div>`;
+      }
+      function adBannerBlock(d, t) {
+        const cr = adCreative(d, t);
+        const custom = cr.mode === "custom";
         const pick = (id, ic, name, desc, on) =>
-          `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-banner-mode" data-val="${id}" aria-pressed="${on}">
+          `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-banner-mode" data-val="${id}" data-type="${t}" aria-pressed="${on}">
               <div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon(ic, 15)} ${name}</div>
               <div class="text-sm text-muted mt-[0.3rem] leading-[1.45]">${desc}</div>
             </button>`;
         const drop = (action, label, note, filled) =>
-          `<div class="border-2 border-dashed ${filled ? "border-brand bg-surface-4" : "border-[#b0bdc9] bg-surface-2"} rounded-[12px] px-4 py-5 text-center cursor-pointer transition-all duration-150 hover:border-brand hover:bg-surface-4" data-action="${action}">
+          `<div class="border-2 border-dashed ${filled ? "border-brand bg-surface-4" : "border-[#b0bdc9] bg-surface-2"} rounded-[12px] px-4 py-5 text-center cursor-pointer transition-all duration-150 hover:border-brand hover:bg-surface-4" data-action="${action}" data-type="${t}">
               <span class="text-brand leading-[0] block mb-[0.35rem]">${icon(filled ? "check" : "upload", 22)}</span>
               <div class="text-base font-semibold text-head">${label}</div>
               <div class="text-sm text-muted mt-[0.15rem]">${note}</div>
@@ -10324,13 +10875,22 @@
            the only thing that differs is the shape of the picture, and that is
            what AD_ARTWORK carries.
 
-           So the wording follows the slot rather than assuming a banner. */
-        const banner = adHasBanner(d);
-        const shape = artSpec(d).shape; // "wide banner" | "upright card"
+           So the wording follows the slot rather than assuming a banner.
+
+           One of these per type on the ad. An advertiser taking the home page's
+           leaderboard and its corner card is designing two different objects,
+           and the block is titled with the type's own name so which is which is
+           never a guess. */
+        const banner = !!adTypeOf(t).banner;
+        const shape = artSpec(t).shape; // "wide banner" | "upright card"
         const noun = shape === "wide banner" ? "banner" : "card";
+        // Element ids and the file-input id are per type, because two of these
+        // blocks can be on screen at once and a shared id would have the second
+        // one writing into the first.
+        const fid = (k) => `ad-bn-${k}-${t}`;
         return `<div class="mt-5 rounded-[14px] border-[1.5px] border-line2 bg-surface-4 p-5 max380:p-4">
-            <div class="font-bold text-base text-head flex items-center gap-[0.4rem] mb-[0.3rem]">${icon("image", 15)} ${banner ? "Ad design" : "How this ad appears"}</div>
-            <div class="text-sm text-muted leading-[1.55] mb-4">${banner ? `This type runs a ${shape}. Take the standard design, or supply your own artwork and wording.` : "Built from what you filled in above — your ad name, the category and its glyph."}</div>
+            <div class="font-bold text-base text-head flex items-center gap-[0.4rem] mb-[0.3rem]">${icon("image", 15)} ${banner ? "Ad design" : "How this ad appears"} <span class="text-sm font-semibold text-muted">— ${adTypeOf(t).name}</span></div>
+            <div class="text-sm text-muted leading-[1.55] mb-4">${banner ? `This slot runs a ${shape}. Take the standard design, or supply your own artwork and wording.` : "Built from what you filled in above — your ad name, the category and its glyph."}</div>
             ${
               banner
                 ? `<div class="grid grid-cols-2 gap-3 max700:grid-cols-1">
@@ -10343,44 +10903,48 @@
               banner && custom
                 ? `<div class="grid grid-cols-2 gap-[1.1rem] mt-4 max700:grid-cols-1">
               <div class="${FLD_WIDE}"><label>${noun === "banner" ? "Banner" : "Card"} artwork</label>
-                ${drop("ad-banner-img", d.bannerImg ? "Artwork added — click to replace" : `Click to upload your ${noun}`, `${artSpecText(d)} · JPG or PNG up to 4 MB`, !!d.bannerImg)}
-                <div class="flex items-start gap-2 text-sm text-muted leading-[1.55] mt-[0.5rem]">${icon("image", 14, "shrink-0 mt-[0.15rem]")}<span>The slot is painted at ${artSpec(d).w / 2} × ${artSpec(d).h / 2}, so ${artSpecText(d)} is that at 2× and stays sharp on a retina screen. Anything larger is scaled to fit and cropped from the centre.</span></div>
+                ${drop("ad-banner-img", cr.img ? "Artwork added — click to replace" : `Click to upload your ${noun}`, `${artSpecText(t)} · JPG or PNG up to 4 MB`, !!cr.img)}
+                <div class="flex items-start gap-2 text-sm text-muted leading-[1.55] mt-[0.5rem]">${icon("image", 14, "shrink-0 mt-[0.15rem]")}<span>The slot is painted at ${artSpec(t).w / 2} × ${artSpec(t).h / 2}, so ${artSpecText(t)} is that at 2× and stays sharp on a retina screen. Anything larger is scaled to fit and cropped from the centre.</span></div>
               </div>
               <div class="${FLD}"><label>Your logo <span style="color:var(--muted);font-weight:400">— replaces the category icon</span></label>
-                ${drop("ad-banner-icon", d.bannerIcon ? "Logo added — click to replace" : "Click to upload a logo", "Square PNG works best · up to 2 MB", !!d.bannerIcon)}
+                ${drop("ad-banner-icon", cr.icon ? "Logo added — click to replace" : "Click to upload a logo", "Square PNG works best · up to 2 MB", !!cr.icon)}
               </div>
-              <div class="${FLD}"><label>Headline</label><input id="ad-banner-title" maxlength="46" placeholder="${esc(d.name || "Your advertisement")}" value="${esc(d.bannerTitle)}"></div>
-              <div class="${FLD_WIDE}"><label>Supporting line</label><input id="ad-banner-text" maxlength="72" placeholder="${esc([(catOf(d.cat) || CATEGORIES[0]).name, d.sub].filter(Boolean).join(" · "))}" value="${esc(d.bannerText)}"></div>
+              <div class="${FLD}"><label>Headline</label><input id="${fid("title")}" data-ad-banner-field="title" data-type="${t}" maxlength="46" placeholder="${esc(d.name || "Your advertisement")}" value="${esc(cr.title)}"></div>
+              <div class="${FLD_WIDE}"><label>Supporting line</label><input id="${fid("text")}" data-ad-banner-field="text" data-type="${t}" maxlength="72" placeholder="${esc([(catOf(d.cat) || CATEGORIES[0]).name, d.sub].filter(Boolean).join(" · "))}" value="${esc(cr.text)}"></div>
               ${
-                d.bannerImg || d.bannerIcon
+                cr.img || cr.icon
                   ? `<div class="col-span-full flex gap-2 flex-wrap">
-                ${d.bannerImg ? `<button type="button" class="inline-flex items-center gap-2 min-h-[38px] px-3 rounded-[10px] border-[1.5px] border-line bg-surface text-sm font-bold text-head hover:border-head" data-action="ad-banner-clear" data-val="bannerImg">${icon("trash", 14)} Remove artwork</button>` : ""}
-                ${d.bannerIcon ? `<button type="button" class="inline-flex items-center gap-2 min-h-[38px] px-3 rounded-[10px] border-[1.5px] border-line bg-surface text-sm font-bold text-head hover:border-head" data-action="ad-banner-clear" data-val="bannerIcon">${icon("trash", 14)} Remove logo</button>` : ""}
+                ${cr.img ? `<button type="button" class="inline-flex items-center gap-2 min-h-[38px] px-3 rounded-[10px] border-[1.5px] border-line bg-surface text-sm font-bold text-head hover:border-head" data-action="ad-banner-clear" data-val="img" data-type="${t}">${icon("trash", 14)} Remove artwork</button>` : ""}
+                ${cr.icon ? `<button type="button" class="inline-flex items-center gap-2 min-h-[38px] px-3 rounded-[10px] border-[1.5px] border-line bg-surface text-sm font-bold text-head hover:border-head" data-action="ad-banner-clear" data-val="icon" data-type="${t}">${icon("trash", 14)} Remove logo</button>` : ""}
               </div>`
                   : ""
               }
             </div>`
                 : ""
             }
-            <div id="ad-preview">${adPlacementPreview(d)}</div>
-            <input type="file" id="ad-banner-file" accept="image/*" class="hidden">
+            <div data-ad-preview="${t}">${adPlacementPreview(d, t)}</div>
           </div>`;
       }
-      function adTypePick(t, on) {
-        return `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ?"border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-type" data-val="${t.id}" aria-pressed="${on}">
+      /* `multi` is not decoration. A card that can be combined with its
+         neighbour and one that replaces it are two different controls, and a
+         picker that draws them identically is asking the advertiser to find out
+         which they are by clicking. The combinable ones carry a checkbox and
+         the exclusive ones do not, which is the same distinction the add-on
+         cards already make. */
+      function adTypePick(t, on, multi) {
+        return `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-type" data-val="${t.id}" aria-pressed="${on}">
             <div class="flex items-start justify-between gap-3">
-              <div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon(t.icon, 15)} ${t.name}</div>
-              <span class="text-sm font-extrabold whitespace-nowrap ${t.rate ?"text-orange-ink" : "text-muted"}">${t.rate ? "+" + money(t.rate) + `<span class="font-semibold text-muted">/ad</span>` : "Included"}</span>
+              <div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${multi ? `<span class="w-[20px] h-[20px] rounded-[6px] border-[1.5px] grid place-items-center shrink-0 ${on ? "bg-navy border-navy text-white" : "border-line text-transparent"}">${icon("check", 12)}</span>` : icon(t.icon, 15)} ${t.name}</div>
+              <span class="text-sm font-extrabold whitespace-nowrap ${t.rate ? "text-orange-ink" : "text-muted"}">${t.rate ? "+" + money(t.rate) + `<span class="font-semibold text-muted">/ad</span>` : "Included"}</span>
             </div>
             <div class="text-sm text-muted mt-[0.3rem] leading-[1.45]">${t.desc}</div>
-            ${t.rate ? `<div class="text-sm text-orange-ink font-semibold mt-[0.4rem]">Adds ${usd(t.rate)} to the amount payable.</div>` : ""}
           </button>`;
       }
       function adAddonPick(p, on, note) {
-        return `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ?"border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-addon" data-val="${p.id}" aria-pressed="${on}">
+        return `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-addon" data-val="${p.id}" aria-pressed="${on}">
             <div class="flex items-start justify-between gap-3">
               <div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon(p.icon, 15)} ${p.name}</div>
-              <span class="w-[20px] h-[20px] rounded-[6px] border-[1.5px] grid place-items-center shrink-0 ${on ?"bg-navy border-navy text-white" : "border-line text-transparent"}">${icon("check", 12)}</span>
+              <span class="w-[20px] h-[20px] rounded-[6px] border-[1.5px] grid place-items-center shrink-0 ${on ? "bg-navy border-navy text-white" : "border-line text-transparent"}">${icon("check", 12)}</span>
             </div>
             <div class="text-sm text-muted mt-[0.3rem] leading-[1.45]">${p.desc}</div>
             ${note ? `<div class="text-sm font-semibold text-brand mt-[0.4rem]">${note}</div>` : ""}
@@ -10388,11 +10952,10 @@
           </button>`;
       }
       function adPlanPick(p, on, sub) {
-        return `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ?"border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-plan" data-val="${p.id}" aria-pressed="${on}">
+        return `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-plan" data-val="${p.id}" aria-pressed="${on}">
             <div class="font-bold text-base text-head">${p.name}</div>
             <div class="text-sm text-muted">${p.days} days</div>
             <div class="mt-[0.5rem] font-serif text-2xl font-black text-head leading-[1]">${usd(sub ? p.price : p.oneTime)}</div>
-            ${sub ? `<div class="text-sm text-muted mt-[0.15rem]">renews every ${p.days} days</div>` : ""}
           </button>`;
       }
       /* The Total Amount Payable, itemised. Rendered identically in the create
@@ -10401,11 +10964,15 @@
       function billingSplit(b, totalLabel) {
         const row = (l, v, sub) =>
           `<div class="flex justify-between gap-4 text-base py-[0.4rem] text-head"><span>${l}${sub ? `<span class="block text-sm text-muted leading-[1.4] font-normal">${sub}</span>` : ""}</span><b class="whitespace-nowrap">${v}</b></div>`;
+        // One line for the ad type, whatever it is placed on. The slots an ad
+        // occupies are named in full a step above this, so splitting them into
+        // priced rows here restated the selection to charge for it twice over.
         return `${row("Ad type", usd(b.typeCost))}
             ${
-              b.addons.length
-                ? b.addons.map((a) => row(a.name, usd(a.cost))).join("")
-                : row("Add-ons for placement", usd(0))
+              // No add-on taken means no add-on line. A row reading
+              // "Add-ons for placement · $0.00" is a charge that was never
+              // made, printed on every ad that did not take one.
+              b.addons.length ? b.addons.map((a) => row(a.name, usd(a.cost))).join("") : ""
             }
             ${
               b.subscription
@@ -10425,10 +10992,31 @@
           state.adDraft = editing ? { ...newAdDraft(), ...editing } : newAdDraft();
           WH_STATE = defaultWH();
         }
+        /* The way back, and the only one there was not. An edit is reached from
+           a row in My Ads and the sidebar now stays on My Ads throughout — but
+           the sidebar button is a tab switch, not an exit: pressed mid-edit it
+           would drop the changes silently. This says where you are and gets you
+           out deliberately, which is what a breadcrumb is for.
+
+           Only on an edit. Create Ad is its own screen reached from the nav and
+           has nothing to go back to. */
+        const crumb = editing
+          ? `<div class="flex items-center gap-[0.4rem] text-sm text-muted mb-4 flex-wrap">
+              <button type="button" class="cursor-pointer text-brand font-bold underline bg-transparent border-none p-0 inline-flex items-center gap-[0.3rem]" data-action="back-to-ads">${icon("arrow-left", 14)} My Ads</button>
+              ${icon("chev-right", 14, "text-adlabel")}<span class="truncate max-w-[280px]">${esc(editing.name)}</span>
+            </div>`
+          : "";
         return `<div class="bg-surface border-[1.5px] border-line rounded-[18px] p-6 mb-6 [&_h3]:text-lg [&_h3]:text-head [&_h3]:mb-[0.3rem] max380:p-[1.1rem]">
+            ${crumb}
             <h3>${editing ? "Edit advertisement" : "Create a new advertisement"}</h3>
             <div class="text-sm text-muted mb-5 leading-[1.55]">${editing ? "Update what the ad says. Nothing further is charged — it stays in review once submitted." : "Tell families what you offer, choose where the ad is placed and how you pay for it, then check out. Fields marked * are required."}</div>
             <div id="ad-form-root">${adFormInner()}</div>
+            <!-- One file input for the whole form. Every artwork and logo drop
+                 on every type routes through it; BANNER_SLOT carries which one
+                 asked, so two design blocks on screen at once cannot write into
+                 each other. It lives out here rather than in the block because
+                 a repaint rebuilds the block mid-pick. -->
+            <input type="file" id="ad-banner-file" accept="image/*" class="hidden">
           </div>`;
       }
       function adFormInner() {
@@ -10447,9 +11035,13 @@
               ${items.map((t) => `<div class="text-base font-semibold text-head py-[0.2rem]">${t}</div>`).join("")}
               <div class="flex items-start gap-2 text-sm text-muted leading-[1.5] mt-2 pt-2 border-t border-line">${icon("lock", 14, "shrink-0 mt-[0.15rem]")}<span>${note}</span></div>
             </div>`;
+        // Steps number themselves in the order they are written, so one that
+        // does not apply can drop out without leaving a gap in the sequence.
+        let stepNo = 0;
+        const step = () => ++stepNo;
         return `
           ${adStep(
-            1,
+            step(),
             "Advertisement details",
             "What families see on the ad, and where it sends them.",
             `<div class="grid grid-cols-[1fr_1fr] gap-[1.1rem] max700:grid-cols-[1fr]">
@@ -10466,7 +11058,11 @@
               false
             )}
             <div class="${FLD}"><label>Address</label><input id="ad-addr" placeholder="Start typing address…" value="${esc(d.address)}"></div>
-            <div class="${FLD}"><label>Phone</label><input id="ad-phone" placeholder="(201) 555-0000" value="${esc(d.phone)}"></div>
+            <!-- The dial-code select the contact form, signup and every
+                 profile already use. This field was a bare text input, so a
+                 number typed here was the one phone number on the site with no
+                 country on it. Optional, so no asterisk. -->
+            <div class="${FLD}">${phoneField("ad-phone", d.phone, "Phone")}</div>
             <div class="${FLD_WIDE}"><label>Working hours</label>
               <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
                 <div id="ad-hours-summary" style="flex:1;min-width:220px;font-size:var(--fs-sm);border:1.5px solid var(--line);border-radius:10px;padding:0.65rem 0.85rem;background:var(--surface-2)">${d.hours ? `<span style="color:var(--head)">${d.hours}</span>` : `<span style="color:var(--muted)">Not set yet</span>`}</div>
@@ -10476,84 +11072,90 @@
           </div>`
           )}
           ${adStep(
-            2,
+            step(),
             "Ad type",
             locked
               ? "The type this ad was paid for."
-              : "One choice, and it decides where the ad runs — in the directory, on the home page, or inside its own category.",
+              : "Where the ad runs. Pick one surface — in the directory, on the home page, or inside its own category — and on the home page or in a category you can take the leaderboard, the sidebar, or both.",
             `${
               locked
                 ? lockedBox(
-                    [b.type.name],
+                    b.types.map((t) => t.name),
                     "The ad type cannot be changed after payment. Withdraw this ad and create a new one to switch."
                   )
-                : AD_TYPE_GROUPS.map(
-                    (g) => `<div class="mb-4 last:mb-0">
-              <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel mb-[0.6rem]">${g}</div>
-              <div class="grid grid-cols-2 gap-3 max700:grid-cols-1">${AD_TYPES.filter((t) => t.group === g)
-                .map((t) => adTypePick(t, d.type === t.id))
+                : AD_TYPE_GROUPS.map((g) => {
+                    const multi = groupIsMulti(g);
+                    const on = adTypeIds(d);
+                    return `<div class="mb-4 last:mb-0">
+              <div class="flex items-baseline gap-2 mb-[0.6rem] flex-wrap">
+                <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel">${g}</div>
+                ${multi ? `<div class="text-2xs text-muted">Take one or both</div>` : ""}
+              </div>
+              <div class="grid grid-cols-2 gap-3 max700:grid-cols-1">${AD_TYPES.filter(
+                (t) => t.group === g
+              )
+                .map((t) => adTypePick(t, on.includes(t.id), multi))
                 .join("")}</div>
-            </div>`
-                  ).join("")
+            </div>`;
+                  }).join("")
             }
-          ${!locked && AD_PREVIEWS[d.type] ? adBannerBlock(d) : ""}
           ${
-            deluxe
-              ? `<div class="${FLD} mt-4"><label>Upload photos <span style="color:var(--muted);font-weight:400">— Deluxe feature</span></label>
-              <div class="border-2 border-dashed border-[#b0bdc9] rounded-[12px] p-6 text-center text-muted cursor-pointer transition-all duration-150 bg-surface-2 text-base hover:border-brand hover:text-head hover:bg-surface-4 [&_svg]:text-brand [&_svg]:mb-[0.4rem]" data-action="ad-photos">${icon("upload", 26)}<div style="font-weight:600">Click to upload images</div><div style="font-size:var(--fs-sm);margin-top:0.2rem">PNG or JPG up to 5MB</div></div>
-              ${
-                d.photos
-                  ? `<div style="margin-top:0.6rem;display:flex;gap:4px;height:64px">${Array.from({
-                      length: d.photos,
-                    })
-                      .map(
-                        () =>
-                          `<div style="flex:1;background:linear-gradient(135deg,#c8ead8,#a8d5b8);border-radius:8px"></div>`
-                      )
-                      .join(
-                        ""
-                      )}</div><div style="font-size:var(--fs-sm);color:var(--grass-ink);margin-top:0.4rem;font-weight:700">${icon("check", 14)} ${d.photos} photos added (demo)</div>`
-                  : ""
-              }</div>`
-              : ""
-          }`
+            locked
+              ? ""
+              : adTypeIds(d)
+                  .filter((t) => AD_PREVIEWS[t])
+                  .map((t) => adBannerBlock(d, t))
+                  .join("")
+          }
+          ${deluxe ? `${adUploadField(d, "photos")}${adUploadField(d, "video")}` : ""}`
           )}
-          ${adStep(
-            3,
-            "Add-on",
-            locked
-              ? "What was bought on top of the type."
-              : adCanTop10(d)
-                ? "Optional, and charged once per ad."
-                : "Nothing to add on this type.",
-            locked
-              ? lockedBox(
-                  b.addons.length ? b.addons.map((x) => x.name) : ["No add-on taken"],
-                  "Add-ons cannot be changed after payment. Withdraw this ad and create a new one to change them."
-                )
-              : // Pinning applies to a directory result, so there is nothing to
-                // offer a home-page popup or a category banner.
-                !adCanTop10(d)
-                ? `<div class="flex items-start gap-2 text-sm text-muted leading-[1.55] bg-surface-4 border-[1.5px] border-line2 rounded-[12px] px-4 py-3">${icon("trending", 15, "shrink-0 mt-[0.15rem]")}<span><b class="text-head">Top 10 in directory applies to directory listings.</b> ${adTypeOf(d.type).name} does not run in the directory, so there is nothing to pin. Choose Basic or Deluxe above if you want this.</span></div>`
-                : `<div class="grid grid-cols-2 gap-3 max700:grid-cols-1">${AD_PLACEMENTS.filter(
-                    (p) => p.id !== "top10" || left > 0 || d.addons.includes("top10")
-                  )
-                    .map((p) =>
-                      adAddonPick(
-                        p,
-                        d.addons.includes(p.id),
-                        p.id === "top10" ? `${left} of ${TOP10_SLOTS} slots left` : ""
+          ${
+            /* The add-on step exists only where there is an add-on. Top 10 is
+               the only one left and it pins a directory result, so on a
+               home-page or category ad there was nothing to offer — and the
+               step filled itself with a paragraph explaining Top 10, naming it,
+               and telling the advertiser to go back and pick a different type
+               to get it. That is an upsell wearing the clothes of a form field:
+               it puts a product the advertiser did not ask for in the middle of
+               the one they are buying, and it makes the category placements
+               read as the lesser choice.
+
+               So the step is simply not there. The numbering runs off a counter
+               rather than literals for the same reason — a form that jumps from
+               2 to 4 is telling the reader they missed something. */
+            adCanTop10(d)
+              ? adStep(
+                  step(),
+                  "Add-on",
+                  locked
+                    ? "What was bought on top of the type."
+                    : "Optional, and charged once per ad.",
+                  locked
+                    ? lockedBox(
+                        b.addons.length ? b.addons.map((x) => x.name) : ["No add-on taken"],
+                        "Add-ons cannot be changed after payment. Withdraw this ad and create a new one to change them."
                       )
-                    )
-                    .join("")}</div>
+                    : `<div class="grid grid-cols-2 gap-3 max700:grid-cols-1">${AD_PLACEMENTS.filter(
+                        (p) => p.id !== "top10" || left > 0 || d.addons.includes("top10")
+                      )
+                        .map((p) =>
+                          adAddonPick(
+                            p,
+                            d.addons.includes(p.id),
+                            p.id === "top10" ? `${left} of ${TOP10_SLOTS} slots left` : ""
+                          )
+                        )
+                        .join("")}</div>
           ${
             left <= 0 && !d.addons.includes("top10")
               ? `<div class="mt-3 flex items-start gap-2 text-sm text-muted leading-[1.55] bg-surface-4 border-[1.5px] border-line2 rounded-[12px] px-4 py-3">${icon("trending", 15, "shrink-0 mt-[0.15rem]")}<span><b class="text-head">Top 10 in directory is sold out.</b> All ${TOP10_SLOTS} pinned slots are taken by other advertisers right now, so it is not available on this ad. Unpinned directory results are shown newest first.</span></div>`
               : ""
           }`
-          )}
+                )
+              : ""
+          }
           ${adStep(
-            4,
+            step(),
             locked ? "Payment plan" : "Choose payment plan",
             locked
               ? "The plan this ad was paid on."
@@ -10564,8 +11166,8 @@
                   "The billing plan cannot be changed after payment."
                 )
               : `<div class="grid grid-cols-2 gap-3 max700:grid-cols-1 mb-4">
-            <button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${!b.subscription ?"border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-paymode" data-val="onetime" aria-pressed="${!b.subscription}"><div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon("card", 15)} One time fee</div><div class="text-sm text-muted mt-[0.3rem] leading-[1.45]">Charged once. The ad expires at the end of the term and nothing renews.</div></button>
-            <button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${b.subscription ?"border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-paymode" data-val="subscription" aria-pressed="${b.subscription}"><div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon("trending", 15)} Subscription plan</div><div class="text-sm text-muted mt-[0.3rem] leading-[1.45]">Renews automatically each term against your primary card until you cancel.</div></button>
+            <button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${!b.subscription ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-paymode" data-val="onetime" aria-pressed="${!b.subscription}"><div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon("card", 15)} One time fee</div><div class="text-sm text-muted mt-[0.3rem] leading-[1.45]">Charged once. The ad expires at the end of the term and nothing renews.</div></button>
+            <button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${b.subscription ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-paymode" data-val="subscription" aria-pressed="${b.subscription}"><div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon("trending", 15)} Subscription plan</div><div class="text-sm text-muted mt-[0.3rem] leading-[1.45]">Renews automatically each term against your primary card until you cancel.</div></button>
           </div>
           <label class="text-sm font-bold text-head block mb-2">Duration *</label>
           <div class="grid grid-cols-4 gap-3 max900:grid-cols-2 max560:grid-cols-1">${BILLING_PLANS.map((p) => adPlanPick(p, d.plan === p.id, b.subscription)).join("")}</div>
@@ -10579,7 +11181,7 @@
           }`
           )}
           ${adStep(
-            5,
+            step(),
             "Billing details",
             locked ? "What was paid for this ad." : "What makes up the amount payable today.",
             `<div class="bg-surface-4 border-[1.5px] border-line2 rounded-[14px] px-5 py-[1.1rem]" id="ad-billing">${billingSplit(b)}</div>`
@@ -10613,23 +11215,35 @@
         pull("sub", "ad-sub");
         pull("dest", "ad-dest");
         pull("address", "ad-addr");
-        pull("phone", "ad-phone");
+        // readPhone, not pull: the number and its dial code are two controls
+        // and have to be joined back into one value on the way out.
+        if (el("ad-phone")) d.phone = readPhone("ad-phone");
         pull("desc", "ad-desc");
-        pull("bannerTitle", "ad-banner-title");
-        pull("bannerText", "ad-banner-text");
+        // The banner wording is per type, and there can be two blocks of it on
+        // screen, so these are found by their marker rather than by a fixed id.
+        document.querySelectorAll("[data-ad-banner-field]").forEach((node) => {
+          const cr = adCreative(d, node.dataset.type);
+          cr[node.dataset.adBannerField] = node.value;
+        });
       }
       function repaintAdForm() {
         syncAdDraft();
         const root = el("ad-form-root");
         if (root) root.innerHTML = adFormInner();
       }
-      /* Redraws the preview alone. Everything that feeds it — the ad name, the
-         category, the subcategory, the custom wording — is typed or picked in a
-         field that must survive the redraw, so repaintAdForm() is the wrong
-         tool: it rebuilds the input under the caret. */
+      /* Redraws the previews alone. Everything that feeds them — the ad name,
+         the category, the subcategory, the custom wording — is typed or picked
+         in a field that must survive the redraw, so repaintAdForm() is the
+         wrong tool: it rebuilds the input under the caret.
+
+         Every block on the form is repainted, not just one: the ad name and the
+         category feed both halves of a home-page pair, so typing a name has to
+         move the banner and the card together. */
       function refreshAdPreview() {
-        const box = el("ad-preview");
-        if (box && state.adDraft) box.innerHTML = adPlacementPreview(state.adDraft);
+        if (!state.adDraft) return;
+        document.querySelectorAll("[data-ad-preview]").forEach((box) => {
+          box.innerHTML = adPlacementPreview(state.adDraft, box.dataset.adPreview);
+        });
       }
 
       /* The town popup. Everything it does writes straight into the draft, so
@@ -10763,7 +11377,8 @@
           otherQ.value = "";
           toast(known ? known + " added" : name + " added as a custom town", "check");
         };
-        if (el("town-pick-other-add")) el("town-pick-other-add").addEventListener("click", addOther);
+        if (el("town-pick-other-add"))
+          el("town-pick-other-add").addEventListener("click", addOther);
         if (otherQ)
           otherQ.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
@@ -10810,7 +11425,7 @@
         return `<div class="table-scroll overflow-x-auto [-webkit-overflow-scrolling:touch] -mx-1 px-1"><table class="w-full border-collapse min-w-[560px] [&_th]:text-left [&_th]:text-sm [&_th]:font-bold [&_th]:tracking-[0.05em] [&_th]:uppercase [&_th]:text-adlabel [&_th]:px-3 [&_th]:py-[0.7rem] [&_th]:border-b-[1.5px] [&_th]:border-b-line [&_th]:whitespace-nowrap [&_td]:px-3 [&_td]:py-[0.9rem] [&_td]:border-b [&_td]:border-b-line2 [&_td]:text-base [&_td]:text-head [&_td]:align-middle [&_tr:last-child_td]:border-b-0"><thead><tr><th>Listing</th><th>Category</th>${hidePlan ? "" : "<th>Plan</th>"}<th>Status</th><th>Impressions</th><th>Clicks</th><th>CTR</th>${actions ? "<th></th>" : ""}</tr></thead><tbody>${list
           .map((l) => {
             const c = catOf(l.cat);
-            return `<tr><td class="font-semibold whitespace-nowrap">${l.name}</td><td class="whitespace-nowrap">${c.name}</td>${hidePlan ? "" : `<td><span class="text-sm font-bold px-[11px] py-[4px] rounded-[100px] whitespace-nowrap ${l.plan ==="deluxe" ? "bg-[#fdeed5] text-[#8a5200]" : "bg-surface-5 text-muted"}">${l.plan === "deluxe" ? "Deluxe" : "Basic"}</span></td>`}<td>${listingStatusPill(l.status)}</td><td>${l.impressions.toLocaleString()}</td><td>${l.clicks.toLocaleString()}</td><td class="whitespace-nowrap">${l.impressions ? ((l.clicks / l.impressions) * 100).toFixed(1) + "%" : "—"}</td>${actions ? `<td style="white-space:nowrap"><button class="w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-surface text-muted inline-flex items-center justify-center hover:border-head hover:text-head" data-action="open-listing" data-id="${l.id}" title="View">${icon("eye", 15)}</button> ${l.status !== "expired" ? `<button class="w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-surface text-muted inline-flex items-center justify-center hover:border-head hover:text-head" data-action="delete-listing" data-id="${l.id}" title="Delete listing">${icon("trash", 15)}</button>` : ""}</td>` : ""}</tr>`;
+            return `<tr><td class="font-semibold whitespace-nowrap">${l.name}</td><td class="whitespace-nowrap">${c.name}</td>${hidePlan ? "" : `<td><span class="text-sm font-bold px-[11px] py-[4px] rounded-[100px] whitespace-nowrap ${l.plan === "deluxe" ? "bg-[#fdeed5] text-[#8a5200]" : "bg-surface-5 text-muted"}">${l.plan === "deluxe" ? "Deluxe" : "Basic"}</span></td>`}<td>${listingStatusPill(l.status)}</td><td>${l.impressions.toLocaleString()}</td><td>${l.clicks.toLocaleString()}</td><td class="whitespace-nowrap">${l.impressions ? ((l.clicks / l.impressions) * 100).toFixed(1) + "%" : "—"}</td>${actions ? `<td style="white-space:nowrap"><button class="w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-surface text-muted inline-flex items-center justify-center hover:border-head hover:text-head" data-action="open-listing" data-id="${l.id}" title="View">${icon("eye", 15)}</button> ${l.status !== "expired" ? `<button class="w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-surface text-muted inline-flex items-center justify-center hover:border-head hover:text-head" data-action="delete-listing" data-id="${l.id}" title="Delete listing">${icon("trash", 15)}</button>` : ""}</td>` : ""}</tr>`;
           })
           .join("")}</tbody></table></div>`;
       }
@@ -10830,7 +11445,16 @@
           return emptyPanel("No ads yet", "Create your first ad to reach Bergen County parents.");
         return `<div class="table-scroll overflow-x-auto [-webkit-overflow-scrolling:touch] -mx-1 px-1"><table class="w-full border-collapse min-w-[560px] [&_th]:text-left [&_th]:text-sm [&_th]:font-bold [&_th]:tracking-[0.05em] [&_th]:uppercase [&_th]:text-adlabel [&_th]:px-3 [&_th]:py-[0.7rem] [&_th]:border-b-[1.5px] [&_th]:border-b-line [&_th]:whitespace-nowrap [&_td]:px-3 [&_td]:py-[0.9rem] [&_td]:border-b [&_td]:border-b-line2 [&_td]:text-base [&_td]:text-head [&_td]:align-middle [&_tr:last-child_td]:border-b-0"><thead><tr><th>Advertisement</th><th>Placement</th><th>Plan</th><th>Runs</th><th>Status</th>${metrics ? "<th>Impressions</th><th>Clicks</th><th>CTR</th>" : ""}${actions ? "<th></th>" : ""}</tr></thead><tbody>${list
           .map((a) => {
-            const flight = `${fmtShort(a.start)} – ${fmtShort(a.end)}`;
+            /* A run is the dates an ad actually ran, and an ad that has not
+               been approved has not run. Awaiting Review and Rejected were
+               printing the flight the plan would have bought had it been
+               approved on the day it was paid for — two real-looking dates
+               that describe nothing that happened, and on a rejected ad two
+               dates for a run that never will. Approval is what sets the
+               clock (see adminApprove), so until then there is no answer and
+               the column says so. */
+            const dated = a.status === "live" || a.status === "expired";
+            const flight = dated ? `${fmtShort(a.start)} – ${fmtShort(a.end)}` : "—";
             let ctrls = "";
             if (actions) {
               const btn = (act, ttl, ic) =>
@@ -10843,7 +11467,7 @@
             }
             const ac = catOf(a.cat);
             const b = a.billing || adBilling(a);
-            return `<tr><td class="whitespace-nowrap"><div class="font-semibold">${a.name}</div><div class="text-sm text-muted font-medium">${ac ? ac.name : "—"}${a.type === "deluxe" ? " · Deluxe" : ""}</div></td><td style="font-size:var(--fs-sm)">${addonLabel(a)}</td><td style="white-space:nowrap;font-size:var(--fs-sm)"><div>${b.plan.name}</div><div class="text-sm text-muted">${b.subscription ? "Subscription" : "One time"}</div></td><td style="white-space:nowrap;font-size:var(--fs-sm);color:var(--muted)">${flight}</td><td>${adStatusPill(a.status)}</td>${metrics ? `<td>${a.impressions.toLocaleString()}</td><td>${a.clicks.toLocaleString()}</td><td class="whitespace-nowrap">${a.impressions ? ((a.clicks / a.impressions) * 100).toFixed(1) + "%" : "—"}</td>` : ""}${actions ? `<td style="white-space:nowrap">${ctrls}</td>` : ""}</tr>`;
+            return `<tr><td class="whitespace-nowrap"><div class="font-semibold">${a.name}</div><div class="text-sm text-muted font-medium">${ac ? ac.name : "—"}${adHasGallery(a) ? " · Deluxe" : ""}</div></td><td>${placementCell(a)}</td><td style="white-space:nowrap;font-size:var(--fs-sm)"><div>${b.plan.name}</div><div class="text-sm text-muted">${b.subscription ? "Subscription" : "One time"}</div></td><td style="white-space:nowrap;font-size:var(--fs-sm);color:var(--muted)">${flight}</td><td>${adStatusPill(a.status)}</td>${metrics ? `<td>${a.impressions.toLocaleString()}</td><td>${a.clicks.toLocaleString()}</td><td class="whitespace-nowrap">${a.impressions ? ((a.clicks / a.impressions) * 100).toFixed(1) + "%" : "—"}</td>` : ""}${actions ? `<td style="white-space:nowrap">${ctrls}</td>` : ""}</tr>`;
           })
           .join("")}</tbody></table></div>`;
       }
@@ -10883,7 +11507,9 @@
         if (!n) return "";
         const label = n > 9 ? "9+" : String(n);
         const wide = label.length > 1;
-        const size = wide ? "min-w-[26px] px-[5px] max380:min-w-[24px]" : "w-[20px] max380:w-[18px]";
+        const size = wide
+          ? "min-w-[26px] px-[5px] max380:min-w-[24px]"
+          : "w-[20px] max380:w-[18px]";
         return `<span class="notif-badge absolute -top-[5px] -right-[5px] h-[20px] ${size} rounded-full bg-[linear-gradient(135deg,#ff6b5e,#e0361f)] text-white text-xs font-extrabold leading-none flex items-center justify-center border-2 max380:h-[18px] max380:text-2xs" aria-hidden="true">${label}</span>`;
       }
       /* One row, worn two ways. The full page draws it as a card in the blue
@@ -10909,14 +11535,14 @@
         return `<div class="group relative flex gap-[0.9rem] items-start ${shell} bg-surface cursor-pointer transition-[background,border-color] duration-200" data-action="read-notif" data-id="${n.id}">
             <span class="w-[42px] h-[42px] ${tile} shrink-0 flex items-center justify-center">${icon(n.ic, 19)}</span>
             <span class="min-w-0 flex-1">
-              <span class="block ${page ?"text-base" : "text-sm"} leading-[1.5] text-head">${n.s}</span>
+              <span class="block ${page ? "text-base" : "text-sm"} leading-[1.5] text-head">${n.s}</span>
               <span class="block text-sm text-adlabel mt-[0.2rem]">${n.time}</span>
               <button class="${cta} mt-[0.7rem] inline-flex items-center gap-[0.4rem] text-sm font-bold px-[0.95rem] py-[0.5rem] rounded-[100px] border-none cursor-pointer transition-colors duration-200" data-action="open-notif" data-id="${n.id}">${n.cta} ${icon("arrow-right", 14)}</button>
             </span>
           </div>`;
       }
       function notifEmptyHtml(page) {
-        return `<div class="empty text-center px-4 ${page ?"py-16" : "py-10"} text-muted text-base leading-[1.6]">${icon("bell", page ? 40 : 30, "text-adlabel mb-3")}<div>You're all caught up.</div></div>`;
+        return `<div class="empty text-center px-4 ${page ? "py-16" : "py-10"} text-muted text-base leading-[1.6]">${icon("bell", page ? 40 : 30, "text-adlabel mb-3")}<div>You're all caught up.</div></div>`;
       }
       function viewNotifications() {
         if (!state.user)
@@ -11127,7 +11753,7 @@
         const u = state.user;
         const esc = (v) => (v || "").replace(/"/g, "&quot;");
         const field = (label, id, value, ph = "", full = false) =>
-          `<div class="${PF_FIELD}${full ?" col-span-full" : ""}"><label>${label}</label><input id="${id}" value="${esc(value)}"${ph ? ` placeholder="${ph}"` : ""}></div>`;
+          `<div class="${PF_FIELD}${full ? " col-span-full" : ""}"><label>${label}</label><input id="${id}" value="${esc(value)}"${ph ? ` placeholder="${ph}"` : ""}></div>`;
         const townField = (label, id, value) =>
           `<div class="${PF_FIELD}"><label>${label}</label><select id="${id}">${TOWNS.map((t) => `<option value="${esc(t)}" ${value === t ? "selected" : ""}>${t}</option>`).join("")}</select></div>`;
         let fields;
@@ -11238,7 +11864,7 @@
           ? ""
           : `<button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-[#1a2e4a] flex items-center justify-center z-[5] hover:bg-surface" data-action="close-modal">${icon("x", 18)}</button>`;
         el("modal-root").innerHTML =
-          `<div class="modal-overlay${locked ?" modal-locked" : ""} fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex items-start justify-center px-4 ${pad} overflow-y-auto animate-fade max700:px-3"><div class="modal relative bg-surface rounded-[22px] w-full shadow-[0_30px_80px_rgba(15,26,44,0.4)] animate-rise overflow-hidden max700:rounded-[18px] [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:text-head [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2] ${width}">${closeBtn}${html}</div></div>`;
+          `<div class="modal-overlay${locked ? " modal-locked" : ""} fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex items-start justify-center px-4 ${pad} overflow-y-auto animate-fade max700:px-3"><div class="modal relative bg-surface rounded-[22px] w-full shadow-[0_30px_80px_rgba(15,26,44,0.4)] animate-rise overflow-hidden max700:rounded-[18px] [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:text-head [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2] ${width}">${closeBtn}${html}</div></div>`;
         document.body.style.overflow = "hidden";
       }
       // True while a locked panel is up, so the two ambient dismissals stand down.
@@ -11263,7 +11889,7 @@
          will go back to — the point of a drawer over a route. */
       function openDrawer(html, wide) {
         el("modal-root").innerHTML =
-          `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex justify-end animate-fade"><div class="drawer relative bg-surface w-full ${wide ?"max-w-[720px]" : "max-w-[440px]"} h-full shadow-[-16px_0_60px_rgba(15,26,44,0.35)] animate-slideInRight overflow-y-auto overscroll-contain max560:max-w-full [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:text-head [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2]"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-[#1a2e4a] flex items-center justify-center z-[5] hover:bg-surface" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
+          `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex justify-end animate-fade"><div class="drawer relative bg-surface w-full ${wide ? "max-w-[720px]" : "max-w-[440px]"} h-full shadow-[-16px_0_60px_rgba(15,26,44,0.35)] animate-slideInRight overflow-y-auto overscroll-contain max560:max-w-full [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:text-head [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2]"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-[#1a2e4a] flex items-center justify-center z-[5] hover:bg-surface" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
         document.body.style.overflow = "hidden";
       }
 
@@ -11297,7 +11923,7 @@
                     <video controls preload="none" playsinline poster="${it.poster}" aria-label="Video from ${l.name}"><source src="${it.src}" type="video/mp4"></video>
                   </div>`
                       : `<div class="lg-slide${i === 0 ? " is-active" : ""}" data-lg-slide>
-                    <img src="${it.src}" alt="${l.name}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" onerror="this.remove()">
+                    <img src="${it.src}" alt="${l.name}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">
                   </div>`
                   )
                   .join("")}
@@ -11312,7 +11938,7 @@
               </div>`
           : `<div class="relative w-full aspect-[3/2] overflow-hidden" style="background:${c.grad}">
                 <div class="absolute inset-0 flex items-center justify-center text-white">${icon(l.icon || c.icon, 52)}</div>
-                ${img ? `<img src="${img}" alt="${l.name}" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">` : ""}
+                ${img ? `<img src="${img}" alt="${l.name}" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover">` : ""}
                 ${featured}
               </div>`;
         /* The rail is rendered apart from the stage because it belongs on the
@@ -11350,24 +11976,71 @@
               <div class="text-base text-head font-semibold leading-[1.5] [&_a]:text-brand [&_a]:underline [&_a]:break-words">${value}</div>
             </div>
           </div>`;
+        /* Towns and age groups are lists, and the chips could only ever show
+           one of each. A listing seeded with a single town and a single age
+           band fitted the chip row by accident; anything served across four
+           towns, or open to two separate age groups, had no way to say so — the
+           chip showed the first and silently dropped the rest.
+
+           A field in the card below holds as many as there are, one per line,
+           next to a label that says what they are. Which is also where a parent
+           looks them up: the chips sit above the About text as decoration, and
+           the card is the part of the panel you read for facts. */
+        const towns = listingTowns(l);
+        const ages = listingAges(l);
+        // Each entry on its own line. One run-on string is what the hours were
+        // doing wrong, and a list of towns punctuated into a sentence would
+        // repeat it.
+        /* `not-first:` is a Tailwind v4 variant and this page is on the v3 CDN
+           build, so it compiled to nothing and every entry sat flush against
+           the one above. Indexed instead, which needs no variant at all. */
+        const stack = (items) =>
+          items.map((x, i) => `<div class="${i ? "mt-[0.15rem]" : ""}">${x}</div>`).join("");
+        /* The hours, split. "Mon–Thu 9am–5pm · Fri 9am–3pm" is two facts joined
+           by a separator, and at the width this card gets it wrapped mid-range
+           so a reader had to hunt for where one day ended and the next began.
+           Split on the separator it was already written with, each range gets
+           its own line and the shape of the week is visible at a glance. */
+        const hourLines = (v) =>
+          String(v)
+            .split(/\s*·\s*/)
+            .map((x) => x.trim())
+            .filter(Boolean);
         const rows = [
           l.addr ? ["pin", "Address", `${l.addr}, NJ`] : null,
-          l.hours ? ["clock", "Opening hours", l.hours] : null,
+          towns.length ? ["pin", towns.length > 1 ? "Towns" : "Town", stack(towns)] : null,
+          ages.length ? ["users", ages.length > 1 ? "Age groups" : "Age group", stack(ages)] : null,
+          l.hours ? ["clock", "Working hours", stack(hourLines(l.hours))] : null,
+          /* The dial code, shown. Every number in the seed is stored bare —
+             "(201) 555-0187" — and the panel printed it as stored, so the one
+             place a parent goes to actually ring a business was the one place
+             on the site without a country on the number. splitPhone reads a
+             code off the front where one was saved and falls back to the
+             default where none was, which is the same rule the form uses. */
           l.phone
-            ? ["phone", "Phone", `<a href="tel:${l.phone.replace(/[^0-9]/g, "")}">${l.phone}</a>`]
+            ? [
+                "phone",
+                "Phone",
+                (() => {
+                  const { dial, num } = splitPhone(l.phone);
+                  const full = `${dial} ${num}`;
+                  return `<a href="tel:${full.replace(/[^0-9+]/g, "")}">${full}</a>`;
+                })(),
+              ]
             : null,
           l.website
-            ? ["globe", "Website", `<a data-action="ext-link" data-url="${l.website}">${l.website}</a>`]
+            ? [
+                "globe",
+                "Website",
+                `<a data-action="ext-link" data-url="${l.website}">${l.website}</a>`,
+              ]
             : null,
         ].filter(Boolean);
 
-        /* The chips under the title. Town, age band and subcategory were a
-           single muted run-on sentence — "Swimming · Sports & Athletics · Fort
-           Lee, NJ" — which is three separate facts punctuated to look like one.
-           As chips each is its own object, and the two a parent actually filters
-           on, town and age, stop being buried mid-line. */
-        const chip = (ic, text) =>
-          `<span class="inline-flex items-center gap-[0.35rem] rounded-[100px] bg-surface-2 border border-line2 px-[0.7rem] py-[0.32rem] text-sm font-bold text-head whitespace-nowrap">${icon(ic, 13)}${text}</span>`;
+        // The chip row is gone with the two chips it held — town and age both
+        // live in the details card now, where a list of them fits. The
+        // subcategory and category still sit above the title, which is where
+        // they always were.
 
         openDrawer(
           `
@@ -11384,15 +12057,16 @@
               <div class="flex gap-[0.9rem] items-start">
                 ${logo}
                 <div class="min-w-0 flex-1">
-                  <div class="text-2xs font-bold tracking-[0.16em] uppercase text-adlabel mb-[0.35rem]">${l.sub} · ${c.name}</div>
+                  <!-- Category then subcategory, matching the cards this panel
+                       opens from — it read the other way round here, so the
+                       same two facts were ordered one way in the grid and the
+                       other way one click later. -->
+                  <div class="text-2xs font-bold tracking-[0.16em] uppercase text-adlabel mb-[0.35rem]">${c.name}${l.sub ? " · " + l.sub : ""}</div>
                   <h2>${l.name}</h2>
+                  ${listingAdvertiser(l) ? `<div class="text-sm text-muted font-medium mt-[0.3rem] leading-[1.4]">${listingAdvertiser(l)}</div>` : ""}
                 </div>
               </div>
 
-              <div class="flex flex-wrap gap-2 mt-[0.9rem]">
-                ${chip("pin", `${l.town}, NJ`)}
-                ${l.ageMin != null && l.ageMax != null ? chip("users", `Ages ${l.ageMin}–${l.ageMax}`) : ""}
-              </div>
 
               ${
                 l.desc
@@ -11482,7 +12156,7 @@
           "flex gap-[0.6rem] items-center text-base text-head leading-[1.5] [&_svg]:text-brand [&_svg]:shrink-0 [&_a]:text-brand [&_a]:font-bold [&_a]:underline [&_a]:break-words";
         const header = `<div class="relative w-full aspect-[3/2] overflow-hidden" style="background:${c.grad}">
                 <div class="absolute inset-0 flex items-center justify-center text-white">${icon(e.icon || c.icon, 52)}</div>
-                ${img ? `<img src="${img}" alt="" loading="lazy" decoding="async" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover">` : ""}
+                ${img ? `<img src="${img}" alt="" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover">` : ""}
                 <span class="absolute top-3 left-3 z-[1] inline-flex items-center gap-[0.3rem] rounded-[100px] border border-white/30 bg-white/15 px-[0.6rem] py-[0.3rem] text-xs font-extrabold uppercase tracking-[0.05em] text-white backdrop-blur-[3px]">${MONTHS[d.getMonth()]} ${d.getDate()}</span>
               </div>`;
         openDrawer(
@@ -11493,6 +12167,33 @@
             <h2>${e.name}</h2>
             <div class="text-muted text-base mt-[0.35rem] leading-[1.55]">${e.organizer} · ${e.town}, NJ</div>
             ${e.desc ? `<p style="color:var(--text);line-height:1.7;font-size:var(--fs-base);margin-top:1rem">${e.desc}</p>` : ""}
+            ${(() => {
+              const m = evMedia(e.id);
+              if (!m.photos.length && !m.video) return "";
+              return `<div class="mt-5">
+                <div class="text-xs font-extrabold tracking-[0.06em] uppercase text-muted mb-2">Photos${m.video ? " &amp; video" : ""}</div>
+                <div class="grid grid-cols-3 gap-2 max560:grid-cols-2">
+                  ${m.photos
+                    .map(
+                      (
+                        ph
+                      ) => `<div class="relative aspect-square overflow-hidden rounded-[10px]" style="background:${c.grad}">
+                      <img src="https://images.unsplash.com/photo-${ph}?w=300&amp;h=300&amp;fit=crop&amp;auto=format" alt="" loading="lazy" decoding="async"
+                        class="absolute inset-0 h-full w-full object-cover">
+                    </div>`
+                    )
+                    .join("")}
+                  ${
+                    m.video
+                      ? `<div class="relative aspect-square overflow-hidden rounded-[10px] bg-navy flex flex-col items-center justify-center gap-1 text-white">
+                      ${icon("play", 22)}
+                      <span class="px-1 text-center text-[0.62rem] font-bold leading-tight">${m.video}</span>
+                    </div>`
+                      : ""
+                  }
+                </div>
+              </div>`;
+            })()}
             <div class="grid grid-cols-[1fr] gap-[0.85rem] my-5">
               <div class="${ROW}">${icon("calendar", 16)} ${evDates(e)}</div>
               <div class="${ROW}">${icon("clock", 16)} ${evTimes(e)}</div>
@@ -11620,7 +12321,7 @@
               alt=""
               loading="lazy"
               decoding="async"
-              onerror="this.remove()"
+             
               class="absolute inset-0 h-full w-full object-cover"
             />
             <div class="absolute inset-0 bg-[linear-gradient(200deg,rgba(15,26,44,0.12)_0%,rgba(15,26,44,0.5)_48%,rgba(15,26,44,0.93)_100%)]"></div>
@@ -11707,7 +12408,7 @@
         const picker = state.auth.pick
           ? `
           <div class="flex flex-col gap-[0.4rem] [&_label]:text-sm [&_label]:font-bold [&_label]:text-head" style="margin-bottom:0.7rem"><label>I am a…</label>
-            <div class="grid grid-cols-[repeat(2,1fr)] gap-2 max700:grid-cols-[1fr]">${roles.map((r) => `<label class="radio-card border-[1.5px] rounded-[12px] px-3 py-[0.65rem] cursor-pointer transition-all duration-150 hover:border-brand ${r[0] === sel ?"sel border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2"}" data-role-pick="${r[0]}"><div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon(r[2], 15)} ${r[1]}</div></label>`).join("")}</div></div>`
+            <div class="grid grid-cols-[repeat(2,1fr)] gap-2 max700:grid-cols-[1fr]">${roles.map((r) => `<label class="radio-card border-[1.5px] rounded-[12px] px-3 py-[0.65rem] cursor-pointer transition-all duration-150 hover:border-brand ${r[0] === sel ? "sel border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2"}" data-role-pick="${r[0]}"><div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon(r[2], 15)} ${r[1]}</div></label>`).join("")}</div></div>`
           : "";
         return `${picker}
           <div id="auth-fields">${authFields(mode, sel)}</div>
@@ -11722,8 +12423,8 @@
           const phoneActive = state.auth.method === "phone";
           return `
             <div class="grid grid-cols-[1fr_1fr] gap-2 mb-[0.8rem] max700:grid-cols-[1fr]">
-              <button type="button" class="rounded-[10px] border-[1.5px] px-3 py-[0.6rem] font-bold text-base ${emailActive ?"bg-surface text-head border-navy " : "bg-surface-2 text-muted border-line"}" data-action="set-auth-method" data-method="email">Email</button>
-              <button type="button" class="rounded-[10px] border-[1.5px] px-3 py-[0.6rem] font-bold text-base ${phoneActive ?"bg-surface text-head border-navy " : "bg-surface-2 text-muted border-line"}" data-action="set-auth-method" data-method="phone">Phone</button>
+              <button type="button" class="rounded-[10px] border-[1.5px] px-3 py-[0.6rem] font-bold text-base ${emailActive ? "bg-surface text-head border-navy " : "bg-surface-2 text-muted border-line"}" data-action="set-auth-method" data-method="email">Email</button>
+              <button type="button" class="rounded-[10px] border-[1.5px] px-3 py-[0.6rem] font-bold text-base ${phoneActive ? "bg-surface text-head border-navy " : "bg-surface-2 text-muted border-line"}" data-action="set-auth-method" data-method="phone">Phone</button>
             </div>
             <div style="margin-bottom:0.7rem">${
               emailActive
@@ -11872,27 +12573,30 @@
       /* Which of the two drops asked for the file. One <input type="file">
          serves both, because two would need two change handlers and two ids to
          keep straight for a difference of one word. */
-      let BANNER_SLOT = "bannerImg";
+      let BANNER_SLOT = { type: "cat-leaderboard", slot: "img" };
       function readBannerFile(file) {
         if (!file || !state.adDraft) return;
         if (!/^image\//.test(file.type)) {
           toast("Choose an image file", "x");
           return;
         }
-        const cap = BANNER_SLOT === "bannerImg" ? 4 : 2;
+        const { type, slot } = BANNER_SLOT;
+        const cap = slot === "img" ? 4 : 2;
         if (file.size > cap * 1024 * 1024) {
           toast(`Image must be under ${cap} MB`, "x");
           return;
         }
         const reader = new FileReader();
         reader.onload = () => {
-          state.adDraft[BANNER_SLOT] = reader.result;
+          adCreative(state.adDraft, type)[slot] = reader.result;
           repaintAdForm();
           // Measured off the file rather than assumed: an advertiser who
           // uploads a 600px-wide banner should hear it now, not after the ad
-          // is live and painted soft across a 1240px slot.
-          if (BANNER_SLOT === "bannerImg") {
-            const spec = artSpec(state.adDraft);
+          // is live and painted soft across a 1240px slot. The figure quoted
+          // is the one for the slot the file was dropped on, which is why the
+          // type travels with the request — a home-page pair has two of them.
+          if (slot === "img") {
+            const spec = artSpec(type);
             const probe = new Image();
             probe.onload = () => {
               if (probe.naturalWidth < spec.w / 2)
@@ -12035,7 +12739,7 @@
              the way, so the shortcut shows the whole category rather than
              whatever the last visit was still narrowed to. */
           if (navEl.dataset.cat !== undefined || navEl.dataset.q !== undefined) {
-            state.dir = { q: navEl.dataset.q || "", cats: [], ages: [], towns: [] };
+            state.dir = { q: navEl.dataset.q || "", cats: [], subs: [], ages: [], towns: [] };
             if (navEl.dataset.cat && v === "directory") {
               openDirCat(navEl.dataset.cat);
               return;
@@ -12148,7 +12852,7 @@
               break;
             case "clear-filters":
             case "clear-all-dir":
-              state.dir = { q: "", cats: [], ages: [], towns: [] };
+              state.dir = { q: "", cats: [], subs: [], ages: [], towns: [] };
               render();
               break;
             // The X inside the search pill, and nothing else now that the
@@ -12350,30 +13054,65 @@
             case "ad-type": {
               const d = state.adDraft;
               syncAdDraft(); // the banner text fields are about to be repainted away
-              d.type = actEl.dataset.val;
-              // Anything the new type cannot carry is dropped rather than left
-              // in the draft to be charged for or submitted invisibly.
-              if (!adHasGallery(d)) d.photos = 0;
+              const val = actEl.dataset.val;
+              const grp = adTypeOf(val).group;
+              const cur = adTypeIds(d);
+              /* Three rules, and between them they cover every click:
+
+                 A type from a different group replaces the selection outright —
+                 the surfaces are alternatives, and an ad that is a directory
+                 listing and a home-page popup at once is not a product.
+
+                 Inside a group that sells two separate slots, a click toggles,
+                 so the leaderboard and the sidebar can both be on.
+
+                 Inside the directory group it still swaps, because Basic and
+                 Deluxe are two tiers of one listing.
+
+                 The last one on cannot be turned off: an ad has to be
+                 somewhere, and an empty step 2 prices at nothing. */
+              let next;
+              if (adTypeOf(cur[0]).group !== grp) next = [val];
+              else if (!groupIsMulti(grp)) next = [val];
+              else if (cur.includes(val))
+                next = cur.length > 1 ? cur.filter((x) => x !== val) : cur;
+              else next = [...cur, val];
+              // Kept in the order AD_TYPES declares, so the leaderboard always
+              // leads the sidebar however they were clicked.
+              adSetTypes(
+                d,
+                AD_TYPES.map((t) => t.id).filter((id) => next.includes(id))
+              );
+              // Anything the new selection cannot carry is dropped rather than
+              // left in the draft to be charged for or submitted invisibly.
+              if (!adHasGallery(d)) {
+                d.photos = 0;
+                d.video = false;
+              }
               if (!adCanTop10(d)) d.addons = d.addons.filter((a) => a !== "top10");
               repaintAdForm();
               break;
             }
             case "ad-banner-mode":
               syncAdDraft();
-              state.adDraft.banner = actEl.dataset.val;
+              adCreative(state.adDraft, actEl.dataset.type).mode = actEl.dataset.val;
               repaintAdForm();
               break;
             case "ad-banner-img":
             case "ad-banner-icon":
               syncAdDraft();
-              // One hidden input serves both drops; which one it is filling is
-              // parked on the node so the change handler knows where to put it.
-              BANNER_SLOT = a === "ad-banner-img" ? "bannerImg" : "bannerIcon";
+              // One hidden input serves every drop on the form; which type and
+              // which of its two slots it is filling is parked here so the
+              // change handler knows where to put the file.
+              BANNER_SLOT = {
+                type: actEl.dataset.type,
+                slot: a === "ad-banner-img" ? "img" : "icon",
+              };
               el("ad-banner-file")?.click();
               break;
             case "ad-banner-clear":
               syncAdDraft();
-              state.adDraft[actEl.dataset.val] = "";
+              adCreative(state.adDraft, actEl.dataset.type)[actEl.dataset.val] = "";
               repaintAdForm();
               break;
             case "ad-addon": {
@@ -12399,12 +13138,30 @@
               syncAdDraft();
               hoursModal();
               break;
-            case "ad-photos":
+            case "ad-upload": {
               syncAdDraft();
-              state.adDraft.photos = 3;
+              // Each field fills only its own allowance now, so an advertiser
+              // can take the photos without the video — which is the whole
+              // point of separating them.
+              const kind = actEl.dataset.kind;
+              if (kind === "video") {
+                state.adDraft.video = true;
+                toast("1 video uploaded (demo)", "image");
+              } else {
+                state.adDraft.photos = AD_GALLERY_PHOTOS;
+                toast(`${AD_GALLERY_PHOTOS} photos uploaded (demo)`, "image");
+              }
               repaintAdForm();
-              toast("Images uploaded (demo)", "image");
               break;
+            }
+            case "ad-upload-clear": {
+              syncAdDraft();
+              const kind = actEl.dataset.kind;
+              if (kind === "video") state.adDraft.video = false;
+              else state.adDraft.photos = 0;
+              repaintAdForm();
+              break;
+            }
             case "ad-pay":
               adToCheckout();
               break;
@@ -12436,6 +13193,11 @@
               render();
               break;
             case "cancel-ad":
+            // The breadcrumb leaves the same way Cancel does — an edit that is
+            // abandoned is abandoned however it was left, and a back link that
+            // quietly kept a half-finished draft alive would resurrect it the
+            // next time the form opened.
+            case "back-to-ads":
               state.editAd = null;
               state.adDraft = null;
               state.advTab = "ads";
@@ -12674,11 +13436,9 @@
 
         if (adEl) {
           const key = adEl.dataset.adclick;
-          // Anything marked data-adgo goes straight to the advertiser instead of
-          // opening the detail popup: the whole top sponsor bar and the whole
-          // corner ad, plus the Visit buttons on the side rail and the promo
-          // card. An ad's own call to action is worth honouring rather than
-          // interrupting with another panel about the same ad.
+          // Only the Visit buttons carry data-adgo, and only they leave the
+          // site. Clicking the ad itself opens the same detail panel a listing
+          // opens from inside a category, so the two behave alike.
           if (adEl.dataset.adgo !== undefined) {
             const dest = (PUBLIC_ADS[key] || {}).dest;
             toast("Opening " + (dest || key) + " (external)", "globe");
@@ -12779,18 +13539,12 @@
 
            Only the preview node is rewritten, not the form: repainting the form
            would rebuild the input under the caret on every keystroke. */
-        if (
-          e.target.id === "ad-banner-title" ||
-          e.target.id === "ad-banner-text" ||
-          e.target.id === "ad-name"
-        ) {
+        if (e.target.dataset.adBannerField !== undefined || e.target.id === "ad-name") {
           if (!state.adDraft) return;
-          const field = {
-            "ad-banner-title": "bannerTitle",
-            "ad-banner-text": "bannerText",
-            "ad-name": "name",
-          }[e.target.id];
-          state.adDraft[field] = e.target.value;
+          if (e.target.id === "ad-name") state.adDraft.name = e.target.value;
+          else
+            adCreative(state.adDraft, e.target.dataset.type)[e.target.dataset.adBannerField] =
+              e.target.value;
           refreshAdPreview();
           return;
         }
@@ -12990,7 +13744,7 @@
       // whole, and routed like every other category link, for when it returns.
       function doHomeSearch() {
         const cat = el("home-cat")?.value || "";
-        state.dir = { q: el("home-search")?.value || "", cats: [], ages: [], towns: [] };
+        state.dir = { q: el("home-search")?.value || "", cats: [], subs: [], ages: [], towns: [] };
         if (cat) openDirCat(cat);
         else navigate("directory");
       }
@@ -13508,11 +14262,22 @@
         // town list would be an answer nothing reads. See AD_TYPES.
         if (adNeedsTown(d) && !d.towns.length) return "Please pick at least one town";
         if (!d.desc) return "Please add a description";
+        /* The asterisk on Photos, enforced. A Deluxe listing is a gallery card
+           in the directory — it is the whole difference between the two tiers —
+           and one with no pictures renders as a Basic card that was charged
+           twice. The video carries no asterisk and is not checked. */
+        if (adHasGallery(d) && !d.photos)
+          return "Please add at least one photo — a Deluxe listing is a photo gallery";
         // A custom banner with no artwork is the one half-finished state that
         // would ship silently — it falls back to the standard design, which is
-        // not what was asked for.
-        if (adHasBanner(d) && d.banner === "custom" && !d.bannerImg)
-          return "Please upload your banner artwork, or switch back to the standard design";
+        // not what was asked for. Checked per type, because an ad can be
+        // carrying two designs and only one of them may be short.
+        const missing = adBannerTypes(d).find((t) => {
+          const cr = adCreative(d, t);
+          return cr.mode === "custom" && !cr.img;
+        });
+        if (missing)
+          return `Please upload the artwork for ${adTypeOf(missing).name}, or switch it back to the standard design`;
         return null;
       }
       /* "Update ad" on the edit form. The same freeze-and-validate as the
@@ -13569,13 +14334,13 @@
         adCheckoutModal();
       }
       function savedCardRow(c, picked) {
-        return `<button type="button" class="w-full text-left border-[1.5px] rounded-[12px] px-4 py-3 flex items-center gap-3 transition-all duration-150 ${picked ?"border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="pick-card" data-id="${c.id}" aria-pressed="${picked}">
+        return `<button type="button" class="w-full text-left border-[1.5px] rounded-[12px] px-4 py-3 flex items-center gap-3 transition-all duration-150 ${picked ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="pick-card" data-id="${c.id}" aria-pressed="${picked}">
             ${cardBrandMark(c.brand)}
             <span class="min-w-0 flex-1">
               <span class="block font-bold text-base text-head">${maskCard(c)}${c.primary ? ` <span class="text-xs font-extrabold uppercase tracking-[0.08em] text-brand bg-mint rounded-[100px] px-[0.5rem] py-[0.1rem] align-middle">Primary</span>` : ""}</span>
               <span class="block text-sm text-muted">Expires ${c.exp}</span>
             </span>
-            <span class="w-[20px] h-[20px] rounded-full border-[1.5px] grid place-items-center shrink-0 ${picked ?"bg-navy border-navy text-white" : "border-line text-transparent"}">${icon("check", 12)}</span>
+            <span class="w-[20px] h-[20px] rounded-full border-[1.5px] grid place-items-center shrink-0 ${picked ? "bg-navy border-navy text-white" : "border-line text-transparent"}">${icon("check", 12)}</span>
           </button>`;
       }
       function adCheckoutModal() {
@@ -13602,10 +14367,10 @@
           <div class="${FLD}" style="margin-bottom:0.9rem"><label>Pay with</label>
             <div class="grid gap-2">
               ${SAVED_CARDS.map((c) => savedCardRow(c, !newPicked && PAY_PICK === c.id)).join("")}
-              <button type="button" class="w-full text-left border-[1.5px] rounded-[12px] px-4 py-3 flex items-center gap-3 transition-all duration-150 ${newPicked ?"border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="pick-card" data-id="new" aria-pressed="${newPicked}">
+              <button type="button" class="w-full text-left border-[1.5px] rounded-[12px] px-4 py-3 flex items-center gap-3 transition-all duration-150 ${newPicked ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="pick-card" data-id="new" aria-pressed="${newPicked}">
                 <span class="w-[34px] h-[34px] rounded-[9px] bg-surface-5 text-head grid place-items-center shrink-0">${icon("plus", 16)}</span>
                 <span class="min-w-0 flex-1"><span class="block font-bold text-base text-head">Add a card</span><span class="block text-sm text-muted">${noCards ? "Sign-up does not collect card details, so add one here" : "Enter the details below and pay with it"}</span></span>
-                <span class="w-[20px] h-[20px] rounded-full border-[1.5px] grid place-items-center shrink-0 ${newPicked ?"bg-navy border-navy text-white" : "border-line text-transparent"}">${icon("check", 12)}</span>
+                <span class="w-[20px] h-[20px] rounded-full border-[1.5px] grid place-items-center shrink-0 ${newPicked ? "bg-navy border-navy text-white" : "border-line text-transparent"}">${icon("check", 12)}</span>
               </button>
             </div>
           </div>
@@ -13707,7 +14472,7 @@
                happened to the ad since: the review outcome, the renewal or expiry it
                is running to, and the receipt for what was paid. */
       function detailRow(label, value, wide) {
-        return `<div class="${wide ?"col-span-full" : ""}">
+        return `<div class="${wide ? "col-span-full" : ""}">
             <div class="ads-label">${label}</div>
             <div class="ads-value mt-[0.15rem] break-words">${value || "—"}</div>
           </div>`;
@@ -13757,6 +14522,126 @@
           `<div class="ads-value mt-3 pt-3 border-t border-[#a8d5b8] flex justify-between gap-4 flex-wrap"><span>${b.subscription ? "Next renewal date" : "Expiration date"}</span><b>${fmtDate(b.subscription ? a.renewal || a.end : a.end)}</b></div>`
         );
       }
+      /* ── What the ad actually looks like ────────────────────────
+         The detail panel listed the type by name and stopped there, so an
+         advertiser checking a live ad was reading the word "Home —
+         Leaderboard" and taking it on trust. The creative is the thing they
+         bought; it belongs on the page that reports what they bought.
+
+         Each type shows as the object it renders as: a Deluxe listing shows
+         its gallery, a leaderboard shows its banner, a sidebar shows its card.
+         The last two are drawn by the same builders the create form previews
+         with, so the panel cannot drift from what was signed off. */
+      // What Deluxe buys: a gallery of five photographs and one video.
+      const AD_GALLERY_PHOTOS = 5;
+      /* Frames for one ad's gallery, its own category first.
+
+         The category alone is not enough to fill it. Of the eight, only sports
+         and medical carry five or more pictures between their listings — arts
+         has two, camps has one — so a pool built strictly from the category
+         gave a Deluxe ad in those categories a two-frame gallery for the five
+         frames it paid for. The tail is topped up from the rest of the
+         directory's photography so the count is always the count, and the
+         category's own pictures still lead. */
+      const adPhotoPool = (cat) => {
+        const own = [];
+        const rest = [];
+        LISTINGS.forEach((l) => {
+          const into = l.cat === cat ? own : rest;
+          if (LISTING_IMG[l.id]) into.push(LISTING_IMG[l.id]);
+          ((LISTING_MEDIA[l.id] || {}).photos || []).forEach((x) => into.push(x));
+        });
+        return [...new Set([...own, ...rest])];
+      };
+      /* The video, likewise. Two exist in the directory and both sit under
+         sports, so every other category fell through to no video at all — and
+         "one video" is part of what the tier sells, not a thing that happens to
+         be available. The category's own is preferred; anything else is better
+         than an empty slot. */
+      const adVideoFor = (cat) => {
+        const own = LISTINGS.find((x) => x.cat === cat && (LISTING_MEDIA[x.id] || {}).video);
+        if (own) return LISTING_MEDIA[own.id].video;
+        const any = Object.keys(LISTING_MEDIA).find((k) => LISTING_MEDIA[k].video);
+        return any ? LISTING_MEDIA[any].video : null;
+      };
+      /* The gallery a Deluxe ad carries. `photos` is a count in this prototype
+         rather than a set of uploads, so the frames are drawn from the
+         category's own photography — which is what the directory does for a
+         listing with no pictures of its own, and keeps the panel honest about
+         how many were bought. */
+      function adMediaItems(a) {
+        if (!adHasGallery(a)) return [];
+        const pool = adPhotoPool(a.cat);
+        const items = [];
+        // The ad's own count, and the full allowance where it carries none —
+        // the panel reports what the tier bought rather than shrinking to
+        // whatever the seed data happened to set.
+        const want = a.photos ? a.photos : AD_GALLERY_PHOTOS;
+        const n = Math.min(want, pool.length);
+        for (let i = 0; i < n; i++) items.push({ type: "photo", src: uImg(pool[i], 900, 600) });
+        if (!items.length) {
+          const c = catImg(a.cat, 900, 600);
+          if (c) items.push({ type: "photo", src: c });
+        }
+        const v = a.video === false ? null : adVideoFor(a.cat);
+        // One video, second in the rail: the panel should open on a picture,
+        // not on a poster frame with a play button over it.
+        if (v) items.splice(Math.min(1, items.length), 0, { type: "video", ...v });
+        return items;
+      }
+      function adCreativeSection(a) {
+        const blocks = adTypeIds(a)
+          .map((t) => {
+            if (t === "basic") return "";
+            if (t === "deluxe") {
+              const media = adMediaItems(a);
+              if (!media.length) return "";
+              const photos = media.filter((m) => m.type === "photo").length;
+              const video = media.some((m) => m.type === "video");
+              return `<div class="mb-5 last:mb-0">
+                  <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel mb-[0.5rem]">${adTypeOf(t).name} — ${photos} photo${photos === 1 ? "" : "s"}${video ? " &amp; video" : ""}</div>
+                  <div class="lg-stage w-full aspect-[3/2] overflow-hidden rounded-[14px]" data-listing-gallery>
+                    ${media
+                      .map((it, i) =>
+                        it.type === "video"
+                          ? `<div class="lg-slide${i === 0 ? " is-active" : ""}" data-lg-slide data-lg-video>
+                            <video controls preload="none" playsinline poster="${it.poster}" aria-label="Video from ${esc(a.name)}"><source src="${it.src}" type="video/mp4"></video>
+                          </div>`
+                          : `<div class="lg-slide${i === 0 ? " is-active" : ""}" data-lg-slide>
+                            <img src="${it.src}" alt="${esc(a.name)}" loading="lazy" decoding="async">
+                          </div>`
+                      )
+                      .join("")}
+                    <span class="absolute bottom-3 right-3 z-[2] rounded-[100px] bg-[rgba(13,22,38,0.86)] px-[0.65rem] py-[0.25rem] text-2xs font-bold text-white" data-lg-count>1 / ${media.length}</span>
+                  </div>
+                  ${
+                    media.length > 1
+                      ? `<div class="lg-thumbs" role="tablist" aria-label="${esc(a.name)} media">
+                    ${media
+                      .map(
+                        (it, i) =>
+                          `<button type="button" class="lg-thumb${i === 0 ? " is-active" : ""}" data-lg-go="${i}" role="tab" aria-selected="${i === 0}" aria-label="${it.type === "video" ? "Video" : "Photo " + (i + 1)}">
+                        <img src="${it.type === "video" ? it.poster : it.src}" alt="" loading="lazy" decoding="async">
+                        ${it.type === "video" ? `<span class="lg-thumb-play">${icon("play", 18)}</span>` : ""}
+                      </button>`
+                      )
+                      .join("")}
+                  </div>`
+                      : ""
+                  }
+                </div>`;
+            }
+            const unit = adUnitPreview(a, t);
+            if (!unit) return "";
+            return `<div class="mb-5 last:mb-0">
+                <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel mb-[0.5rem]">${adTypeOf(t).name} — ${artSpec(t).shape}</div>
+                ${unit}
+              </div>`;
+          })
+          .filter(Boolean)
+          .join("");
+        return blocks;
+      }
       function adViewModal(a) {
         const c = catOf(a.cat);
         const b = a.billing || adBilling(a);
@@ -13782,25 +14667,52 @@
             ${detailRow("Category", c ? c.name : "—")}
             ${detailRow("Subcategory", a.sub)}
             ${detailRow("Click-through link", a.dest ? `<a class="text-brand font-semibold underline break-all" data-action="ext-link" data-url="${esc(a.dest)}">${a.dest}</a>` : "", true)}
-            ${detailRow("Town", (a.towns || []).map(pill).join(""), true)}
-            ${detailRow("Age group", ages.length ? ages.map(pill).join("") : "", true)}
+            ${detailRow((a.towns || []).length > 1 ? "Towns" : "Town", (a.towns || []).map(pill).join(""), true)}
+            ${detailRow(ages.length > 1 ? "Age groups" : "Age group", ages.length ? ages.map(pill).join("") : "", true)}
             ${detailRow("Address", a.address)}
-            ${detailRow("Phone", a.phone)}
-            ${detailRow("Working hours", a.hours, true)}
+            ${detailRow("Phone", a.phone ? ((x) => `${x.dial} ${x.num}`)(splitPhone(a.phone)) : "")}
+            ${detailRow(
+              "Working hours",
+              // Split the same way the two public panels split it, so one
+              // advertiser checking their own ad and a family reading it see
+              // the week laid out identically.
+              a.hours
+                ? String(a.hours)
+                    .split(/\s*·\s*/)
+                    .filter(Boolean)
+                    .map((x, i) => `<div class="${i ? "mt-[0.15rem]" : ""}">${x.trim()}</div>`)
+                    .join("")
+                : "",
+              true
+            )}
             ${detailRow("Description", a.desc, true)}
           </div>
           ${sect(
             "Ad type",
-            `<div class="bg-surface-4 border-[1.5px] border-line2 rounded-[14px] px-5 py-[0.8rem]">${picked(b.type.name)}</div>`
+            `<div class="bg-surface-4 border-[1.5px] border-line2 rounded-[14px] px-5 py-[0.8rem]">${b.types
+              .map((t) => picked(t.name))
+              .join("")}</div>`
           )}
-          ${sect(
-            "Add-ons for placement",
-            b.addons.length
-              ? `<div class="bg-surface-4 border-[1.5px] border-line2 rounded-[14px] px-5 py-[0.8rem]">${b.addons
-                  .map((x) => picked(x.name))
-                  .join("")}</div>`
-              : `<div class="ads-value">No placement add-ons were taken on this ad.</div>`
-          )}
+          ${(() => {
+            const cre = adCreativeSection(a);
+            return cre ? sect("Ad creative", cre) : "";
+          })()}
+          ${
+            // Same rule the create form now follows: an ad that cannot take an
+            // add-on gets no add-on section. "No placement add-ons were taken"
+            // on a home-page popup reports the absence of something that was
+            // never on offer.
+            adCanTop10(a)
+              ? sect(
+                  "Add-ons for placement",
+                  b.addons.length
+                    ? `<div class="bg-surface-4 border-[1.5px] border-line2 rounded-[14px] px-5 py-[0.8rem]">${b.addons
+                        .map((x) => picked(x.name))
+                        .join("")}</div>`
+                    : `<div class="ads-value">No placement add-ons were taken on this ad.</div>`
+                )
+              : ""
+          }
           ${sect(
             "Payment plan",
             `<div class="bg-surface-4 border-[1.5px] border-line2 rounded-[14px] px-5 py-[0.8rem]">
@@ -13843,6 +14755,10 @@
         </div>`,
           true // wider drawer, same as the directory detail panel
         );
+        // The Deluxe gallery is a control, and the drawer it lives in was only
+        // just written — so it is wired here, exactly as the directory panel
+        // wires its own.
+        mountListingGallery();
       }
       /* Removing an ad means two different things, and what happens to the money
                is the difference: a live ad has already run against what was paid, an
@@ -14033,6 +14949,9 @@
       else if (systemDark.addListener) systemDark.addListener(onSystemTheme);
 
       function afterRender() {
+        // Anything painted just now that cannot load gets its stand-in too.
+        setTimeout(sweepImages, 60);
+        setTimeout(sweepImages, 500);
         if (state.view === "directory" && state.dir.q) {
           const q = el("d-q");
           if (q) {
@@ -14075,8 +14994,8 @@
                 </div>
                 ${SPONSOR_ADS.map(
                   (ad, i) => `
-                    <div class="side-ad-slide${i === 0 ?" is-active" : ""}" data-side-ad-slide>
-                      <div class="side-ad-visual">
+                    <div class="side-ad-slide${i === 0 ? " is-active" : ""}" data-side-ad-slide>
+                      <div class="side-ad-visual cursor-pointer" data-adclick="${ad.key}">
                         <img src="https://images.unsplash.com/photo-${ad.img}?auto=format&fit=crop&w=800&q=70" alt="" loading="lazy" decoding="async" />
                         <div class="side-ad-scrim"></div>
                         <div class="side-ad-body">
@@ -14097,7 +15016,7 @@
                 <div class="side-ad-dots">
                   ${SPONSOR_ADS.map(
                     (ad, i) =>
-                      `<button type="button" class="side-ad-dot${i === 0 ?" is-active" : ""}" data-side-ad-dot aria-label="Show featured ad ${i + 1}"></button>`
+                      `<button type="button" class="side-ad-dot${i === 0 ? " is-active" : ""}" data-side-ad-dot aria-label="Show featured ad ${i + 1}"></button>`
                   ).join("")}
                 </div>`;
       }
@@ -14161,7 +15080,7 @@
                 ${keys
                   .map(
                     (key, i) =>
-                      `<div class="promo-ad-carousel-slide${i === 0 ?" is-active" : ""}" data-promo-ad-slide>${promoAdCard(key)}</div>`
+                      `<div class="promo-ad-carousel-slide${i === 0 ? " is-active" : ""}" data-promo-ad-slide>${promoAdCard(key)}</div>`
                   )
                   .join("")}
               </div>`;
@@ -14530,8 +15449,15 @@
             photo.src = `https://images.unsplash.com/photo-${ad.img}?auto=format&fit=crop&w=640&q=75`;
           if (heading) heading.textContent = ad.headline;
           if (advertiser) advertiser.textContent = ad.advertiser;
-          if (meta)
-            meta.innerHTML = `${catOf(ad.cat)?.name || ""}${ad.sub ? " · " + ad.sub : ""}<br>${fmtDate(ad.start)} – ${fmtDate(ad.end)}`;
+          // Category and subcategory only. The flight dates were the other
+          // half of this line and they belong to the advertiser, not here.
+          if (meta) meta.textContent = adCatLine(ad);
+          // The mark follows the ad, so a rotation of four shows four.
+          const chip = el("cornerAd-chip");
+          if (chip) {
+            chip.style.background = ad.grad || "";
+            chip.innerHTML = icon(ad.icon, 17);
+          }
         }
         function start() {
           if (cornerAdTimer) return;
@@ -14640,7 +15566,10 @@
         // travels. Short event lists get the set repeated until it outruns the
         // viewport; the copies are aria-hidden so nothing is read out twice.
         function fill() {
-          const per = Math.max(1, Math.round(lane.clientWidth / Math.max(1, slides[0].offsetWidth)));
+          const per = Math.max(
+            1,
+            Math.round(lane.clientWidth / Math.max(1, slides[0].offsetWidth))
+          );
           const need = per + LEAD + 2;
           for (let i = 0; slides.length < need; i++) {
             const copy = slides[i % base].cloneNode(true);
@@ -14685,7 +15614,10 @@
           const svg =
             `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" ` +
             `preserveAspectRatio="none"><path d="${path}" fill="#fff"/></svg>`;
-          stage.style.setProperty("--bk-mask", `url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
+          stage.style.setProperty(
+            "--bk-mask",
+            `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
+          );
           // What the tile copy has to clear (see .bk-slide .ev-tile-body).
           if (slider) slider.style.setProperty("--bk-cut", c + "px");
         }
@@ -14886,7 +15818,7 @@
           () => {
             if (!frame) frame = requestAnimationFrame(measure);
           },
-          { passive: true },
+          { passive: true }
         );
       }
 
