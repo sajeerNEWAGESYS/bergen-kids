@@ -24,7 +24,12 @@
          render-blocking script and stylesheet would delay first paint to
          reach the thing painted behind it. -->
     <link rel="preload" as="image" href="assets/logo.png" fetchpriority="high" />
-    <link rel="preload" as="image" href="assets/home-backdrop-sm.jpg" media="(max-width: 900px)" />
+    <link
+      rel="preload"
+      as="image"
+      href="assets/home-backdrop-sm.jpg"
+      media="(max-width: 900px)"
+    />
     <link rel="preload" as="image" href="assets/home-backdrop.jpg" media="(min-width: 901px)" />
     <!-- No favicon was declared, so browsers fell back to whatever /favicon.ico
          they had cached — which is the old icon that kept coming back on
@@ -50,10 +55,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
       media="print"
-      onload="
-        this.media = 'all';
-        this.onload = null;
-      "
+      onload="this.media='all'; this.onload=null;"
     />
     <noscript>
       <link
@@ -69,13 +71,7 @@
          that one line is filtered here, before the script runs. Nothing else is
          touched: any other warning, from Tailwind or from anywhere, still comes
          through. -->
-    <script
-      type="text/javascript"
-      src="https://gc.kes.v2.scr.kaspersky-labs.com/7EA5E9BB-55E1-4C31-9C21-4943DDFED2E4/main.js?attr=wpnGhEbCr2OusiOZGDXF4a5_HNTEkKrwRw-2LLCJhkfiWbSIbxEY13OdwABBm-cnjx40RyTAKlwm5HVNbFG4PXPTyqzgyGdkY8X3yFjUV7e16uodhZxFdehJzYtEXdzdEkpmGhZR_dhjVxx6-gE2sYP9c05BVbuQZ6SC8Fw5l31WhrFZbNcAjuSl3xVf-1LadlZkeP35IfTL-KPPi5HiOppC7lqN3ZDupFK-LKYJUT1lLUsckAvhg25cfNa8gydKRbgvGlaYQQeI0QHJaEN5eCvQAbRWFoZh2Jsq0g3oDj_8doeWSYi4HDOJTcI56vscZG4aLM1A84t-LyZKoyN38PqpmhzK02XWlkzoZenfNyIsmKp-VLHtr9k-jvsEeuNm68j8Ot7Ai8B_9D8cotBlN6OI85WiD3RI58AVHVXBEAvqXGiFH6emiEhWNK2q86AWWces3bwgioDBiOV5Q-cFbKDHVGmifUoYutVHaWZuL-_ieYWRyc7BGLJQ7H_NBmAIsxd1ndnefGFllR3D-v0ge4xDdQSXEa4_iqcd2SLc_iucEIQoZFUb8BOK6DYKYmovaiFJiWzxPFvH8bTDpKjcc44eP0NU-Q0xMvOIJe1t4_JgPoChdiyrn5DHc2mjniGA6G8PbA3aXCMqBgJBb3ZYEH7EFXJhn2UzO8CQ9dLKui1r3Z1E929KI2JqehpmGidLyywrlI0aRqKjOlYt9R0vy6L-3t8X1lFtX7kxaCB-6-FZwHnxZvLcCXdTkuVjg3eseFOiKzt5RGpRDEGbzEWGke3DAEQY05rOtE1GAm6RPx0pHSjF7TTHvqom7gyfHAIwGrac9gMq3HWKNotDlwx5dnccaY0nIfQo3pQgtJegUZIXkSNrX87-jdQDlppNxst6rGtJDVcVNhzBfph-Y_JNefigzw521oCbJN7E4ix8FxKN3ZkllygfmW0OHcfGxC5UUC7aRWHfsnQDJlzPfPBvprSZeyJp1PTrdT4RwO4VxCc1powtyLWsJnKLkSzDFZYOkbRB9aGTb8JLXhjr5x8MD6qKPkbyvGcHYOsH-tN7wuQKRKMXkIirmlvyEldt7t5F2oDbVFNNMlLPp4Bg96h_0PjQeUcPPHPORJg8CgznTVFdUkwfxorcXOKPZ13cr1r3xxikJ8zsHaLwJFs40PauUyz0Bv6GhHxmuEVUaKgVG_1m88zlpBAq2j2WkyfheDq0dmdjqSGvfnTb1RQU6cIQL-a5aoNA5NDV8L9d6bY3aQTqwC69zRj7FUNuHcNZO7XxFlZEw2sRAkccj2H_qyJz193J0vx1ZmxDZiCHVZeePsmHtKIDriqkbEiDnqiKKDXsYZe8rRGcfYxr9A_fsSH4K8uvPox0tos9WqrkID-HUROW2IOOk1UDYIQqkHUK8Fbno_N8qLI2lJZVjTtNevmkjiX5xPsv_7SYMlMgP12jcoSZREYVnXUqClAxzj0sDIq-YrucSJc-CieGdWY9eJZQyyJ5pYFQuJPiDGq0AqMGgSDTXr5g65OLgfoFSYGuwkaiBU17tqzbu-TY62fLbeCSA2bmY76OQYPTGEhyrjxgnmjtTh6ryJU4ziN7m5PI1IQRirLHe4ZMV-XAXZlgGAdgoPa1U2nTPZHxpbM1Xe4Wf6hNV7U7Loz3MJav4u0GMiOPvMDlvHDVEJeMImV299LUzsZgzvxBHI8rDHLSCpGNLOkhi_w99caF7YUoLIMDuBXq"
-      nonce="1851153e1befc2ebe3e0e42e76e94941"
-      charset="UTF-8"
-    ></script>
-    <script>
+    <script type="text/javascript" src="https://gc.kes.v2.scr.kaspersky-labs.com/7EA5E9BB-55E1-4C31-9C21-4943DDFED2E4/main.js?attr=paU5JINxv22DOyX0ej4rQ_0dHlS7ZRonldj0UstnWOjshjLMbt4WXpPkqF3Up78WB8-m1rFT6FzDsHmSkBsQNGIjZzCspiUEbZxjpdAUwKBhcaSK7ZTj2tDWJgzr5N-DQIfysyWhIht_jAVMKXVfi56Ht9DHA3KIdiqV4gNt4xYS0i2rswa9XBhj_pfcKp1Se5UGhT_gGRnxPSYMQ47mh0NxBOU7UaIruRgUrqLXXXKT4RJId6aXPn8gOe4Y3nKdJmHU14-3Scu4OArd_Pnjt4iz-h-R0xfAJaX2UYthxcLnQLAkQQKlVSCCUcTZUZxqrt0-GJQ7DeMsO9yVgsDWxPWP6MBRLWFEkhVPPI4OjN3a6JdFYlj-Gq6DfihQ7_jOBlGd6SBM0tc-jgLEtrBbEq5x1opAgtSn7Yq2hK5rUWeO-Nvq4bmt3OYx8df5vGbI6-I_G864u64FXgXLkJlXDMmEu40iySpiJA7y-nF-WZ17bmDw0F2OJN5G_-SuJnxBhRRfzPfINc5D6iQ9st6GXzlFWpIm4toTaUbjTbirNX9TDffeQ1QQI719qhzlzZ11yE_qBGLsP4IbBuugJG0UnFd6LAgOSFriOO04GCPh3zHUe7K_xLxvYiTAIhRr0eFxmAsaTyR77Wfxhm6n-zRMrekvdBhJtRbMhf60E7OPhWGcEKhLmKDsjQesGBZ6wsJYQrhz7HnWp4V1XVZLhxaWm8sqhoH2GyoqG6xjlCKMqOXYi72udddcNgBLPcPTo1CvhU964g4jJu0By1C9t6AJhylPBK5_KqWEToGhOOam5cgkZARs2E-dxfdjsTu___mdNQJ25_IVnst7zF4M40x9D55YBgyO8hhIBW84wyhDb6P1gIgQjEWccqEPLgZulIgaOSoAqjlgQWdmvOLCSBqcwVM16pvJmRMmnqisFQTGvBgZd_Szn094wsPXqddEW-GHg84DLvE54NoLNZQW604EPsUbhXNl1wFlWU86emybzmU3NCKtRzlyAZHWB2eKDq0o2pcpOiwqKTUm3-y9ZftQuTNET9OLcS4f6jnEFpregYl-lG2NwIkFBywkRZcuKYe_6chFP0XCbV7PF-fRoi9YmIR_VXRGYRzhP66cFfqI10CBFUJ9L7CrHoSQSJENiXzlbpzIvR4PLcNLG765ULAM1eA6Wi5TA8q_VsuadENuY8eESJy5Y0-oXwwDUw72UIL-ZOk0uVBMigdxcagKSph43mOZn4Xp-Mfie9y0a4nF9CDRAlucoJqpR_obNQEyUVl-ea7sL4nQkQ3JISHggIhj68tNHqMMtaExOQMJnQ4K_J8T3kHEBq_LrO9yw5amqI34cYaOykT4lMMWuCT-4yDGgAXypX7rU_Ul-dCimTGR0TQRE-QsZ34nUS_PeEOUDw4TxQJaQppWYeAevH8-8b6BJhk5YGuWnHAbbl6DUacHxfPRs2G5fj1-enXEV1wp4gxhWlnkcsfZLtWYJ2TJTkkdu_hUGXkCRQqeCU-uNGVa8JWQU6Af_rSn2mZ_5hLdW9D1D0RSkmdyFSYC_4eTWsAVusVoWUKJfFQywxJHXUWnAVnQMtA-uj_e17cWW-8YmKlhbS4Yqry11eqzdQm6_yl2caELHJjqUnbMrl78kHXSFI3cg5odFZeCI5KQxlLRITTip-ShPKrh0Hp1-Fresr35zn-KT6uVM-4qetj-UgTnr-EbHu0uqDayys_EqYWfhYA-" nonce="8b5422676a72735cd8a26e633b8be389" charset="UTF-8"></script><script>
       (function () {
         const warn = console.warn.bind(console);
         console.warn = function (...args) {
@@ -531,6 +527,7 @@
           background-image: url("assets/home-backdrop.jpg");
         }
       }
+
 
       /* Display type, matched to octaneai.com. Their `.font-display` is
          `Georgia, "Times New Roman", serif; font-weight: 400;
@@ -4211,7 +4208,14 @@
              stroked path's own bounds — the camera dot alone is a couple of
              units across — and every part of the icon would restart the ramp
              instead of sharing one across the whole mark. -->
-        <linearGradient id="ig-brand" gradientUnits="userSpaceOnUse" x1="2" y1="22" x2="22" y2="2">
+        <linearGradient
+          id="ig-brand"
+          gradientUnits="userSpaceOnUse"
+          x1="2"
+          y1="22"
+          x2="22"
+          y2="2"
+        >
           <stop offset="0" stop-color="#f9ce34" />
           <stop offset="0.5" stop-color="#ee2a7b" />
           <stop offset="1" stop-color="#6228d7" />
@@ -4706,6 +4710,7 @@
           alt=""
           loading="lazy"
           decoding="async"
+         
           class="absolute inset-0 h-full w-full object-cover"
         />
         <div
@@ -5080,7 +5085,7 @@
         const solid = cls.includes("icon--solid");
         const extra = cls.replace("icon--solid", "").trim();
         const paint = solid ? ICON_SOLID : ICON_LINE;
-        return `<svg class="${ICON_BASE} ${paint}${extra ? " " + extra : ""}" width="${size}" height="${size}"><use href="#ic-${name}"/></svg>`;
+        return `<svg class="${ICON_BASE} ${paint}${extra ?" " + extra : ""}" width="${size}" height="${size}"><use href="#ic-${name}"/></svg>`;
       }
       const MONTHS = [
         "Jan",
@@ -6331,7 +6336,7 @@
         const p = state.prefDraft || emptyPrefs();
         const dots = ONBOARD_STEPS.map(
           (s, n) =>
-            `<span class="h-[5px] rounded-[100px] transition-all duration-300 ${n === i ? "w-8 bg-logo-green" : n < i ? "w-4 bg-brand/45" : "w-4 bg-line"}"></span>`
+            `<span class="h-[5px] rounded-[100px] transition-all duration-300 ${n === i ?"w-8 bg-logo-green" : n < i ? "w-4 bg-brand/45" : "w-4 bg-line"}"></span>`
         ).join("");
         return `<div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
             <div class="flex items-center gap-[0.4rem]">${dots}</div>
@@ -6347,7 +6352,7 @@
               <div class="text-sm font-extrabold tracking-[0.05em] uppercase text-head">${PREF_LABEL[step.key]}</div>
               <span class="text-sm font-semibold text-adlabel" id="pref-count-${step.key}">${prefSummary(p, step.key)}</span>
             </div>
-            <div class="flex gap-2 flex-wrap mt-[0.9rem]${step.key === "towns" ? " max-h-[240px] overflow-y-auto pr-1" : ""}">${prefOptions(
+            <div class="flex gap-2 flex-wrap mt-[0.9rem]${step.key ==="towns" ? " max-h-[240px] overflow-y-auto pr-1" : ""}">${prefOptions(
               step.key
             )
               .map(
@@ -6615,7 +6620,8 @@
           // Articles lit, and either category page keeps the index it came
           // from lit.
           const DETAIL_OF = { article: "articles", eventCat: "calendar", dirCat: "directory" };
-          const on = a.dataset.navkey === state.view || a.dataset.navkey === DETAIL_OF[state.view];
+          const on =
+            a.dataset.navkey === state.view || a.dataset.navkey === DETAIL_OF[state.view];
           a.classList[on ? "add" : "remove"](...NAV_ON);
           a.classList[on ? "remove" : "add"]("text-muted");
         });
@@ -6683,7 +6689,7 @@
       function sponsorBar() {
         const slides = SPONSOR_ADS.map(
           (a, i) =>
-            `<div class="sponsor-slide${i === 0 ? " is-active" : ""}" data-slide data-adclick="${a.key}">
+            `<div class="sponsor-slide${i === 0 ?" is-active" : ""}" data-slide data-adclick="${a.key}">
               <div class="sponsor-chip" style="background:${a.grad}">${icon(a.icon, 22)}</div>
               <!-- Advertiser, then the ad, then where it is filed — the order
                    the create form previews it in. The bar was leading with the
@@ -6700,7 +6706,7 @@
         ).join("");
         const dots = SPONSOR_ADS.map(
           (a, i) =>
-            `<button class="sponsor-dot${i === 0 ? " is-active" : ""}" data-sponsor-dot aria-label="Show sponsor ${i + 1}"></button>`
+            `<button class="sponsor-dot${i === 0 ?" is-active" : ""}" data-sponsor-dot aria-label="Show sponsor ${i + 1}"></button>`
         ).join("");
         return `<div id="sponsor-bar" role="complementary" aria-label="Advertisement">
           <div class="w-full px-6 py-[0.85rem] flex items-center gap-4 max700:px-4 max700:gap-3">
@@ -6725,7 +6731,7 @@
         (h, i) => `L${((i * 1200) / (TORN_H.length - 1)).toFixed(1)} ${h}`
       ).join(" ")} L1200 44 Z`;
       const tornEdge = (cls = "") =>
-        `<svg class="section-torn${cls ? " " + cls : ""}" viewBox="0 0 1200 44" preserveAspectRatio="none" aria-hidden="true"><path d="${TORN_D}" fill="currentColor"/></svg>`;
+        `<svg class="section-torn${cls ?" " + cls : ""}" viewBox="0 0 1200 44" preserveAspectRatio="none" aria-hidden="true"><path d="${TORN_D}" fill="currentColor"/></svg>`;
 
       /* The slider control's arrow, taken verbatim from the reference — a long
          shaft with a barbed, slightly swept head that overshoots the tail. The
@@ -7216,7 +7222,7 @@
                       ]
                         .map(
                           ([ic, t, on]) =>
-                            `<span class="flex flex-col items-center gap-[3px] text-2xs font-bold ${on ? "text-brand" : "text-adlabel"}">${icon(ic, 17)}${t}</span>`
+                            `<span class="flex flex-col items-center gap-[3px] text-2xs font-bold ${on ?"text-brand" : "text-adlabel"}">${icon(ic, 17)}${t}</span>`
                         )
                         .join("")}
                       <span class="absolute bottom-[5px] left-1/2 -translate-x-1/2 w-[104px] h-[4px] rounded-full bg-[rgba(26,46,74,0.25)]"></span>
@@ -7256,11 +7262,7 @@
                 ${[
                   ["users", "Parents", "Questions about a listing, an event, or the app itself."],
                   ["briefcase", "Businesses", "How listings, plans and advertising work."],
-                  [
-                    "megaphone",
-                    "Feedback",
-                    "Something missing, something wrong, or an idea worth building.",
-                  ],
+                  ["megaphone", "Feedback", "Something missing, something wrong, or an idea worth building."],
                 ]
                   .map(
                     ([ic, t, d]) => `<div class="flex gap-[0.85rem] items-start mb-5 last:mb-0">
@@ -7560,10 +7562,10 @@
          hand-written white/navy pair could never do. */
       function adTypeCard(a) {
         const free = !a.rate;
-        return `<div class="plan-surface rounded-[18px] border-[1.5px] p-5 h-full flex flex-col transition-[transform,box-shadow] duration-200 hover:-translate-y-1 ${free ? "border-sun shadow-[0_4px_18px_rgba(245,166,35,0.18)]" : "border-line shadow-[0_2px_14px_rgba(26,46,74,0.08)]"}">
+        return `<div class="plan-surface rounded-[18px] border-[1.5px] p-5 h-full flex flex-col transition-[transform,box-shadow] duration-200 hover:-translate-y-1 ${free ?"border-sun shadow-[0_4px_18px_rgba(245,166,35,0.18)]" : "border-line shadow-[0_2px_14px_rgba(26,46,74,0.08)]"}">
             <div class="flex items-start justify-between gap-3 mb-2">
-              <span class="w-[34px] h-[34px] rounded-[10px] grid place-items-center shrink-0 ${free ? "bg-sun text-navy" : "bg-mint text-brand"}">${icon(a.icon, 17)}</span>
-              <span class="text-sm font-extrabold whitespace-nowrap ${free ? "text-orange-ink" : "text-head"}">${free ? "Included" : "+" + money(a.rate) + `<span class='font-semibold text-muted'>/ad</span>`}</span>
+              <span class="w-[34px] h-[34px] rounded-[10px] grid place-items-center shrink-0 ${free ?"bg-sun text-navy" : "bg-mint text-brand"}">${icon(a.icon, 17)}</span>
+              <span class="text-sm font-extrabold whitespace-nowrap ${free ?"text-orange-ink" : "text-head"}">${free ? "Included" : "+" + money(a.rate) + `<span class='font-semibold text-muted'>/ad</span>`}</span>
             </div>
             <div class="font-bold text-base text-head leading-[1.3]">${a.name}</div>
             <div class="text-sm leading-[1.55] text-muted mt-[0.35rem]">${a.desc}</div>
@@ -7624,36 +7626,10 @@
          frame, so it is listed here too and the strip reads in the same order
          the organiser arranged it. */
       const EV_MEDIA = {
-        e1: {
-          photos: [
-            "1441974231531-c6227db76b6e",
-            "1502082553048-f009c37129b9",
-            "1472214103451-9374bd1c798e",
-          ],
-          video: "Trail walk-through",
-        },
-        e2: {
-          photos: [
-            "1493106641515-6b5631de4bb9",
-            "1513364776144-60967b0f800f",
-            "1509395176047-4a66953fd231",
-          ],
-          video: "",
-        },
-        e3: {
-          photos: ["1600965962361-9035dbfd1c50", "1530549387789-4c1017266635"],
-          video: "Last year's gala",
-        },
-        e4: {
-          photos: [
-            "1530103862676-de8c9debad1d",
-            "1464349095431-e9a21285b5f3",
-            "1478146896981-b80fe463b330",
-            "1527529482837-4698179dc6ce",
-            "1519671482749-fd09be7ccebf",
-          ],
-          video: "",
-        },
+        e1: { photos: ["1441974231531-c6227db76b6e", "1502082553048-f009c37129b9", "1472214103451-9374bd1c798e"], video: "Trail walk-through" },
+        e2: { photos: ["1493106641515-6b5631de4bb9", "1513364776144-60967b0f800f", "1509395176047-4a66953fd231"], video: "" },
+        e3: { photos: ["1600965962361-9035dbfd1c50", "1530549387789-4c1017266635"], video: "Last year's gala" },
+        e4: { photos: ["1530103862676-de8c9debad1d", "1464349095431-e9a21285b5f3", "1478146896981-b80fe463b330", "1527529482837-4698179dc6ce", "1519671482749-fd09be7ccebf"], video: "" },
         e5: { photos: ["1503095396549-807759245b35"], video: "" },
       };
       const evMedia = (id) => EV_MEDIA[id] || { photos: [], video: "" };
@@ -7668,20 +7644,14 @@
          picture. Real photographs still load when the network allows; nothing
          is ever blank when it does not. */
       const FALLBACK_INKS = [
-        ["#1F5C4A", "#2E7D63"],
-        ["#B4532A", "#D97742"],
-        ["#1A2E4A", "#37507A"],
-        ["#6B4C86", "#8E6BA8"],
-        ["#2C6E77", "#3F949E"],
-        ["#8A6D1F", "#C0982F"],
+        ["#1F5C4A", "#2E7D63"], ["#B4532A", "#D97742"], ["#1A2E4A", "#37507A"],
+        ["#6B4C86", "#8E6BA8"], ["#2C6E77", "#3F949E"], ["#8A6D1F", "#C0982F"],
       ];
       function imgFallback(src, w, h) {
         let seed = 0;
-        for (let i = 0; i < String(src).length; i++)
-          seed = (seed * 31 + String(src).charCodeAt(i)) % 100000;
+        for (let i = 0; i < String(src).length; i++) seed = (seed * 31 + String(src).charCodeAt(i)) % 100000;
         const [a, b] = FALLBACK_INKS[seed % FALLBACK_INKS.length];
-        const W = w || 900,
-          H = h || 600;
+        const W = w || 900, H = h || 600;
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
           <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>
@@ -7699,11 +7669,7 @@
         if (!t || t.tagName !== "IMG") return;
         if ((t.getAttribute("src") || "").startsWith("data:")) return;
         const r = t.getBoundingClientRect();
-        t.src = imgFallback(
-          t.getAttribute("src") || t.alt || "",
-          Math.round(r.width) || 900,
-          Math.round(r.height) || 600
-        );
+        t.src = imgFallback(t.getAttribute("src") || t.alt || "", Math.round(r.width) || 900, Math.round(r.height) || 600);
       }
       /* Capture phase, because error does not bubble from an image. One listener
          covers every image on the site, including the ones rendered later. */
@@ -7800,38 +7766,14 @@
          them and the cards do too. These are the wider claim where one exists,
          and the panel prefers them. */
       const LISTING_REACH = {
-        l1: {
-          towns: ["Hackensack", "Teaneck", "Bergenfield"],
-          ages: ["infant", "preschool", "early", "tween", "teen"],
-        },
-        l3: {
-          towns: ["Teaneck", "Englewood", "Fort Lee", "Leonia"],
-          ages: ["infant", "preschool", "early"],
-        },
-        l7: {
-          towns: ["Ridgewood", "Glen Rock", "Midland Park", "Wyckoff"],
-          ages: ["early", "tween", "teen"],
-        },
-        l10: {
-          towns: ["Ridgewood", "Ho-Ho-Kus", "Waldwick"],
-          ages: ["preschool", "early", "tween"],
-        },
-        l12: {
-          towns: ["Paramus", "Ridgewood", "Fair Lawn", "Glen Rock", "Wyckoff"],
-          ages: ["preschool", "early", "tween", "teen"],
-        },
-        l13: {
-          towns: ["Fort Lee", "Edgewater", "Cliffside Park"],
-          ages: ["infant", "preschool", "early", "tween", "teen"],
-        },
-        l17: {
-          towns: ["Mahwah", "Ramsey", "Oakland", "Franklin Lakes"],
-          ages: ["early", "tween", "teen"],
-        },
-        l18: {
-          towns: ["Paramus", "Hackensack", "Rochelle Park"],
-          ages: ["preschool", "early", "tween"],
-        },
+        l1: { towns: ["Hackensack", "Teaneck", "Bergenfield"], ages: ["infant", "preschool", "early", "tween", "teen"] },
+        l3: { towns: ["Teaneck", "Englewood", "Fort Lee", "Leonia"], ages: ["infant", "preschool", "early"] },
+        l7: { towns: ["Ridgewood", "Glen Rock", "Midland Park", "Wyckoff"], ages: ["early", "tween", "teen"] },
+        l10: { towns: ["Ridgewood", "Ho-Ho-Kus", "Waldwick"], ages: ["preschool", "early", "tween"] },
+        l12: { towns: ["Paramus", "Ridgewood", "Fair Lawn", "Glen Rock", "Wyckoff"], ages: ["preschool", "early", "tween", "teen"] },
+        l13: { towns: ["Fort Lee", "Edgewater", "Cliffside Park"], ages: ["infant", "preschool", "early", "tween", "teen"] },
+        l17: { towns: ["Mahwah", "Ramsey", "Oakland", "Franklin Lakes"], ages: ["early", "tween", "teen"] },
+        l18: { towns: ["Paramus", "Hackensack", "Rochelle Park"], ages: ["preschool", "early", "tween"] },
       };
       // Applied once the seed array exists, so the table above stays readable
       // rather than being threaded through mk()'s fifteen positional arguments.
@@ -7884,11 +7826,7 @@
          listing photo goes through this function, so the rule holds in the grid,
          the detail panel and anywhere either of them is reused later. */
       const listingImg = (l, w = 600, h) =>
-        l.plan !== "deluxe"
-          ? ""
-          : LISTING_IMG[l.id]
-            ? uImg(LISTING_IMG[l.id], w, h)
-            : catImg(l.cat, w, h);
+        l.plan !== "deluxe" ? "" : LISTING_IMG[l.id] ? uImg(LISTING_IMG[l.id], w, h) : catImg(l.cat, w, h);
 
       /* ── Deluxe media ───────────────────────────────────────────
          Any number of photos, and at most one video. The cap is the product
@@ -7923,8 +7861,7 @@
           ],
           video: {
             src: "https://videos.pexels.com/video-files/8686022/8686022-hd_1280_720_30fps.mp4",
-            poster:
-              "https://images.pexels.com/videos/8686022/pictures/preview-0.jpeg?auto=compress&cs=tinysrgb&w=900",
+            poster: "https://images.pexels.com/videos/8686022/pictures/preview-0.jpeg?auto=compress&cs=tinysrgb&w=900",
           },
         },
         // Bergen United Soccer Club — match play, and a clip from a session
@@ -7937,8 +7874,7 @@
           ],
           video: {
             src: "https://videos.pexels.com/video-files/8873024/8873024-hd_1280_720_25fps.mp4",
-            poster:
-              "https://images.pexels.com/videos/8873024/pexels-photo-8873024.jpeg?auto=compress&cs=tinysrgb&w=900",
+            poster: "https://images.pexels.com/videos/8873024/pexels-photo-8873024.jpeg?auto=compress&cs=tinysrgb&w=900",
           },
         },
         // Photos and no video — the other half of the rule, and the more common
@@ -8464,7 +8400,7 @@
       }
       // One flat colour out of the category's gradient, for the surfaces that
       // need a single value where the data carries two.
-      const catInk = (c) => (((c || {}).grad || "").match(/#[0-9a-f]{3,8}/i) || [])[0] || "#1a2e4a";
+      const catInk = (c) => ((((c || {}).grad || "").match(/#[0-9a-f]{3,8}/i) || [])[0] || "#1a2e4a");
       /* A Deluxe card is four bands, top to bottom: photo, category line, name,
          then a footer of town / ages. The name is clamped to two lines and the
          footer is pushed down with mt-auto, so a long name never shunts the
@@ -8856,7 +8792,7 @@
                 const isAll = cat === "all";
                 const isActive = state.articleFilter === cat;
                 const label = isAll ? "All" : catOf(cat).name;
-                return `<button class="bg-transparent border-0 border-b-[1.5px] border-solid px-0 pt-0 pb-[0.3rem] text-xs font-bold tracking-[0.16em] uppercase transition-colors duration-200 ${isActive ? "text-head border-b-navy" : "text-adlabel border-b-transparent hover:text-head"}" data-action="filter-articles" data-cat="${cat}">${label}</button>`;
+                return `<button class="bg-transparent border-0 border-b-[1.5px] border-solid px-0 pt-0 pb-[0.3rem] text-xs font-bold tracking-[0.16em] uppercase transition-colors duration-200 ${isActive ?"text-head border-b-navy" : "text-adlabel border-b-transparent hover:text-head"}" data-action="filter-articles" data-cat="${cat}">${label}</button>`;
               })
               .join("")}</div>
             <!-- Equal tracks, and the cards flow through them in order: three
@@ -10088,14 +10024,14 @@
           ["megaphone", "Advertiser", a.advertiser],
           towns.length ? ["pin", towns.length > 1 ? "Towns" : "Town", stack(towns)] : null,
           ages.length ? ["users", ages.length > 1 ? "Age groups" : "Age group", stack(ages)] : null,
+          /* No Website row. The button pinned to the foot of this panel goes to
+             exactly the same address, so the row was the destination written
+             out a second time directly above the control that opens it — and
+             on an ad the raw URL is the least interesting thing on the page.
+             The listing panel keeps its row, because there the website is one
+             fact among several a parent might want rather than the single
+             action the whole panel exists for. */
           ["calendar", "Running", `${fmtDate(a.start)} – ${fmtDate(a.end)}`],
-          a.dest
-            ? [
-                "globe",
-                "Website",
-                `<a data-action="ext-link" data-url="${esc(a.dest)}">${a.dest}</a>`,
-              ]
-            : null,
         ].filter(Boolean);
         const header = `<div class="relative w-full aspect-[3/2] overflow-hidden" style="background:${a.grad}">
             <div class="absolute inset-0 flex items-center justify-center text-white/25">${icon(a.icon, 92)}</div>
@@ -10134,7 +10070,7 @@
             </div>
 
             <div class="sticky bottom-0 z-[3] border-t border-line2 bg-surface px-6 py-[0.9rem] max560:px-5">
-              <button type="button" class="w-full bg-orange-ink text-white px-[1.9rem] py-[0.9rem] rounded-[14px] text-base font-bold border-none transition-[background,transform] duration-200 inline-flex items-center justify-center gap-2 min-h-[52px] hover:bg-orange-deep hover:-translate-y-[1px]" data-action="ext-link" data-url="${esc(a.dest)}">${icon("globe", 17)} Visit Website</button>
+              <button type="button" class="w-full bg-orange-ink text-white px-[1.9rem] py-[0.9rem] rounded-[14px] text-base font-bold border-none transition-[background,transform] duration-200 inline-flex items-center justify-center gap-2 min-h-[52px] hover:bg-orange-deep hover:-translate-y-[1px]" data-action="ext-link" data-url="${esc(a.dest)}">${icon("globe", 17)} Visit Link</button>
             </div>
           </div>`,
           true // the wide drawer, same as the directory listing panel
@@ -10181,7 +10117,7 @@
                 <div class="mt-3 font-serif text-base font-black text-head leading-[1.2] break-words">${state.user.name}</div>
                 <div class="text-sm text-muted mt-[0.15rem]">Advertiser</div>
               </div>
-              ${tabs.map((t) => `<button class="${navTab === t[0] ? "flex items-center gap-[0.7rem] w-full text-left border-none px-[0.85rem] py-3 rounded-[11px] text-base font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto bg-navy text-white [&_svg]:text-white [&_svg]:shrink-0" : "flex items-center gap-[0.7rem] w-full text-left bg-transparent border-none px-[0.85rem] py-3 rounded-[11px] text-base font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto text-muted [&_svg]:text-adlabel [&_svg]:shrink-0 hover:bg-surface-4 hover:text-head [&:hover_svg]:text-brand"}" data-action="adv-tab" data-tab="${t[0]}">${icon(t[2], 18)} ${t[1]}</button>`).join("")}
+              ${tabs.map((t) => `<button class="${navTab === t[0] ?"flex items-center gap-[0.7rem] w-full text-left border-none px-[0.85rem] py-3 rounded-[11px] text-base font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto bg-navy text-white [&_svg]:text-white [&_svg]:shrink-0" : "flex items-center gap-[0.7rem] w-full text-left bg-transparent border-none px-[0.85rem] py-3 rounded-[11px] text-base font-semibold transition-all duration-150 min-h-[46px] max1024:whitespace-nowrap max1024:w-auto text-muted [&_svg]:text-adlabel [&_svg]:shrink-0 hover:bg-surface-4 hover:text-head [&:hover_svg]:text-brand"}" data-action="adv-tab" data-tab="${t[0]}">${icon(t[2], 18)} ${t[1]}</button>`).join("")}
               <div class="pt-2 mt-2 border-t border-line2 max1024:hidden">
                 <button class="flex items-center gap-[0.7rem] w-full text-left bg-transparent border-none px-[0.85rem] py-3 rounded-[11px] text-base font-semibold text-muted [&_svg]:text-adlabel [&_svg]:shrink-0 min-h-[46px] transition-colors duration-150 hover:bg-[#fdf3f2] hover:text-[#a3271c] [&:hover_svg]:text-[#a3271c]" data-action="logout">${icon("logout", 18)} Log out</button>
               </div>
@@ -10609,7 +10545,7 @@
                 <label>${label}</label>
                 <span class="text-sm font-semibold text-adlabel">${sel.length ? sel.length + " selected" : "None"}</span>
               </div>
-              <div class="flex gap-2 flex-wrap mt-[0.3rem]${scroll ? " max-h-[176px] overflow-y-auto pr-1 border-[1.5px] border-line rounded-[12px] p-3 bg-surface-2" : ""}">${opts
+              <div class="flex gap-2 flex-wrap mt-[0.3rem]${scroll ?" max-h-[176px] overflow-y-auto pr-1 border-[1.5px] border-line rounded-[12px] p-3 bg-surface-2" : ""}">${opts
                 .map(
                   ([v, l]) =>
                     `<button type="button" class="${sel.includes(v) ? PREF_CHIP_ON : PREF_CHIP_OFF}" data-action="ad-chip" data-kind="${kind}" data-val="${esc(v)}" aria-pressed="${sel.includes(v)}">${l}</button>`
@@ -10653,7 +10589,10 @@
           custom,
           cr,
           title: (custom && cr.title.trim()) || (d.name || "").trim() || "Your advertisement",
-          sub: (custom && cr.text.trim()) || [c.name, d.sub].filter(Boolean).join(" · ") || c.name,
+          sub:
+            (custom && cr.text.trim()) ||
+            [c.name, d.sub].filter(Boolean).join(" · ") ||
+            c.name,
           /* The picture, and there is always one. Custom artwork where it has
              been uploaded, and the category's own photograph where it has not —
              the leaderboards used to fall back to a flat gradient, which is not
@@ -10668,9 +10607,7 @@
       // uploaded one, the category glyph where they have not.
       const previewChip = (p, size, cls) =>
         `<span class="${cls} overflow-hidden ${p.mark ? "bg-white" : "text-white"}"${p.mark ? "" : ` style="background:${p.c.grad}"`}>${
-          p.mark
-            ? `<img src="${p.mark}" alt="" class="w-full h-full object-contain">`
-            : icon(p.c.icon, size)
+          p.mark ? `<img src="${p.mark}" alt="" class="w-full h-full object-contain">` : icon(p.c.icon, size)
         }</span>`;
       // Home leaderboard — the sponsor bar. Carries the close button, because
       // that unit is fixed over the hero and a family has to be able to get rid
@@ -10836,9 +10773,7 @@
             </div>
             ${
               n
-                ? `<div style="margin-top:0.6rem;display:flex;gap:4px;height:64px">${Array.from({
-                    length: n,
-                  })
+                ? `<div style="margin-top:0.6rem;display:flex;gap:4px;height:64px">${Array.from({ length: n })
                     .map(() =>
                       isVideo
                         ? `<div style="flex:1;background:linear-gradient(135deg,#1a2e4a,#2d5a8e);border-radius:8px;display:grid;place-items:center;color:#fff">${icon("play", 20)}</div>`
@@ -10932,19 +10867,19 @@
          the exclusive ones do not, which is the same distinction the add-on
          cards already make. */
       function adTypePick(t, on, multi) {
-        return `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-type" data-val="${t.id}" aria-pressed="${on}">
+        return `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ?"border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-type" data-val="${t.id}" aria-pressed="${on}">
             <div class="flex items-start justify-between gap-3">
               <div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${multi ? `<span class="w-[20px] h-[20px] rounded-[6px] border-[1.5px] grid place-items-center shrink-0 ${on ? "bg-navy border-navy text-white" : "border-line text-transparent"}">${icon("check", 12)}</span>` : icon(t.icon, 15)} ${t.name}</div>
-              <span class="text-sm font-extrabold whitespace-nowrap ${t.rate ? "text-orange-ink" : "text-muted"}">${t.rate ? "+" + money(t.rate) + `<span class="font-semibold text-muted">/ad</span>` : "Included"}</span>
+              <span class="text-sm font-extrabold whitespace-nowrap ${t.rate ?"text-orange-ink" : "text-muted"}">${t.rate ? "+" + money(t.rate) + `<span class="font-semibold text-muted">/ad</span>` : "Included"}</span>
             </div>
             <div class="text-sm text-muted mt-[0.3rem] leading-[1.45]">${t.desc}</div>
           </button>`;
       }
       function adAddonPick(p, on, note) {
-        return `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-addon" data-val="${p.id}" aria-pressed="${on}">
+        return `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ?"border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-addon" data-val="${p.id}" aria-pressed="${on}">
             <div class="flex items-start justify-between gap-3">
               <div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon(p.icon, 15)} ${p.name}</div>
-              <span class="w-[20px] h-[20px] rounded-[6px] border-[1.5px] grid place-items-center shrink-0 ${on ? "bg-navy border-navy text-white" : "border-line text-transparent"}">${icon("check", 12)}</span>
+              <span class="w-[20px] h-[20px] rounded-[6px] border-[1.5px] grid place-items-center shrink-0 ${on ?"bg-navy border-navy text-white" : "border-line text-transparent"}">${icon("check", 12)}</span>
             </div>
             <div class="text-sm text-muted mt-[0.3rem] leading-[1.45]">${p.desc}</div>
             ${note ? `<div class="text-sm font-semibold text-brand mt-[0.4rem]">${note}</div>` : ""}
@@ -10952,7 +10887,7 @@
           </button>`;
       }
       function adPlanPick(p, on, sub) {
-        return `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-plan" data-val="${p.id}" aria-pressed="${on}">
+        return `<button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${on ?"border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-plan" data-val="${p.id}" aria-pressed="${on}">
             <div class="font-bold text-base text-head">${p.name}</div>
             <div class="text-sm text-muted">${p.days} days</div>
             <div class="mt-[0.5rem] font-serif text-2xl font-black text-head leading-[1]">${usd(sub ? p.price : p.oneTime)}</div>
@@ -11091,9 +11026,7 @@
                 <div class="text-2xs font-bold tracking-[0.14em] uppercase text-adlabel">${g}</div>
                 ${multi ? `<div class="text-2xs text-muted">Take one or both</div>` : ""}
               </div>
-              <div class="grid grid-cols-2 gap-3 max700:grid-cols-1">${AD_TYPES.filter(
-                (t) => t.group === g
-              )
+              <div class="grid grid-cols-2 gap-3 max700:grid-cols-1">${AD_TYPES.filter((t) => t.group === g)
                 .map((t) => adTypePick(t, on.includes(t.id), multi))
                 .join("")}</div>
             </div>`;
@@ -11107,7 +11040,11 @@
                   .map((t) => adBannerBlock(d, t))
                   .join("")
           }
-          ${deluxe ? `${adUploadField(d, "photos")}${adUploadField(d, "video")}` : ""}`
+          ${
+            deluxe
+              ? `${adUploadField(d, "photos")}${adUploadField(d, "video")}`
+              : ""
+          }`
           )}
           ${
             /* The add-on step exists only where there is an add-on. Top 10 is
@@ -11127,9 +11064,7 @@
               ? adStep(
                   step(),
                   "Add-on",
-                  locked
-                    ? "What was bought on top of the type."
-                    : "Optional, and charged once per ad.",
+                  locked ? "What was bought on top of the type." : "Optional, and charged once per ad.",
                   locked
                     ? lockedBox(
                         b.addons.length ? b.addons.map((x) => x.name) : ["No add-on taken"],
@@ -11166,8 +11101,8 @@
                   "The billing plan cannot be changed after payment."
                 )
               : `<div class="grid grid-cols-2 gap-3 max700:grid-cols-1 mb-4">
-            <button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${!b.subscription ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-paymode" data-val="onetime" aria-pressed="${!b.subscription}"><div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon("card", 15)} One time fee</div><div class="text-sm text-muted mt-[0.3rem] leading-[1.45]">Charged once. The ad expires at the end of the term and nothing renews.</div></button>
-            <button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${b.subscription ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-paymode" data-val="subscription" aria-pressed="${b.subscription}"><div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon("trending", 15)} Subscription plan</div><div class="text-sm text-muted mt-[0.3rem] leading-[1.45]">Renews automatically each term against your primary card until you cancel.</div></button>
+            <button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${!b.subscription ?"border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-paymode" data-val="onetime" aria-pressed="${!b.subscription}"><div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon("card", 15)} One time fee</div><div class="text-sm text-muted mt-[0.3rem] leading-[1.45]">Charged once. The ad expires at the end of the term and nothing renews.</div></button>
+            <button type="button" class="text-left border-[1.5px] rounded-[12px] p-4 transition-all duration-150 ${b.subscription ?"border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="ad-paymode" data-val="subscription" aria-pressed="${b.subscription}"><div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon("trending", 15)} Subscription plan</div><div class="text-sm text-muted mt-[0.3rem] leading-[1.45]">Renews automatically each term against your primary card until you cancel.</div></button>
           </div>
           <label class="text-sm font-bold text-head block mb-2">Duration *</label>
           <div class="grid grid-cols-4 gap-3 max900:grid-cols-2 max560:grid-cols-1">${BILLING_PLANS.map((p) => adPlanPick(p, d.plan === p.id, b.subscription)).join("")}</div>
@@ -11377,8 +11312,7 @@
           otherQ.value = "";
           toast(known ? known + " added" : name + " added as a custom town", "check");
         };
-        if (el("town-pick-other-add"))
-          el("town-pick-other-add").addEventListener("click", addOther);
+        if (el("town-pick-other-add")) el("town-pick-other-add").addEventListener("click", addOther);
         if (otherQ)
           otherQ.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
@@ -11425,7 +11359,7 @@
         return `<div class="table-scroll overflow-x-auto [-webkit-overflow-scrolling:touch] -mx-1 px-1"><table class="w-full border-collapse min-w-[560px] [&_th]:text-left [&_th]:text-sm [&_th]:font-bold [&_th]:tracking-[0.05em] [&_th]:uppercase [&_th]:text-adlabel [&_th]:px-3 [&_th]:py-[0.7rem] [&_th]:border-b-[1.5px] [&_th]:border-b-line [&_th]:whitespace-nowrap [&_td]:px-3 [&_td]:py-[0.9rem] [&_td]:border-b [&_td]:border-b-line2 [&_td]:text-base [&_td]:text-head [&_td]:align-middle [&_tr:last-child_td]:border-b-0"><thead><tr><th>Listing</th><th>Category</th>${hidePlan ? "" : "<th>Plan</th>"}<th>Status</th><th>Impressions</th><th>Clicks</th><th>CTR</th>${actions ? "<th></th>" : ""}</tr></thead><tbody>${list
           .map((l) => {
             const c = catOf(l.cat);
-            return `<tr><td class="font-semibold whitespace-nowrap">${l.name}</td><td class="whitespace-nowrap">${c.name}</td>${hidePlan ? "" : `<td><span class="text-sm font-bold px-[11px] py-[4px] rounded-[100px] whitespace-nowrap ${l.plan === "deluxe" ? "bg-[#fdeed5] text-[#8a5200]" : "bg-surface-5 text-muted"}">${l.plan === "deluxe" ? "Deluxe" : "Basic"}</span></td>`}<td>${listingStatusPill(l.status)}</td><td>${l.impressions.toLocaleString()}</td><td>${l.clicks.toLocaleString()}</td><td class="whitespace-nowrap">${l.impressions ? ((l.clicks / l.impressions) * 100).toFixed(1) + "%" : "—"}</td>${actions ? `<td style="white-space:nowrap"><button class="w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-surface text-muted inline-flex items-center justify-center hover:border-head hover:text-head" data-action="open-listing" data-id="${l.id}" title="View">${icon("eye", 15)}</button> ${l.status !== "expired" ? `<button class="w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-surface text-muted inline-flex items-center justify-center hover:border-head hover:text-head" data-action="delete-listing" data-id="${l.id}" title="Delete listing">${icon("trash", 15)}</button>` : ""}</td>` : ""}</tr>`;
+            return `<tr><td class="font-semibold whitespace-nowrap">${l.name}</td><td class="whitespace-nowrap">${c.name}</td>${hidePlan ? "" : `<td><span class="text-sm font-bold px-[11px] py-[4px] rounded-[100px] whitespace-nowrap ${l.plan ==="deluxe" ? "bg-[#fdeed5] text-[#8a5200]" : "bg-surface-5 text-muted"}">${l.plan === "deluxe" ? "Deluxe" : "Basic"}</span></td>`}<td>${listingStatusPill(l.status)}</td><td>${l.impressions.toLocaleString()}</td><td>${l.clicks.toLocaleString()}</td><td class="whitespace-nowrap">${l.impressions ? ((l.clicks / l.impressions) * 100).toFixed(1) + "%" : "—"}</td>${actions ? `<td style="white-space:nowrap"><button class="w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-surface text-muted inline-flex items-center justify-center hover:border-head hover:text-head" data-action="open-listing" data-id="${l.id}" title="View">${icon("eye", 15)}</button> ${l.status !== "expired" ? `<button class="w-[38px] h-[38px] rounded-[8px] border-[1.5px] border-line bg-surface text-muted inline-flex items-center justify-center hover:border-head hover:text-head" data-action="delete-listing" data-id="${l.id}" title="Delete listing">${icon("trash", 15)}</button>` : ""}</td>` : ""}</tr>`;
           })
           .join("")}</tbody></table></div>`;
       }
@@ -11507,9 +11441,7 @@
         if (!n) return "";
         const label = n > 9 ? "9+" : String(n);
         const wide = label.length > 1;
-        const size = wide
-          ? "min-w-[26px] px-[5px] max380:min-w-[24px]"
-          : "w-[20px] max380:w-[18px]";
+        const size = wide ? "min-w-[26px] px-[5px] max380:min-w-[24px]" : "w-[20px] max380:w-[18px]";
         return `<span class="notif-badge absolute -top-[5px] -right-[5px] h-[20px] ${size} rounded-full bg-[linear-gradient(135deg,#ff6b5e,#e0361f)] text-white text-xs font-extrabold leading-none flex items-center justify-center border-2 max380:h-[18px] max380:text-2xs" aria-hidden="true">${label}</span>`;
       }
       /* One row, worn two ways. The full page draws it as a card in the blue
@@ -11535,14 +11467,14 @@
         return `<div class="group relative flex gap-[0.9rem] items-start ${shell} bg-surface cursor-pointer transition-[background,border-color] duration-200" data-action="read-notif" data-id="${n.id}">
             <span class="w-[42px] h-[42px] ${tile} shrink-0 flex items-center justify-center">${icon(n.ic, 19)}</span>
             <span class="min-w-0 flex-1">
-              <span class="block ${page ? "text-base" : "text-sm"} leading-[1.5] text-head">${n.s}</span>
+              <span class="block ${page ?"text-base" : "text-sm"} leading-[1.5] text-head">${n.s}</span>
               <span class="block text-sm text-adlabel mt-[0.2rem]">${n.time}</span>
               <button class="${cta} mt-[0.7rem] inline-flex items-center gap-[0.4rem] text-sm font-bold px-[0.95rem] py-[0.5rem] rounded-[100px] border-none cursor-pointer transition-colors duration-200" data-action="open-notif" data-id="${n.id}">${n.cta} ${icon("arrow-right", 14)}</button>
             </span>
           </div>`;
       }
       function notifEmptyHtml(page) {
-        return `<div class="empty text-center px-4 ${page ? "py-16" : "py-10"} text-muted text-base leading-[1.6]">${icon("bell", page ? 40 : 30, "text-adlabel mb-3")}<div>You're all caught up.</div></div>`;
+        return `<div class="empty text-center px-4 ${page ?"py-16" : "py-10"} text-muted text-base leading-[1.6]">${icon("bell", page ? 40 : 30, "text-adlabel mb-3")}<div>You're all caught up.</div></div>`;
       }
       function viewNotifications() {
         if (!state.user)
@@ -11753,7 +11685,7 @@
         const u = state.user;
         const esc = (v) => (v || "").replace(/"/g, "&quot;");
         const field = (label, id, value, ph = "", full = false) =>
-          `<div class="${PF_FIELD}${full ? " col-span-full" : ""}"><label>${label}</label><input id="${id}" value="${esc(value)}"${ph ? ` placeholder="${ph}"` : ""}></div>`;
+          `<div class="${PF_FIELD}${full ?" col-span-full" : ""}"><label>${label}</label><input id="${id}" value="${esc(value)}"${ph ? ` placeholder="${ph}"` : ""}></div>`;
         const townField = (label, id, value) =>
           `<div class="${PF_FIELD}"><label>${label}</label><select id="${id}">${TOWNS.map((t) => `<option value="${esc(t)}" ${value === t ? "selected" : ""}>${t}</option>`).join("")}</select></div>`;
         let fields;
@@ -11864,7 +11796,7 @@
           ? ""
           : `<button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-[#1a2e4a] flex items-center justify-center z-[5] hover:bg-surface" data-action="close-modal">${icon("x", 18)}</button>`;
         el("modal-root").innerHTML =
-          `<div class="modal-overlay${locked ? " modal-locked" : ""} fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex items-start justify-center px-4 ${pad} overflow-y-auto animate-fade max700:px-3"><div class="modal relative bg-surface rounded-[22px] w-full shadow-[0_30px_80px_rgba(15,26,44,0.4)] animate-rise overflow-hidden max700:rounded-[18px] [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:text-head [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2] ${width}">${closeBtn}${html}</div></div>`;
+          `<div class="modal-overlay${locked ?" modal-locked" : ""} fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex items-start justify-center px-4 ${pad} overflow-y-auto animate-fade max700:px-3"><div class="modal relative bg-surface rounded-[22px] w-full shadow-[0_30px_80px_rgba(15,26,44,0.4)] animate-rise overflow-hidden max700:rounded-[18px] [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:text-head [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2] ${width}">${closeBtn}${html}</div></div>`;
         document.body.style.overflow = "hidden";
       }
       // True while a locked panel is up, so the two ambient dismissals stand down.
@@ -11889,7 +11821,7 @@
          will go back to — the point of a drawer over a route. */
       function openDrawer(html, wide) {
         el("modal-root").innerHTML =
-          `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex justify-end animate-fade"><div class="drawer relative bg-surface w-full ${wide ? "max-w-[720px]" : "max-w-[440px]"} h-full shadow-[-16px_0_60px_rgba(15,26,44,0.35)] animate-slideInRight overflow-y-auto overscroll-contain max560:max-w-full [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:text-head [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2]"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-[#1a2e4a] flex items-center justify-center z-[5] hover:bg-surface" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
+          `<div class="modal-overlay fixed inset-0 bg-[rgba(15,26,44,0.55)] backdrop-blur-[3px] z-[1000] flex justify-end animate-fade"><div class="drawer relative bg-surface w-full ${wide ?"max-w-[720px]" : "max-w-[440px]"} h-full shadow-[-16px_0_60px_rgba(15,26,44,0.35)] animate-slideInRight overflow-y-auto overscroll-contain max560:max-w-full [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:text-head [&_h2]:tracking-[-0.01em] [&_h2]:leading-[1.2]"><button class="modal-close absolute top-4 right-4 w-[44px] h-[44px] rounded-[50%] border-none bg-white/[0.92] text-[#1a2e4a] flex items-center justify-center z-[5] hover:bg-surface" data-action="close-modal">${icon("x", 18)}</button>${html}</div></div>`;
         document.body.style.overflow = "hidden";
       }
 
@@ -12028,13 +11960,9 @@
                 })(),
               ]
             : null,
-          l.website
-            ? [
-                "globe",
-                "Website",
-                `<a data-action="ext-link" data-url="${l.website}">${l.website}</a>`,
-              ]
-            : null,
+          /* No Website row here either. The button pinned to the foot of the
+             panel goes to the same address, so the row was the destination
+             written out immediately above the control that opens it. */
         ].filter(Boolean);
 
         // The chip row is gone with the two chips it held — town and age both
@@ -12089,7 +12017,7 @@
             ${
               l.website
                 ? `<div class="sticky bottom-0 z-[3] border-t border-line2 bg-surface px-6 py-[0.9rem] max560:px-5">
-              <button type="button" class="w-full bg-orange-ink text-white px-[1.9rem] py-[0.9rem] rounded-[14px] text-base font-bold border-none transition-[background,transform] duration-200 inline-flex items-center justify-center gap-2 min-h-[52px] hover:bg-orange-deep hover:-translate-y-[1px]" data-action="ext-link" data-url="${l.website}">${icon("globe", 17)} Visit Website</button>
+              <button type="button" class="w-full bg-orange-ink text-white px-[1.9rem] py-[0.9rem] rounded-[14px] text-base font-bold border-none transition-[background,transform] duration-200 inline-flex items-center justify-center gap-2 min-h-[52px] hover:bg-orange-deep hover:-translate-y-[1px]" data-action="ext-link" data-url="${l.website}">${icon("globe", 17)} Visit Link</button>
             </div>`
                 : ""
             }
@@ -12168,32 +12096,28 @@
             <div class="text-muted text-base mt-[0.35rem] leading-[1.55]">${e.organizer} · ${e.town}, NJ</div>
             ${e.desc ? `<p style="color:var(--text);line-height:1.7;font-size:var(--fs-base);margin-top:1rem">${e.desc}</p>` : ""}
             ${(() => {
-              const m = evMedia(e.id);
-              if (!m.photos.length && !m.video) return "";
-              return `<div class="mt-5">
+        const m = evMedia(e.id);
+        if (!m.photos.length && !m.video) return "";
+        return `<div class="mt-5">
                 <div class="text-xs font-extrabold tracking-[0.06em] uppercase text-muted mb-2">Photos${m.video ? " &amp; video" : ""}</div>
                 <div class="grid grid-cols-3 gap-2 max560:grid-cols-2">
                   ${m.photos
-                    .map(
-                      (
-                        ph
-                      ) => `<div class="relative aspect-square overflow-hidden rounded-[10px]" style="background:${c.grad}">
+            .map(
+              (ph) => `<div class="relative aspect-square overflow-hidden rounded-[10px]" style="background:${c.grad}">
                       <img src="https://images.unsplash.com/photo-${ph}?w=300&amp;h=300&amp;fit=crop&amp;auto=format" alt="" loading="lazy" decoding="async"
                         class="absolute inset-0 h-full w-full object-cover">
                     </div>`
-                    )
-                    .join("")}
-                  ${
-                    m.video
-                      ? `<div class="relative aspect-square overflow-hidden rounded-[10px] bg-navy flex flex-col items-center justify-center gap-1 text-white">
+            )
+            .join("")}
+                  ${m.video
+            ? `<div class="relative aspect-square overflow-hidden rounded-[10px] bg-navy flex flex-col items-center justify-center gap-1 text-white">
                       ${icon("play", 22)}
                       <span class="px-1 text-center text-[0.62rem] font-bold leading-tight">${m.video}</span>
                     </div>`
-                      : ""
-                  }
+            : ""}
                 </div>
               </div>`;
-            })()}
+      })()}
             <div class="grid grid-cols-[1fr] gap-[0.85rem] my-5">
               <div class="${ROW}">${icon("calendar", 16)} ${evDates(e)}</div>
               <div class="${ROW}">${icon("clock", 16)} ${evTimes(e)}</div>
@@ -12408,7 +12332,7 @@
         const picker = state.auth.pick
           ? `
           <div class="flex flex-col gap-[0.4rem] [&_label]:text-sm [&_label]:font-bold [&_label]:text-head" style="margin-bottom:0.7rem"><label>I am a…</label>
-            <div class="grid grid-cols-[repeat(2,1fr)] gap-2 max700:grid-cols-[1fr]">${roles.map((r) => `<label class="radio-card border-[1.5px] rounded-[12px] px-3 py-[0.65rem] cursor-pointer transition-all duration-150 hover:border-brand ${r[0] === sel ? "sel border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2"}" data-role-pick="${r[0]}"><div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon(r[2], 15)} ${r[1]}</div></label>`).join("")}</div></div>`
+            <div class="grid grid-cols-[repeat(2,1fr)] gap-2 max700:grid-cols-[1fr]">${roles.map((r) => `<label class="radio-card border-[1.5px] rounded-[12px] px-3 py-[0.65rem] cursor-pointer transition-all duration-150 hover:border-brand ${r[0] === sel ?"sel border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2"}" data-role-pick="${r[0]}"><div class="font-bold text-base text-head flex items-center gap-[0.4rem]">${icon(r[2], 15)} ${r[1]}</div></label>`).join("")}</div></div>`
           : "";
         return `${picker}
           <div id="auth-fields">${authFields(mode, sel)}</div>
@@ -12423,8 +12347,8 @@
           const phoneActive = state.auth.method === "phone";
           return `
             <div class="grid grid-cols-[1fr_1fr] gap-2 mb-[0.8rem] max700:grid-cols-[1fr]">
-              <button type="button" class="rounded-[10px] border-[1.5px] px-3 py-[0.6rem] font-bold text-base ${emailActive ? "bg-surface text-head border-navy " : "bg-surface-2 text-muted border-line"}" data-action="set-auth-method" data-method="email">Email</button>
-              <button type="button" class="rounded-[10px] border-[1.5px] px-3 py-[0.6rem] font-bold text-base ${phoneActive ? "bg-surface text-head border-navy " : "bg-surface-2 text-muted border-line"}" data-action="set-auth-method" data-method="phone">Phone</button>
+              <button type="button" class="rounded-[10px] border-[1.5px] px-3 py-[0.6rem] font-bold text-base ${emailActive ?"bg-surface text-head border-navy " : "bg-surface-2 text-muted border-line"}" data-action="set-auth-method" data-method="email">Email</button>
+              <button type="button" class="rounded-[10px] border-[1.5px] px-3 py-[0.6rem] font-bold text-base ${phoneActive ?"bg-surface text-head border-navy " : "bg-surface-2 text-muted border-line"}" data-action="set-auth-method" data-method="phone">Phone</button>
             </div>
             <div style="margin-bottom:0.7rem">${
               emailActive
@@ -12843,11 +12767,6 @@
               break;
             case "close-drop":
               closeDropdowns();
-              break;
-            case "reg-ok":
-              closeModal();
-              navigate("home");
-              scrollToTop();
               break;
             case "close-modal":
               closeModal();
@@ -13544,7 +13463,10 @@
 
            Only the preview node is rewritten, not the form: repainting the form
            would rebuild the input under the caret on every keystroke. */
-        if (e.target.dataset.adBannerField !== undefined || e.target.id === "ad-name") {
+        if (
+          e.target.dataset.adBannerField !== undefined ||
+          e.target.id === "ad-name"
+        ) {
           if (!state.adDraft) return;
           if (e.target.id === "ad-name") state.adDraft.name = e.target.value;
           else
@@ -14002,22 +13924,6 @@
           }
           if (state.auth.step === "verify-phone") {
             const data = state.auth.signupData || {};
-            /* An advertiser account waits on admin verification, so the run
-               ends on a confirmation rather than the dashboard. Nothing is
-               signed in; OK returns to the home page as a visitor. */
-            if (data.role === "advertiser") {
-              state.auth.signupData = null;
-              closeModal();
-              openModal(`<div class="text-center px-2 py-6 max-w-[440px] mx-auto">
-                <div class="w-[104px] h-[104px] rounded-[50%] bg-mint mx-auto mb-7 flex items-center justify-center">
-                  <span class="w-[52px] h-[52px] rounded-[50%] border-[3px] border-brand flex items-center justify-center text-brand">${icon("check", 26)}</span>
-                </div>
-                <h2 style="font-family:var(--font-display);font-size:var(--fs-3xl);color:var(--head);margin-bottom:0.75rem">Registration successful</h2>
-                <p style="color:var(--text);line-height:1.7;margin-bottom:1.75rem">Registration Successful! Your account is pending admin verification. We'll notify you once it's approved.</p>
-                <button class="w-full min-h-[50px] rounded-[100px] bg-brand text-white font-bold text-base border-none cursor-pointer" data-action="reg-ok">OK</button>
-              </div>`);
-              return;
-            }
             state.user = {
               name: data.name || data.email,
               email: data.email,
@@ -14355,13 +14261,13 @@
         adCheckoutModal();
       }
       function savedCardRow(c, picked) {
-        return `<button type="button" class="w-full text-left border-[1.5px] rounded-[12px] px-4 py-3 flex items-center gap-3 transition-all duration-150 ${picked ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="pick-card" data-id="${c.id}" aria-pressed="${picked}">
+        return `<button type="button" class="w-full text-left border-[1.5px] rounded-[12px] px-4 py-3 flex items-center gap-3 transition-all duration-150 ${picked ?"border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="pick-card" data-id="${c.id}" aria-pressed="${picked}">
             ${cardBrandMark(c.brand)}
             <span class="min-w-0 flex-1">
               <span class="block font-bold text-base text-head">${maskCard(c)}${c.primary ? ` <span class="text-xs font-extrabold uppercase tracking-[0.08em] text-brand bg-mint rounded-[100px] px-[0.5rem] py-[0.1rem] align-middle">Primary</span>` : ""}</span>
               <span class="block text-sm text-muted">Expires ${c.exp}</span>
             </span>
-            <span class="w-[20px] h-[20px] rounded-full border-[1.5px] grid place-items-center shrink-0 ${picked ? "bg-navy border-navy text-white" : "border-line text-transparent"}">${icon("check", 12)}</span>
+            <span class="w-[20px] h-[20px] rounded-full border-[1.5px] grid place-items-center shrink-0 ${picked ?"bg-navy border-navy text-white" : "border-line text-transparent"}">${icon("check", 12)}</span>
           </button>`;
       }
       function adCheckoutModal() {
@@ -14388,10 +14294,10 @@
           <div class="${FLD}" style="margin-bottom:0.9rem"><label>Pay with</label>
             <div class="grid gap-2">
               ${SAVED_CARDS.map((c) => savedCardRow(c, !newPicked && PAY_PICK === c.id)).join("")}
-              <button type="button" class="w-full text-left border-[1.5px] rounded-[12px] px-4 py-3 flex items-center gap-3 transition-all duration-150 ${newPicked ? "border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="pick-card" data-id="new" aria-pressed="${newPicked}">
+              <button type="button" class="w-full text-left border-[1.5px] rounded-[12px] px-4 py-3 flex items-center gap-3 transition-all duration-150 ${newPicked ?"border-navy bg-sel shadow-[inset_0_0_0_1px_var(--navy)]" : "border-line bg-surface-2 hover:border-brand"}" data-action="pick-card" data-id="new" aria-pressed="${newPicked}">
                 <span class="w-[34px] h-[34px] rounded-[9px] bg-surface-5 text-head grid place-items-center shrink-0">${icon("plus", 16)}</span>
                 <span class="min-w-0 flex-1"><span class="block font-bold text-base text-head">Add a card</span><span class="block text-sm text-muted">${noCards ? "Sign-up does not collect card details, so add one here" : "Enter the details below and pay with it"}</span></span>
-                <span class="w-[20px] h-[20px] rounded-full border-[1.5px] grid place-items-center shrink-0 ${newPicked ? "bg-navy border-navy text-white" : "border-line text-transparent"}">${icon("check", 12)}</span>
+                <span class="w-[20px] h-[20px] rounded-full border-[1.5px] grid place-items-center shrink-0 ${newPicked ?"bg-navy border-navy text-white" : "border-line text-transparent"}">${icon("check", 12)}</span>
               </button>
             </div>
           </div>
@@ -14493,7 +14399,7 @@
                happened to the ad since: the review outcome, the renewal or expiry it
                is running to, and the receipt for what was paid. */
       function detailRow(label, value, wide) {
-        return `<div class="${wide ? "col-span-full" : ""}">
+        return `<div class="${wide ?"col-span-full" : ""}">
             <div class="ads-label">${label}</div>
             <div class="ads-value mt-[0.15rem] break-words">${value || "—"}</div>
           </div>`;
@@ -14691,7 +14597,10 @@
             ${detailRow((a.towns || []).length > 1 ? "Towns" : "Town", (a.towns || []).map(pill).join(""), true)}
             ${detailRow(ages.length > 1 ? "Age groups" : "Age group", ages.length ? ages.map(pill).join("") : "", true)}
             ${detailRow("Address", a.address)}
-            ${detailRow("Phone", a.phone ? ((x) => `${x.dial} ${x.num}`)(splitPhone(a.phone)) : "")}
+            ${detailRow(
+              "Phone",
+              a.phone ? ((x) => `${x.dial} ${x.num}`)(splitPhone(a.phone)) : ""
+            )}
             ${detailRow(
               "Working hours",
               // Split the same way the two public panels split it, so one
@@ -15015,7 +14924,7 @@
                 </div>
                 ${SPONSOR_ADS.map(
                   (ad, i) => `
-                    <div class="side-ad-slide${i === 0 ? " is-active" : ""}" data-side-ad-slide>
+                    <div class="side-ad-slide${i === 0 ?" is-active" : ""}" data-side-ad-slide>
                       <div class="side-ad-visual cursor-pointer" data-adclick="${ad.key}">
                         <img src="https://images.unsplash.com/photo-${ad.img}?auto=format&fit=crop&w=800&q=70" alt="" loading="lazy" decoding="async" />
                         <div class="side-ad-scrim"></div>
@@ -15037,7 +14946,7 @@
                 <div class="side-ad-dots">
                   ${SPONSOR_ADS.map(
                     (ad, i) =>
-                      `<button type="button" class="side-ad-dot${i === 0 ? " is-active" : ""}" data-side-ad-dot aria-label="Show featured ad ${i + 1}"></button>`
+                      `<button type="button" class="side-ad-dot${i === 0 ?" is-active" : ""}" data-side-ad-dot aria-label="Show featured ad ${i + 1}"></button>`
                   ).join("")}
                 </div>`;
       }
@@ -15101,7 +15010,7 @@
                 ${keys
                   .map(
                     (key, i) =>
-                      `<div class="promo-ad-carousel-slide${i === 0 ? " is-active" : ""}" data-promo-ad-slide>${promoAdCard(key)}</div>`
+                      `<div class="promo-ad-carousel-slide${i === 0 ?" is-active" : ""}" data-promo-ad-slide>${promoAdCard(key)}</div>`
                   )
                   .join("")}
               </div>`;
@@ -15587,10 +15496,7 @@
         // travels. Short event lists get the set repeated until it outruns the
         // viewport; the copies are aria-hidden so nothing is read out twice.
         function fill() {
-          const per = Math.max(
-            1,
-            Math.round(lane.clientWidth / Math.max(1, slides[0].offsetWidth))
-          );
+          const per = Math.max(1, Math.round(lane.clientWidth / Math.max(1, slides[0].offsetWidth)));
           const need = per + LEAD + 2;
           for (let i = 0; slides.length < need; i++) {
             const copy = slides[i % base].cloneNode(true);
@@ -15635,10 +15541,7 @@
           const svg =
             `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" ` +
             `preserveAspectRatio="none"><path d="${path}" fill="#fff"/></svg>`;
-          stage.style.setProperty(
-            "--bk-mask",
-            `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
-          );
+          stage.style.setProperty("--bk-mask", `url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
           // What the tile copy has to clear (see .bk-slide .ev-tile-body).
           if (slider) slider.style.setProperty("--bk-cut", c + "px");
         }
@@ -15839,7 +15742,7 @@
           () => {
             if (!frame) frame = requestAnimationFrame(measure);
           },
-          { passive: true }
+          { passive: true },
         );
       }
 
@@ -15898,6 +15801,7 @@
       mountCornerAd();
       mountToTop();
       startNavAutoHide();
+      // Registered once, not per render — see syncSectionNav(). afterRender()
       // makes the first call, so the bar is right before any scrolling starts.
       window.addEventListener("scroll", syncSectionNav, { passive: true });
     </script>
